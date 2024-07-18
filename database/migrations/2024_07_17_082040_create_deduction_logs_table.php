@@ -15,6 +15,12 @@ class CreateDeductionLogsTable extends Migration
     {
         Schema::create('deduction_logs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('deduction_id');
+            $table->foreign('deduction_id')->references('id')->on('deductions');
+            $table->unsignedBigInteger('deduction_group_id');
+            $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
+            $table->unsignedBigInteger('action_by');
+            $table->string('action');
             $table->timestamps();
         });
     }

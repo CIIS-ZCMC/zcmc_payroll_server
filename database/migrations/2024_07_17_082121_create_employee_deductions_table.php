@@ -15,6 +15,18 @@ class CreateEmployeeDeductionsTable extends Migration
     {
         Schema::create('employee_deductions', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('employee_list_id');
+            $table->foreign('employee_list_id')->references('id')->on('employee_lists');
+            $table->unsignedBigInteger('deduction_id');
+            $table->foreign('deduction_id')->references('id')->on('deductions');
+            $table->unsignedBigInteger('deduction_group_id');
+            $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
+            $table->double('amount');
+            $table->double('percentage');
+            $table->integer('total_term');
+            $table->date('date_from');
+            $table->date('date_to');
+            $table->boolean('is_default');
             $table->timestamps();
         });
     }

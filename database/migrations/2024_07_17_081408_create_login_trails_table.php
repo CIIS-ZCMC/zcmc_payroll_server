@@ -15,6 +15,11 @@ class CreateLoginTrailsTable extends Migration
     {
         Schema::create('login_trails', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('action_by');
+            $table->string('module_name');
+            $table->string('methods');
+            $table->string('description');
+            $table->string('status');
             $table->timestamps();
         });
     }

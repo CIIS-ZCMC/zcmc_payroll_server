@@ -15,6 +15,10 @@ class CreateImportsTable extends Migration
     {
         Schema::create('imports', function (Blueprint $table) {
             $table->id();
+            $table->string('module');
+            $table->unsignedBigInteger('module_id');
+            $table->string('file_name');
+            $table->string('employment_type');
             $table->timestamps();
         });
     }

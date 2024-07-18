@@ -15,6 +15,10 @@ class CreateEmployeeDeductionLogsTable extends Migration
     {
         Schema::create('employee_deduction_logs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('employee_deduction_id');
+            $table->foreign('employee_deduction_id')->references('id')->on('employee_deductions');
+            $table->unsignedBigInteger('action_by');
+            $table->string('action');
             $table->timestamps();
         });
     }

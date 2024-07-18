@@ -15,6 +15,15 @@ class CreateEmployeeListsTable extends Migration
     {
         Schema::create('employee_lists', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('employee_profile_id');
+            $table->string('employee_number');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('middle_name');
+            $table->string('ext_name');
+            $table->string('designation');
+            $table->string('status');
+            $table->boolean('is_newly_hired');
             $table->timestamps();
         });
     }

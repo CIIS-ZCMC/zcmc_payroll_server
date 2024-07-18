@@ -15,6 +15,10 @@ class CreateTransactionLogsTable extends Migration
     {
         Schema::create('transaction_logs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('employee_profile_id');
+            $table->string('name');
+            $table->string('description');
+            $table->string('status');
             $table->timestamps();
         });
     }

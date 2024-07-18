@@ -15,6 +15,8 @@ class CreateDeductionGroupsTable extends Migration
     {
         Schema::create('deduction_groups', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('code');
             $table->timestamps();
         });
     }

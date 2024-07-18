@@ -15,6 +15,17 @@ class CreateDeductionsTable extends Migration
     {
         Schema::create('deductions', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('deduction_group_id');
+            $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
+            $table->string('name');
+            $table->string('code');
+            $table->double('amount');
+            $table->double('percentage');
+            $table->date('date_from');
+            $table->date('date_to');
+            $table->string('emmployment_type');
+            $table->boolean('is_mandatory');
+            $table->boolean('is_active');
             $table->timestamps();
         });
     }

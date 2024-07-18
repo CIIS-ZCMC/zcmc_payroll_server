@@ -15,6 +15,10 @@ class CreateReceivableLogsTable extends Migration
     {
         Schema::create('receivable_logs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('receivable_id');
+            $table->foreign('receivable_id')->references('id')->on('receivables');
+            $table->unsignedBigInteger('action_by');
+            $table->string('action');
             $table->timestamps();
         });
     }

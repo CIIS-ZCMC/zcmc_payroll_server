@@ -15,6 +15,15 @@ class CreateReceivablesTable extends Migration
     {
         Schema::create('receivables', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('code');
+            $table->double('amount');
+            $table->double('percentage');
+            $table->date('date_from');
+            $table->date('date_to');
+            $table->string('emmployment_type');
+            $table->boolean('is_mandatory');
+            $table->boolean('is_active');
             $table->timestamps();
         });
     }

@@ -15,6 +15,9 @@ class CreateEmployeeComputedSalariesTable extends Migration
     {
         Schema::create('employee_computed_salaries', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('time_record_id');
+            $table->foreign('time_record_id')->references('id')->on('time_records');
+            $table->double('computed_salary');
             $table->timestamps();
         });
     }
