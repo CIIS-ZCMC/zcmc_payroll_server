@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Logs;
+namespace App\Http\Controllers\Trail;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

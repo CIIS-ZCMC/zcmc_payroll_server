@@ -23,9 +23,8 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
             $table->double('amount');
             $table->double('percentage');
+            $table->string('frequency');
             $table->integer('total_term');
-            $table->date('date_from');
-            $table->date('date_to');
             $table->boolean('is_default');
             $table->timestamps();
         });
