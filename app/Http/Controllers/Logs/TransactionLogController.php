@@ -33,9 +33,23 @@ class TransactionLogController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $moduleID, $status, $remarks)
     {
-        //
+        $ip = $request->ip();
+        $user = $request->user;
+        $permission = $request->permission;
+        list($module, $action) = explode(' ', $permission);
+
+        return [
+            'employee_profile_id' => $user->id,
+            'name' => $user->name,
+            'module_id' => $moduleID,
+            'action' => $action,
+            'module' => $module,
+            'status' => $status,
+            'remarks' => $remarks,
+            'ip_address' => $ip
+        ];
     }
 
     /**

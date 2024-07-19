@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Deduction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+
 class DeductionController extends Controller
 {
     /**
@@ -14,7 +15,11 @@ class DeductionController extends Controller
      */
     public function index()
     {
-        //
+        // Helpers::registerSystemLogs($request, $id, true, 'Success in assigning division chief ' . $this->PLURAL_MODULE_NAME . '.');
+
+        // Helpers::errorLog($this->CONTROLLER_NAME, 'assignChiefByEmployeeID', $th->getMessage());
+        // return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+
     }
 
     /**
