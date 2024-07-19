@@ -8,4 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class TransactionLog extends Model
 {
     use HasFactory;
+
+    protected $table = 'transaction_logs';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'module_id',
+        'action',
+        'status',
+        'ip_address',
+        'remarks',
+        'employee_profile_id',
+        'name',
+    ];
+
+    public $timestamps = true;
 }

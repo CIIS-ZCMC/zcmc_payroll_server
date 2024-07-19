@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class DeductionGroup extends Model
 {
     use HasFactory;
+
+    protected $table = 'deduction_groups';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'name',
+        'code'
+    ];
+
+    public $timestamps = true;
 }

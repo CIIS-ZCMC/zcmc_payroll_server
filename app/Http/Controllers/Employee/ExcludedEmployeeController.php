@@ -1,36 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Deduction;
+namespace App\Http\Controllers\Employee;
 
-use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-
-class DeductionController extends Controller
+class ExcludedEmployeeController extends Controller
 {
-    private $CONTROLLER_NAME = 'Deduction';
-    private $PLURAL_MODULE_NAME = 'deductions';
-    private $SINGULAR_MODULE_NAME = 'deduction';
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        try {
-
-            return "Test";
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'assignChiefByEmployeeID', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-        // Helpers::registerSystemLogs($request, $id, true, 'Success in assigning division chief ' . $this->PLURAL_MODULE_NAME . '.');
-
-
+        //
     }
 
     /**
