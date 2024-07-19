@@ -20,7 +20,7 @@ class CreateDeductionsTable extends Migration
             $table->string('name');
             $table->string('code');
             $table->double('amount');
-            $table->double('percentage');
+            $table->double('percentage')->nullable();
             $table->date('date_from');
             $table->date('date_to');
             $table->string('emmployment_type');

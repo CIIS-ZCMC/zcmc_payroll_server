@@ -21,10 +21,10 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->foreign('deduction_id')->references('id')->on('deductions');
             $table->unsignedBigInteger('deduction_group_id');
             $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
-            $table->double('amount');
-            $table->double('percentage');
+            $table->double('amount')->nullable();
+            $table->double('percentage')->nullable();
             $table->string('frequency');
-            $table->integer('total_term');
+            $table->integer('total_term')->nullable();
             $table->boolean('is_default');
             $table->timestamps();
         });

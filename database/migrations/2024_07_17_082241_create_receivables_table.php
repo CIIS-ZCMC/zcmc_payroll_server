@@ -17,8 +17,8 @@ class CreateReceivablesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('code');
-            $table->double('amount');
-            $table->double('percentage');
+            $table->double('amount')->nullable();
+            $table->double('percentage')->nullable();
             $table->date('date_from');
             $table->date('date_to');
             $table->string('emmployment_type');
