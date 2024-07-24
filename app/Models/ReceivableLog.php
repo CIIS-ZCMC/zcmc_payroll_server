@@ -8,4 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class ReceivableLog extends Model
 {
     use HasFactory;
+
+    protected $table = 'receivable_logs';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'receivable_id',
+        'action_by',
+        'action'
+    ];
+
+    public $timestamps = true;
+
+    public function Receivable()
+    {
+        return $this->belongsTo(Receivable::class);
+    }
 }

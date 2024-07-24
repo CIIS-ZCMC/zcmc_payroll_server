@@ -5,23 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EmployeeSalary extends Model
+class ExcludedEmployee extends Model
 {
     use HasFactory;
 
-    protected $table = 'employee_salaries';
+    protected $table = 'excluded_employees';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
         'employee_list_id',
-        'employment_type',
-        'basic_salary',
-        'salary_grade',
-        'salary_step',
-        'month',
-        'year',
-        'is_active'
+        'reason'
     ];
 
     public $timestamps = true;
@@ -30,4 +24,6 @@ class EmployeeSalary extends Model
     {
         return $this->belongsTo(EmployeeList::class);
     }
+
+
 }

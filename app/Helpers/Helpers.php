@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Log;
+
 class Helpers
 {
     public static function registerSystemLogs($request, $moduleID, $status, $remarks)
