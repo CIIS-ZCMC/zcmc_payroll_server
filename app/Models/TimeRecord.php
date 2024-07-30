@@ -34,6 +34,7 @@ class TimeRecord extends Model
         'minutes',
         'daily',
         'hourly',
+        'is_active'
     ];
 
     public $timestamps = true;
