@@ -27,4 +27,21 @@ class Receivable extends Model
 
     public $timestamps = true;
 
+    public function employeeList()
+    {
+        return $this->belongsToMany(EmployeeList::class, 'employee_receivabls')
+            ->using(EmployeeDeduction::class)
+            ->withPivot('amount', 'percentage', 'frequency', 'total_term', 'is_default')
+            ->withTimestamps();
+    }
+
+    public function employeeReceivables()
+    {
+        return $this->hasMany(EmployeeReceivable::class, 'receivable_id');
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(ReceivableLog::class);
+    }
 }

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Receivable;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\EmployeeListResource;
+use App\Models\EmployeeList;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class EmployeeReceivableController extends Controller
 {
@@ -14,7 +17,15 @@ class EmployeeReceivableController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $employee_lists = EmployeeList::with('receivables')->get();
+            return response()->json([
+                'data' => EmployeeListResource::collection($employee_lists),
+                'message' => 'Retrieve employees with receivables.'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

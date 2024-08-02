@@ -27,4 +27,36 @@ class EmployeeList extends Model
     ];
 
     public $timestamps = true;
+
+
+    public function salary()
+    {
+        return $this->hasOne(EmployeeSalary::class);
+    }
+
+    public function deductions()
+    {
+        return $this->belongsToMany(Deduction::class, 'employee_deductions')
+            ->using(EmployeeDeduction::class)
+            ->withPivot('amount', 'percentage', 'frequency', 'total_term', 'is_default')
+            ->withTimestamps();
+    }
+
+    public function receivables()
+    {
+        return $this->belongsToMany(Receivable::class, 'employee_receivables')
+            ->using(EmployeeReceivable::class)
+            ->withPivot('amount', 'percentage', 'total_term', 'date_from', 'date_to', 'is_default')
+            ->withTimestamps();
+    }
+
+    public function taxes()
+    {
+        return $this->hasMany(EmployeeTax::class);
+    }
+
+    public function timeRecords()
+    {
+        return $this->hasMany(TimeRecord::class);
+    }
 }

@@ -26,13 +26,18 @@ class EmployeeReceivable extends Model
 
     public $timestamps = true;
 
-    public function EmployeeList()
+    public function logs()
     {
-        return $this->belongsTo(EmployeeList::class);
+        return $this->hasMany(EmployeeDeductionLog::class);
     }
 
-    public function Receivable()
+    public function employeeList()
     {
-        return $this->belongsTo(Receivable::class);
+        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
+    }
+
+    public function receivables()
+    {
+        return $this->belongsTo(Receivable::class, 'receivable_id');
     }
 }

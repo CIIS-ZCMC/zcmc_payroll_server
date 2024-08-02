@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\EmployeeListResource;
+use App\Models\EmployeeList;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class EmployeeListController extends Controller
 {
@@ -14,8 +17,19 @@ class EmployeeListController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $employee_lists = EmployeeList::with('salary')->get();
+            return response()->json([
+                'data' => $employee_lists,
+                'message' => 'Retrieve employees with salary.'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
+   
+
 
     /**
      * Show the form for creating a new resource.

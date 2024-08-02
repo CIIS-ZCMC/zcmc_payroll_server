@@ -19,8 +19,6 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
             $table->unsignedBigInteger('deduction_id');
             $table->foreign('deduction_id')->references('id')->on('deductions');
-            $table->unsignedBigInteger('deduction_group_id');
-            $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
             $table->double('amount')->nullable();
             $table->double('percentage')->nullable();
             $table->string('frequency');

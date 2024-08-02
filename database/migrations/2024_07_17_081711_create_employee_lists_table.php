@@ -24,6 +24,7 @@ class CreateEmployeeListsTable extends Migration
             $table->string('designation');
             $table->string('status');
             $table->boolean('is_newly_hired');
+            $table->boolean('is_excluded');
             $table->timestamps();
         });
     }
