@@ -20,7 +20,7 @@ class CreateEmployeeListsTable extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('middle_name');
-            $table->string('ext_name');
+            $table->string('ext_name')->nullable();
             $table->string('designation');
             $table->string('status');
             $table->boolean('is_newly_hired');
