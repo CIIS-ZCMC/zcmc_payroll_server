@@ -23,10 +23,7 @@ class CreateTimeRecordsTable extends Migration
             $table->double('total_leave_without_pay');
             $table->double('total_without_pay_days');
             $table->double('total_present_days');
-            $table->double('total_night_duty_days');
             $table->double('total_night_duty_hours');
-            $table->double('total_day_shift_hours');
-            $table->double('total_day_shift_days');
             $table->double('total_absences');
             $table->double('undertime_minutes');
             $table->double('absent_rate');

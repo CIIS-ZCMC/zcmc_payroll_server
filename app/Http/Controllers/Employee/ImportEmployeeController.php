@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Models\EmployeeList;
 use App\Models\EmployeeSalary;
+use App\Models\TimeRecord;
+use App\Models\EmployeeComputedSalary;
 class ImportEmployeeController extends Controller
 {
     public $umis;
@@ -28,6 +30,10 @@ class ImportEmployeeController extends Controller
                 $data = json_decode($response->getBody(), true);
 
                $generatedcount = 0;
+               $updatedData = 0;
+
+
+
                 foreach ($data as $row) {
 
                     $employee = $row['Employee'];
@@ -71,6 +77,14 @@ class ImportEmployeeController extends Controller
                     ->where("last_name",$empinfo['last_name'])
                     ->where("middle_name",$empinfo['middle_name']);
 
+
+                    $nighttotalHours = 0;
+                    foreach ($nightdifferential as $value) {
+                      $nighttotalHours += $value['total_hours'];
+                    }
+
+
+
                     $empInfodata = [
                         'employee_profile_id' =>$empinfo['id'],
                         'employee_number'=>$employee['employee_id'],
@@ -108,17 +122,69 @@ class ImportEmployeeController extends Controller
                     $EmpSalary = EmployeeSalary::where('employee_list_id',$Employee->id)->first();
 
 
+                    $mismatchEmployeekeys = $this->getMismatchedKeys($Employee,$empInfodata);
+                    $mismatchSalarykeys = $this->getMismatchedKeys($EmpSalary,$empSalaryData);
 
 
+                    if(count($mismatchEmployeekeys)>=1){
+                        //update employee
+                        foreach ($mismatchEmployeekeys as  $row) {
+                            EmployeeList::where('id',$row['id'])->update([
+                                $row['key']=>$row['value']
+                            ]);
+                            $updatedData +=1;
+                        }
+                    }
 
-                    return [
-                        'current Employee'=>$Employee,
-                        'Coming EmployeeData'=> $empInfodata
+                    if(count($mismatchSalarykeys)>=1){
+                        foreach ($mismatchSalarykeys as  $row) {
+                            EmployeeSalary::where('id',$row['id'])->update([
+                                'is_active'=>0
+                            ]);
+                            $updatedData +=1;
+                        }
+                        $arr_emp = array_merge(['employee_list_id' =>$Employee->id],$empSalaryData);
+                        EmployeeSalary::create($arr_emp);
+                    }
+
+
+                    $timeRecordsData = [
+                        'employee_list_id'=>$Employee->id,
+                        'total_working_hours'=>$totalWorkingHours,
+                        'total_working_minutes'=>$totalworkingminutes,
+                        'total_leave_with_pay'=>$noofLeaveWPay,
+                        'total_leave_without_pay'=>$noofLeaveWoPay,
+                        'total_without_pay_days'=>$noofLeaveWoPay,
+                        'total_present_days'=>$noofPresentDays,
+                        'total_night_duty_hours'=>$nighttotalHours,
+                        'total_absences'=>$noofAbsences,
+                        'undertime_minutes'=>$totalUndertimeMinutes,
+                        'absent_rate'=>$absentRate,
+                        'undertime_rate'=>$undertimeRate,
+                        'month'=>$month,
+                        'year'=>$year,
+                        'minutes'=>$minutesRate,
+                        'daily'=>$dailyRate,
+                        'hourly'=>$hourlyRate,
+                        'is_active'=>1
                     ];
 
 
+                    return $timeRecordsData;
+                    //$timeRecord =  TimeRecord::Create($timeRecordsData);
+
+                    // EmployeeComputedSalary::create([
+                    //       'time_record_id'=>$timeRecord->id,
+                    //      'computed_salary'=>$netSalary
+                    // ]);
+
+
+
+
+
+
                 }
-                return response()->json(['Message' => "Successfully Fetched.", "GeneratedCount"=>$generatedcount ], 200);
+                return response()->json(['Message' => "Successfully Fetched.", "GeneratedCount"=>$generatedcount ,'UpdatedCount'=>$updatedData ], 200);
 
 
 
@@ -127,6 +193,32 @@ class ImportEmployeeController extends Controller
                 return response()->json(['error' => 'API request failed', 'message' => $e->getMessage()], 500);
             }
 
+        }
+
+        public function getMismatchedKeys($current, $coming) {
+            $mismatchedKeys = [];
+            if ($current instanceof \Illuminate\Database\Eloquent\Model) {
+                $current = $current->toArray();
+            }
+            foreach ($coming as $key => $value) {
+                if (array_key_exists($key, $current)) {
+                    if ($current[$key] != $value) {
+                        $mismatchedKeys[] = [
+                            'id'=>$current['id'],
+                            'key'=>$key,
+                            'value'=>$value
+                        ];
+                    }
+                } else {
+                    $mismatchedKeys[] = [
+                        'id'=>$current['id'],
+                        'key'=>$key,
+                        'value'=>$value
+                    ];
+                }
+            }
+
+            return $mismatchedKeys;
         }
 
 }
