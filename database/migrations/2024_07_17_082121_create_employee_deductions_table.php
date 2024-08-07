@@ -22,6 +22,9 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->double('amount')->nullable();
             $table->double('percentage')->nullable();
             $table->string('frequency');
+            $table->string('status')->nullable();
+            $table->string('date_from')->nullable();
+            $table->string('date_to')->nullable();
             $table->integer('total_term')->nullable();
             $table->boolean('is_default');
             $table->timestamps();

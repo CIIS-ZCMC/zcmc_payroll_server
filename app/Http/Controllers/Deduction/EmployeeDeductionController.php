@@ -23,16 +23,45 @@ class EmployeeDeductionController extends Controller
     public function index()
     {
         try {
-            $employee_deductions = EmployeeDeduction::with(['employeeList.salary', 'deductions'])->get();
+            // Fetch employee lists with related salary and deductions
+            $employees = EmployeeList::with(['salary', 'employeeDeductions.deductions'])
+                ->get();
+
+            $response = [];
+
+            foreach ($employees as $employee) {
+                $basic_salary = optional($employee->salary)->basic_salary ?? 0;
+                $total_deductions = 0;
+
+                foreach ($employee->employeeDeductions as $employeeDeduction) {
+                    $deductionAmount = $employeeDeduction->amount;
+                    $total_deductions += $deductionAmount;
+                }
+
+                $net_salary = $basic_salary - $total_deductions;
+
+                // Add employee data to the response
+                $response[] = [
+                    'employee_list' => [
+                        'employee_list_id' => $employee->id,
+                        'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                        'designation' => $employee->designation
+                        // Include other necessary employee details here
+                    ],
+                    'basic_salary' => $basic_salary,
+                    'total_deductions' => $total_deductions,
+                    'net_salary' => $net_salary,
+                ];
+            }
+
             return response()->json([
-                'data' => EmployeeDeductionResource::collection($employee_deductions),
-                'message' => 'Retrieve employee deductions.'
+                'data' => $response,
+                'message' => 'Retrieve employee details.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -67,30 +96,52 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
     public function getEmployeeDeductions(Request $request)
     {
         try {
-            $deduction_group_id = $request->deduction_group_id;
             $employee_list_id = $request->employee_list_id;
 
-            // Filter employee deductions based on deduction_group_id and employee_list_id
-            $employee_deductions = EmployeeDeduction::whereHas('deductions', function ($query) use ($deduction_group_id) {
-                $query->where('deduction_group_id', $deduction_group_id);
-            })
-                ->where('employee_list_id', $employee_list_id)
-                ->with(['employeeList.salary', 'deductions'])
-                ->get();
+            // Retrieve the employee with related deductions and salary
+            $employee = EmployeeList::with(['employeeDeductions.deductions', 'salary'])
+                ->where('id', $employee_list_id)
+                ->first();
+
+            if (!$employee) {
+                return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
+            }
+
+            // Prepare the response data
+            $employeeData = [
+                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                'designation' => $employee->designation, // Ensure `designation` relationship exists
+            ];
+
+            $deductionsData = $employee->employeeDeductions->map(function ($deduction) {
+                return [
+                    'deduction' => [
+                        'name' => $deduction->deductions->name ?? 'N/A',
+                        'code' => $deduction->deductions->code ?? 'N/A',
+                    ],
+                    'deduction_id' => $deduction->deduction_id,
+                    'amount' => $deduction->amount,
+                    'percentage' => $deduction->percentage,
+                    'frequency' => $deduction->frequency,
+                    'total_term' => $deduction->total_term,
+                    'is_default' => $deduction->is_default,
+                    'status' => $deduction->status,
+                    'updated_on' => $deduction->updated_at,
+                ];
+            });
 
             return response()->json([
-                'data' => EmployeeDeductionResource::collection($employee_deductions),
+                'employee' => $employeeData,
+                'deductions' => $deductionsData,
                 'message' => 'Retrieve employee deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
     public function storeDeduction(Request $request)
     {
         try {
@@ -102,9 +153,6 @@ class EmployeeDeductionController extends Controller
             $frequency = $request->frequency;
             $total_term = $request->total_term;
             $is_default = $request->is_default;
-
-            // Find the EmployeeList instance
-            $employeeList = EmployeeList::findOrFail($employee_list_id);
 
             // Check if the deduction already exists for the employee
             $existingDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
@@ -135,6 +183,7 @@ class EmployeeDeductionController extends Controller
                         'frequency' => $frequency,
                         'total_term' => $total_term,
                         'is_default' => $is_default,
+                        'status' => 'Active',
                     ]);
                     // Retrieve the newly added deduction with related data
                     $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
@@ -155,6 +204,7 @@ class EmployeeDeductionController extends Controller
                             'frequency' => $frequency,
                             'total_term' => $total_term,
                             'is_default' => $is_default,
+                            'status' => 'Active',
                         ]);
 
                         // Retrieve the newly added deduction with related data
@@ -262,7 +312,7 @@ class EmployeeDeductionController extends Controller
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
                         $percentaheAmount = $basicSalary->basic_salary * ($percentage / 100);
-                       $employee_deductions->update([
+                        $employee_deductions->update([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
                             'amount' => $percentaheAmount,
@@ -282,7 +332,6 @@ class EmployeeDeductionController extends Controller
                         ], 201); // 201 Created
                     }
                 }
-            
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);
             }

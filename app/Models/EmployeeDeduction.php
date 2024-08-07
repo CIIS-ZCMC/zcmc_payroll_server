@@ -30,15 +30,13 @@ class EmployeeDeduction extends Model
         return $this->hasMany(EmployeeDeductionLog::class);
     }
 
-    public function employeeList()
-    {
-        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
+        public function employeeList()
+        {
+            return $this->belongsTo(EmployeeList::class, 'employee_list_id');
+        }
+
+        public function deductions()
+        {
+            return $this->belongsTo(Deduction::class, 'deduction_id');
+        }
     }
-
-    public function deductions()
-    {
-        return $this->belongsTo(Deduction::class, 'deduction_id');
-    }
-
-
-}
