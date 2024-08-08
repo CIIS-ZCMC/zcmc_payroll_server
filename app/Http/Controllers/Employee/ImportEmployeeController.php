@@ -12,19 +12,15 @@ use App\Models\EmployeeComputedSalary;
 
 class ImportEmployeeController extends Controller
 {
-    public $umis;
 
-    public function __construct()
-    {
-        $this->umis = env("UMIS");
-    }
     public function FetchList(Request $request)
     {
+        ini_set('max_execution_time', 7200);
         $client = new Client();
         $month = $request->month;
         $year = $request->year;
         // Define the API endpoint
-        $url = $this->umis . '/testgenerate?month_of=' . $month . '&year_of=' . $year;
+        $url = $request->umis . '/testgenerate?month_of=' . $month . '&year_of=' . $year;
         try {
 
             $response = $client->request('GET', $url);
@@ -71,7 +67,10 @@ class ImportEmployeeController extends Controller
                 $empType = $row['Employee']['EmploymentType'];
                 $employeeList =  EmployeeList::where("first_name", $empinfo['first_name'])
                     ->where("last_name", $empinfo['last_name'])
-                    ->where("middle_name", $empinfo['middle_name']);
+                    ->where("middle_name", $empinfo['middle_name'] ?? "")
+                    ->where("employee_profile_id",$empinfo['id'])
+                    ->where("employee_number",$employee['employee_id'])
+                    ;
 
 
                 $nighttotalHours = 0;
@@ -86,7 +85,7 @@ class ImportEmployeeController extends Controller
                     'employee_number' => $employee['employee_id'],
                     'first_name' => $empinfo['first_name'],
                     'last_name' => $empinfo['last_name'],
-                    'middle_name' => $empinfo['middle_name'],
+                    'middle_name' => $empinfo['middle_name'] ?? "",
                     'ext_name' => $empinfo['name_extension'],
                     'designation' => $empDesig['name'],
                     'status' => 1,
@@ -115,122 +114,126 @@ class ImportEmployeeController extends Controller
 
 
                 $Employee = $employeeList->first();
-                $EmpSalary = EmployeeSalary::where('employee_list_id', $Employee->id)->first();
+                if($Employee){
+                    $EmpSalary = EmployeeSalary::where('employee_list_id', $Employee->id)->first();
 
 
-                $mismatchEmployeekeys = $this->getMismatchedKeys($Employee, $empInfodata);
-                $mismatchSalarykeys = $this->getMismatchedKeys($EmpSalary, $empSalaryData);
+                    $mismatchEmployeekeys = $this->getMismatchedKeys($Employee, $empInfodata);
+                    $mismatchSalarykeys = $this->getMismatchedKeys($EmpSalary, $empSalaryData);
 
 
-                if (count($mismatchEmployeekeys) >= 1) {
-                    //update employee
-                    foreach ($mismatchEmployeekeys as  $row) {
-                        EmployeeList::where('id', $row['id'])->update([
-                            $row['key'] => $row['value']
-                        ]);
-                        $updatedData += 1;
-                    }
-                }
-
-                if (count($mismatchSalarykeys) >= 1) {
-                    foreach ($mismatchSalarykeys as  $row) {
-                        EmployeeSalary::where('id', $row['id'])->update([
-                            'is_active' => 0
-                        ]);
-                        $updatedData += 1;
-                    }
-                    $arr_emp = array_merge(['employee_list_id' => $Employee->id], $empSalaryData);
-                    EmployeeSalary::create($arr_emp);
-                }
-
-
-                $timeRecordsData = [
-                    'employee_list_id' => $Employee->id,
-                    'total_working_hours' => $totalWorkingHours,
-                    'total_working_minutes' => $totalworkingminutes,
-                    'total_leave_with_pay' => $noofLeaveWPay,
-                    'total_leave_without_pay' => $noofLeaveWoPay,
-                    'total_without_pay_days' => $noofLeaveWoPay,
-                    'total_present_days' => $noofPresentDays,
-                    'total_night_duty_hours' => $nighttotalHours,
-                    'total_absences' => $noofAbsences,
-                    'undertime_minutes' => $totalUndertimeMinutes,
-                    'absent_rate' => $absentRate,
-                    'undertime_rate' => $undertimeRate,
-                    'month' => $month,
-                    'year' => $year,
-                    'minutes' => $minutesRate,
-                    'daily' => $dailyRate,
-                    'hourly' => $hourlyRate,
-                    'is_active' => 1
-                ];
-
-
-                $timeRecords = TimeRecord::where("is_active", 1)
-                    ->where("employee_list_id", $Employee->id);
-
-                if ($timeRecords->count() == 0) {
-
-                    $timeRecord =  TimeRecord::Create($timeRecordsData);
-
-                    EmployeeComputedSalary::create([
-                        'time_record_id' => $timeRecord->id,
-                        'computed_salary' => $netSalary
-                    ]);
-                }
-
-                $currTimerecordslist = $timeRecords->first();
-
-                $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist ?? [], $timeRecordsData);
-
-
-                if (count($mismatchTimeRecordslist) >= 1) {
-                    $created = false;
-                    foreach ($mismatchTimeRecordslist as $value) {
-                        if ("month" == $value['key'] || "year" == $value['key']) {
-                            //UPDATE Current active
-
-                            $checkingRecords = TimeRecord::where("is_active", 0)
-                                ->where("employee_list_id", $Employee->id)
-                                ->where("month", $month)
-                                ->where("year", $year);
-
-                            if ($checkingRecords->count()) {
-
-                                //UPDATE - if records exist
-                                $timeRecords->update([
-                                    'is_active' => 0
-                                ]);
-                                $checkingRecords->first()->update($timeRecordsData);
-                                EmployeeComputedSalary::where("time_record_id", $checkingRecords->first()->id)
-                                    ->update([
-                                        'computed_salary' => $netSalary
-                                    ]);
-                            } else {
-                                //CREATE NEW - if no existing record
-                                $timeRecords->update([
-                                    'is_active' => 0
-                                ]);
-
-                                $newtimerecords = TimeRecord::Create($timeRecordsData);
-                                EmployeeComputedSalary::create([
-                                    'time_record_id' => $newtimerecords->id,
-                                    'computed_salary' => $netSalary
-                                ]);
-                            }
-                            $created = true;
+                    if (count($mismatchEmployeekeys) >= 1) {
+                        //update employee
+                        foreach ($mismatchEmployeekeys as  $row) {
+                            EmployeeList::where('id', $row['id'])->update([
+                                $row['key'] => $row['value']
+                            ]);
+                            $updatedData += 1;
                         }
                     }
-                    if (!$created) {
 
-
-                        $timeRecords->first()->update($timeRecordsData);
-                        EmployeeComputedSalary::where("time_record_id", $timeRecords->first()->id)
-                            ->update([
-                                'computed_salary' => $netSalary
+                    if (count($mismatchSalarykeys) >= 1) {
+                        foreach ($mismatchSalarykeys as  $row) {
+                            EmployeeSalary::where('id', $row['id'])->update([
+                                'is_active' => 0
                             ]);
+                            $updatedData += 1;
+                        }
+                        $arr_emp = array_merge(['employee_list_id' => $Employee->id], $empSalaryData);
+                        EmployeeSalary::create($arr_emp);
+                    }
+
+
+                    $timeRecordsData = [
+                        'employee_list_id' => $Employee->id,
+                        'total_working_hours' => $totalWorkingHours,
+                        'total_working_minutes' => $totalworkingminutes,
+                        'total_leave_with_pay' => $noofLeaveWPay,
+                        'total_leave_without_pay' => $noofLeaveWoPay,
+                        'total_without_pay_days' => $noofLeaveWoPay,
+                        'total_present_days' => $noofPresentDays,
+                        'total_night_duty_hours' => $nighttotalHours,
+                        'total_absences' => $noofAbsences,
+                        'undertime_minutes' => $totalUndertimeMinutes,
+                        'absent_rate' => $absentRate,
+                        'undertime_rate' => $undertimeRate,
+                        'month' => $month,
+                        'year' => $year,
+                        'minutes' => $minutesRate,
+                        'daily' => $dailyRate,
+                        'hourly' => $hourlyRate,
+                        'is_active' => 1
+                    ];
+
+
+                    $timeRecords = TimeRecord::where("is_active", 1)
+                        ->where("employee_list_id", $Employee->id);
+
+                    if ($timeRecords->count() == 0) {
+
+                        $timeRecord =  TimeRecord::Create($timeRecordsData);
+
+                        EmployeeComputedSalary::create([
+                            'time_record_id' => $timeRecord->id,
+                            'computed_salary' => $netSalary
+                        ]);
+                    }
+
+                    $currTimerecordslist = $timeRecords->first();
+
+                    $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist ?? [], $timeRecordsData);
+
+
+                    if (count($mismatchTimeRecordslist) >= 1) {
+                        $created = false;
+                        foreach ($mismatchTimeRecordslist as $value) {
+                            if ("month" == $value['key'] || "year" == $value['key']) {
+                                //UPDATE Current active
+
+                                $checkingRecords = TimeRecord::where("is_active", 0)
+                                    ->where("employee_list_id", $Employee->id)
+                                    ->where("month", $month)
+                                    ->where("year", $year);
+
+                                if ($checkingRecords->count()) {
+
+                                    //UPDATE - if records exist
+                                    $timeRecords->update([
+                                        'is_active' => 0
+                                    ]);
+                                    $checkingRecords->first()->update($timeRecordsData);
+                                    EmployeeComputedSalary::where("time_record_id", $checkingRecords->first()->id)
+                                        ->update([
+                                            'computed_salary' => $netSalary
+                                        ]);
+                                } else {
+                                    //CREATE NEW - if no existing record
+                                    $timeRecords->update([
+                                        'is_active' => 0
+                                    ]);
+
+                                    $newtimerecords = TimeRecord::Create($timeRecordsData);
+                                    EmployeeComputedSalary::create([
+                                        'time_record_id' => $newtimerecords->id,
+                                        'computed_salary' => $netSalary
+                                    ]);
+                                }
+                                $created = true;
+                            }
+                        }
+                        if (!$created) {
+
+
+                            $timeRecords->first()->update($timeRecordsData);
+                            EmployeeComputedSalary::where("time_record_id", $timeRecords->first()->id)
+                                ->update([
+                                    'computed_salary' => $netSalary
+                                ]);
+                        }
                     }
                 }
+
+
             }
             return response()->json(['Message' => "Successfully Fetched.", "GeneratedCount" => $generatedcount, 'UpdatedCount' => $updatedData], 200);
         } catch (\Exception $e) {
