@@ -9,7 +9,7 @@ use App\Models\EmployeeList;
 use App\Models\EmployeeSalary;
 use App\Models\TimeRecord;
 use App\Models\EmployeeComputedSalary;
-
+use App\Helpers\Helpers;
 class ImportEmployeeController extends Controller
 {
 
@@ -19,12 +19,9 @@ class ImportEmployeeController extends Controller
         $client = new Client();
         $month = $request->month;
         $year = $request->year;
-        // Define the API endpoint
-        $url = $request->umis . '/testgenerate?month_of=' . $month . '&year_of=' . $year;
-        try {
 
-            $response = $client->request('GET', $url);
-            $data = json_decode($response->getBody(), true);
+        try {
+            $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year);
             $generatedcount = 0;
             $updatedData = 0;
             foreach ($data as $row) {
