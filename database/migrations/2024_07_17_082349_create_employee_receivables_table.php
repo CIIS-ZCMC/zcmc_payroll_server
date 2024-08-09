@@ -22,8 +22,10 @@ class CreateEmployeeReceivablesTable extends Migration
             $table->double('amount');
             $table->double('percentage');
             $table->integer('total_term');
-            $table->date('date_from');
-            $table->date('date_to');
+            $table->string('status')->nullable();
+            $table->string('date_from')->nullable();
+            $table->string('date_to')->nullable();
+            $table->string('stopped_at')->nullable();
             $table->boolean('is_default');
             $table->timestamps();
         });

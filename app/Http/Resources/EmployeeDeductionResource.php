@@ -21,6 +21,10 @@ class EmployeeDeductionResource extends JsonResource
             'frequency' => $this->frequency,
             'total_term' => $this->total_term,
             'is_default' => $this->is_default,
+            'status' =>  $this->status,
+            'date_from' =>  $this->date_from,
+            'date_to' =>  $this->date_to,
+            'stopped_at' =>  $this->stopped_at,
             'deduction' => [
                 'name' => $this->deduction->name ?? 'N/A',
                 'code' => $this->deduction->code ?? 'N/A',

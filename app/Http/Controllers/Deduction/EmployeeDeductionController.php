@@ -10,6 +10,7 @@ use App\Models\Deduction;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeList;
 use App\Models\EmployeeSalary;
+use App\Models\StoppageLog;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -112,6 +113,7 @@ class EmployeeDeductionController extends Controller
 
             // Prepare the response data
             $employeeData = [
+                'employee_list_id' => $employee->id,
                 'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                 'designation' => $employee->designation, // Ensure `designation` relationship exists
             ];
@@ -183,7 +185,7 @@ class EmployeeDeductionController extends Controller
                         'frequency' => $frequency,
                         'total_term' => $total_term,
                         'is_default' => $is_default,
-                        'status' => 'Active',
+                        'status' => "Active",
                     ]);
                     // Retrieve the newly added deduction with related data
                     $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
@@ -204,7 +206,7 @@ class EmployeeDeductionController extends Controller
                             'frequency' => $frequency,
                             'total_term' => $total_term,
                             'is_default' => $is_default,
-                            'status' => 'Active',
+                            'status' => "Active",
                         ]);
 
                         // Retrieve the newly added deduction with related data
@@ -227,6 +229,7 @@ class EmployeeDeductionController extends Controller
                             'frequency' => $frequency,
                             'total_term' => $total_term,
                             'is_default' => $is_default,
+                            'status' => "Active"
                         ]);
 
                         // Retrieve the newly added deduction with related data
@@ -332,6 +335,48 @@ class EmployeeDeductionController extends Controller
                         ], 201); // 201 Created
                     }
                 }
+            } else {
+                return response()->json(['message' => 'Deduction not found for this employee.'], 404);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        try {
+            $employee_list_id = $request->employee_list_id;
+            $deduction_id = $request->deduction_id;
+            $date_from = $request->date_from;
+            $date_to = $request->date_to;
+            $status = $request->status;
+            $stopped_at = $request->stopped_at;
+            $employee_deductions = EmployeeDeduction::where('employee_list_id', $employee_list_id)
+                ->where('deduction_id', $deduction_id)
+                ->first();
+
+            if ($employee_deductions) {
+                $employee_deductions->update([
+                    'status' => $status,
+                    'date_from' => $date_from,
+                    'date_to' => $date_to,
+                    'stopped_at' => $stopped_at,
+                ]);
+
+                $deduction_logs = StoppageLog::create([
+                    'employee_deduction_id' => $employee_deductions->id,
+                    'status' => $status,
+                    'date_from' => $date_from,
+                    'date_to' => $date_to,
+                    'stopped_at' => $stopped_at,
+                ]);
+
+                return response()->json([
+                    'message' => 'Employee deduction updated successfully.',
+                    'data' => new EmployeeDeductionResource($employee_deductions),
+                ], 201); // 201 Created
+
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);
             }

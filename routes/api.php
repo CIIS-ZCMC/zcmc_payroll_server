@@ -29,16 +29,17 @@ Route::namespace('App\Http\Controllers\Deduction')->group(function () {
     Route::post('/get-deductions', 'EmployeeDeductionController@getDeductions');
     Route::post('/get-employee-deductions', 'EmployeeDeductionController@getEmployeeDeductions');
     Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
+    Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
     Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
 });
 
 Route::namespace('App\Http\Controllers\Receivable')->group(function () {
-    Route::get('/employee-receivables', 'EmployeeReceivablesController@index');
-    Route::post('/exclude-employee', 'EmployeeReceivablesController@excludeEmployee');
-    Route::post('/get-receivables', 'EmployeeReceivablesController@getReceivables');
-    Route::post('/get-employee-receivables', 'EmployeeReceivablesController@getEmployeeReceivables');
-    Route::post('/update-employee-receivables', 'EmployeeReceivablesController@updateReceivables');
-    Route::post('/add-employee-receivables', 'EmployeeReceivablesController@storeReceivables');
+    Route::get('/employee-receivables', 'EmployeeReceivableController@index');
+    Route::post('/exclude-employee', 'EmployeeReceivableController@excludeEmployee');
+    Route::get('/get-receivables', 'EmployeeReceivableController@getReceivables');
+    Route::post('/get-employee-receivables', 'EmployeeReceivableController@getEmployeeReceivables');
+    Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivables');
+    Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivables');
 });
 Route::group(['middleware' => ['stripTags']], function () {
     // Define your routes here

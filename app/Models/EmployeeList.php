@@ -48,4 +48,9 @@ class EmployeeList extends Model
     {
         return $this->hasMany(EmployeeDeduction::class, 'employee_list_id');
     }
+
+    public function employeeReceivables()
+    {
+        return $this->hasMany(EmployeeReceivable::class, 'employee_list_id');
+    }
 }

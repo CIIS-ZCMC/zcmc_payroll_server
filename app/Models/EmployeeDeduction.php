@@ -20,7 +20,10 @@ class EmployeeDeduction extends Model
         'percentage',
         'frequency',
         'total_term',
-        'is_default'
+        'is_default',
+        'status',
+        'date_to',
+        'date_from'
     ];
 
     public $timestamps = true;
@@ -30,13 +33,13 @@ class EmployeeDeduction extends Model
         return $this->hasMany(EmployeeDeductionLog::class);
     }
 
-        public function employeeList()
-        {
-            return $this->belongsTo(EmployeeList::class, 'employee_list_id');
-        }
-
-        public function deductions()
-        {
-            return $this->belongsTo(Deduction::class, 'deduction_id');
-        }
+    public function employeeList()
+    {
+        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
     }
+
+    public function deductions()
+    {
+        return $this->belongsTo(Deduction::class, 'deduction_id');
+    }
+}

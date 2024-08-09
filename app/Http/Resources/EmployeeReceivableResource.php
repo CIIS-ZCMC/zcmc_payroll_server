@@ -14,17 +14,19 @@ class EmployeeReceivableResource extends JsonResource
      */
     public function toArray($request)
     {
-
         return [
-            'employee_list' => new EmployeeListResource($this->whenLoaded('employeeList')),
-            'receivables' => new ReceivableResource($this->whenLoaded('receivables')),
-            'employee_list_id' => $this->employee_list_id,
-            'deduction_id' => $this->deduction_id,
+
+            'receivable_id ' => $this->receivable_id ,
             'amount' => $this->amount,
             'percentage' => $this->percentage,
             'frequency' => $this->frequency,
             'total_term' => $this->total_term,
             'is_default' => $this->is_default,
+            'status'=>  $this->status,
+            'deduction' => [
+                'name' => $this->deduction->name ?? 'N/A',
+                'code' => $this->deduction->code ?? 'N/A',
+            ],
         ];
     }
 }
