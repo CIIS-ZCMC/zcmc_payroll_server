@@ -100,20 +100,20 @@ class EmployeeReceivableController extends Controller
                 'designation' => $employee->designation, // Ensure `designation` relationship exists
             ];
 
-            $receivalesData = $employee->employeeDeductions->map(function ($deduction) {
+            $receivalesData = $employee->employeeReceivables->map(function ($receivable) {
                 return [
-                    'deduction' => [
-                        'name' => $deduction->deductions->name ?? 'N/A',
-                        'code' => $deduction->deductions->code ?? 'N/A',
+                    'receivables' => [
+                        'name' => $deduction->receivables->name ?? 'N/A',
+                        'code' => $deduction->receivables->code ?? 'N/A',
                     ],
-                    'deduction_id' => $deduction->deduction_id,
-                    'amount' => $deduction->amount,
-                    'percentage' => $deduction->percentage,
-                    'frequency' => $deduction->frequency,
-                    'total_term' => $deduction->total_term,
-                    'is_default' => $deduction->is_default,
-                    'status' => $deduction->status,
-                    'updated_on' => $deduction->updated_at,
+                    'receivable_id' => $receivable->receivable_id,
+                    'amount' => $receivable->amount,
+                    'percentage' => $receivable->percentage,
+                    'frequency' => $receivable->frequency,
+                    'total_term' => $receivable->total_term,
+                    'is_default' => $receivable->is_default,
+                    'status' => $receivable->status,
+                    'updated_on' => $receivable->updated_at,
                 ];
             });
 

@@ -19,13 +19,14 @@ class CreateEmployeeReceivablesTable extends Migration
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
             $table->unsignedBigInteger('receivable_id');
             $table->foreign('receivable_id')->references('id')->on('receivables');
-            $table->double('amount');
-            $table->double('percentage');
-            $table->integer('total_term');
+            $table->double('amount')->nullable();
+            $table->double('percentage')->nullable();
+            $table->string('frequency');
             $table->string('status')->nullable();
             $table->string('date_from')->nullable();
             $table->string('date_to')->nullable();
             $table->string('stopped_at')->nullable();
+            $table->integer('total_term');
             $table->boolean('is_default');
             $table->timestamps();
         });
