@@ -16,14 +16,8 @@ class EmployeeListController extends Controller
 
     public function index(Request $request){
 
-        $data = [
-            'module'=>"EmployeeListController",
-            'action'=>"Fetched",
-            'status'=>Response::HTTP_ACCEPTED,
-            'remarks'=>"action",
-        ];
 
-        return Logging::RecordTransaction($data);
+
     }
 
     public function AuthorizationPin(Request $request){

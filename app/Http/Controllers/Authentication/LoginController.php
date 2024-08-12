@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use \App\Helpers\Helpers;
 use \App\Helpers\Token;
+use \App\Helpers\Logging;
 use \App\Models\PersonalAccessToken;
 
 
@@ -62,9 +63,22 @@ class LoginController extends Controller
                 ]);
             }
             return response()->json([
-                'message' => 'Login Success'
-            ], 200)->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY"), '/', env("SESSION_DOMAIN"), false);
+                'message' => 'Login Success',
+                'responseData'=>[],
+                'statusCode'=>200
+            ])->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY"), '/', env("SESSION_DOMAIN"), false);
+
+
         } catch (\Throwable $th) {
+
+            Logging::RecordTransaction([
+                'module'=>"UMIS/Authentication",
+                'action'=>"Signin Failed",
+                'status'=>401,
+                'remarks'=>Logging::createRemarks("Signin attempt failed.",$th->getMessage()),
+            ]);
+
+
             return response()->json([
                 'message' => "Login failed",
                 'Response' => $th->getMessage()
