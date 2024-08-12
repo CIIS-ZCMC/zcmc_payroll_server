@@ -62,6 +62,16 @@ class LoginController extends Controller
                     'last_used_at' => now(),
                 ]);
             }
+
+            Logging::RecordTransaction([
+                'module'=>"UMIS/Authentication",
+                'action'=>"Signin Success",
+                'status'=>202,
+                'serverResponse'=>"Login Success",
+                'affected_entity'=>null,
+                'remarks'=>"Signin attempt successful."
+            ]);
+
             return response()->json([
                 'message' => 'Login Success',
                 'responseData'=>[],
@@ -75,7 +85,9 @@ class LoginController extends Controller
                 'module'=>"UMIS/Authentication",
                 'action'=>"Signin Failed",
                 'status'=>401,
-                'remarks'=>Logging::createRemarks("Signin attempt failed.",$th->getMessage()),
+                'serverResponse'=>$th->getMessage(),
+                'affected_entity'=>null,
+                'remarks'=>"Signin attempt failed."
             ]);
 
 

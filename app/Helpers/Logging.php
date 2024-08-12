@@ -19,12 +19,13 @@ public static function createRemarks($message,$serverReposnse){
 }
 
    /*
-          Logging::RecordTransaction([
-                'module'=>"Payroll/ModuleName",
-                'action'=>"Posted amount for deduction",
-                'status'=>202,
+            Logging::RecordTransaction([
+                'module'=>"UMIS/Authentication",
+                'action'=>"Signin Failed",
+                'status'=>401,
+                'serverResponse'=>$th->getMessage(),
                 'affected_entity'=>null,
-                'remarks'=>Logging::createRemarks("Has posted amount for deductions",$th->getMessage()),
+                'remarks'=>"Signin attempt failed."
             ]);
 
     */
