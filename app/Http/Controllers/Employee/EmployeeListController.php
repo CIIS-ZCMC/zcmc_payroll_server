@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Employee;
-
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use \App\Helpers\Helpers;
 use \App\Helpers\Token;
+use Illuminate\Http\Response;
+use \App\Helpers\Logging;
 
 
 class EmployeeListController extends Controller
@@ -14,11 +16,19 @@ class EmployeeListController extends Controller
 
     public function index(Request $request){
 
-        return "ok";
+        $data = [
+            'module'=>"EmployeeListController",
+            'action'=>"Fetched",
+            'status'=>Response::HTTP_ACCEPTED,
+            'remarks'=>"action",
+        ];
+
+        return Logging::RecordTransaction($data);
     }
 
     public function AuthorizationPin(Request $request){
-        $pincode = $request->pin;
+        try {
+            $pincode = $request->pin;
         $user = Token::UserInfo();
         if($pincode == $user->authorization_pin){
             return response()->json([
@@ -28,6 +38,9 @@ class EmployeeListController extends Controller
         return response()->json([
             'message'=>'Access-Denied'
         ],401);
+        } catch (\Throwable $th) {
+            Log::channel('code')->error($th);
+        }
     }
 
 }
