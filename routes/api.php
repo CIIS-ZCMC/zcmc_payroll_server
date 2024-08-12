@@ -39,8 +39,10 @@ Route::namespace('App\Http\Controllers\Receivable')->group(function () {
     Route::post('/exclude-employee', 'EmployeeReceivableController@excludeEmployee');
     Route::get('/get-receivables', 'EmployeeReceivableController@getReceivables');
     Route::post('/get-employee-receivables', 'EmployeeReceivableController@getEmployeeReceivables');
+    Route::get('/get-inactive-employee-receivables', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
     Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivables');
-    Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivables');
+    Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
+    Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
 });
 Route::group(['middleware' => ['stripTags']], function () {
     // Define your routes here

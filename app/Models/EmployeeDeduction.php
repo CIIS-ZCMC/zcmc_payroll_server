@@ -23,7 +23,8 @@ class EmployeeDeduction extends Model
         'is_default',
         'status',
         'date_to',
-        'date_from'
+        'date_from',
+        'stopped_at'
     ];
 
     public $timestamps = true;

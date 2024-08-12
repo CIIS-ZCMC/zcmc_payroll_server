@@ -15,18 +15,20 @@ class EmployeeReceivableResource extends JsonResource
     public function toArray($request)
     {
         return [
-
-            'receivable_id ' => $this->receivable_id ,
+            'receivable_id ' => $this->receivable_id,
+            'receivable' => [
+                'name' => $this->receivables->name ?? 'N/A',
+                'code' => $this->receivables->code ?? 'N/A',
+            ],
             'amount' => $this->amount,
             'percentage' => $this->percentage,
             'frequency' => $this->frequency,
             'total_term' => $this->total_term,
             'is_default' => $this->is_default,
-            'status'=>  $this->status,
-            'deduction' => [
-                'name' => $this->deduction->name ?? 'N/A',
-                'code' => $this->deduction->code ?? 'N/A',
-            ],
+            'status' =>  $this->status,
+            'date_from' =>  $this->date_from,
+            'date_to' =>  $this->date_to,
+            'stopped_at' =>  $this->stopped_at,
         ];
     }
 }

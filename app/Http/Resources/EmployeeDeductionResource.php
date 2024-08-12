@@ -16,6 +16,10 @@ class EmployeeDeductionResource extends JsonResource
     {
         return [
             'deduction_id' => $this->deduction_id,
+            'deduction' => [
+                'name' => $this->deductions->name ?? 'N/A',
+                'code' => $this->deductions->code ?? 'N/A',
+            ],
             'amount' => $this->amount,
             'percentage' => $this->percentage,
             'frequency' => $this->frequency,
@@ -25,10 +29,6 @@ class EmployeeDeductionResource extends JsonResource
             'date_from' =>  $this->date_from,
             'date_to' =>  $this->date_to,
             'stopped_at' =>  $this->stopped_at,
-            'deduction' => [
-                'name' => $this->deduction->name ?? 'N/A',
-                'code' => $this->deduction->code ?? 'N/A',
-            ],
         ];
     }
 }

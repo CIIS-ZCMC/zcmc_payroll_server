@@ -43,15 +43,13 @@ class EmployeeDeductionController extends Controller
 
                 // Add employee data to the response
                 $response[] = [
-                    'employee_list' => [
-                        'employee_list_id' => $employee->id,
-                        'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                        'designation' => $employee->designation
-                        // Include other necessary employee details here
-                    ],
-                    'basic_salary' => $basic_salary,
-                    'total_deductions' => $total_deductions,
-                    'net_salary' => $net_salary,
+
+                        'Id' => $employee->id,
+                        'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                        'Designation' => $employee->designation,
+                        'Gross salary' => $basic_salary,
+                        'Total deductions' => $total_deductions,
+                        'Net salary' => $net_salary,
                 ];
             }
 
