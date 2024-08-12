@@ -3,9 +3,12 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
+use Illuminate\Support\Str;
 
 class Helpers
 {
+
     public static function registerSystemLogs($request, $moduleID, $status, $remarks)
     {
         $ip = $request->ip();
@@ -28,4 +31,22 @@ class Helpers
     {
         Log::channel('custom-error')->error($controller . ' Controller [' . $module . ']: message: ' . $errorMessage);
     }
+
+    public static function umisPOSTrequest($api,$data){
+        $client = new Client();
+        return  json_decode($client->request('POST',request()->umis . '/'.$api, [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'body' => json_encode($data),
+        ])->getBody(), true);
+    }
+    public static function umisGETrequest($api){
+        $client = new Client();
+        $response = $client->request('GET', request()->umis . '/'.$api);
+        return json_decode($response->getBody(), true);
+    }
+
+
+
 }

@@ -15,9 +15,9 @@ class CreateTransactionLogsTable extends Migration
     {
         Schema::create('transaction_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('module_id')->nullable();
+            $table->text('module')->nullable();
             $table->string('action');
-            $table->boolean('status')->default(false);
+            $table->text('status');
             $table->string('ip_address');
             $table->string('remarks')->nullable();
             $table->unsignedBigInteger('employee_profile_id');

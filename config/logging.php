@@ -119,6 +119,12 @@ return [
             'path' => storage_path('logs/request.log'),
             'level' => 'error',
         ],
+
+        'code' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Error.log'),
+            'level' => 'error',
+        ],
     ],
 
 ];

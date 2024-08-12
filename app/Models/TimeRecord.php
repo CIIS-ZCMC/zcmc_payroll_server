@@ -21,10 +21,7 @@ class TimeRecord extends Model
         'total_leave_without_pay',
         'total_without_pay_days',
         'total_present_days',
-        'total_night_duty_days',
         'total_night_duty_hours',
-        'total_day_shift_hours',
-        'total_day_shift_days',
         'total_absences',
         'undertime_minutes',
         'absent_rate',
@@ -34,6 +31,7 @@ class TimeRecord extends Model
         'minutes',
         'daily',
         'hourly',
+        'is_active'
     ];
 
     public $timestamps = true;
