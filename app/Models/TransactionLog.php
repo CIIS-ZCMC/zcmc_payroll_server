@@ -14,7 +14,7 @@ class TransactionLog extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'module_id',
+        'module',
         'action',
         'status',
         'ip_address',

@@ -16,7 +16,6 @@ class EmployeeList extends Model
     protected $fillable = [
         'employee_profile_id',
         'employee_number',
-        'total_term_paid',
         'first_name',
         'last_name',
         'middle_name',

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Employee;
-
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeListResource;
 use App\Models\EmployeeList;
