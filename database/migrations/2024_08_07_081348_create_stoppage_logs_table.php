@@ -16,9 +16,9 @@ class CreateStoppageLogsTable extends Migration
         Schema::create('stoppage_logs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('employee_deduction_id')->nullable();
-            $table->foreign('employee_deduction_id')->references('id')->on('employee_deductions')->nullable;
+            $table->foreign('employee_deduction_id')->references('id')->on('employee_deductions')->nullable();
             $table->unsignedBigInteger('employee_receivable_id')->nullable();
-            $table->foreign('employee_receivable_id')->references('id')->on('employee_receivables');
+            $table->foreign('employee_receivable_id')->references('id')->on('employee_receivables')->nullable();
             $table->string('status');
             $table->string('date_to')->nullable();
             $table->string('date_from')->nullable();
