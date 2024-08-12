@@ -10,6 +10,7 @@ use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
 use App\Models\EmployeeSalary;
 use App\Models\Receivable;
+use App\Models\StoppageLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -85,7 +86,7 @@ class EmployeeReceivableController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related deductions and salary
+            // Retrieve the employee with related receivables and salary
             $employee = EmployeeList::with(['employeeReceivables.receivables', 'salary'])
                 ->where('id', $employee_list_id)
                 ->first();
@@ -95,13 +96,6 @@ class EmployeeReceivableController extends Controller
             }
 
             // Prepare the response data
-            $employeeData = [
-                'employee_list_id' => $employee->id,
-                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure `designation` relationship exists
-            ];
-
-
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
                 return in_array($receivable->status, ['Active', 'Temporarily Stopped']);
             })->map(function ($receivable) {
@@ -121,11 +115,17 @@ class EmployeeReceivableController extends Controller
                 ];
             });
 
-            return response()->json([
-                'employee' => $employeeData,
-                'receivables' => $receivablesData,
-                'message' => 'Retrieve employee deductions.'
-            ], Response::HTTP_OK);
+            $response = [
+                'data' => [
+                    'employee_list_id' => $employee->id,
+                    'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                    'designation' => $employee->designation, // Ensure designation relationship exists
+                    'receivables' => $receivablesData,
+                ],
+                'message' => 'Retrieve employee receivables.'
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -136,7 +136,7 @@ class EmployeeReceivableController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related deductions and salary
+            // Retrieve the employee with related receivables and salary
             $employee = EmployeeList::with(['employeeReceivables.receivables', 'salary'])
                 ->where('id', $employee_list_id)
                 ->first();
@@ -146,15 +146,8 @@ class EmployeeReceivableController extends Controller
             }
 
             // Prepare the response data
-            $employeeData = [
-                'employee_list_id' => $employee->id,
-                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure `designation` relationship exists
-            ];
-
-
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Active', 'Temporarily Stopped']);
+                return in_array($receivable->status, ['Inactive']);
             })->map(function ($receivable) {
                 return [
                     'receivables' => [
@@ -172,11 +165,17 @@ class EmployeeReceivableController extends Controller
                 ];
             });
 
-            return response()->json([
-                'employee' => $employeeData,
-                'receivables' => $receivablesData,
-                'message' => 'Retrieve employee deductions.'
-            ], Response::HTTP_OK);
+            $response = [
+                'data' => [
+                    'employee_list_id' => $employee->id,
+                    'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                    'designation' => $employee->designation, // Ensure designation relationship exists
+                    'receivables' => $receivablesData,
+                ],
+                'message' => 'Retrieve inactive employee receivables.'
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -358,6 +357,49 @@ class EmployeeReceivableController extends Controller
                         ], 201); // 201 Created
                     }
                 }
+            } else {
+                return response()->json(['message' => 'Deduction not found for this employee.'], 404);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        try {
+            $employee_list_id = $request->employee_list_id;
+            $receivable_id = $request->receivable_id;
+            $date_from = $request->date_from;
+            $date_to = $request->date_to;
+            $status = $request->status;
+            $stopped_at = $request->stopped_at;
+
+            $employee_receivables = EmployeeReceivable::where('employee_list_id', $employee_list_id)
+                ->where('receivable_id', $receivable_id)
+                ->first();
+
+            if ($employee_receivables) {
+                $employee_receivables->update([
+                    'status' => $status,
+                    'date_from' => $date_from,
+                    'date_to' => $date_to,
+                    'stopped_at' => $stopped_at,
+                ]);
+
+                $receivable_logs = StoppageLog::create([
+                    'employee_receivable_id' => $employee_receivables->id,
+                    'status' => $status,
+                    'date_from' => $date_from,
+                    'date_to' => $date_to,
+                    'stopped_at' => $stopped_at,
+                ]);
+
+                return response()->json([
+                    'message' => 'Employee receivable updated successfully.',
+                    'data' => new EmployeereceivableResource($employee_receivables),
+                ], 201); // 201 Created
+
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);
             }

@@ -44,12 +44,12 @@ class EmployeeDeductionController extends Controller
                 // Add employee data to the response
                 $response[] = [
 
-                        'Id' => $employee->id,
-                        'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                        'Designation' => $employee->designation,
-                        'Gross salary' => $basic_salary,
-                        'Total deductions' => $total_deductions,
-                        'Net salary' => $net_salary,
+                    'Id' => $employee->id,
+                    'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                    'Designation' => $employee->designation,
+                    'Gross salary' => $basic_salary,
+                    'Total deductions' => $total_deductions,
+                    'Net salary' => $net_salary,
                 ];
             }
 
@@ -108,34 +108,32 @@ class EmployeeDeductionController extends Controller
             }
 
             // Prepare the response data
-            $employeeData = [
+            $data = [
                 'employee_list_id' => $employee->id,
                 'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure `designation` relationship exists
+                'designation' => $employee->designation, // Ensure designation relationship exists
+                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Active', 'Temporarily Stopped']);
+                })->map(function ($deduction) {
+                    return [
+                        'deduction' => [
+                            'name' => $deduction->deductions->name ?? 'N/A',
+                            'code' => $deduction->deductions->code ?? 'N/A',
+                        ],
+                        'deduction_id' => $deduction->deduction_id,
+                        'amount' => $deduction->amount,
+                        'percentage' => $deduction->percentage,
+                        'frequency' => $deduction->frequency,
+                        'total_term' => $deduction->total_term,
+                        'is_default' => $deduction->is_default,
+                        'status' => $deduction->status,
+                        'updated_on' => $deduction->updated_at,
+                    ];
+                })->toArray()
             ];
 
-            $deductionsData = $employee->employeeDeductions->filter(function ($deduction) {
-                return in_array($deduction->status, ['Active', 'Temporarily Stopped']);
-            })->map(function ($deduction) {
-                return [
-                    'deduction' => [
-                        'name' => $deduction->deductions->name ?? 'N/A',
-                        'code' => $deduction->deductions->code ?? 'N/A',
-                    ],
-                    'deduction_id' => $deduction->deduction_id,
-                    'amount' => $deduction->amount,
-                    'percentage' => $deduction->percentage,
-                    'frequency' => $deduction->frequency,
-                    'total_term' => $deduction->total_term,
-                    'is_default' => $deduction->is_default,
-                    'status' => $deduction->status,
-                    'updated_on' => $deduction->updated_at,
-                ];
-            });
-
             return response()->json([
-                'employee' => $employeeData,
-                'deductions' => $deductionsData,
+                'data' => $data,
                 'message' => 'Retrieve employee deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
@@ -158,41 +156,39 @@ class EmployeeDeductionController extends Controller
             }
 
             // Prepare the response data
-            $employeeData = [
+            $data = [
                 'employee_list_id' => $employee->id,
                 'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure `designation` relationship exists
+                'designation' => $employee->designation, // Ensure designation relationship exists
+                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Permanently stopped']);
+                })->map(function ($deduction) {
+                    return [
+                        'deduction' => [
+                            'name' => $deduction->deductions->name ?? 'N/A',
+                            'code' => $deduction->deductions->code ?? 'N/A',
+                        ],
+                        'deduction_id' => $deduction->deduction_id,
+                        'amount' => $deduction->amount,
+                        'percentage' => $deduction->percentage,
+                        'frequency' => $deduction->frequency,
+                        'total_term' => $deduction->total_term,
+                        'is_default' => $deduction->is_default,
+                        'status' => $deduction->status,
+                        'updated_on' => $deduction->updated_at,
+                    ];
+                })->toArray()
             ];
 
-            $deductionsData = $employee->employeeDeductions->filter(function ($deduction) {
-                return in_array($deduction->status, ['Permanently stopped']);
-            })->map(function ($deduction) {
-                return [
-                    'deduction' => [
-                        'name' => $deduction->deductions->name ?? 'N/A',
-                        'code' => $deduction->deductions->code ?? 'N/A',
-                    ],
-                    'deduction_id' => $deduction->deduction_id,
-                    'amount' => $deduction->amount,
-                    'percentage' => $deduction->percentage,
-                    'frequency' => $deduction->frequency,
-                    'total_term' => $deduction->total_term,
-                    'is_default' => $deduction->is_default,
-                    'status' => $deduction->status,
-                    'updated_on' => $deduction->updated_at,
-                ];
-            });
-
-
             return response()->json([
-                'employee' => $employeeData,
-                'deductions' => $deductionsData,
+                'data' => $data,
                 'message' => 'Retrieve employee deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     public function storeDeduction(Request $request)
     {
         try {

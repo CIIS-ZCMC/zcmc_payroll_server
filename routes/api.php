@@ -68,7 +68,7 @@ Route::namespace('App\Http\Controllers\Receivable')->group(function () {
     Route::get('/get-receivables', 'EmployeeReceivableController@getReceivables');
     Route::post('/get-employee-receivables', 'EmployeeReceivableController@getEmployeeReceivables');
     Route::get('/get-inactive-employee-receivables', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
-    Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivables');
+    Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivable');
     Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
     Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
 });
