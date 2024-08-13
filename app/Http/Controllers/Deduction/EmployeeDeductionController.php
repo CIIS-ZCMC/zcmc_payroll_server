@@ -83,7 +83,7 @@ class EmployeeDeductionController extends Controller
     {
         try {
             $deduction_group_id = $request->deduction_group_id;
-            $deductions = Deduction::where('deduction_group_id', $deduction_group_id)->get();
+            $deductions = Deduction::get();
             return response()->json([
                 'responseData' => DeductionResource::collection($deductions),
                 'message' => 'Retrieve all deductions.'
@@ -93,6 +93,8 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+  
     public function getEmployeeDeductions(Request $request)
     {
         try {
@@ -113,7 +115,7 @@ class EmployeeDeductionController extends Controller
                 'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                 'designation' => $employee->designation, // Ensure designation relationship exists
                 'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
-                    return in_array($deduction->status, ['Active', 'Temporarily Stopped']);
+                    return in_array($deduction->status, ['Active', 'Suspended']);
                 })->map(function ($deduction) {
                     return [
                         'Id' => $deduction->deduction_id,
@@ -158,7 +160,7 @@ class EmployeeDeductionController extends Controller
                 'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                 'designation' => $employee->designation, // Ensure designation relationship exists
                 'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
-                    return in_array($deduction->status, ['Permanently stopped']);
+                    return in_array($deduction->status, ['Stopped']);
                 })->map(function ($deduction) {
                     return [
                         'Id' => $deduction->deduction_id,
@@ -390,14 +392,14 @@ class EmployeeDeductionController extends Controller
             $date_from = $request->date_from;
             $date_to = $request->date_to;
             $status = $request->status;
+            $stopped_at = null;
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $employee_list_id)
                 ->where('deduction_id', $deduction_id)
                 ->first();
 
             if ($employee_deductions) {
-                if($status === 'Stopped')
-                {
-                    $stopped_at = 'dte';
+                if ($status === 'Stopped') {
+                    $stopped_at = now()->format('Y-m-d');;
                 }
                 $employee_deductions->update([
                     'status' => $status,

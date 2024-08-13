@@ -94,7 +94,7 @@ class EmployeeReceivableController extends Controller
 
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Active', 'Temporarily Stopped']);
+                return in_array($receivable->status, ['Active', 'Suspended']);
             })->map(function ($receivable) {
                 return [
                     'Id' => $receivable->receivable_id,
@@ -142,7 +142,7 @@ class EmployeeReceivableController extends Controller
 
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Inactive']);
+                return in_array($receivable->status, ['Stopped']);
             })->map(function ($receivable) {
                 return [
                     'receivables' => [
@@ -369,13 +369,16 @@ class EmployeeReceivableController extends Controller
             $date_from = $request->date_from;
             $date_to = $request->date_to;
             $status = $request->status;
-            $stopped_at = $request->stopped_at;
+            $stopped_at = null;
 
             $employee_receivables = EmployeeReceivable::where('employee_list_id', $employee_list_id)
                 ->where('receivable_id', $receivable_id)
                 ->first();
 
             if ($employee_receivables) {
+                if ($status === 'Stopped') {
+                    $stopped_at = now()->format('Y-m-d');;
+                }
                 $employee_receivables->update([
                     'status' => $status,
                     'date_from' => $date_from,

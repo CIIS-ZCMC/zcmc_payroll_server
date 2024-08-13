@@ -46,9 +46,9 @@ Route::namespace('App\Http\Controllers\Employee')->group(function () {
 Route::namespace('App\Http\Controllers\Deduction')->group(function () {
     Route::get('/employee-deductions', 'EmployeeDeductionController@index');
     Route::post('/exclude-employee', 'EmployeeDeductionController@excludeEmployee');
-    Route::post('/get-deductions', 'EmployeeDeductionController@getDeductions');
+    Route::get('/get-deductions', 'EmployeeDeductionController@getDeductions');
     Route::post('/get-employee-deductions', 'EmployeeDeductionController@getEmployeeDeductions');
-    Route::get('/get-inactive-employee-deductions', 'EmployeeDeductionController@getInactiveEmployeeDeductions');
+    Route::post('/get-inactive-employee-deductions', 'EmployeeDeductionController@getInactiveEmployeeDeductions');
     Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
     Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
     Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
@@ -59,7 +59,7 @@ Route::namespace('App\Http\Controllers\Receivable')->group(function () {
     Route::post('/exclude-employee', 'EmployeeReceivableController@excludeEmployee');
     Route::get('/get-receivables', 'EmployeeReceivableController@getReceivables');
     Route::post('/get-employee-receivables', 'EmployeeReceivableController@getEmployeeReceivables');
-    Route::get('/get-inactive-employee-receivables', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
+    Route::post('/get-inactive-employee-receivables', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
     Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivable');
     Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
     Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
