@@ -46,7 +46,7 @@ Route::namespace('App\Http\Controllers\Employee')->group(function () {
 Route::namespace('App\Http\Controllers\Deduction')->group(function () {
     Route::get('/employee-deductions', 'EmployeeDeductionController@index');
     Route::post('/exclude-employee', 'EmployeeDeductionController@excludeEmployee');
-    Route::post('/get-deductions', 'EmployeeDeductionController@getDeductions');
+    Route::get('/get-deductions', 'EmployeeDeductionController@getDeductions');
     Route::post('/get-employee-deductions', 'EmployeeDeductionController@getEmployeeDeductions');
     Route::get('/get-inactive-employee-deductions', 'EmployeeDeductionController@getInactiveEmployeeDeductions');
     Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');

@@ -83,7 +83,7 @@ class EmployeeDeductionController extends Controller
     {
         try {
             $deduction_group_id = $request->deduction_group_id;
-            $deductions = Deduction::where('deduction_group_id', $deduction_group_id)->get();
+            $deductions = Deduction::get();
             return response()->json([
                 'responseData' => DeductionResource::collection($deductions),
                 'message' => 'Retrieve all deductions.'
