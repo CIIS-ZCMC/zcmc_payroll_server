@@ -54,7 +54,7 @@ class EmployeeDeductionController extends Controller
             }
 
             return response()->json([
-                'data' => $response,
+                'responseData' => $response,
                 'message' => 'Retrieve employee details.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
