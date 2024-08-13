@@ -45,21 +45,18 @@ class EmployeeReceivableController extends Controller
 
                 // Add employee data to the response
                 $response[] = [
-                    'employee_list' => [
-                        'employee_list_id' => $employee->id,
-                        'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                        'designation' => $employee->designation
-                        // Include other necessary employee details here
-                    ],
-                    'basic_salary' => $basic_salary,
-                    'total_receivables' => $total_receivables,
-                    'net_salary' => $net_salary,
-                    'receivables_count' => $receivables_count,
+                    'Id' => $employee->id,
+                    'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                    'Designation' => $employee->designation,
+                    'Gross Salary' => $basic_salary,
+                    'Total receivables' => $total_receivables,
+                    'Net salary' => $net_salary,
+                    'Number of receivables' => $receivables_count,
                 ];
             }
 
             return response()->json([
-                'data' => $response,
+                'responseData' => $response,
                 'message' => 'Retrieve employee details.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
@@ -72,7 +69,7 @@ class EmployeeReceivableController extends Controller
         try {
             $receivables = Receivable::get();
             return response()->json([
-                'data' => ReceivableResource::collection($receivables),
+                'responseData' => ReceivableResource::collection($receivables),
                 'message' => 'Retrieve all receivables.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
@@ -100,23 +97,21 @@ class EmployeeReceivableController extends Controller
                 return in_array($receivable->status, ['Active', 'Temporarily Stopped']);
             })->map(function ($receivable) {
                 return [
-                    'receivables' => [
-                        'name' => $receivable->receivables->name ?? 'N/A',
-                        'code' => $receivable->receivables->code ?? 'N/A',
-                    ],
-                    'receivable_id' => $receivable->receivable_id,
-                    'amount' => $receivable->amount,
+                    'Id' => $receivable->receivable_id,
+                    'Receivable' => $receivable->receivables->name ?? 'N/A',
+                    'Code' => $receivable->receivables->code ?? 'N/A',
+                    'Amount' => $receivable->amount,
+                    'Updated on' => $receivable->updated_at,
+                    'Payment terms received' => $receivable->total_term,
+                    'Billing Cycle' => $receivable->frequency,
+                    'Status' => $receivable->status,
                     'percentage' => $receivable->percentage,
-                    'frequency' => $receivable->frequency,
-                    'total_term' => $receivable->total_term,
                     'is_default' => $receivable->is_default,
-                    'status' => $receivable->status,
-                    'updated_on' => $receivable->updated_at,
                 ];
             });
 
             $response = [
-                'data' => [
+                'responseData' => [
                     'employee_list_id' => $employee->id,
                     'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                     'designation' => $employee->designation, // Ensure designation relationship exists
@@ -166,7 +161,7 @@ class EmployeeReceivableController extends Controller
             });
 
             $response = [
-                'data' => [
+                'responseData' => [
                     'employee_list_id' => $employee->id,
                     'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                     'designation' => $employee->designation, // Ensure designation relationship exists
@@ -276,7 +271,7 @@ class EmployeeReceivableController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     public function updateReceivable(Request $request)
     {
         try {
@@ -353,8 +348,8 @@ class EmployeeReceivableController extends Controller
                             ->findOrFail($employee_receivables->id);
 
                         return response()->json([
-                            'message' => 'receivable added successfully.',
-                            'data' => new EmployeeReceivableResource($newreceivable),
+                            'message' => 'receivable updated successfully.',
+                            'responseData' => new EmployeeReceivableResource($newreceivable),
                         ], 201); // 201 Created
                     }
                 }
@@ -398,7 +393,7 @@ class EmployeeReceivableController extends Controller
 
                 return response()->json([
                     'message' => 'Employee receivable updated successfully.',
-                    'data' => new EmployeereceivableResource($employee_receivables),
+                    'responseData' => new EmployeereceivableResource($employee_receivables),
                 ], 201); // 201 Created
 
             } else {

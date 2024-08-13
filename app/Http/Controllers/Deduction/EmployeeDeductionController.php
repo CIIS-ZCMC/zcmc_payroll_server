@@ -47,14 +47,14 @@ class EmployeeDeductionController extends Controller
                     'Id' => $employee->id,
                     'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                     'Designation' => $employee->designation,
-                    'Gross salary' => $basic_salary,
+                    'Designation' => $basic_salary,
                     'Total deductions' => $total_deductions,
                     'Net salary' => $net_salary,
                 ];
             }
 
             return response()->json([
-                'data' => $response,
+                'responseData' => $response,
                 'message' => 'Retrieve employee details.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
@@ -85,7 +85,7 @@ class EmployeeDeductionController extends Controller
             $deduction_group_id = $request->deduction_group_id;
             $deductions = Deduction::where('deduction_group_id', $deduction_group_id)->get();
             return response()->json([
-                'data' => DeductionResource::collection($deductions),
+                'responseData' => DeductionResource::collection($deductions),
                 'message' => 'Retrieve all deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
@@ -116,24 +116,21 @@ class EmployeeDeductionController extends Controller
                     return in_array($deduction->status, ['Active', 'Temporarily Stopped']);
                 })->map(function ($deduction) {
                     return [
-                        'deduction' => [
-                            'name' => $deduction->deductions->name ?? 'N/A',
-                            'code' => $deduction->deductions->code ?? 'N/A',
-                        ],
-                        'deduction_id' => $deduction->deduction_id,
-                        'amount' => $deduction->amount,
-                        'percentage' => $deduction->percentage,
-                        'frequency' => $deduction->frequency,
-                        'total_term' => $deduction->total_term,
-                        'is_default' => $deduction->is_default,
-                        'status' => $deduction->status,
-                        'updated_on' => $deduction->updated_at,
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
                     ];
                 })->toArray()
             ];
 
             return response()->json([
-                'responsedata' => $data,
+                'responseData' => $data,
                 'message' => 'Retrieve employee deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
@@ -164,24 +161,21 @@ class EmployeeDeductionController extends Controller
                     return in_array($deduction->status, ['Permanently stopped']);
                 })->map(function ($deduction) {
                     return [
-                        'deduction' => [
-                            'name' => $deduction->deductions->name ?? 'N/A',
-                            'code' => $deduction->deductions->code ?? 'N/A',
-                        ],
-                        'deduction_id' => $deduction->deduction_id,
-                        'amount' => $deduction->amount,
-                        'percentage' => $deduction->percentage,
-                        'frequency' => $deduction->frequency,
-                        'total_term' => $deduction->total_term,
-                        'is_default' => $deduction->is_default,
-                        'status' => $deduction->status,
-                        'updated_on' => $deduction->updated_at,
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
                     ];
                 })->toArray()
             ];
 
             return response()->json([
-                'data' => $data,
+                'responseData' => $data,
                 'message' => 'Retrieve employee deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
@@ -283,7 +277,7 @@ class EmployeeDeductionController extends Controller
 
                         return response()->json([
                             'message' => 'Deduction added successfully.',
-                            'data' => new EmployeeDeductionResource($newDeduction),
+                            'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], 201); // 201 Created
                     }
                 }
@@ -375,8 +369,8 @@ class EmployeeDeductionController extends Controller
                             ->findOrFail($employee_deductions->id);
 
                         return response()->json([
-                            'message' => 'Deduction added successfully.',
-                            'data' => new EmployeeDeductionResource($newDeduction),
+                            'message' => 'Deduction updated successfully.',
+                            'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], 201); // 201 Created
                     }
                 }
@@ -396,12 +390,15 @@ class EmployeeDeductionController extends Controller
             $date_from = $request->date_from;
             $date_to = $request->date_to;
             $status = $request->status;
-            $stopped_at = $request->stopped_at;
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $employee_list_id)
                 ->where('deduction_id', $deduction_id)
                 ->first();
 
             if ($employee_deductions) {
+                if($status === 'Stopped')
+                {
+                    $stopped_at = 'dte';
+                }
                 $employee_deductions->update([
                     'status' => $status,
                     'date_from' => $date_from,
@@ -419,7 +416,7 @@ class EmployeeDeductionController extends Controller
 
                 return response()->json([
                     'message' => 'Employee deduction updated successfully.',
-                    'data' => new EmployeeDeductionResource($employee_deductions),
+                    'responseData' => new EmployeeDeductionResource($employee_deductions),
                 ], 201); // 201 Created
 
             } else {

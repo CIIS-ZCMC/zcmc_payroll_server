@@ -18,31 +18,23 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::middleware('umis_server')->group(function () {
-Route::namespace('App\Http\Controllers\Employee')->group(function () {
-    Route::get('FetchData', 'ImportEmployeeController@FetchList');
+    Route::namespace('App\Http\Controllers\Employee')->group(function () {
+        Route::get('FetchData', 'ImportEmployeeController@FetchList');
 
-    Route::post("authorize_pin","EmployeeListController@AuthorizationPin");
-});
+        Route::post("authorize_pin", "EmployeeListController@AuthorizationPin");
+    });
 
-Route::namespace('App\Http\Controllers\Authentication')->group(function () {
-    Route::post('Signin', 'LoginController@Signin');
-});
-
-
+    Route::namespace('App\Http\Controllers\Authentication')->group(function () {
+        Route::post('Signin', 'LoginController@Signin');
+    });
 });
 
 
 Route::middleware('auth.token')->group(function () {
 
     Route::namespace('App\Http\Controllers\Employee')->group(function () {
-        Route::get("employee_index","EmployeeListController@index");
+        Route::get("employee_index", "EmployeeListController@index");
     });
-
-
-
-
-
-
 });
 
 
