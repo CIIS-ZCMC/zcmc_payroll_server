@@ -20,7 +20,7 @@ class EmployeeReceivableResource extends JsonResource
                 'name' => $this->receivables->name ?? 'N/A',
                 'code' => $this->receivables->code ?? 'N/A',
             ],
-            'amount' => $this->amount,
+            'amount' => '₱' . $this->amount,
             'percentage' => $this->percentage,
             'frequency' => $this->frequency,
             'total_term' => $this->total_term,

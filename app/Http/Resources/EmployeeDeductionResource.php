@@ -20,7 +20,7 @@ class EmployeeDeductionResource extends JsonResource
                 'name' => $this->deductions->name ?? 'N/A',
                 'code' => $this->deductions->code ?? 'N/A',
             ],
-            'amount' => $this->amount,
+            'amount' => '₱' . $this->amount,
             'percentage' => $this->percentage,
             'frequency' => $this->frequency,
             'total_term' => $this->total_term,

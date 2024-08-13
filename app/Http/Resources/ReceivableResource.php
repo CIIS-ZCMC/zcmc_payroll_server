@@ -18,13 +18,12 @@ class ReceivableResource extends JsonResource
             'id' => $this->id,
             'employee_list_id' => $this->employee_list_id,
             'name' => $this->name,
-            'amount' => $this->amount !== null ? $this->amount : $this->percentage,
+            'amount' => $this->amount !== null ? '₱' . $this->amount : $this->percentage,
             'date_from' => $this->date_from,
             'date_to' => $this->date_to,
             'employment_type' => $this->employment_type,
             'is_mandatory' => $this->is_mandatory,
             'is_active' => $this->is_active,
-
         ];
     }
 }

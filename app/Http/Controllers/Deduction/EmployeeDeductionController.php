@@ -94,7 +94,7 @@ class EmployeeDeductionController extends Controller
         }
     }
 
-  
+
     public function getEmployeeDeductions(Request $request)
     {
         try {
@@ -121,7 +121,7 @@ class EmployeeDeductionController extends Controller
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => $deduction->amount,
+                        'Amount' => '₱' . $deduction->amount,
                         'Updated on' => $deduction->updated_at,
                         'Terms to pay' => $deduction->total_term,
                         'Billing Cycle' => $deduction->frequency,
@@ -166,7 +166,7 @@ class EmployeeDeductionController extends Controller
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => $deduction->amount,
+                        'Amount' => '₱' . $deduction->amount,
                         'Updated on' => $deduction->updated_at,
                         'Terms to pay' => $deduction->total_term,
                         'Billing Cycle' => $deduction->frequency,
