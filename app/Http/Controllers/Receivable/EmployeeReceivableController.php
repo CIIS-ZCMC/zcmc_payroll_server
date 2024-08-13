@@ -105,7 +105,7 @@ class EmployeeReceivableController extends Controller
                     'Payment terms received' => $receivable->total_term,
                     'Billing Cycle' => $receivable->frequency,
                     'Status' => $receivable->status,
-                    'percentage' => $receivable->percentage,
+                    'percentage' => $receivable->percentage . '%',
                     'is_default' => $receivable->is_default,
                 ];
             });
@@ -151,7 +151,7 @@ class EmployeeReceivableController extends Controller
                     ],
                     'receivable_id' => $receivable->receivable_id,
                     'amount' => '₱' .  $receivable->amount,
-                    'percentage' => $receivable->percentage,
+                    'percentage' => $receivable->percentage . '%',
                     'frequency' => $receivable->frequency,
                     'total_term' => $receivable->total_term,
                     'is_default' => $receivable->is_default,
