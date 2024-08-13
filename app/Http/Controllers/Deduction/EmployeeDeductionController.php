@@ -47,7 +47,7 @@ class EmployeeDeductionController extends Controller
                     'Id' => $employee->id,
                     'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                     'Designation' => $employee->designation,
-                    'Designation' => $basic_salary,
+                    'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,
                     'Net salary' => $net_salary,
                 ];

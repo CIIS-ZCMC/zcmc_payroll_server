@@ -18,7 +18,7 @@ class EmployeeSalaryResource extends JsonResource
             'id' => $this->id,
             'employee_list_id' => $this->employee_list_id,
             'Employee' => $this->employeeList->first_name . ' ' . $this->employeeList->middle_name . ' ' . $this->employeeList->last_name,
-            'Job position' => $this->employeeList->designation,
+            'Designation' => $this->employeeList->designation,
             'Base salary' => $this->basic_salary,
             'Salary grade' => $this->salary_grade,
             'Step' => $this->salary_step,
