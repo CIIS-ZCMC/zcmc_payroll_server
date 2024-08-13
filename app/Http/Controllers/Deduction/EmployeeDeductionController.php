@@ -133,7 +133,7 @@ class EmployeeDeductionController extends Controller
             ];
 
             return response()->json([
-                'data' => $data,
+                'responsedata' => $data,
                 'message' => 'Retrieve employee deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {

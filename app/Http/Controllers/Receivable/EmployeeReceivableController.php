@@ -276,6 +276,7 @@ class EmployeeReceivableController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    
     public function updateReceivable(Request $request)
     {
         try {
