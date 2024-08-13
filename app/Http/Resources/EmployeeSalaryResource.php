@@ -15,13 +15,13 @@ class EmployeeSalaryResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'employee_list' => new EmployeeListResource($this->whenLoaded('employeeList')),
             'id' => $this->id,
             'employee_list_id' => $this->employee_list_id,
-            'employment_type' => $this->employment_type,
-            'basic_salary' => $this->basic_salary,
-            'salary_grade' => $this->salary_grade,
-            'salary_step' => $this->salary_step,
+            'Employee' => $this->employeeList->first_name . ' ' . $this->employeeList->middle_name . ' ' . $this->employeeList->last_name,
+            'Job position' => $this->employeeList->designation,
+            'Base salary' => $this->basic_salary,
+            'Salary grade' => $this->salary_grade,
+            'Step' => $this->salary_step,
             'month' => $this->month,
             'year' => $this->year,
             'is_active' => $this->is_active,

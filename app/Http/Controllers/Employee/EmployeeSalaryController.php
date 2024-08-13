@@ -22,7 +22,7 @@ class EmployeeSalaryController extends Controller
         try {
             $employee_lists = EmployeeSalary::with('employeeList')->get();
             return response()->json([
-                'data' => EmployeeSalaryResource::collection($employee_lists),
+                'responseData' => EmployeeSalaryResource::collection($employee_lists),
                 'message' => 'Retrieve employees with salary.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
