@@ -27,6 +27,8 @@ class LoginController extends Controller
                 ->where("name", $data['name']);
             $generatedToken = Token::generateToken();
 
+
+
             /**
              * Add validation code here
              * to check for access in [ Payroll Modules ]
@@ -51,7 +53,16 @@ class LoginController extends Controller
                         'abilities' => encrypt($data, true),
                         'last_used_at' => now(),
                     ]);
+                }else {
+
+                       $AccessToken->update([
+                        'token' => $generatedToken,
+                        'abilities' => encrypt($data, true),
+                        'last_used_at' => now(),
+                    ]);
                 }
+
+
             } else {
                 //No cookie detected
                 PersonalAccessToken::create([
@@ -62,6 +73,8 @@ class LoginController extends Controller
                     'last_used_at' => now(),
                 ]);
             }
+
+
 
             Logging::RecordTransaction([
                 'module'=>"UMIS/Authentication",
@@ -80,6 +93,7 @@ class LoginController extends Controller
 
 
         } catch (\Throwable $th) {
+
 
             Logging::RecordTransaction([
                 'module'=>"UMIS/Authentication",

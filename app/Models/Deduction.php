@@ -33,4 +33,9 @@ class Deduction extends Model
         return $this->belongsTo(DeductionGroup::class);
     }
 
+    public function Logs()
+    {
+        return $this->belongsTo(DeductionLog::class,'id');
+    }
+
 }

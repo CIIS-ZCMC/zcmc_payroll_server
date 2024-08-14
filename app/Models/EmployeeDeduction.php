@@ -8,11 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeDeduction extends Model
 {
     use HasFactory;
-
     protected $table = 'employee_deductions';
-
     protected $primaryKey = 'id';
-
     protected $fillable = [
         'employee_list_id',
         'deduction_id',
@@ -23,21 +20,23 @@ class EmployeeDeduction extends Model
         'total_term',
         'is_default'
     ];
-
     public $timestamps = true;
 
     public function EmployeeList()
     {
         return $this->belongsTo(EmployeeList::class);
     }
-
-    public function Deduction()
+    public function getDeductions()
     {
-        return $this->belongsTo(Deduction::class);
+        return $this->belongsTo(Deduction::class,'id');
+    }
+    public function getDeductionGroup()
+    {
+        return $this->belongsTo(DeductionGroup::class,'id');
+    }
+    public function DeductionTrails(){
+        return $this->hasMany(EmployeeDeductionTrail::class,"employee_deduction_id");
+
     }
 
-    public function DeductionGroup()
-    {
-        return $this->belongsTo(DeductionGroup::class);
-    }
 }

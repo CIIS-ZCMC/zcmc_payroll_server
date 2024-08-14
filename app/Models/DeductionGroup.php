@@ -19,4 +19,5 @@ class DeductionGroup extends Model
     ];
 
     public $timestamps = true;
+
 }

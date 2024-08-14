@@ -9,14 +9,21 @@ use \App\Helpers\Helpers;
 use \App\Helpers\Token;
 use Illuminate\Http\Response;
 use \App\Helpers\Logging;
-
+use App\Models\EmployeeList;
+use App\Models\EmployeeReceivable;
 
 class EmployeeListController extends Controller
 {
 
     public function index(Request $request){
 
+        $employee = EmployeeList::find(1);
 
+    //    $employeeList->employeeReceivables->map(function ($employeeReceivable) {
+    //         return $employeeReceivable->receivableLogs;
+    //     });
+
+        return $employee->isPayrollExcluded->count();
 
     }
 
