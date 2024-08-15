@@ -13,23 +13,27 @@ use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
 use App\Models\payroll_header;
 use App\Models\PayrollHeaders;
+use App\Models\ExcludedEmployee;
 
 class EmployeeListController extends Controller
 {
 
     public function index(Request $request){
+        $employees = EmployeeList::with(['getTimeRecords.ComputedSalary'])->get();
 
-        $payrollHeader = PayrollHeaders::find(1);
+        $salaries = [];
+        foreach ($employees as  $row) {
+           if($row->isPayrollExcluded->count() == 0){
+            $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
+            $salaries[] = $tempNetSalary;
+            /**
+             * Payroll processes starts here.
+             *
+             */
 
-    //    $employeeList->employeeReceivables->map(function ($employeeReceivable) {
-    //         return $employeeReceivable->receivableLogs;
-    //     });
-
-
-  return $payrollHeader->LockedGenPayrolls;
-
-
-
+        }
+        }
+        return $salaries;
     }
 
     public function AuthorizationPin(Request $request){

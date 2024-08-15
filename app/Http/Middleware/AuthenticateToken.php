@@ -8,6 +8,7 @@ use App\Helpers\Token;
 use Illuminate\Http\Response;
 use App\Models\PersonalAccessToken;
 use Illuminate\Support\Facades\Log;
+use App\Models\TimeRecord;
 
 class AuthenticateToken
 {
@@ -39,9 +40,19 @@ class AuthenticateToken
                 //EXPIRED
                 return response()->json(['message' => 'Un-Authorized', 'response' => 'Expired Token'], Response::HTTP_UNAUTHORIZED);
             }
+            $timeRecord = TimeRecord::where('is_active',1)->latest()->first();
+            $tr = [];
+            if($timeRecord){
+                $tr = [
+                    'month'=>$timeRecord->month,
+                    'year'=>$timeRecord->year
+                ];
+            }
+            $accessToken->update([
+                'last_used_at' => now(),
+            ]);
 
-
-            $request->merge(['user' => Token::UserInfo()]);
+            $request->merge(['user' => Token::UserInfo(),'processMonth'=>$tr]);
             return $next($request);
         } catch (\Throwable $th) {
             Log::channel('code')->error($th);

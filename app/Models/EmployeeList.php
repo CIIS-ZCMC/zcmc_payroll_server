@@ -54,7 +54,7 @@ class EmployeeList extends Model
         }
         return $this->hasMany(ExcludedEmployee::class, 'employee_list_id')
             ->where('month', $timeRecord->month)
-            ->where('year', $timeRecord);
+            ->where('year', $timeRecord->year);
     }
 
     public function getListOfTimeRecords(){

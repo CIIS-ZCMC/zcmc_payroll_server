@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\TimeRecord;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
@@ -46,6 +47,8 @@ class Helpers
         $response = $client->request('GET', request()->umis . '/'.$api);
         return json_decode($response->getBody(), true);
     }
+
+
 
 
 
