@@ -204,8 +204,8 @@ class EmployeeDeductionController extends Controller
             if ($existingDeduction) {
                 return response()->json([
                     'message' => 'Deduction already exists for this employee.',
-                    'data' => new EmployeeDeductionResource($existingDeduction),
-                ], 409); // 409 Conflict
+                    'responseData' => new EmployeeDeductionResource($existingDeduction),
+                ], Response::HTTP_OK);
             } else {
 
                 if ($is_default) {
@@ -234,8 +234,8 @@ class EmployeeDeductionController extends Controller
 
                     return response()->json([
                         'message' => 'Deduction added successfully.',
-                        'data' => new EmployeeDeductionResource($newDeduction),
-                    ], 201); // 201 Created
+                        'responseData' => new EmployeeDeductionResource($newDeduction),
+                    ], Response::HTTP_OK);
                 } else {
 
                     if ($request->percentage === null) {
@@ -256,8 +256,8 @@ class EmployeeDeductionController extends Controller
 
                         return response()->json([
                             'message' => 'Deduction added successfully.',
-                            'data' => new EmployeeDeductionResource($newDeduction),
-                        ], 201); // 201 Created
+                            'responseData' => new EmployeeDeductionResource($newDeduction),
+                        ], Response::HTTP_OK);
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
@@ -280,7 +280,7 @@ class EmployeeDeductionController extends Controller
                         return response()->json([
                             'message' => 'Deduction added successfully.',
                             'responseData' => new EmployeeDeductionResource($newDeduction),
-                        ], 201); // 201 Created
+                        ], Response::HTTP_OK);
                     }
                 }
             }
@@ -329,8 +329,8 @@ class EmployeeDeductionController extends Controller
 
                     return response()->json([
                         'message' => 'Deduction updated successfully.',
-                        'data' => new EmployeeDeductionResource($newDeduction),
-                    ], 201); // 201 Created
+                        'responseData' => new EmployeeDeductionResource($newDeduction),
+                    ], Response::HTTP_OK);
                 } else {
 
                     if ($request->percentage === null) {
@@ -350,8 +350,8 @@ class EmployeeDeductionController extends Controller
 
                         return response()->json([
                             'message' => 'Deduction added successfully.',
-                            'data' => new EmployeeDeductionResource($newDeduction),
-                        ], 201); // 201 Created
+                            'responseData' => new EmployeeDeductionResource($newDeduction),
+                        ], Response::HTTP_OK);
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
@@ -373,7 +373,7 @@ class EmployeeDeductionController extends Controller
                         return response()->json([
                             'message' => 'Deduction updated successfully.',
                             'responseData' => new EmployeeDeductionResource($newDeduction),
-                        ], 201); // 201 Created
+                        ], Response::HTTP_OK);
                     }
                 }
             } else {
