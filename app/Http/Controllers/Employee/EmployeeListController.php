@@ -11,19 +11,24 @@ use Illuminate\Http\Response;
 use \App\Helpers\Logging;
 use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
+use App\Models\payroll_header;
+use App\Models\PayrollHeaders;
 
 class EmployeeListController extends Controller
 {
 
     public function index(Request $request){
 
-        $employee = EmployeeList::find(1);
+        $payrollHeader = PayrollHeaders::find(1);
 
     //    $employeeList->employeeReceivables->map(function ($employeeReceivable) {
     //         return $employeeReceivable->receivableLogs;
     //     });
 
-        return $employee->isPayrollExcluded->count();
+
+  return $payrollHeader->LockedGenPayrolls;
+
+
 
     }
 
