@@ -45,7 +45,7 @@ class EmployeeDeductionController extends Controller
                 $response[] = [
 
                     'Id' => $employee->id,
-                    'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                    'Employee' => $employee->first_name . ' ' . $employee->last_name,
                     'Designation' => $employee->designation,
                     'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,
@@ -278,14 +278,14 @@ class EmployeeDeductionController extends Controller
                             ->findOrFail($newDeduction->id);
 
                         return response()->json([
-                            'message' => 'Deduction added successfully.',
+                            'Message' => 'Deduction added successfully.',
                             'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], 201); // 201 Created
                     }
                 }
             }
         } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['Message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     public function updateDeduction(Request $request)
