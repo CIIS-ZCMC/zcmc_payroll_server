@@ -55,8 +55,7 @@ class EmployeeDeductionController extends Controller
 
             return response()->json([
                 'responseData' => $response,
-                'message' => 'Retrieve employee details.',
-                'statusCode'=>200
+                'message' => 'Retrieve employee details.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -87,8 +86,7 @@ class EmployeeDeductionController extends Controller
             $deductions = Deduction::get();
             return response()->json([
                 'responseData' => DeductionResource::collection($deductions),
-                'message' => 'Retrieve all deductions.',
-                'statusCode'=>200,
+                'message' => 'Retrieve all deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             // Handle any errors that occur
@@ -123,7 +121,7 @@ class EmployeeDeductionController extends Controller
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' =>  '₱'. $deduction->amount,
+                        'Amount' =>  '₱' . $deduction->amount,
                         'Updated on' => $deduction->updated_at,
                         'Terms to pay' => $deduction->total_term,
                         'Billing Cycle' => $deduction->frequency,
@@ -136,7 +134,6 @@ class EmployeeDeductionController extends Controller
             return response()->json([
                 'responseData' => $data,
                 'message' => 'Retrieve employee deductions.',
-                'statusCode'=>200,
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -181,8 +178,7 @@ class EmployeeDeductionController extends Controller
 
             return response()->json([
                 'responseData' => $data,
-                'message' => 'Retrieve employee deductions.',
-                'statusCode'=>200,
+                'message' => 'Retrieve employee deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -208,7 +204,7 @@ class EmployeeDeductionController extends Controller
             if ($existingDeduction) {
                 return response()->json([
                     'message' => 'Deduction already exists for this employee.',
-                    'statusCode'=>200,
+                    'statusCode' => 200,
                     // 'responseData' => new EmployeeDeductionResource($existingDeduction),
                 ], Response::HTTP_OK);
             } else {
@@ -239,7 +235,7 @@ class EmployeeDeductionController extends Controller
 
                     return response()->json([
                         'message' => 'Deduction added successfully.',
-                        'statusCode'=>200,
+                        'statusCode' => 200,
                         // 'responseData' => new EmployeeDeductionResource($newDeduction),
                     ], Response::HTTP_OK);
                 } else {
@@ -262,7 +258,7 @@ class EmployeeDeductionController extends Controller
 
                         return response()->json([
                             'message' => 'Deduction added successfully.',
-                            'statusCode'=>200,
+                            'statusCode' => 200,
                             // 'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], Response::HTTP_OK);
                     } else {
@@ -286,7 +282,7 @@ class EmployeeDeductionController extends Controller
 
                         return response()->json([
                             'Message' => 'Deduction added successfully.',
-                            'statusCode'=>200
+                            'statusCode' => 200
                             // 'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], Response::HTTP_OK);
                     }
@@ -337,7 +333,7 @@ class EmployeeDeductionController extends Controller
 
                     return response()->json([
                         'message' => 'Deduction updated successfully.',
-                        'statusCode'=>200
+                        'statusCode' => 200
                         // 'responseData' => new EmployeeDeductionResource($newDeduction),
                     ], Response::HTTP_OK);
                 } else {
@@ -359,7 +355,7 @@ class EmployeeDeductionController extends Controller
 
                         return response()->json([
                             'message' => 'Deduction added successfully.',
-                            'statusCode'=>200
+                            'statusCode' => 200
                             // 'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], Response::HTTP_OK);
                     } else {
@@ -382,7 +378,7 @@ class EmployeeDeductionController extends Controller
 
                         return response()->json([
                             'message' => 'Deduction updated successfully.',
-                            'statusCode'=>200
+                            'statusCode' => 200
                             // 'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], Response::HTTP_OK);
                     }
@@ -429,10 +425,9 @@ class EmployeeDeductionController extends Controller
 
                 return response()->json([
                     'message' => 'Employee deduction updated successfully.',
-                    'statusCode'=>200
+                    'statusCode' => 200
                     // 'responseData' => new EmployeeDeductionResource($employee_deductions),
                 ], Response::HTTP_OK);
-
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);
             }
