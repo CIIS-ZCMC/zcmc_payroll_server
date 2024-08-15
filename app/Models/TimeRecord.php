@@ -42,4 +42,11 @@ class TimeRecord extends Model
         return $this->belongsTo(EmployeeList::class);
     }
 
+    public function ComputedSalary(){
+        return $this->hasOne(EmployeeComputedSalary::class,'time_record_id');
+    }
+
+
+
+
 }

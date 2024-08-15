@@ -15,7 +15,9 @@ class ExcludedEmployee extends Model
 
     protected $fillable = [
         'employee_list_id',
-        'reason'
+        'reason',
+        'year',
+        'month'
     ];
 
     public $timestamps = true;

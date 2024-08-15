@@ -193,7 +193,8 @@ class EmployeeReceivableController extends Controller
             if ($existingreceivable) {
                 return response()->json([
                     'message' => 'receivable already exists for this employee.',
-                    'data' => new EmployeeReceivableResource($existingreceivable),
+                    'statusCode'=>200
+                    // 'data' => new EmployeeReceivableResource($existingreceivable),
                 ], Response::HTTP_OK);
 
                 if ($is_default) {
@@ -220,7 +221,8 @@ class EmployeeReceivableController extends Controller
 
                     return response()->json([
                         'message' => 'receivable added successfully.',
-                        'data' => new EmployeeReceivableResource($newreceivable),
+                        'statusCode'=>200
+                        // 'data' => new EmployeeReceivableResource($newreceivable),
                     ], Response::HTTP_OK);
                 } else {
 
@@ -240,7 +242,8 @@ class EmployeeReceivableController extends Controller
 
                         return response()->json([
                             'message' => 'receivable added successfully.',
-                            'data' => new EmployeeReceivableResource($newreceivable),
+                            'statusCode'=>200
+                            // 'data' => new EmployeeReceivableResource($newreceivable),
                         ],Response::HTTP_OK);
                     } else {
 
@@ -261,7 +264,8 @@ class EmployeeReceivableController extends Controller
 
                         return response()->json([
                             'message' => 'receivable added successfully.',
-                            'data' => new EmployeereceivableResource($newreceivable),
+                            'statusCode'=>200
+                            // 'data' => new EmployeereceivableResource($newreceivable),
                         ], Response::HTTP_OK);
                     }
                 }
@@ -309,7 +313,8 @@ class EmployeeReceivableController extends Controller
 
                     return response()->json([
                         'message' => 'receivable updated successfully.',
-                        'data' => new EmployeeReceivableResource($newreceivable),
+                        'statusCode'=>200
+                        // 'data' => new EmployeeReceivableResource($newreceivable),
                     ], Response::HTTP_OK);
                 } else {
 
@@ -328,7 +333,8 @@ class EmployeeReceivableController extends Controller
 
                         return response()->json([
                             'message' => 'receivable added successfully.',
-                            'data' => new EmployeereceivableResource($newreceivable),
+                            'statusCode'=>200
+                            // 'data' => new EmployeereceivableResource($newreceivable),
                         ], Response::HTTP_OK);
                     } else {
 
@@ -348,7 +354,8 @@ class EmployeeReceivableController extends Controller
 
                         return response()->json([
                             'message' => 'receivable updated successfully.',
-                            'responseData' => new EmployeeReceivableResource($newreceivable),
+                            'statusCode'=>200
+                            // 'responseData' => new EmployeeReceivableResource($newreceivable),
                         ], Response::HTTP_OK);
                     }
                 }
@@ -395,8 +402,9 @@ class EmployeeReceivableController extends Controller
 
                 return response()->json([
                     'message' => 'Employee receivable updated successfully.',
-                    'responseData' => new EmployeereceivableResource($employee_receivables),
-                ], Response::HTTP_OK); 
+                    'statusCode'=>200
+                    // 'responseData' => new EmployeereceivableResource($employee_receivables),
+                ], Response::HTTP_OK);
 
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);

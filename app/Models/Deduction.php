@@ -33,6 +33,7 @@ class Deduction extends Model
         return $this->belongsTo(DeductionGroup::class, 'deduction_group_id');
     }
 
+<<<<<<< HEAD
     public function employeeList()
     {
         return $this->belongsToMany(EmployeeList::class, 'employee_deductions')
@@ -50,4 +51,11 @@ class Deduction extends Model
     {
         return $this->hasMany(DeductionLog::class);
     }
+=======
+    public function Logs()
+    {
+        return $this->belongsTo(DeductionLog::class,'id');
+    }
+
+>>>>>>> c5375f205dd4c99c8b8c7cbb17e65b13d8a24823
 }

@@ -18,6 +18,8 @@ class CreateExcludedEmployeesTable extends Migration
             $table->unsignedBigInteger('employee_list_id');
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
             $table->string('reason');
+            $table->string("year");
+            $table->string("month");
             $table->timestamps();
         });
     }

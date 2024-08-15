@@ -19,7 +19,10 @@ class TransactionLog extends Model
         'status',
         'ip_address',
         'remarks',
+        'serverResponse',
+        'affected_entity',
         'employee_profile_id',
+        'employee_number',
         'name',
     ];
 

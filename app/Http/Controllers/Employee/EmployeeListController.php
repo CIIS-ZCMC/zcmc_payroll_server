@@ -7,16 +7,26 @@ use App\Http\Resources\EmployeeListResource;
 use App\Models\EmployeeList;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use \App\Helpers\Logging;
+use App\Models\EmployeeList;
+use App\Models\EmployeeReceivable;
 
 class EmployeeListController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
+
+    public function index(Request $request){
+
+        $employee = EmployeeList::find(1);
+
+    //    $employeeList->employeeReceivables->map(function ($employeeReceivable) {
+    //         return $employeeReceivable->receivableLogs;
+    //     });
+
+        return $employee->isPayrollExcluded->count();
+
+    }
+
+    public function AuthorizationPin(Request $request){
         try {
             $employee_lists = EmployeeList::with('salary')->get();
             return response()->json([
@@ -28,7 +38,7 @@ class EmployeeListController extends Controller
         }
     }
 
-   
+
 
 
     /**
