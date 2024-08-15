@@ -419,7 +419,7 @@ class EmployeeDeductionController extends Controller
                 return response()->json([
                     'message' => 'Employee deduction updated successfully.',
                     'responseData' => new EmployeeDeductionResource($employee_deductions),
-                ], 201); // 201 Created
+                ], Response::HTTP_OK); 
 
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);

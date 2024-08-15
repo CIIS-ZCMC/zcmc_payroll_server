@@ -194,8 +194,7 @@ class EmployeeReceivableController extends Controller
                 return response()->json([
                     'message' => 'receivable already exists for this employee.',
                     'data' => new EmployeeReceivableResource($existingreceivable),
-                ], 409); // 409 Conflict
-            } else {
+                ], Response::HTTP_OK);
 
                 if ($is_default) {
 
@@ -222,7 +221,7 @@ class EmployeeReceivableController extends Controller
                     return response()->json([
                         'message' => 'receivable added successfully.',
                         'data' => new EmployeeReceivableResource($newreceivable),
-                    ], 201); // 201 Created
+                    ], Response::HTTP_OK);
                 } else {
 
                     if ($request->percentage === null) {
@@ -242,7 +241,7 @@ class EmployeeReceivableController extends Controller
                         return response()->json([
                             'message' => 'receivable added successfully.',
                             'data' => new EmployeeReceivableResource($newreceivable),
-                        ], 201); // 201 Created
+                        ],Response::HTTP_OK);
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
@@ -263,7 +262,7 @@ class EmployeeReceivableController extends Controller
                         return response()->json([
                             'message' => 'receivable added successfully.',
                             'data' => new EmployeereceivableResource($newreceivable),
-                        ], 201); // 201 Created
+                        ], Response::HTTP_OK);
                     }
                 }
             }
@@ -311,7 +310,7 @@ class EmployeeReceivableController extends Controller
                     return response()->json([
                         'message' => 'receivable updated successfully.',
                         'data' => new EmployeeReceivableResource($newreceivable),
-                    ], 201); // 201 Created
+                    ], Response::HTTP_OK);
                 } else {
 
                     if ($request->percentage === null) {
@@ -330,7 +329,7 @@ class EmployeeReceivableController extends Controller
                         return response()->json([
                             'message' => 'receivable added successfully.',
                             'data' => new EmployeereceivableResource($newreceivable),
-                        ], 201); // 201 Created
+                        ], Response::HTTP_OK);
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
@@ -350,7 +349,7 @@ class EmployeeReceivableController extends Controller
                         return response()->json([
                             'message' => 'receivable updated successfully.',
                             'responseData' => new EmployeeReceivableResource($newreceivable),
-                        ], 201); // 201 Created
+                        ], Response::HTTP_OK);
                     }
                 }
             } else {
@@ -397,7 +396,7 @@ class EmployeeReceivableController extends Controller
                 return response()->json([
                     'message' => 'Employee receivable updated successfully.',
                     'responseData' => new EmployeereceivableResource($employee_receivables),
-                ], 201); // 201 Created
+                ], Response::HTTP_OK); 
 
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);
