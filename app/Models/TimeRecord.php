@@ -46,6 +46,13 @@ class TimeRecord extends Model
         return $this->hasOne(EmployeeComputedSalary::class,'time_record_id');
     }
 
+    public function GeneralPayrollDetail(){
+        return $this->hasOne(GeneralPayroll::class,"time_record_id");
+    }
+
+    public function GeneralPayrollDetailTrails(){
+        return $this->hasOne(GeneralPayrollTrails::class,"time_record_id");
+    }
 
 
 

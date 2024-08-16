@@ -19,6 +19,7 @@ class GeneralPayroll extends Model
     protected $fillable = [
         'payroll_headers_id',
         'employee_list_id',
+        'time_record_id',
         'employee_receivables',
         'employee_contributions',
         'employee_loans',

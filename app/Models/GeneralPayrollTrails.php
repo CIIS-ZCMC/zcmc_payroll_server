@@ -14,6 +14,7 @@ class GeneralPayrollTrails extends Model
         'general_payrolls_id',
         'payroll_headers_id',
         'employee_list_id',
+        'time_record_id',
         'employee_receivables',
         'employee_contributions',
         'employee_loans',

@@ -19,6 +19,8 @@ class CreateGeneralPayrollsTable extends Migration
             $table->foreign('payroll_headers_id')->references('id')->on('payroll_headers');
             $table->unsignedBigInteger('employee_list_id');
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
+            $table->unsignedBigInteger('time_record_id');
+            $table->foreign('time_record_id')->references('id')->on('time_records');
             $table->text("employee_receivables");
             $table->text("employee_contributions");
             $table->text("employee_loans");
