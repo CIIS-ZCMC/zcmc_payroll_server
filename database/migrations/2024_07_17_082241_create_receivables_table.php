@@ -17,11 +17,11 @@ class CreateReceivablesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('code');
-            $table->double('amount')->nullable();
-            $table->double('percentage')->nullable();
-            $table->date('date_from');
-            $table->date('date_to');
             $table->string('emmployment_type');
+            $table->string('charge_basis')->nullable();
+            $table->double('charge')->nullable();
+            $table->string('billing_cycle')->nullable();
+            $table->integer('terms_to_pay')->nullable();
             $table->boolean('is_mandatory');
             $table->boolean('is_active');
             $table->timestamps();
