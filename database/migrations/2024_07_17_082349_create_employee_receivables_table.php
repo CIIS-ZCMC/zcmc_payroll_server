@@ -26,6 +26,7 @@ class CreateEmployeeReceivablesTable extends Migration
             $table->string('date_to')->nullable();
             $table->string('stopped_at')->nullable();
             $table->integer('total_term')->nullable();
+            $table->string('remarks')->nullable();
             $table->boolean('is_default');
             $table->timestamps();
         });

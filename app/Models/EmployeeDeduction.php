@@ -29,7 +29,6 @@ class EmployeeDeduction extends Model
     {
         return $this->hasMany(EmployeeDeductionLog::class);
     }
-<<<<<<< HEAD
 
     public function employeeList()
     {
@@ -40,7 +39,6 @@ class EmployeeDeduction extends Model
     {
         return $this->belongsTo(Deduction::class, 'deduction_id');
     }
-=======
     public function getDeductions()
     {
         return $this->belongsTo(Deduction::class,'id');
@@ -54,5 +52,4 @@ class EmployeeDeduction extends Model
 
     }
 
->>>>>>> c5375f205dd4c99c8b8c7cbb17e65b13d8a24823
 }

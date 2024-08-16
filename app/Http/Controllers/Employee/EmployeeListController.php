@@ -8,7 +8,6 @@ use App\Models\EmployeeList;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use \App\Helpers\Logging;
-use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
 
 class EmployeeListController extends Controller

@@ -56,7 +56,7 @@ class EmployeeDeductionController extends Controller
             return response()->json([
                 'responseData' => $response,
                 'message' => 'Retrieve employee details.'
-            ], Response::HTTP_OK);
+            ]);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
