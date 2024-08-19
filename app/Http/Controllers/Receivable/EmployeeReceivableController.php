@@ -94,7 +94,7 @@ class EmployeeReceivableController extends Controller
 
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Active', 'Suspended']);
+                return in_array($receivable->status, ['Active']);
             })->map(function ($receivable) {
                 return [
                     'Id' => $receivable->receivable_id,
@@ -142,7 +142,7 @@ class EmployeeReceivableController extends Controller
 
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Stopped']);
+                return in_array($receivable->status, ['Stopped', 'Completed']);
             })->map(function ($receivable) {
                 return [
                     'receivables' => [
@@ -175,6 +175,57 @@ class EmployeeReceivableController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function getSuspendedEmployeeReceivables(Request $request)
+    {
+        try {
+            $employee_list_id = $request->employee_list_id;
+
+            // Retrieve the employee with related receivables and salary
+            $employee = EmployeeList::with(['employeeReceivables.receivables', 'salary'])
+                ->where('id', $employee_list_id)
+                ->first();
+
+            if (!$employee) {
+                return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
+            }
+
+            // Prepare the response data
+            $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
+                return in_array($receivable->status, ['Suspended']);
+            })->map(function ($receivable) {
+                return [
+                    'receivables' => [
+                        'name' => $receivable->receivables->name ?? 'N/A',
+                        'code' => $receivable->receivables->code ?? 'N/A',
+                    ],
+                    'receivable_id' => $receivable->receivable_id,
+                    'amount' => '₱' .  $receivable->amount,
+                    'percentage' => $receivable->percentage . '%',
+                    'frequency' => $receivable->frequency,
+                    'total_term' => $receivable->total_term,
+                    'is_default' => $receivable->is_default,
+                    'status' => $receivable->status,
+                    'updated_on' => $receivable->updated_at,
+                ];
+            });
+
+            $response = [
+                'responseData' => [
+                    'employee_list_id' => $employee->id,
+                    'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                    'designation' => $employee->designation, // Ensure designation relationship exists
+                    'receivables' => $receivablesData,
+                ],
+                'message' => 'Retrieve inactive employee receivables.'
+            ];
+
+            return response()->json($response, Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     public function storeReceivable(Request $request)
     {
