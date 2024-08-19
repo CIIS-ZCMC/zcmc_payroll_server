@@ -47,6 +47,9 @@ class EmployeeList extends Model
     public function employeeDeductions()
     {
         return $this->hasMany(EmployeeDeduction::class, 'employee_list_id');
+
+    }
+
     public function isPayrollExcluded(){
         $timeRecord = $this->getTimeRecords;
 
