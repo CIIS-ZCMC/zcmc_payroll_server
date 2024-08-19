@@ -115,7 +115,53 @@ class EmployeeDeductionController extends Controller
                 'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                 'designation' => $employee->designation, // Ensure designation relationship exists
                 'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
-                    return in_array($deduction->status, ['Active', 'Suspended']);
+                    return in_array($deduction->status, ['Active']);
+                })->map(function ($deduction) {
+                    return [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' =>  '₱' . $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
+                    ];
+                })->toArray()
+            ];
+
+            return response()->json([
+                'responseData' => $data,
+                'message' => 'Retrieve employee deductions.',
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public function getSuspendedEmployeeDeductions(Request $request)
+    {
+        try {
+            $employee_list_id = $request->employee_list_id;
+
+            // Retrieve the employee with related deductions and salary
+            $employee = EmployeeList::with(['employeeDeductions.deductions', 'salary'])
+                ->where('id', $employee_list_id)
+                ->first();
+
+            if (!$employee) {
+                return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
+            }
+
+            // Prepare the response data
+            $data = [
+                'employee_list_id' => $employee->id,
+                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                'designation' => $employee->designation, // Ensure designation relationship exists
+                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Suspended']);
                 })->map(function ($deduction) {
                     return [
                         'Id' => $deduction->deduction_id,
@@ -160,7 +206,7 @@ class EmployeeDeductionController extends Controller
                 'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                 'designation' => $employee->designation, // Ensure designation relationship exists
                 'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
-                    return in_array($deduction->status, ['Stopped']);
+                    return in_array($deduction->status, ['Stopped', 'Completed']);
                 })->map(function ($deduction) {
                     return [
                         'Id' => $deduction->deduction_id,

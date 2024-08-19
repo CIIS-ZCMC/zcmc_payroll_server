@@ -28,6 +28,7 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->string('stopped_at')->nullable();
             $table->string('remarks')->nullable();
             $table->integer('total_term')->nullable();
+            $table->integer('total_paid')->nullable();
             $table->boolean('is_default');
             $table->timestamps();
         });
