@@ -14,11 +14,15 @@ use App\Models\EmployeeReceivable;
 use App\Models\payroll_header;
 use App\Models\PayrollHeaders;
 use App\Models\ExcludedEmployee;
+use App\Http\Controllers\GeneralPayroll\ComputationController;
 
 class EmployeeListController extends Controller
 {
 
-
+    protected $computer;
+    public function __construct() {
+        $this->computer = new ComputationController();
+    }
 
     public function index(Request $request){
         $employees = EmployeeList::with(['getTimeRecords.ComputedSalary'])->get();
@@ -30,16 +34,7 @@ class EmployeeListController extends Controller
         foreach ($employees as  $row) {
            if($row->isPayrollExcluded->count() == 0){
             $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
-            $monthly_rate = 36619 ;// $row->getSalary->basic_salary;
-            $nightHours = 71.92; //$row->getTimeRecords->total_night_duty_hours;
-
-
-            $nd_Rate = floor($monthly_rate * 0.005682 * 100) / 100;
-            $nd_Twenty_Percent =number_format($nd_Rate * 0.2, 2, '.', '');
-            $tota_Accumulated_Night_Differential = number_format($nightHours * $nd_Twenty_Percent, 2, '.', '') ;
-
-            return $tota_Accumulated_Night_Differential;
-
+            $monthly_rate =  $row->getSalary->basic_salary;
 
 
             /**
@@ -48,12 +43,12 @@ class EmployeeListController extends Controller
              * 20% from rate per hour
              *
              */
-            // $ndr = floor($daily_rate * 0.2);
-
-            // return $ndr;
+            $Accumulated_Amount_Night_Differential = $this->computer->computeNightDifferentialAmount($row,$monthly_rate);
 
 
-            $salaries[] = $nightHours;
+
+
+            $salaries[] =$tempNetSalary." = ". Helpers::customRound($tempNetSalary + $Accumulated_Amount_Night_Differential);
 
             $NetNightDutyCompensation = 0;
             /**

@@ -28,6 +28,10 @@ class Helpers
         ];
     }
 
+    public static function customRound($numericValue){
+        return number_format($numericValue, 2, '.', '');
+    }
+
     public static function errorLog($controller, $module, $errorMessage)
     {
         Log::channel('custom-error')->error($controller . ' Controller [' . $module . ']: message: ' . $errorMessage);
