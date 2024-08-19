@@ -18,7 +18,7 @@ class EmployeeComputedSalary extends Model
         'computed_salary'
     ];
 
-    public function TimeRecord()
+    public function timeRecord()
     {
         return $this->belongsTo(TimeRecord::class);
     }

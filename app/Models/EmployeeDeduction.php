@@ -13,18 +13,31 @@ class EmployeeDeduction extends Model
     protected $fillable = [
         'employee_list_id',
         'deduction_id',
-        'deduction_group_id',
         'amount',
         'percentage',
         'frequency',
         'total_term',
-        'is_default'
+        'is_default',
+        'status',
+        'date_to',
+        'date_from',
+        'stopped_at'
     ];
     public $timestamps = true;
 
-    public function EmployeeList()
+    public function logs()
     {
-        return $this->belongsTo(EmployeeList::class);
+        return $this->hasMany(EmployeeDeductionLog::class);
+    }
+
+    public function employeeList()
+    {
+        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
+    }
+
+    public function deductions()
+    {
+        return $this->belongsTo(Deduction::class, 'deduction_id');
     }
     public function getDeductions()
     {

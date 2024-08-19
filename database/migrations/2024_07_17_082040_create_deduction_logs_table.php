@@ -17,8 +17,6 @@ class CreateDeductionLogsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('deduction_id');
             $table->foreign('deduction_id')->references('id')->on('deductions');
-            $table->unsignedBigInteger('deduction_group_id');
-            $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
             $table->unsignedBigInteger('action_by');
             $table->string('action');
             $table->timestamps();

@@ -21,7 +21,7 @@ class ReceivableLog extends Model
 
     public $timestamps = true;
 
-    public function Receivable()
+    public function receivables()
     {
         return $this->belongsTo(Receivable::class);
     }

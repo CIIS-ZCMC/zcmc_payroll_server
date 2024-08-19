@@ -19,24 +19,37 @@ class EmployeeReceivable extends Model
         'amount',
         'percentage',
         'total_term',
-        'date_from',
+        'is_default',
+        'status',
         'date_to',
-        'is_default'
+        'date_from',
+        'stopped_at'
     ];
 
     public $timestamps = true;
 
-    public function EmployeeList()
+    public function logs()
     {
-        return $this->belongsTo(EmployeeList::class);
+        return $this->hasMany(EmployeeDeductionLog::class);
+    }
+
+    public function employeeList()
+    {
+        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
+    }
+
+    public function receivables()
+    {
+        return $this->belongsTo(Receivable::class, 'receivable_id');
     }
 
     public function getReceivable()
     {
-        return $this->belongsTo(Receivable::class,'id');
+        return $this->belongsTo(Receivable::class, 'id');
     }
 
-    public function receivableLogs(){
+    public function receivableLogs()
+    {
         return $this->hasMany(EmployeeReceivableLog::class);
     }
 }

@@ -21,7 +21,7 @@ class EmployeeDeductionLog extends Model
 
     public $timestamps = true;
 
-    public function EmployeeDeduction()
+    public function employeeDeduction()
     {
         return $this->belongsTo(EmployeeDeduction::class);
     }

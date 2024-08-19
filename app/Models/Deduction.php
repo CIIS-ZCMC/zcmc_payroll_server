@@ -28,14 +28,26 @@ class Deduction extends Model
 
     public $timestamps = true;
 
-    public function DeductionGroup()
+    public function deductionGroup()
     {
-        return $this->belongsTo(DeductionGroup::class);
+        return $this->belongsTo(DeductionGroup::class, 'deduction_group_id');
     }
 
-    public function Logs()
+    public function employeeList()
     {
-        return $this->belongsTo(DeductionLog::class,'id');
+        return $this->belongsToMany(EmployeeList::class, 'employee_deductions')
+            ->using(EmployeeDeduction::class)
+            ->withPivot('amount', 'percentage', 'frequency', 'total_term', 'is_default')
+            ->withTimestamps();
     }
 
+    public function employeeDeductions()
+    {
+        return $this->hasMany(EmployeeDeduction::class, 'deduction_id');
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(DeductionLog::class);
+    }
 }

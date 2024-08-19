@@ -26,7 +26,7 @@ class EmployeeSalary extends Model
 
     public $timestamps = true;
 
-    public function EmployeeList()
+    public function employeeList()
     {
         return $this->belongsTo(EmployeeList::class);
     }
