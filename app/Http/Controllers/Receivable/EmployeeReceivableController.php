@@ -25,13 +25,13 @@ class EmployeeReceivableController extends Controller
     {
         try {
 
-            $employees = EmployeeList::with(['salary', 'employeeReceivables.receivables'])
+            $employees = EmployeeList::with(['getSalary', 'employeeReceivables.receivables'])
                 ->get();
 
             $response = [];
 
             foreach ($employees as $employee) {
-                $basic_salary = optional($employee->salary)->basic_salary ?? 0;
+                $basic_salary = optional($employee->getSalary)->basic_salary ?? 0;
                 $total_receivables = 0;
                 $receivables_count = 0;
 
@@ -84,7 +84,7 @@ class EmployeeReceivableController extends Controller
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related receivables and salary
-            $employee = EmployeeList::with(['employeeReceivables.receivables', 'salary'])
+            $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
                 ->where('id', $employee_list_id)
                 ->first();
 
@@ -132,7 +132,7 @@ class EmployeeReceivableController extends Controller
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related receivables and salary
-            $employee = EmployeeList::with(['employeeReceivables.receivables', 'salary'])
+            $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
                 ->where('id', $employee_list_id)
                 ->first();
 
@@ -182,7 +182,7 @@ class EmployeeReceivableController extends Controller
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related receivables and salary
-            $employee = EmployeeList::with(['employeeReceivables.receivables', 'salary'])
+            $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
                 ->where('id', $employee_list_id)
                 ->first();
 
@@ -238,13 +238,13 @@ class EmployeeReceivableController extends Controller
             $is_default = $request->is_default;
 
             // Check if the receivable already exists for the employee
-            $existingreceivable = EmployeeReceivable::with(['employeeList.salary', 'receivables'])
+            $existingreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
                 ->where('employee_list_id', $employee_list_id)->where('receivable_id', $receivable_id)->first();
 
             if ($existingreceivable) {
                 return response()->json([
                     'message' => 'receivable already exists for this employee.',
-                    'statusCode'=>200
+                    'statusCode' => 200
                     // 'data' => new EmployeeReceivableResource($existingreceivable),
                 ], Response::HTTP_OK);
 
@@ -267,12 +267,12 @@ class EmployeeReceivableController extends Controller
                         'status' => "Active",
                     ]);
                     // Retrieve the newly added receivable with related data
-                    $newreceivable = EmployeeReceivable::with(['employeeList.salary', 'receivables'])
+                    $newreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
                         ->findOrFail($newreceivable->id);
 
                     return response()->json([
                         'message' => 'receivable added successfully.',
-                        'statusCode'=>200
+                        'statusCode' => 200
                         // 'data' => new EmployeeReceivableResource($newreceivable),
                     ], Response::HTTP_OK);
                 } else {
@@ -288,14 +288,14 @@ class EmployeeReceivableController extends Controller
                         ]);
 
                         // Retrieve the newly added receivable with related data
-                        $newreceivable = Employeereceivable::with(['employeeList.salary', 'receivables'])
+                        $newreceivable = Employeereceivable::with(['employeeList.getSalary', 'receivables'])
                             ->findOrFail($newreceivable->id);
 
                         return response()->json([
                             'message' => 'receivable added successfully.',
-                            'statusCode'=>200
+                            'statusCode' => 200
                             // 'data' => new EmployeeReceivableResource($newreceivable),
-                        ],Response::HTTP_OK);
+                        ], Response::HTTP_OK);
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
@@ -310,12 +310,12 @@ class EmployeeReceivableController extends Controller
                         ]);
 
                         // Retrieve the newly added receivable with related data
-                        $newreceivable = EmployeeReceivable::with(['employeeList.salary', 'receivables'])
+                        $newreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
                             ->findOrFail($newreceivable->id);
 
                         return response()->json([
                             'message' => 'receivable added successfully.',
-                            'statusCode'=>200
+                            'statusCode' => 200
                             // 'data' => new EmployeereceivableResource($newreceivable),
                         ], Response::HTTP_OK);
                     }
@@ -359,12 +359,12 @@ class EmployeeReceivableController extends Controller
                         'is_default' => $is_default,
                     ]);
                     // Retrieve the newly added receivable with related data
-                    $newreceivable = EmployeeReceivable::with(['employeeList.salary', 'receivables'])
+                    $newreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
                         ->findOrFail($employee_receivables->id);
 
                     return response()->json([
                         'message' => 'receivable updated successfully.',
-                        'statusCode'=>200
+                        'statusCode' => 200
                         // 'data' => new EmployeeReceivableResource($newreceivable),
                     ], Response::HTTP_OK);
                 } else {
@@ -379,12 +379,12 @@ class EmployeeReceivableController extends Controller
                         ]);
 
                         // Retrieve the newly added receivable with related data
-                        $newreceivable = Employeereceivable::with(['employeeList.salary', 'receivables'])
+                        $newreceivable = Employeereceivable::with(['employeeList.getSalary', 'receivables'])
                             ->findOrFail($employee_receivables->id);
 
                         return response()->json([
                             'message' => 'receivable added successfully.',
-                            'statusCode'=>200
+                            'statusCode' => 200
                             // 'data' => new EmployeereceivableResource($newreceivable),
                         ], Response::HTTP_OK);
                     } else {
@@ -400,12 +400,12 @@ class EmployeeReceivableController extends Controller
                         ]);
 
                         // Retrieve the newly added receivable with related data
-                        $newreceivable = Employeereceivable::with(['employeeList.salary', 'receivables'])
+                        $newreceivable = Employeereceivable::with(['employeeList.getSalary', 'receivables'])
                             ->findOrFail($employee_receivables->id);
 
                         return response()->json([
                             'message' => 'receivable updated successfully.',
-                            'statusCode'=>200
+                            'statusCode' => 200
                             // 'responseData' => new EmployeeReceivableResource($newreceivable),
                         ], Response::HTTP_OK);
                     }
@@ -442,7 +442,7 @@ class EmployeeReceivableController extends Controller
                     'date_from' => $date_from,
                     'date_to' => $date_to,
                     'stopped_at' => $stopped_at,
-                    'reason'=> $reason,
+                    'reason' => $reason,
                 ]);
 
                 $receivable_logs = StoppageLog::create([
@@ -451,15 +451,14 @@ class EmployeeReceivableController extends Controller
                     'date_from' => $date_from,
                     'date_to' => $date_to,
                     'stopped_at' => $stopped_at,
-                    'reason'=> $reason,
+                    'reason' => $reason,
                 ]);
 
                 return response()->json([
                     'message' => 'Employee receivable updated successfully.',
-                    'statusCode'=>200
+                    'statusCode' => 200
                     // 'responseData' => new EmployeereceivableResource($employee_receivables),
                 ], Response::HTTP_OK);
-
             } else {
                 return response()->json(['message' => 'Deduction not found for this employee.'], 404);
             }

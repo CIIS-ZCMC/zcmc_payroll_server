@@ -25,13 +25,13 @@ class EmployeeDeductionController extends Controller
     {
         try {
             // Fetch employee lists with related salary and deductions
-            $employees = EmployeeList::with(['salary', 'employeeDeductions.deductions'])
+            $employees = EmployeeList::with(['getSalary', 'employeeDeductions.deductions'])
                 ->get();
 
             $response = [];
 
             foreach ($employees as $employee) {
-                $basic_salary = optional($employee->salary)->basic_salary ?? 0;
+                $basic_salary = optional($employee->getSalary)->basic_salary ?? 0;
                 $total_deductions = 0;
 
                 foreach ($employee->employeeDeductions as $employeeDeduction) {
@@ -101,7 +101,7 @@ class EmployeeDeductionController extends Controller
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related deductions and salary
-            $employee = EmployeeList::with(['employeeDeductions.deductions', 'salary'])
+            $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
                 ->where('id', $employee_list_id)
                 ->first();
 
@@ -150,7 +150,7 @@ class EmployeeDeductionController extends Controller
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related deductions and salary
-            $employee = EmployeeList::with(['employeeDeductions.deductions', 'salary'])
+            $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
                 ->where('id', $employee_list_id)
                 ->first();
 
@@ -195,7 +195,7 @@ class EmployeeDeductionController extends Controller
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related deductions and salary
-            $employee = EmployeeList::with(['employeeDeductions.deductions', 'salary'])
+            $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
                 ->where('id', $employee_list_id)
                 ->first();
 
@@ -248,7 +248,7 @@ class EmployeeDeductionController extends Controller
             $with_terms = $request->with_terms;
 
             // Check if the deduction already exists for the employee
-            $existingDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
+            $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                 ->where('employee_list_id', $employee_list_id)->where('deduction_id', $deduction_id)->first();
 
             if ($existingDeduction) {
@@ -286,7 +286,7 @@ class EmployeeDeductionController extends Controller
                         'with_terms' => $with_terms
                     ]);
                     // Retrieve the newly added deduction with related data
-                    $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
+                    $newDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                         ->findOrFail($newDeduction->id);
 
                     return response()->json([
@@ -316,7 +316,7 @@ class EmployeeDeductionController extends Controller
                         ]);
 
                         // Retrieve the newly added deduction with related data
-                        $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
+                        $newDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                             ->findOrFail($newDeduction->id);
 
                         return response()->json([
@@ -347,7 +347,7 @@ class EmployeeDeductionController extends Controller
                         ]);
 
                         // Retrieve the newly added deduction with related data
-                        $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
+                        $newDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                             ->findOrFail($newDeduction->id);
 
                         return response()->json([
@@ -405,7 +405,7 @@ class EmployeeDeductionController extends Controller
                         'with_terms' => $with_terms
                     ]);
                     // Retrieve the newly added deduction with related data
-                    $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
+                    $newDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                         ->findOrFail($employee_deductions->id);
 
                     return response()->json([
@@ -432,7 +432,7 @@ class EmployeeDeductionController extends Controller
                         ]);
 
                         // Retrieve the newly added deduction with related data
-                        $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
+                        $newDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                             ->findOrFail($employee_deductions->id);
 
                         return response()->json([
@@ -458,7 +458,7 @@ class EmployeeDeductionController extends Controller
                         ]);
 
                         // Retrieve the newly added deduction with related data
-                        $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
+                        $newDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                             ->findOrFail($employee_deductions->id);
 
                         return response()->json([
