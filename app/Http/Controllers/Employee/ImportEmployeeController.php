@@ -346,62 +346,75 @@ class ImportEmployeeController extends Controller
             $excludedListEmp = ExcludedEmployee::where('month',$month)
                 ->where('year',$year)
                 ->where('employee_list_id',$Employee->id);
-
             if(!$excludedListEmp->exists()){
-                if ($empExcluded ) {
-                    ExcludedEmployee::create([
-                        'employee_list_id' => $Employee->id,
-                        'reason' => json_encode([
-                            'reason'=>$empExcluded['status'],
-                            'remarks'=>$empExcluded['remarks'],
-                            'Amount'=>null,
-                        ]),
-                        'year' => $year,
-                        'month' => $month,
-                    ]);
+                // //Add validation if  is_removed = 1
 
-                }else if ($empStudyLeave){
-                    ExcludedEmployee::create([
-                        'employee_list_id' => $Employee->id,
-                        'reason' => json_encode([
-                            'reason'=>$empStudyLeave['name'],
-                            'remarks'=>$empStudyLeave['date_from']." ".$empStudyLeave['date_to'],
-                            'Amount'=>null,
-                        ]),
-                        'year' => $year,
-                        'month' => $month,
-                    ]);
-                }  else {
-                    if($isout){
-                        $CheckExcluded = ExcludedEmployee::where("employee_list_id",$Employee->id)
-                                        ->where("year",$year)
-                                        ->where("month",$month);
+                    if ($empExcluded ) {
+                        ExcludedEmployee::create([
+                            'employee_list_id' => $Employee->id,
+                            'reason' => json_encode([
+                                'reason'=>$empExcluded['status'],
+                                'remarks'=>$empExcluded['remarks'],
+                                'Amount'=>null,
+                            ]),
+                            'year' => $year,
+                            'month' => $month,
+                            'is_removed'=>0
+                        ]);
 
-                        if($CheckExcluded->count()>=1){
-                            $CheckExcluded->update([
-                                'reason'=> json_encode([
-                                    'reason'=>'Salary Below 5000',
-                                    'remarks'=>'',
-                                    'Amount'=>$netSalary,
-                                ]),
-                            ]);
-                        }else {
-                                ExcludedEmployee::create([
-                                    'employee_list_id' => $Employee->id,
-                                    'reason' =>  json_encode([
+                    }else if ($empStudyLeave){
+                        ExcludedEmployee::create([
+                            'employee_list_id' => $Employee->id,
+                            'reason' => json_encode([
+                                'reason'=>$empStudyLeave['name'],
+                                'remarks'=>$empStudyLeave['date_from']." ".$empStudyLeave['date_to'],
+                                'Amount'=>null,
+                            ]),
+                            'year' => $year,
+                            'month' => $month,
+                            'is_removed'=>0
+                        ]);
+                    }  else {
+                        if($isout){
+                            $CheckExcluded = ExcludedEmployee::where("employee_list_id",$Employee->id)
+                                            ->where("year",$year)
+                                            ->where("month",$month);
+
+                            if($CheckExcluded->count()>=1){
+                                /**
+                                 * Allow edit if it is not removed from the list
+                                 *
+                                 */
+                                if(!$CheckExcluded->first()->is_removed){
+                                 $CheckExcluded->update([
+                                    'reason'=> json_encode([
                                         'reason'=>'Salary Below 5000',
                                         'remarks'=>'',
                                         'Amount'=>$netSalary,
                                     ]),
-                                    'year' => $year,
-                                    'month' => $month,
                                 ]);
+                                }
+
+                            }else {
+                                    ExcludedEmployee::create([
+                                        'employee_list_id' => $Employee->id,
+                                        'reason' =>  json_encode([
+                                            'reason'=>'Salary Below 5000',
+                                            'remarks'=>'',
+                                            'Amount'=>$netSalary,
+                                        ]),
+                                        'year' => $year,
+                                        'month' => $month,
+                                        'is_removed'=>0
+                                    ]);
+
+                            }
+
 
                         }
-
-
                     }
-                }
+
+
             }
 
 

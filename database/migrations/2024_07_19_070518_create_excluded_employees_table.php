@@ -20,6 +20,7 @@ class CreateExcludedEmployeesTable extends Migration
             $table->string('reason');
             $table->string("year");
             $table->string("month");
+            $table->boolean("is_removed")->comment("true if it is removed from list. for the genpayrol month and year")->default(false);
             $table->timestamps();
         });
     }

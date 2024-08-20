@@ -17,7 +17,8 @@ class ExcludedEmployee extends Model
         'employee_list_id',
         'reason',
         'year',
-        'month'
+        'month',
+        'is_removed'
     ];
 
     public $timestamps = true;
