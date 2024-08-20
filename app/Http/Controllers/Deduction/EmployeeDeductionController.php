@@ -109,6 +109,7 @@ class EmployeeDeductionController extends Controller
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
+
             // Prepare the response data
             $data = [
                 'employee_list_id' => $employee->id,
@@ -121,9 +122,11 @@ class EmployeeDeductionController extends Controller
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' =>  '₱' . $deduction->amount,
+                        'Amount' => '₱' . $deduction->amount,
                         'Updated on' => $deduction->updated_at,
-                        'Terms to pay' => $deduction->total_term,
+                        'Terms Paid' => $deduction->with_terms
+                            ? $deduction->total_paid . "/" . $deduction->total_term
+                            : $deduction->total_term,
                         'Billing Cycle' => $deduction->frequency,
                         'Status' => $deduction->status,
                         'Percentage' => $deduction->percentage,
@@ -240,8 +243,9 @@ class EmployeeDeductionController extends Controller
             $amount = $request->amount;
             $percentage = $request->percentage;
             $frequency = $request->frequency;
-            $total_term = $request->total_term;
+            $total_term = null;
             $is_default = $request->is_default;
+            $with_terms = $request->with_terms;
 
             // Check if the deduction already exists for the employee
             $existingDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
@@ -266,14 +270,20 @@ class EmployeeDeductionController extends Controller
                         $defaultAmount = $deduction->amount;
                     }
 
+                    if ($with_terms) {
+                        $total_term = $request->total_term;
+                    }
+
                     $newDeduction = EmployeeDeduction::create([
                         'employee_list_id' => $employee_list_id,
                         'deduction_id' => $deduction_id,
                         'amount' => $defaultAmount,
                         'frequency' => $frequency,
                         'total_term' => $total_term,
+                        'total_paid' => 0,
                         'is_default' => $is_default,
                         'status' => "Active",
+                        'with_terms' => $with_terms
                     ]);
                     // Retrieve the newly added deduction with related data
                     $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
@@ -287,6 +297,11 @@ class EmployeeDeductionController extends Controller
                 } else {
 
                     if ($request->percentage === null) {
+
+                        if ($with_terms) {
+                            $total_term = $request->total_term;
+                        }
+
                         $newDeduction = EmployeeDeduction::create([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
@@ -294,8 +309,10 @@ class EmployeeDeductionController extends Controller
                             'percentage' => $percentage,
                             'frequency' => $frequency,
                             'total_term' => $total_term,
+                            'total_paid' => 0,
                             'is_default' => $is_default,
                             'status' => "Active",
+                            'with_terms' => $with_terms
                         ]);
 
                         // Retrieve the newly added deduction with related data
@@ -311,6 +328,11 @@ class EmployeeDeductionController extends Controller
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
                         $percentaheAmount = $basicSalary->basic_salary * ($percentage / 100);
+
+                        if ($with_terms) {
+                            $total_term = $request->total_term;
+                        }
+
                         $newDeduction = EmployeeDeduction::create([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
@@ -318,8 +340,10 @@ class EmployeeDeductionController extends Controller
                             'percentage' => $percentage,
                             'frequency' => $frequency,
                             'total_term' => $total_term,
+                            'total_paid' => 0,
                             'is_default' => $is_default,
-                            'status' => "Active"
+                            'status' => "Active",
+                            'with_terms' => $with_terms
                         ]);
 
                         // Retrieve the newly added deduction with related data
@@ -346,8 +370,9 @@ class EmployeeDeductionController extends Controller
             $amount = $request->amount;
             $percentage = $request->percentage;
             $frequency = $request->frequency;
-            $total_term = $request->total_term;
+            $total_term = null;
             $is_default = $request->is_default;
+            $with_terms = $request->with_terms;
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $request->employee_list_id)
                 ->where('deduction_id', $request->deduction_id)
                 ->first();
@@ -365,6 +390,11 @@ class EmployeeDeductionController extends Controller
                         $defaultAmount = $deduction->amount;
                     }
 
+
+                    if ($with_terms) {
+                        $total_term = $request->total_term;
+                    }
+
                     $employee_deductions->update([
                         'employee_list_id' => $employee_list_id,
                         'deduction_id' => $deduction_id,
@@ -372,6 +402,7 @@ class EmployeeDeductionController extends Controller
                         'frequency' => $frequency,
                         'total_term' => $total_term,
                         'is_default' => $is_default,
+                        'with_terms' => $with_terms
                     ]);
                     // Retrieve the newly added deduction with related data
                     $newDeduction = EmployeeDeduction::with(['employeeList.salary', 'deductions'])
@@ -385,6 +416,10 @@ class EmployeeDeductionController extends Controller
                 } else {
 
                     if ($request->percentage === null) {
+                        if ($with_terms) {
+                            $total_term = $request->total_term;
+                        }
+
                         $employee_deductions->update([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
@@ -393,6 +428,7 @@ class EmployeeDeductionController extends Controller
                             'frequency' => $frequency,
                             'total_term' => $total_term,
                             'is_default' => $is_default,
+                            'with_terms' => $with_terms
                         ]);
 
                         // Retrieve the newly added deduction with related data
@@ -405,7 +441,9 @@ class EmployeeDeductionController extends Controller
                             // 'responseData' => new EmployeeDeductionResource($newDeduction),
                         ], Response::HTTP_OK);
                     } else {
-
+                        if ($with_terms) {
+                            $total_term = $request->total_term;
+                        }
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
                         $percentaheAmount = $basicSalary->basic_salary * ($percentage / 100);
                         $employee_deductions->update([
@@ -416,6 +454,7 @@ class EmployeeDeductionController extends Controller
                             'frequency' => $frequency,
                             'total_term' => $total_term,
                             'is_default' => $is_default,
+                            'with_terms' => $with_terms
                         ]);
 
                         // Retrieve the newly added deduction with related data
@@ -445,6 +484,7 @@ class EmployeeDeductionController extends Controller
             $date_from = $request->date_from;
             $date_to = $request->date_to;
             $status = $request->status;
+            $reason = $request->reason;
             $stopped_at = null;
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $employee_list_id)
                 ->where('deduction_id', $deduction_id)
@@ -456,6 +496,7 @@ class EmployeeDeductionController extends Controller
                 }
                 $employee_deductions->update([
                     'status' => $status,
+                    'reason' => $reason,
                     'date_from' => $date_from,
                     'date_to' => $date_to,
                     'stopped_at' => $stopped_at,
@@ -467,6 +508,7 @@ class EmployeeDeductionController extends Controller
                     'date_from' => $date_from,
                     'date_to' => $date_to,
                     'stopped_at' => $stopped_at,
+                    'reason' => $reason,
                 ]);
 
                 return response()->json([

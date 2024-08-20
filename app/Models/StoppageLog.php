@@ -17,6 +17,7 @@ class StoppageLog extends Model
         'employee_deduction_id',
         'status',
         'date_to',
-        'date_from'
+        'date_from',
+        'reason'
     ];
 }

@@ -426,6 +426,7 @@ class EmployeeReceivableController extends Controller
             $date_from = $request->date_from;
             $date_to = $request->date_to;
             $status = $request->status;
+            $reason = $request->reason;
             $stopped_at = null;
 
             $employee_receivables = EmployeeReceivable::where('employee_list_id', $employee_list_id)
@@ -441,6 +442,7 @@ class EmployeeReceivableController extends Controller
                     'date_from' => $date_from,
                     'date_to' => $date_to,
                     'stopped_at' => $stopped_at,
+                    'reason'=> $reason,
                 ]);
 
                 $receivable_logs = StoppageLog::create([
@@ -449,6 +451,7 @@ class EmployeeReceivableController extends Controller
                     'date_from' => $date_from,
                     'date_to' => $date_to,
                     'stopped_at' => $stopped_at,
+                    'reason'=> $reason,
                 ]);
 
                 return response()->json([
