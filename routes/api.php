@@ -74,5 +74,16 @@ Route::group(['middleware' => ['stripTags']], function () {
     Route::namespace('App\Http\Controllers\Deduction')->group(function () {
         Route::get('deductions', 'DeductionController@index');
         Route::post('deduction', 'DeductionController@store');
+        Route::get('deduction/{id}', 'DeductionController@show');
+        Route::put('deduction/{id}', 'DeductionController@update');
+        Route::delete('deduction/{id}', 'DeductionController@destroy');
+    });
+
+    Route::namespace('App\Http\Controllers\Receivable')->group(function () {
+        Route::get('receivables', 'ReceivableController@index');
+        Route::post('receivable', 'ReceivableController@store');
+        Route::get('receivable/{id}', 'ReceivableController@show');
+        Route::put('receivable/{id}', 'ReceivableController@update');
+        Route::delete('receivable/{id}', 'ReceivableController@destroy');
     });
 });
