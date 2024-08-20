@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Deduction;
 
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeductionRequest;
+use App\Http\Resources\DeductionResource;
+use App\Models\Deduction;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-
 
 class DeductionController extends Controller
 {
@@ -18,29 +21,16 @@ class DeductionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
         try {
+            return response()->json(['data' => DeductionResource::collection(Deduction::all())], Response::HTTP_OK);
 
-            return "Test";
         } catch (\Throwable $th) {
 
-            Helpers::errorLog($this->CONTROLLER_NAME, 'assignChiefByEmployeeID', $th->getMessage());
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        // Helpers::registerSystemLogs($request, $id, true, 'Success in assigning division chief ' . $this->PLURAL_MODULE_NAME . '.');
-
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -49,9 +39,19 @@ class DeductionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DeductionRequest $request)
     {
-        //
+        try {
+            $data = Deduction::create($request->all());
+
+            Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -62,7 +62,15 @@ class DeductionController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $data = Deduction::find($id);
+            return response()->json(['data' => DeductionResource::collection($data)], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'show', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -73,7 +81,15 @@ class DeductionController extends Controller
      */
     public function edit($id)
     {
-        //
+        try {
+            $data = Deduction::findOrFail($id);
+            return response()->json(['data' => DeductionResource::collection($data)], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'edit', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -85,7 +101,23 @@ class DeductionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            $data = Deduction::findOrFail($id);
+
+            if (!$data) {
+                return response()->json(['message' => 'No record found.'], Response::HTTP_NOT_FOUND);
+            }
+
+            $data->update($request->all());
+
+            Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['data' => new DeductionResource($data), 'message' => "Data Successfully update"], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'update', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -94,8 +126,19 @@ class DeductionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+            $data = Deduction::findOrFail($id);
+            $data->delete();
+
+            Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
