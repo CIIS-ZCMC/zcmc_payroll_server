@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Deduction;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DeductionResource;
+use App\Http\Resources\DeductionStatusListResources;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Http\Resources\EmployeeListResource;
 use App\Models\Deduction;
@@ -78,14 +79,30 @@ class EmployeeDeductionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {}
+    public function getDeductionsStatusList(Request $request)
+    {
+        try {
+            $deduction_group_id = $request->deduction_group_id;
+            $deductions = Deduction::get();
 
+            $final = DeductionStatusListResources::collection($deductions);
+            return response()->json([
+                'responseData' => $final,
+                'message' => 'Retrieve all deductions.'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            // Handle any errors that occur
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     public function getDeductions(Request $request)
     {
         try {
             $deduction_group_id = $request->deduction_group_id;
             $deductions = Deduction::get();
+            $final = DeductionResource::collection($deductions);
             return response()->json([
-                'responseData' => DeductionResource::collection($deductions),
+                'responseData' => $final,
                 'message' => 'Retrieve all deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
