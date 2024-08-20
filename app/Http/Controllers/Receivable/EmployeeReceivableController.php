@@ -8,6 +8,7 @@ use App\Http\Resources\EmployeeReceivableResource;
 use App\Http\Resources\ReceivableResource;
 use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
+use App\Models\EmployeeReceivableLog;
 use App\Models\EmployeeSalary;
 use App\Models\Receivable;
 use App\Models\StoppageLog;
@@ -102,7 +103,7 @@ class EmployeeReceivableController extends Controller
                     'Code' => $receivable->receivables->code ?? 'N/A',
                     'Amount' => '₱' . $receivable->amount,
                     'Updated on' => $receivable->updated_at,
-                    'Payment terms received' => $receivable->total_term,
+                    'Payment terms received' => $receivable->total_paid,
                     'Billing Cycle' => $receivable->frequency,
                     'Status' => $receivable->status,
                     'percentage' => $receivable->percentage . '%',
@@ -236,6 +237,8 @@ class EmployeeReceivableController extends Controller
             $amount = $request->amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
+            $reason = $request->reason;
+            $user = $request->user_id;
 
             // Check if the receivable already exists for the employee
             $existingreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
@@ -265,6 +268,14 @@ class EmployeeReceivableController extends Controller
                         'amount' => $defaultAmount,
                         'is_default' => $is_default,
                         'status' => "Active",
+                        'total_paid' => 0,
+                        'reason' => $reason
+                    ]);
+
+                    EmployeeReceivableLog::create([
+                        'employee_receivable_id' => $newreceivable->id,
+                        'action_by' => $user,
+                        'action' => 'Add',
                     ]);
                     // Retrieve the newly added receivable with related data
                     $newreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
@@ -285,6 +296,14 @@ class EmployeeReceivableController extends Controller
                             'percentage' => $percentage,
                             'is_default' => $is_default,
                             'status' => "Active",
+                            'total_paid' => 0,
+                            'reason' => $reason
+                        ]);
+
+                        EmployeeReceivableLog::create([
+                            'employee_receivable_id' => $newreceivable->id,
+                            'action_by' => $user,
+                            'action' => 'Add',
                         ]);
 
                         // Retrieve the newly added receivable with related data
@@ -306,7 +325,15 @@ class EmployeeReceivableController extends Controller
                             'amount' => $percentaheAmount,
                             'percentage' => $percentage,
                             'is_default' => $is_default,
-                            'status' => "Active"
+                            'status' => "Active",
+                            'total_paid' => 0,
+                            'reason' => $reason
+                        ]);
+
+                        EmployeeReceivableLog::create([
+                            'employee_receivable_id' => $newreceivable->id,
+                            'action_by' => $user,
+                            'action' => 'Add',
                         ]);
 
                         // Retrieve the newly added receivable with related data
@@ -334,6 +361,8 @@ class EmployeeReceivableController extends Controller
             $amount = $request->amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
+            $reason = $request->reason;
+            $user = $request->user_id;
             $employee_receivables = Employeereceivable::where('employee_list_id', $request->employee_list_id)
                 ->where('receivable_id', $request->receivable_id)
                 ->first();
@@ -357,6 +386,13 @@ class EmployeeReceivableController extends Controller
                         'amount' => $defaultAmount,
                         'percentage' => $percentage,
                         'is_default' => $is_default,
+                        'reason' => $reason
+                    ]);
+
+                    EmployeeReceivableLog::create([
+                        'employee_receivable_id' => $employee_receivables->id,
+                        'action_by' => $user,
+                        'action' => 'Update',
                     ]);
                     // Retrieve the newly added receivable with related data
                     $newreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
@@ -376,8 +412,14 @@ class EmployeeReceivableController extends Controller
                             'amount' => $amount,
                             'percentage' => $percentage,
                             'is_default' => $is_default,
+                            'reason' => $reason
                         ]);
 
+                        EmployeeReceivableLog::create([
+                            'employee_receivable_id' => $employee_receivables->id,
+                            'action_by' => $user,
+                            'action' => 'Update',
+                        ]);
                         // Retrieve the newly added receivable with related data
                         $newreceivable = Employeereceivable::with(['employeeList.getSalary', 'receivables'])
                             ->findOrFail($employee_receivables->id);
@@ -397,6 +439,13 @@ class EmployeeReceivableController extends Controller
                             'amount' => $percentaheAmount,
                             'percentage' => $percentage,
                             'is_default' => $is_default,
+                            'reason' => $reason
+                        ]);
+
+                        EmployeeReceivableLog::create([
+                            'employee_receivable_id' => $employee_receivables->id,
+                            'action_by' => $user,
+                            'action' => 'Update',
                         ]);
 
                         // Retrieve the newly added receivable with related data
@@ -421,6 +470,7 @@ class EmployeeReceivableController extends Controller
     public function updateStatus(Request $request)
     {
         try {
+            $user = $request->user_id;
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
             $date_from = $request->date_from;
@@ -445,13 +495,19 @@ class EmployeeReceivableController extends Controller
                     'reason' => $reason,
                 ]);
 
-                $receivable_logs = StoppageLog::create([
+                StoppageLog::create([
                     'employee_receivable_id' => $employee_receivables->id,
                     'status' => $status,
                     'date_from' => $date_from,
                     'date_to' => $date_to,
                     'stopped_at' => $stopped_at,
                     'reason' => $reason,
+                ]);
+
+                EmployeeReceivableLog::create([
+                    'employee_receivable_id' => $employee_receivables->id,
+                    'action_by' => $user,
+                    'action' => $status,
                 ]);
 
                 return response()->json([
