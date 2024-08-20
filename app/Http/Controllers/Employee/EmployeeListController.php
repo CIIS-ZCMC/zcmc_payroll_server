@@ -9,20 +9,58 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use \App\Helpers\Logging;
 use App\Models\EmployeeReceivable;
+use App\Models\payroll_header;
+use App\Models\PayrollHeaders;
+use App\Models\ExcludedEmployee;
+use App\Http\Controllers\GeneralPayroll\ComputationController;
+use App\Helpers\Helpers;
 
 class EmployeeListController extends Controller
 {
 
+    protected $computer;
+    public function __construct() {
+        $this->computer = new ComputationController();
+    }
+
     public function index(Request $request){
+        $employees = EmployeeList::with(['getTimeRecords.ComputedSalary'])->get();
+        /**
+         * NIGHT
+         */
 
-        $employee = EmployeeList::find(1);
+        $salaries = [];
+        foreach ($employees as  $row) {
+           if($row->isPayrollExcluded->count() == 0){
+            $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
+            $monthly_rate =  $row->getSalary->basic_salary;
 
-    //    $employeeList->employeeReceivables->map(function ($employeeReceivable) {
-    //         return $employeeReceivable->receivableLogs;
-    //     });
 
-        return $employee->isPayrollExcluded->count();
+            /**
+             * NIGHT DIFFERENTIAL COMPUTATION
+             * constant value : 0.005682
+             * 20% from rate per hour
+             *
+             */
+            $Accumulated_Amount_Night_Differential = $this->computer->computeNightDifferentialAmount($row,$monthly_rate);
 
+
+
+
+            $salaries[] =$tempNetSalary." = ". Helpers::customRound($tempNetSalary + $Accumulated_Amount_Night_Differential);
+
+            $NetNightDutyCompensation = 0;
+            /**
+             * Payroll processes starts here.
+             *
+             */
+
+
+
+
+        }
+        }
+        return $salaries;
     }
 
     public function AuthorizationPin(Request $request){

@@ -27,21 +27,41 @@ class EmployeeList extends Model
     ];
 
     public $timestamps = true;
-
-
-    public function salary()
-    {
-        return $this->hasOne(EmployeeSalary::class);
+    public function getEmployeeReceivables(){
+        return $this->hasMany(EmployeeReceivable::class,'employee_list_id');
+    }
+    public function getSalary(){
+        return $this->hasOne(EmployeeSalary::class,'employee_list_id')->latest();
     }
 
-    public function taxes()
-    {
-        return $this->hasMany(EmployeeTax::class);
+    public function getSalaries(){
+        return $this->hasMany(EmployeeSalary::class,'employee_list_id');
     }
 
-    public function timeRecords()
-    {
-        return $this->hasMany(TimeRecord::class);
+    public function getTaxes(){
+        return $this->hasMany(EmployeeTax::class,'employee_list_id');
+    }
+    public function getTimeRecords(){
+        return $this->hasOne(TimeRecord::class,'employee_list_id')
+                ->where('is_active', 1);
+    }
+
+    public function isPayrollExcluded(){
+        $timeRecord = $this->getTimeRecords;
+
+        if (!$timeRecord) {
+            return $this->hasMany(ExcludedEmployee::class)->whereRaw('1 = 0');
+        }
+        return $this->hasMany(ExcludedEmployee::class, 'employee_list_id')
+            ->where('month', $timeRecord->month)
+            ->where('year', $timeRecord->year);
+    }
+
+    public function getListOfTimeRecords(){
+        return $this->hasMany(TimeRecord::class,'employee_list_id');
+    }
+    public function getListOfDeductions() {
+        return $this->hasMany(EmployeeDeduction::class,'employee_list_id');
     }
 
     public function employeeDeductions()
