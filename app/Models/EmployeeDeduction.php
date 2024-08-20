@@ -8,36 +8,48 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeDeduction extends Model
 {
     use HasFactory;
-
     protected $table = 'employee_deductions';
-
     protected $primaryKey = 'id';
-
     protected $fillable = [
         'employee_list_id',
         'deduction_id',
-        'deduction_group_id',
         'amount',
         'percentage',
         'frequency',
         'total_term',
-        'is_default'
+        'is_default',
+        'status',
+        'date_to',
+        'date_from',
+        'stopped_at'
     ];
-
     public $timestamps = true;
 
-    public function EmployeeList()
+    public function logs()
     {
-        return $this->belongsTo(EmployeeList::class);
+        return $this->hasMany(EmployeeDeductionLog::class);
     }
 
-    public function Deduction()
+    public function employeeList()
     {
-        return $this->belongsTo(Deduction::class);
+        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
     }
 
-    public function DeductionGroup()
+    public function deductions()
     {
-        return $this->belongsTo(DeductionGroup::class);
+        return $this->belongsTo(Deduction::class, 'deduction_id');
     }
+    public function getDeductions()
+    {
+        return $this->belongsTo(Deduction::class,'id');
+    }
+    public function getDeductionGroup()
+    {
+        return $this->belongsTo(DeductionGroup::class,'id');
+    }
+    public function DeductionTrails(){
+        return $this->hasMany(EmployeeDeductionTrail::class,"employee_deduction_id");
+
+    }
+
 }

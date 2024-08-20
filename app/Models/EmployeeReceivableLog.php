@@ -21,7 +21,7 @@ class EmployeeReceivableLog extends Model
 
     public $timestamps = true;
 
-    public function EmployeeReceivable()
+    public function EmployeeReceivableLogs()
     {
         return $this->belongsTo(EmployeeReceivable::class);
     }

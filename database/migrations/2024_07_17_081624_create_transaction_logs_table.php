@@ -20,6 +20,7 @@ class CreateTransactionLogsTable extends Migration
             $table->text('status');
             $table->string('ip_address');
             $table->string('remarks')->nullable();
+            $table->string('serverResponse')->nullable()->comment("Ex. th->getMessage() or any response from server ");;
             $table->text('affected_entity')->nullable()->comment("Ex. modified data IDs,uploaded documents. in JSON FORMAT");
             $table->unsignedBigInteger('employee_profile_id');
             $table->text('employee_number')->nullable();

@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\TimeRecord;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
@@ -27,6 +28,10 @@ class Helpers
         ];
     }
 
+    public static function customRound($numericValue){
+        return number_format($numericValue, 2, '.', '');
+    }
+
     public static function errorLog($controller, $module, $errorMessage)
     {
         Log::channel('custom-error')->error($controller . ' Controller [' . $module . ']: message: ' . $errorMessage);
@@ -46,6 +51,8 @@ class Helpers
         $response = $client->request('GET', request()->umis . '/'.$api);
         return json_decode($response->getBody(), true);
     }
+
+
 
 
 

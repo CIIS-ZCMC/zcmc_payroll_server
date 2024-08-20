@@ -15,20 +15,15 @@ class DeductionLog extends Model
 
     protected $fillable = [
         'deduction_id',
-        'deduction_group_id',
         'action_by',
         'action'
     ];
 
     public $timestamps = true;
 
-    public function Deduction()
+    public function deductions()
     {
         return $this->belongsTo(Deduction::class);
     }
 
-    public function DeductionGroup()
-    {
-        return $this->belongsTo(DeductionGroup::class);
-    }
 }

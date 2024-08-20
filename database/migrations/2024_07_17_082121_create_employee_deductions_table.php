@@ -19,12 +19,16 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
             $table->unsignedBigInteger('deduction_id');
             $table->foreign('deduction_id')->references('id')->on('deductions');
-            $table->unsignedBigInteger('deduction_group_id');
-            $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
             $table->double('amount')->nullable();
             $table->double('percentage')->nullable();
             $table->string('frequency');
+            $table->string('status')->nullable();
+            $table->string('date_from')->nullable();
+            $table->string('date_to')->nullable();
+            $table->string('stopped_at')->nullable();
+            $table->string('remarks')->nullable();
             $table->integer('total_term')->nullable();
+            $table->integer('total_paid')->nullable();
             $table->boolean('is_default');
             $table->timestamps();
         });

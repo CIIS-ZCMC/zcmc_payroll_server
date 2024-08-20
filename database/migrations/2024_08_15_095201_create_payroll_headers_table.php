@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDeductionLogsTable extends Migration
+class CreatePayrollHeadersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateDeductionLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('deduction_logs', function (Blueprint $table) {
+        Schema::create('payroll_headers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('deduction_id');
-            $table->foreign('deduction_id')->references('id')->on('deductions');
-            $table->unsignedBigInteger('action_by');
-            $table->string('action');
+            $table->string("month");
+            $table->string("year");
+            $table->text("created_by")->comment("Saved Logged Employee data - Json Format");
+            $table->boolean("is_locked")->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ class CreateDeductionLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('deduction_logs');
+        Schema::dropIfExists('payroll_headers');
     }
 }

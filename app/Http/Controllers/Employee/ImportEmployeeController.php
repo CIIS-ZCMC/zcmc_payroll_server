@@ -10,6 +10,8 @@ use App\Models\EmployeeSalary;
 use App\Models\TimeRecord;
 use App\Models\EmployeeComputedSalary;
 use App\Helpers\Helpers;
+use App\Models\ExcludedEmployee;
+
 class ImportEmployeeController extends Controller
 {
 
@@ -77,6 +79,7 @@ class ImportEmployeeController extends Controller
 
 
 
+
                 $empInfodata = [
                     'employee_profile_id' => $empinfo['id'],
                     'employee_number' => $employee['employee_id'],
@@ -105,6 +108,28 @@ class ImportEmployeeController extends Controller
                     $generatedcount += 1;
                     $New_Employee = EmployeeList::create($empInfodata);
 
+
+                if($isout){
+                    $CheckExcluded = ExcludedEmployee::where("employee_list_id",$New_Employee->id)
+                                    ->where("year",$year)
+                                    ->where("month",$month);
+
+                    if($CheckExcluded->count()>=1){
+                        $CheckExcluded->update([
+                            'reason'=>"Salary Below 5000 | NetSalary:  $netSalary",
+                        ]);
+                    }else {
+                        ExcludedEmployee::create([
+                            'employee_list_id'=> $New_Employee->id,
+                            'reason'=>"Salary Below 5000 | NetSalary:  $netSalary",
+                              'year'=>$year,
+                               'month'=>$month
+                       ]);
+                    }
+
+
+                }
+
                     $arr_emp = array_merge(['employee_list_id' => $New_Employee->id], $empSalaryData);
                     $New_salary = EmployeeSalary::create($arr_emp);
                 }
@@ -112,6 +137,24 @@ class ImportEmployeeController extends Controller
 
                 $Employee = $employeeList->first();
                 if($Employee){
+                    if($isout){
+                        $CheckExcluded = ExcludedEmployee::where("employee_list_id",$Employee->id)
+                                        ->where("year",$year)
+                                        ->where("month",$month);
+
+                        if($CheckExcluded->count()>=1){
+                            $CheckExcluded->update([
+                                'reason'=>"Salary Below 5000 | NetSalary:  $netSalary",
+                            ]);
+                        }else {
+                            ExcludedEmployee::create([
+                                'employee_list_id'=> $Employee->id,
+                                'reason'=>"Salary Below 5000 | NetSalary:  $netSalary",
+                                  'year'=>$year,
+                                   'month'=>$month
+                           ]);
+                        }
+                    }
                     $EmpSalary = EmployeeSalary::where('employee_list_id', $Employee->id)->first();
 
 
@@ -180,7 +223,6 @@ class ImportEmployeeController extends Controller
 
                     $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist ?? [], $timeRecordsData);
 
-
                     if (count($mismatchTimeRecordslist) >= 1) {
                         $created = false;
                         foreach ($mismatchTimeRecordslist as $value) {
@@ -219,8 +261,6 @@ class ImportEmployeeController extends Controller
                             }
                         }
                         if (!$created) {
-
-
                             $timeRecords->first()->update($timeRecordsData);
                             EmployeeComputedSalary::where("time_record_id", $timeRecords->first()->id)
                                 ->update([
