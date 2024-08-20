@@ -22,8 +22,10 @@ class EmployeeList extends Model
         'middle_name',
         'ext_name',
         'designation',
+        'assigned_area',
         'status',
-        'is_newly_hired'
+        'is_newly_hired',
+        'is_excluded'
     ];
 
     public $timestamps = true;

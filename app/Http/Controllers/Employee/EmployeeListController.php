@@ -34,22 +34,26 @@ class EmployeeListController extends Controller
            if($row->isPayrollExcluded->count() == 0){
             $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
             $monthly_rate =  $row->getSalary->basic_salary;
-
-
             /**
              * NIGHT DIFFERENTIAL COMPUTATION
              * constant value : 0.005682
              * 20% from rate per hour
              *
              */
-            $Accumulated_Amount_Night_Differential = $this->computer->computeNightDifferentialAmount($row,$monthly_rate);
+            $NetSalarywNightDifferential = $this->computer->computeNightDifferentialAmount($row,$monthly_rate,$tempNetSalary);
+            /**
+             * DEDUCTIONS
+             *
+             */
+            $TotalDeductions =  $this->computer->computeDeductionAmount($row);
+            /**
+             * RECEIVABLES
+             *
+             */
+            $TotalReceivables = $this->computer->computeReceivableAmounts($row);
 
+            $salaries[] = $TotalDeductions;
 
-
-
-            $salaries[] =$tempNetSalary." = ". Helpers::customRound($tempNetSalary + $Accumulated_Amount_Night_Differential);
-
-            $NetNightDutyCompensation = 0;
             /**
              * Payroll processes starts here.
              *

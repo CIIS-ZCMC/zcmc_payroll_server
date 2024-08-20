@@ -22,6 +22,7 @@ class CreateEmployeeListsTable extends Migration
             $table->string('middle_name');
             $table->string('ext_name')->nullable();
             $table->string('designation');
+            $table->text('assigned_area')->nullable();
             $table->string('status');
             $table->boolean('is_newly_hired');
             $table->boolean('is_excluded');
