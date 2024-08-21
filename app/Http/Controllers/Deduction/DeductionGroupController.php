@@ -45,7 +45,7 @@ class DeductionGroupController extends Controller
         try {
             $data = DeductionGroup::create($request->all());
 
-            Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
+            // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new DeductionGroupResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
