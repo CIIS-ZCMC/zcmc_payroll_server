@@ -302,6 +302,13 @@ class ImportEmployeeController extends Controller
             return [];
         }
 
+        if(count($coming)==0){
+            return [];
+        }
+
+        if(!is_array($current)){
+            return [];
+        }
         foreach ($coming as $key => $value) {
             if (array_key_exists($key, $current)) {
                 $currentValue = $current[$key];

@@ -23,48 +23,112 @@ class EmployeeListController extends Controller
         $this->computer = new ComputationController();
     }
 
+    public function processPayroll($row){
+        $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
+        $monthly_rate =  $row->getSalary->basic_salary;
+        /**
+         * NIGHT DIFFERENTIAL COMPUTATION
+         * constant value : 0.005682
+         * 20% from rate per hour
+         *
+         */
+        $NetSalarywNightDifferential = $this->computer->computeNightDifferentialAmount($row,$monthly_rate,$tempNetSalary);
+        /**
+         * DEDUCTIONS
+         *
+         */
+        $TotalDeductions =  $this->computer->computeDeductionAmount($row);
+        /**
+         * RECEIVABLES
+         *
+         */
+        $TotalReceivables = $this->computer->computeReceivableAmounts($row);
+        /**
+         * TAXES
+         *
+         */
+        $TotalTaxex = $this->computer->computeTaxesAmounts($row);
+        /**
+         * COMPUTE
+         *
+         */
+      $Total =$this->computer->ComputeNetSalary($NetSalarywNightDifferential,$TotalReceivables,$TotalDeductions,$TotalTaxex);
+
+        return $Total;
+        }
+
     public function index(Request $request){
         $employees = EmployeeList::with(['getTimeRecords.ComputedSalary'])->get();
-        /**
-         * NIGHT
-         */
 
-        $salaries = [];
+        $In_payroll = [];
         foreach ($employees as  $row) {
+
+            $year =$request->processMonth['year'];
+            $month =  $request->processMonth['month'];
            if($row->isPayrollExcluded->count() == 0){
-            $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
-            $monthly_rate =  $row->getSalary->basic_salary;
-            /**
-             * NIGHT DIFFERENTIAL COMPUTATION
-             * constant value : 0.005682
-             * 20% from rate per hour
-             *
-             */
-            $NetSalarywNightDifferential = $this->computer->computeNightDifferentialAmount($row,$monthly_rate,$tempNetSalary);
-            /**
-             * DEDUCTIONS
-             *
-             */
-            $TotalDeductions =  $this->computer->computeDeductionAmount($row);
-            /**
-             * RECEIVABLES
-             *
-             */
-            $TotalReceivables = $this->computer->computeReceivableAmounts($row);
+            $Total = $this->processPayroll($row);
+             // Checks if the TOTAL salary is above 5k
+             if( $this->computer->checkOutofPayroll([
+                'employee_list'=>$row,
+                'empID'=>$row->employee_profile_id,
+                'NETSalary'=>$Total
+             ])){
+                continue;
+             }
 
-            $salaries[] = $TotalDeductions;
 
+             $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
+             $monthly_rate =  $row->getSalary->basic_salary;
+             list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($Total);
+
+             $In_payroll[] = [
+                'id'=>$row->id,
+                'month'=>$month,
+                'year'=>$year,
+                'gross_pay'=>$tempNetSalary,
+                'net_pay'=>$tempNetSalary + $this->computer->computeReceivableAmounts($row),
+                'NETSalary'=> $Total,
+                'first_half'=>$firstHalf,
+                'second_half'=>Helpers::customRound($secondHalf),
+                'receivables'=> $row->getEmployeeReceivables()->with(['receivables'])->get(),
+                'deductions'=>$row->getListOfDeductions()->with(['deductions'])->get(),
+                'taxexs'=>$row->getTaxes,
+
+            ];
             /**
              * Payroll processes starts here.
              *
              */
 
+        }else {
+            /**
+             * CHECKING FOR INCLUSION
+             */
+            if($row->isPayrollExcluded->first()->is_removed){
+                $Total = $this->processPayroll($row);
 
+                $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;
+                $monthly_rate =  $row->getSalary->basic_salary;
+                list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($Total);
+                $In_payroll[] = [
+                    'id'=>$row->id,
+                    'month'=>$month,
+                    'year'=>$year,
+                    'gross_pay'=>$tempNetSalary,
+                    'net_pay'=>$tempNetSalary + $this->computer->computeReceivableAmounts($row),
+                    'NETSalary'=> $Total,
+                    'first_half'=>$firstHalf,
+                    'second_half'=>Helpers::customRound($secondHalf),
+                    'receivables'=> $row->getEmployeeReceivables()->with(['receivables'])->get(),
+                    'deductions'=>$row->getListOfDeductions()->with(['deductions'])->get(),
+                    'taxexs'=>$row->getTaxes,
 
+                ];
+            }
 
         }
         }
-        return $salaries;
+        return $In_payroll;
     }
 
     public function AuthorizationPin(Request $request){

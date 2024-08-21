@@ -5,6 +5,7 @@ namespace App\Http\Controllers\GeneralPayroll;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\Helpers;
+use App\Models\ExcludedEmployee;
 
 use function PHPUnit\Framework\isNull;
 
@@ -46,5 +47,67 @@ class ComputationController extends Controller
             }
         }
         return $totalReceivalbles;
+    }
+
+    public function computeTaxesAmounts($employeeList){
+        return 0;
+    }
+
+    public function checkOutofPayroll($data){
+        $year =$data['employee_list']->getTimeRecords->year;
+        $month =  $data['employee_list']->getTimeRecords->month;
+        $CheckExcluded = ExcludedEmployee::where("employee_list_id", $data['employee_list']->id)
+        ->where("year", $year)
+        ->where("month",$month);
+
+
+       if( $data['NETSalary'] < 5000){
+        if($CheckExcluded->exists()){
+            //Update is removed to 0 . then update the amount and message
+            if($CheckExcluded->first()->is_removed){
+                $CheckExcluded->update([
+                                'reason' => json_encode([
+                                    'reason'=>'Salary Below 5000',
+                                    'remarks'=>'General payroll processed and output is below 5k',
+                                    'Amount'=>$data['NETSalary'],
+                                    ]),
+                                    'year' => $year,
+                                    'month' => $month,
+                                    'is_removed'=>0
+              ]);
+            }
+        }else {
+            //Create new Excluded..
+            ExcludedEmployee::create([
+                'employee_list_id' =>$data['employee_list']->id,
+                'reason' => json_encode([
+                'reason'=>'Salary Below 5000',
+                 'remarks'=>'General payroll processed and output is below 5k',
+                 'Amount'=>$data['NETSalary'],
+                ]),
+                'year' => $year,
+                'month' => $month,
+                'is_removed'=>0
+            ]);
+        }
+
+        return true;
+       }
+       return false;
+    }
+
+    public function checkForInclusion($data){
+
+    }
+    public function divideintoTwo($number) {
+        $firstHalf = floor($number / 2);
+
+        $secondHalf = $number - $firstHalf;
+
+        return [$firstHalf, $secondHalf];
+    }
+
+    public function ComputeNetSalary($NetSalarywNightDifferential,$TotalReceivables,$TotalDeductions,$TotalTaxex){
+        return Helpers::customRound(($NetSalarywNightDifferential + $TotalReceivables) - ($TotalDeductions + $TotalTaxex));
     }
 }
