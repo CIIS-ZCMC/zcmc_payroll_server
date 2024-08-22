@@ -31,7 +31,7 @@ class ComputationController extends Controller
                 $totalDeductions += $deduction->amount;
             }
         }
-        return $totalDeductions;
+        return Helpers::customRound($totalDeductions);
     }
 
     public function computeReceivableAmounts($employeeList){
@@ -46,11 +46,22 @@ class ComputationController extends Controller
                 $totalReceivalbles += $receivable->amount;
             }
         }
-        return $totalReceivalbles;
+        return Helpers::customRound($totalReceivalbles);
     }
 
     public function computeTaxesAmounts($employeeList){
-        return 0;
+
+        $employeeTaxes = $employeeList->getTaxes->filter(function ($row){
+            return $row->month == request()->processMonth['month'] &&
+            $row->year == request()->processMonth['year'];
+        });
+        $totalTaxes = 0;
+        if(count($employeeTaxes)>=1){
+         foreach ($employeeTaxes as $value) {
+            $totalTaxes += $value->with_holding_tax;
+        }
+        }
+        return Helpers::customRound($totalTaxes);
     }
 
     public function checkOutofPayroll($data){
@@ -96,15 +107,11 @@ class ComputationController extends Controller
        return false;
     }
 
-    public function checkForInclusion($data){
-
-    }
     public function divideintoTwo($number) {
         $firstHalf = floor($number / 2);
 
         $secondHalf = $number - $firstHalf;
-
-        return [$firstHalf, $secondHalf];
+        return [Helpers::customRound($firstHalf), Helpers::customRound($secondHalf)];
     }
 
     public function ComputeNetSalary($NetSalarywNightDifferential,$TotalReceivables,$TotalDeductions,$TotalTaxex){

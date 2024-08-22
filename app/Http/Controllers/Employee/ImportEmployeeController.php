@@ -115,7 +115,7 @@ class ImportEmployeeController extends Controller
 
                 $empSalaryData = [
                     'employment_type' => $empType['name'],
-                    'basic_salary' => $grandBasicSalary,
+                    'basic_salary' => encrypt($grandBasicSalary),
                     'salary_grade' => $salary['salaryGroup']['salary_grade_number'],
                     'salary_step' => $salary['step'],
                     'month' => $month,
@@ -216,7 +216,7 @@ class ImportEmployeeController extends Controller
 
                         EmployeeComputedSalary::create([
                             'time_record_id' => $timeRecord->id,
-                            'computed_salary' => $netSalary
+                            'computed_salary' => encrypt($netSalary)
                         ]);
                     }
 
@@ -249,7 +249,7 @@ class ImportEmployeeController extends Controller
 
                                     EmployeeComputedSalary::where("time_record_id", $checkingRecords->first()->id)
                                         ->update([
-                                            'computed_salary' => $netSalary
+                                            'computed_salary' => encrypt($netSalary)
                                         ]);
                                         $checkingRecords->first()->update($timeRecordsData);
                                 } else {
@@ -261,7 +261,7 @@ class ImportEmployeeController extends Controller
                                     $newtimerecords = TimeRecord::Create($timeRecordsData);
                                     EmployeeComputedSalary::create([
                                         'time_record_id' => $newtimerecords->id,
-                                        'computed_salary' => $netSalary
+                                        'computed_salary' => encrypt($netSalary)
                                     ]);
                                 }
                                 $created = true;
@@ -271,7 +271,7 @@ class ImportEmployeeController extends Controller
                             $timeRecords->first()->update($timeRecordsData);
                             EmployeeComputedSalary::where("time_record_id", $timeRecords->first()->id)
                                 ->update([
-                                    'computed_salary' => $netSalary
+                                    'computed_salary' =>encrypt($netSalary)
                                 ]);
                         }
                     }
@@ -310,8 +310,15 @@ class ImportEmployeeController extends Controller
             return [];
         }
         foreach ($coming as $key => $value) {
+
+
             if (array_key_exists($key, $current)) {
-                $currentValue = $current[$key];
+                if($key == "basic_salary"){
+                    $currentValue = decrypt($current[$key]);
+                }else {
+                    $currentValue = $current[$key];
+                }
+
 
 
                 if (is_numeric($currentValue) && is_numeric($value)) {

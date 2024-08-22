@@ -27,11 +27,11 @@ class CreateGeneralPayrollTrailsTable extends Migration
             $table->text("employee_contributions");
             $table->text("employee_loans");
             $table->text("employee_taxes");
-            $table->double("net_pay");
-            $table->double("gross_pay");
-            $table->double("net_salary_first_half");
-            $table->double("net_salary_second_half");
-            $table->double("net_total_salary");
+            $table->text("net_pay");
+            $table->text("gross_pay");
+            $table->text("net_salary_first_half");
+            $table->text("net_salary_second_half");
+            $table->text("net_total_salary");
             $table->string('month');
             $table->string('year');
             $table->timestamps();
