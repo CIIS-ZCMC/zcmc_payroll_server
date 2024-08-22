@@ -25,7 +25,7 @@ class DeductionGroupController extends Controller
     public function index()
     {
         try {
-            return response()->json(['data' => DeductionGroupResource::collection(DeductionGroup::all())], Response::HTTP_OK);
+            return response()->json(['responseData' => DeductionGroupResource::collection(DeductionGroup::all())], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -46,7 +46,7 @@ class DeductionGroupController extends Controller
             $data = DeductionGroup::create($request->all());
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionGroupResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
+            return response()->json(['responseData' => new DeductionGroupResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -65,7 +65,7 @@ class DeductionGroupController extends Controller
     {
         try {
             $data = DeductionGroup::findOrFail($id);
-            return response()->json(['data' => DeductionGroupResource::collection($data)], Response::HTTP_OK);
+            return response()->json(['responseData' => DeductionGroupResource::collection($data)], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
