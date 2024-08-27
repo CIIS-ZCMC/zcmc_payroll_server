@@ -23,7 +23,9 @@ class ComputationController extends Controller
         $perdeductions = $employeeList->getListOfDeductions()->with(['deductions'])->get();
         $totalDeductions = 0;
         foreach ($perdeductions as $deduction) {
-            if (!is_null($deduction->date_from) && !is_null($deduction->date_to)) {
+            if($deduction->stopped_at){
+                $totalDeductions = 0;
+            }else if (!is_null($deduction->date_from) && !is_null($deduction->date_to)) {
                 if (strtotime($deduction->date_from) <= strtotime(date('Y-m-d')) && strtotime($deduction->date_to) >= strtotime(date('Y-m-d'))) {
                     $totalDeductions += $deduction->amount;
                 }
@@ -38,7 +40,9 @@ class ComputationController extends Controller
         $perReceivables = $employeeList->getEmployeeReceivables()->with(['receivables'])->get();
         $totalReceivalbles = 0;
         foreach ($perReceivables as $receivable) {
-            if (!is_null($receivable->date_from) && !is_null($receivable->date_to)) {
+            if($receivable->stopped_at){
+                $totalReceivalbles = 0;
+            }else  if (!is_null($receivable->date_from) && !is_null($receivable->date_to)) {
                 if (strtotime($receivable->date_from) <= strtotime(date('Y-m-d')) && strtotime($receivable->date_to) >= strtotime(date('Y-m-d'))) {
                     $totalReceivalbles += $receivable->amount;
                 }

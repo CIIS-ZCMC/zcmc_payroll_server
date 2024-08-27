@@ -34,7 +34,8 @@ class ImportEmployeeController extends Controller
             return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate future months"], 500);
           }
 
-
+        //   echo $currentyear ." ".$currentMonth."\n";
+        //   return "generated";
 
         try {
             $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year);
