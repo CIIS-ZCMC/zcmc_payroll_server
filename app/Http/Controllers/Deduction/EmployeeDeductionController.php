@@ -126,10 +126,10 @@ class EmployeeDeductionController extends Controller
                         'Code' => $deduction->deductions->code ?? 'N/A',
                         'Amount' => '₱' . $deduction->amount,
                         'Updated on' => $deduction->updated_at,
-                        'Terms Paid' => $deduction->with_terms
+                        'Terms paid' => $deduction->with_terms
                             ? $deduction->total_paid . "/" . $deduction->total_term
                             : $deduction->total_paid,
-                        'Billing Cycle' => $deduction->frequency,
+                        'Billing cycle' => $deduction->frequency,
                         'Status' => $deduction->status,
                         'Percentage' => $deduction->percentage,
                     ];
@@ -173,9 +173,9 @@ class EmployeeDeductionController extends Controller
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
                         'Amount' =>  '₱' . $deduction->amount,
-                        'Updated on' => $deduction->updated_at,
+                        'Date' => $deduction->updated_at,
                         'Terms to pay' => $deduction->total_term,
-                        'Billing Cycle' => $deduction->frequency,
+                        'Billing cycle' => $deduction->frequency,
                         'Status' => $deduction->status,
                         'Percentage' => $deduction->percentage,
                     ];
@@ -218,9 +218,9 @@ class EmployeeDeductionController extends Controller
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
                         'Amount' => '₱' . $deduction->amount,
-                        'Updated on' => $deduction->updated_at,
+                        'Date' => $deduction->updated_at,
                         'Terms to pay' => $deduction->total_term,
-                        'Billing Cycle' => $deduction->frequency,
+                        'Billing cycle' => $deduction->frequency,
                         'Status' => $deduction->status,
                         'Percentage' => $deduction->percentage,
                     ];
