@@ -79,14 +79,14 @@ class EmployeeReceivableController extends Controller
         }
     }
 
-    public function getEmployeeReceivables(Request $request)
+    public function getEmployeeReceivables(Request $request,$id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related receivables and salary
             $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
-                ->where('id', $employee_list_id)
+                ->where('id', $id)
                 ->first();
 
             if (!$employee) {
@@ -127,14 +127,14 @@ class EmployeeReceivableController extends Controller
         }
     }
 
-    public function getInactiveEmployeeReceivables(Request $request)
+    public function getInactiveEmployeeReceivables(Request $request,$id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related receivables and salary
             $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
-                ->where('id', $employee_list_id)
+                ->where('id', $id)
                 ->first();
 
             if (!$employee) {
@@ -177,14 +177,14 @@ class EmployeeReceivableController extends Controller
         }
     }
 
-    public function getSuspendedEmployeeReceivables(Request $request)
+    public function getSuspendedEmployeeReceivables(Request $request,$id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related receivables and salary
             $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
-                ->where('id', $employee_list_id)
+                ->where('id', $id)
                 ->first();
 
             if (!$employee) {

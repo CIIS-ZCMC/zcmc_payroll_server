@@ -59,9 +59,9 @@ Route::namespace('App\Http\Controllers\Receivable')->group(function () {
     Route::get('/employee-receivables', 'EmployeeReceivableController@index');
     Route::post('/exclude-employee', 'EmployeeReceivableController@excludeEmployee');
     Route::get('/get-receivables', 'EmployeeReceivableController@getReceivables');
-    Route::post('/get-employee-receivables', 'EmployeeReceivableController@getEmployeeReceivables');
-    Route::post('/get-inactive-employee-receivables', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
-    Route::post('/get-suspended-employee-receivables', 'EmployeeReceivableController@getSuspendedEmployeeReceivables');
+    Route::get('/get-employee-receivables/{id}', 'EmployeeReceivableController@getEmployeeReceivables');
+    Route::get('/get-inactive-employee-receivables/{id}', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
+    Route::get('/get-suspended-employee-receivables/{id}', 'EmployeeReceivableController@getSuspendedEmployeeReceivables');
     Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivable');
     Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
     Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
