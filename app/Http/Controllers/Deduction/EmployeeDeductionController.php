@@ -169,21 +169,28 @@ class EmployeeDeductionController extends Controller
             if (!$employee) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
-            $data = $employee->employeeDeductions->filter(function ($deduction) {
-                return in_array($deduction->status, ['Suspended']);
-            })->map(function ($deduction) {
-                return [
-                    'Id' => $deduction->deduction_id,
-                    'Deduction' => $deduction->deductions->name ?? 'N/A',
-                    'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' =>  '₱' . $deduction->amount,
-                    'Updated on' => $deduction->updated_at,
-                    'Terms to pay' => $deduction->total_term,
-                    'Billing Cycle' => $deduction->frequency,
-                    'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage,
-                ];
-            })->toArray();
+
+            // Prepare the response data
+            $data = [
+                'employee_list_id' => $employee->id,
+                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                'designation' => $employee->designation, // Ensure designation relationship exists
+                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Suspended']);
+                })->map(function ($deduction) {
+                    return [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' =>  '₱' . $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
+                    ];
+                })->toArray()
+            ];
 
             $data = array_slice($data, 0, 1);
             return response()->json([
@@ -209,23 +216,27 @@ class EmployeeDeductionController extends Controller
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            $data = $employee->employeeDeductions->filter(function ($deduction) {
-                return in_array($deduction->status, ['Stopped', 'Completed']);
-            })->map(function ($deduction) {
-                return [
-                    'Id' => $deduction->deduction_id,
-                    'Deduction' => $deduction->deductions->name ?? 'N/A',
-                    'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => '₱' . $deduction->amount,
-                    'Updated on' => $deduction->updated_at,
-                    'Terms to pay' => $deduction->total_term,
-                    'Billing Cycle' => $deduction->frequency,
-                    'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage,
-                ];
-            })->toArray();
-
-            $data = array_slice($data, 0, 1);
+            // Prepare the response data
+            $data = [
+                'employee_list_id' => $employee->id,
+                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                'designation' => $employee->designation, // Ensure designation relationship exists
+                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Stopped', 'Completed']);
+                })->map(function ($deduction) {
+                    return [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => '₱' . $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
+                    ];
+                })->toArray()
+            ];
 
             return response()->json([
                 'responseData' => $data,
