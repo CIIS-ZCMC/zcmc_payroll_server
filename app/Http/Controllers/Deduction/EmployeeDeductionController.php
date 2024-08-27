@@ -32,7 +32,7 @@ class EmployeeDeductionController extends Controller
             $response = [];
 
             foreach ($employees as $employee) {
-                $basic_salary = optional($employee->getSalary)->basic_salary ?? 0;
+                $basic_salary = optional($employee->getSalary)->basic_salary ? decrypt(optional($employee->getSalary)->basic_salary) : 0;
                 $total_deductions = 0;
 
                 foreach ($employee->employeeDeductions as $employeeDeduction) {
@@ -94,6 +94,7 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
     public function getEmployeeDeductions(Request $request)
@@ -268,7 +269,7 @@ class EmployeeDeductionController extends Controller
                     if ($deduction->amount === null) {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $defaultAmount = $basicSalary->basic_salary * ($deduction->percentage / 100);
+                        $defaultAmount = decrypt($basicSalary->basic_salary) * ($deduction->percentage / 100);
                     } else {
                         $defaultAmount = $deduction->amount;
                     }
@@ -343,7 +344,7 @@ class EmployeeDeductionController extends Controller
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $percentaheAmount = $basicSalary->basic_salary * ($percentage / 100);
+                        $percentaheAmount = decrypt($basicSalary->basic_salary) * ($percentage / 100);
 
                         if ($with_terms) {
                             $total_term = $request->total_term;
@@ -410,7 +411,7 @@ class EmployeeDeductionController extends Controller
                     if ($deduction->amount === null) {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $defaultAmount = $basicSalary->basic_salary * ($deduction->percentage / 100);
+                        $defaultAmount = decrypt($basicSalary->basic_salary)  * ($deduction->percentage / 100);
                     } else {
                         $defaultAmount = $deduction->amount;
                     }
@@ -484,7 +485,7 @@ class EmployeeDeductionController extends Controller
                             $total_term = $request->total_term;
                         }
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $percentaheAmount = $basicSalary->basic_salary * ($percentage / 100);
+                        $percentaheAmount = decrypt($basicSalary->basic_salary)  * ($percentage / 100);
                         $employee_deductions->update([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
