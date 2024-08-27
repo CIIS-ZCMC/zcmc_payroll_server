@@ -127,30 +127,24 @@ class EmployeeDeductionController extends Controller
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
+            $data = $employee->employeeDeductions->filter(function ($deduction) {
+                return in_array($deduction->status, ['Active']);
+            })->map(function ($deduction) {
+                return [
+                    'Deduction' => $deduction->deductions->name ?? 'N/A',
+                    'Code' => $deduction->deductions->code ?? 'N/A',
+                    'Amount' => '₱' . $deduction->amount,
+                    'Updated on' => $deduction->updated_at,
+                    'Terms Paid' => $deduction->with_terms
+                        ? $deduction->total_paid . "/" . $deduction->total_term
+                        : $deduction->total_paid,
+                    'Billing Cycle' => $deduction->frequency,
+                    'Status' => $deduction->status,
+                    'Percentage' => $deduction->percentage,
+                ];
+            })->toArray();
 
-            // Prepare the response data
-            $data = [
-                'employee_list_id' => $employee->id,
-                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure designation relationship exists
-                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
-                    return in_array($deduction->status, ['Active']);
-                })->map(function ($deduction) {
-                    return [
-                        'Id' => $deduction->deduction_id,
-                        'Deduction' => $deduction->deductions->name ?? 'N/A',
-                        'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => '₱' . $deduction->amount,
-                        'Updated on' => $deduction->updated_at,
-                        'Terms Paid' => $deduction->with_terms
-                            ? $deduction->total_paid . "/" . $deduction->total_term
-                            : $deduction->total_paid,
-                        'Billing Cycle' => $deduction->frequency,
-                        'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage,
-                    ];
-                })->toArray()
-            ];
+            $data = array_slice($data, 0, 1);
 
             return response()->json([
                 'responseData' => $data,
@@ -175,29 +169,23 @@ class EmployeeDeductionController extends Controller
             if (!$employee) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
+            $data = $employee->employeeDeductions->filter(function ($deduction) {
+                return in_array($deduction->status, ['Suspended']);
+            })->map(function ($deduction) {
+                return [
+                    'Id' => $deduction->deduction_id,
+                    'Deduction' => $deduction->deductions->name ?? 'N/A',
+                    'Code' => $deduction->deductions->code ?? 'N/A',
+                    'Amount' =>  '₱' . $deduction->amount,
+                    'Updated on' => $deduction->updated_at,
+                    'Terms to pay' => $deduction->total_term,
+                    'Billing Cycle' => $deduction->frequency,
+                    'Status' => $deduction->status,
+                    'Percentage' => $deduction->percentage,
+                ];
+            })->toArray();
 
-            // Prepare the response data
-            $data = [
-                'employee_list_id' => $employee->id,
-                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure designation relationship exists
-                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
-                    return in_array($deduction->status, ['Suspended']);
-                })->map(function ($deduction) {
-                    return [
-                        'Id' => $deduction->deduction_id,
-                        'Deduction' => $deduction->deductions->name ?? 'N/A',
-                        'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' =>  '₱' . $deduction->amount,
-                        'Updated on' => $deduction->updated_at,
-                        'Terms to pay' => $deduction->total_term,
-                        'Billing Cycle' => $deduction->frequency,
-                        'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage,
-                    ];
-                })->toArray()
-            ];
-
+            $data = array_slice($data, 0, 1);
             return response()->json([
                 'responseData' => $data,
                 'message' => 'Retrieve employee deductions.',
@@ -221,27 +209,23 @@ class EmployeeDeductionController extends Controller
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            // Prepare the response data
-            $data = [
-                'employee_list_id' => $employee->id,
-                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure designation relationship exists
-                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
-                    return in_array($deduction->status, ['Stopped', 'Completed']);
-                })->map(function ($deduction) {
-                    return [
-                        'Id' => $deduction->deduction_id,
-                        'Deduction' => $deduction->deductions->name ?? 'N/A',
-                        'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => '₱' . $deduction->amount,
-                        'Updated on' => $deduction->updated_at,
-                        'Terms to pay' => $deduction->total_term,
-                        'Billing Cycle' => $deduction->frequency,
-                        'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage,
-                    ];
-                })->toArray()
-            ];
+            $data = $employee->employeeDeductions->filter(function ($deduction) {
+                return in_array($deduction->status, ['Stopped', 'Completed']);
+            })->map(function ($deduction) {
+                return [
+                    'Id' => $deduction->deduction_id,
+                    'Deduction' => $deduction->deductions->name ?? 'N/A',
+                    'Code' => $deduction->deductions->code ?? 'N/A',
+                    'Amount' => '₱' . $deduction->amount,
+                    'Updated on' => $deduction->updated_at,
+                    'Terms to pay' => $deduction->total_term,
+                    'Billing Cycle' => $deduction->frequency,
+                    'Status' => $deduction->status,
+                    'Percentage' => $deduction->percentage,
+                ];
+            })->toArray();
+
+            $data = array_slice($data, 0, 1);
 
             return response()->json([
                 'responseData' => $data,
@@ -256,12 +240,13 @@ class EmployeeDeductionController extends Controller
     {
         try {
             // Retrieve input data from the request
-            $user = 1;
+            $user = $request->user_id;
+            $frequency = $request->frequency;
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
             $amount = $request->amount;
-            $percentage = $request->percentage;
-            $frequency = $request->frequency;
+            $percentage = $request->$user = 1;
+
             $total_term = null;
             $is_default = $request->is_default;
             $with_terms = $request->with_terms;
