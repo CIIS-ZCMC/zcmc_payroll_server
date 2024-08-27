@@ -142,6 +142,8 @@ class EmployeeDeductionController extends Controller
                     'Billing Cycle' => $deduction->frequency,
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage,
+                    'is_default' => $deduction->is_default,
+                    'with_terms' => $deduction->with_terms,
                 ];
             })->toArray();
 
@@ -178,15 +180,17 @@ class EmployeeDeductionController extends Controller
                 return in_array($deduction->status, ['Suspended']);
             })->map(function ($deduction) {
                 return [
-                        'Id' => $deduction->deduction_id,
-                        'Deduction' => $deduction->deductions->name ?? 'N/A',
-                        'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' =>  '₱' . $deduction->amount,
-                        'Updated on' => $deduction->updated_at,
-                        'Terms to pay' => $deduction->total_term,
-                        'Billing Cycle' => $deduction->frequency,
-                        'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage,
+                    'Id' => $deduction->deduction_id,
+                    'Deduction' => $deduction->deductions->name ?? 'N/A',
+                    'Code' => $deduction->deductions->code ?? 'N/A',
+                    'Amount' =>  '₱' . $deduction->amount,
+                    'Updated on' => $deduction->updated_at,
+                    'Terms to pay' => $deduction->total_term,
+                    'Billing Cycle' => $deduction->frequency,
+                    'Status' => $deduction->status,
+                    'Percentage' => $deduction->percentage,
+                    'is_default' => $deduction->is_default,
+                    'with_terms' => $deduction->with_terms,
                 ];
             })->toArray();
 
@@ -231,6 +235,8 @@ class EmployeeDeductionController extends Controller
                     'Billing Cycle' => $deduction->frequency,
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage,
+                    'is_default' => $deduction->is_default,
+                    'with_terms' => $deduction->with_terms,
                 ];
             })->toArray();
 

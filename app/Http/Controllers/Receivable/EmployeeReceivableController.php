@@ -79,7 +79,7 @@ class EmployeeReceivableController extends Controller
         }
     }
 
-    public function getEmployeeReceivables(Request $request,$id)
+    public function getEmployeeReceivables(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
@@ -127,7 +127,7 @@ class EmployeeReceivableController extends Controller
         }
     }
 
-    public function getInactiveEmployeeReceivables(Request $request,$id)
+    public function getInactiveEmployeeReceivables(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
@@ -177,7 +177,7 @@ class EmployeeReceivableController extends Controller
         }
     }
 
-    public function getSuspendedEmployeeReceivables(Request $request,$id)
+    public function getSuspendedEmployeeReceivables(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
