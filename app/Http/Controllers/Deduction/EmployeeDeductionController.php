@@ -96,15 +96,31 @@ class EmployeeDeductionController extends Controller
     }
 
 
+    public function getEmploymentType(Request $request)
+    {
+        try {
+            $deduction_group_id = $request->deduction_group_id;
+            $deductions = Deduction::get();
+            return response()->json([
+                'responseData' => DeductionResource::collection($deductions),
+                'message' => 'Retrieve all deductions.'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            // Handle any errors that occur
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 
-    public function getEmployeeDeductions(Request $request)
+
+
+    public function getEmployeeDeductions(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related deductions and salary
             $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
-                ->where('id', $employee_list_id)
+                ->where('id', $id)
                 ->first();
 
             if (!$employee) {
@@ -146,14 +162,14 @@ class EmployeeDeductionController extends Controller
     }
 
 
-    public function getSuspendedEmployeeDeductions(Request $request)
+    public function getSuspendedEmployeeDeductions(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related deductions and salary
             $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
-                ->where('id', $employee_list_id)
+                ->where('id', $id)
                 ->first();
 
             if (!$employee) {
@@ -191,14 +207,14 @@ class EmployeeDeductionController extends Controller
         }
     }
 
-    public function getInactiveEmployeeDeductions(Request $request)
+    public function getInactiveEmployeeDeductions(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
             // Retrieve the employee with related deductions and salary
             $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
-                ->where('id', $employee_list_id)
+                ->where('id', $id)
                 ->first();
 
             if (!$employee) {
