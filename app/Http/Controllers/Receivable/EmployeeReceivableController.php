@@ -108,20 +108,16 @@ class EmployeeReceivableController extends Controller
                     'Status' => $receivable->status,
                     'percentage' => $receivable->percentage . '%',
                     'is_default' => $receivable->is_default,
+
                 ];
-            });
+            })->toArray();
 
-            $response = [
-                'responseData' => [
-                    'employee_list_id' => $employee->id,
-                    'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                    'designation' => $employee->designation, // Ensure designation relationship exists
-                    'receivables' => $receivablesData,
-                ],
-                'message' => 'Retrieve employee receivables.'
-            ];
+            $data = array_slice($receivablesData, 0, 1);
 
-            return response()->json($response, Response::HTTP_OK);
+            return response()->json([
+                'responseData' => $data,
+                'message' => 'Retrieve employee deductions.'
+            ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -146,32 +142,25 @@ class EmployeeReceivableController extends Controller
                 return in_array($receivable->status, ['Stopped', 'Completed']);
             })->map(function ($receivable) {
                 return [
-                    'receivables' => [
-                        'name' => $receivable->receivables->name ?? 'N/A',
-                        'code' => $receivable->receivables->code ?? 'N/A',
-                    ],
-                    'receivable_id' => $receivable->receivable_id,
-                    'amount' => '₱' .  $receivable->amount,
+                    'Id' => $receivable->receivable_id,
+                    'Receivable' => $receivable->receivables->name ?? 'N/A',
+                    'Code' => $receivable->receivables->code ?? 'N/A',
+                    'Amount' => '₱' . $receivable->amount,
+                    'Updated on' => $receivable->updated_at,
+                    'Payment terms received' => $receivable->total_paid,
+                    'Billing Cycle' => $receivable->frequency,
+                    'Status' => $receivable->status,
                     'percentage' => $receivable->percentage . '%',
-                    'frequency' => $receivable->frequency,
-                    'total_term' => $receivable->total_term,
                     'is_default' => $receivable->is_default,
-                    'status' => $receivable->status,
-                    'updated_on' => $receivable->updated_at,
                 ];
-            });
+            })->toArray();
 
-            $response = [
-                'responseData' => [
-                    'employee_list_id' => $employee->id,
-                    'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                    'designation' => $employee->designation, // Ensure designation relationship exists
-                    'receivables' => $receivablesData,
-                ],
-                'message' => 'Retrieve inactive employee receivables.'
-            ];
+            $data = array_slice($receivablesData, 0, 1);
 
-            return response()->json($response, Response::HTTP_OK);
+            return response()->json([
+                'responseData' => $data,
+                'message' => 'Retrieve employee deductions.'
+            ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -196,32 +185,25 @@ class EmployeeReceivableController extends Controller
                 return in_array($receivable->status, ['Suspended']);
             })->map(function ($receivable) {
                 return [
-                    'receivables' => [
-                        'name' => $receivable->receivables->name ?? 'N/A',
-                        'code' => $receivable->receivables->code ?? 'N/A',
-                    ],
-                    'receivable_id' => $receivable->receivable_id,
-                    'amount' => '₱' .  $receivable->amount,
+                    'Id' => $receivable->receivable_id,
+                    'Receivable' => $receivable->receivables->name ?? 'N/A',
+                    'Code' => $receivable->receivables->code ?? 'N/A',
+                    'Amount' => '₱' . $receivable->amount,
+                    'Updated on' => $receivable->updated_at,
+                    'Payment terms received' => $receivable->total_paid,
+                    'Billing Cycle' => $receivable->frequency,
+                    'Status' => $receivable->status,
                     'percentage' => $receivable->percentage . '%',
-                    'frequency' => $receivable->frequency,
-                    'total_term' => $receivable->total_term,
                     'is_default' => $receivable->is_default,
-                    'status' => $receivable->status,
-                    'updated_on' => $receivable->updated_at,
                 ];
-            });
+            })->toArray();
 
-            $response = [
-                'responseData' => [
-                    'employee_list_id' => $employee->id,
-                    'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                    'designation' => $employee->designation, // Ensure designation relationship exists
-                    'receivables' => $receivablesData,
-                ],
-                'message' => 'Retrieve inactive employee receivables.'
-            ];
+            $data = array_slice($receivablesData, 0, 1);
 
-            return response()->json($response, Response::HTTP_OK);
+            return response()->json([
+                'responseData' => $data,
+                'message' => 'Retrieve employee deductions.'
+            ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
