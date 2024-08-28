@@ -23,7 +23,8 @@ class EmployeeReceivable extends Model
         'status',
         'date_to',
         'date_from',
-        'stopped_at'
+        'stopped_at',
+        'reason'
     ];
 
     public $timestamps = true;

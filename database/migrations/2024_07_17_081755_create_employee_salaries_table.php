@@ -18,7 +18,7 @@ class CreateEmployeeSalariesTable extends Migration
             $table->unsignedBigInteger('employee_list_id');
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
             $table->string('employment_type');
-            $table->double('basic_salary');
+            $table->text('basic_salary');
             $table->integer('salary_grade');
             $table->integer('salary_step');
             $table->string('month');

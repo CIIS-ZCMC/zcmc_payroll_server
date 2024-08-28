@@ -88,6 +88,7 @@ class LoginController extends Controller
             return response()->json([
                 'message' => 'Login Success',
                 'responseData'=>[],
+                'Token'=>$generatedToken,
                 'statusCode'=>200
             ])->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY"), '/', env("SESSION_DOMAIN"), false);
 

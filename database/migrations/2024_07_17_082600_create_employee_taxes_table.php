@@ -17,7 +17,7 @@ class CreateEmployeeTaxesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_list_id');
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
-            $table->double('with_holding_tax');
+            $table->text('with_holding_tax');
             $table->string('month');
             $table->string('year');
             $table->timestamps();

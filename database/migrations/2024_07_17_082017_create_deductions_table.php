@@ -21,8 +21,8 @@ class CreateDeductionsTable extends Migration
             $table->string('code');
             $table->double('amount');
             $table->double('percentage')->nullable();
-            $table->date('date_from');
-            $table->date('date_to');
+            $table->date('date_from')->nullable();
+            $table->date('date_to')->nullable();
             $table->string('emmployment_type');
             $table->boolean('is_mandatory');
             $table->boolean('is_active');
