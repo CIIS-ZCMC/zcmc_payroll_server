@@ -139,6 +139,7 @@ class EmployeeDeductionController extends Controller
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
+                    'Terms' => $deduction->total_term,
                     'Billing cycle' => $deduction->frequency ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
@@ -187,11 +188,12 @@ class EmployeeDeductionController extends Controller
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
+                    'Terms' => $deduction->total_term,
                     'Billing cycle' => $deduction->frequency  ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
-                    'Date from' => $deduction->date_from ?? 'N/A',
-                    'Date to' => $deduction->date_to ?? 'N/A',
+                    'Suspended on' => $deduction->date_from ?? 'N/A',
+                    'Suspended until' => $deduction->date_to ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
                 ];
@@ -236,7 +238,8 @@ class EmployeeDeductionController extends Controller
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
-                    'Billing cycle' => $deduction->frequency  ?? 'N/A',
+                    'Terms' => $deduction->total_term,
+                    'Billing Cycle' => $deduction->frequency  ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
                     'Date' => $deduction->status === 'Stopped'
