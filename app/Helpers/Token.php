@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
     }
 
     public static function myToken(){
-        return json_decode(request()->cookie(env("COOKIE_NAME")))->token ?? null;
+        return json_decode(request()->cookie(env("COOKIE_NAME")))->token ?? request()->bearerToken();
     }
 
      public static function UserInfo(){

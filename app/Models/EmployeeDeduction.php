@@ -16,12 +16,14 @@ class EmployeeDeduction extends Model
         'amount',
         'percentage',
         'frequency',
+        'with_terms',
         'total_term',
         'is_default',
         'status',
         'date_to',
         'date_from',
-        'stopped_at'
+        'stopped_at',
+        'reason'
     ];
     public $timestamps = true;
 

@@ -22,31 +22,40 @@ class EmployeeList extends Model
         'middle_name',
         'ext_name',
         'designation',
+        'assigned_area',
         'status',
-        'is_newly_hired'
+        'is_newly_hired',
+        'is_excluded'
     ];
-
     public $timestamps = true;
-    public function getEmployeeReceivables(){
-        return $this->hasMany(EmployeeReceivable::class,'employee_list_id');
-    }
-    public function getSalary(){
-        return $this->hasOne(EmployeeSalary::class,'employee_list_id')->latest();
+
+    public function getEmployeeReceivables()
+    {
+        return $this->hasMany(EmployeeReceivable::class, 'employee_list_id');
     }
 
-    public function getSalaries(){
-        return $this->hasMany(EmployeeSalary::class,'employee_list_id');
+    public function getSalary()
+    {
+        return $this->hasOne(EmployeeSalary::class, 'employee_list_id')->latest();
     }
 
-    public function getTaxes(){
-        return $this->hasMany(EmployeeTax::class,'employee_list_id');
-    }
-    public function getTimeRecords(){
-        return $this->hasOne(TimeRecord::class,'employee_list_id')
-                ->where('is_active', 1);
+    public function getSalaries()
+    {
+        return $this->hasMany(EmployeeSalary::class, 'employee_list_id');
     }
 
-    public function isPayrollExcluded(){
+    public function getTaxes()
+    {
+        return $this->hasMany(EmployeeTax::class, 'employee_list_id');
+    }
+    public function getTimeRecords()
+    {
+        return $this->hasOne(TimeRecord::class, 'employee_list_id')
+            ->where('is_active', 1);
+    }
+
+    public function isPayrollExcluded()
+    {
         $timeRecord = $this->getTimeRecords;
 
         if (!$timeRecord) {
@@ -57,11 +66,13 @@ class EmployeeList extends Model
             ->where('year', $timeRecord->year);
     }
 
-    public function getListOfTimeRecords(){
-        return $this->hasMany(TimeRecord::class,'employee_list_id');
+    public function getListOfTimeRecords()
+    {
+        return $this->hasMany(TimeRecord::class, 'employee_list_id');
     }
-    public function getListOfDeductions() {
-        return $this->hasMany(EmployeeDeduction::class,'employee_list_id');
+    public function getListOfDeductions()
+    {
+        return $this->hasMany(EmployeeDeduction::class, 'employee_list_id');
     }
 
     public function employeeDeductions()

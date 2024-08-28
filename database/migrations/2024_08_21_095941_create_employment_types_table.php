@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePayrollHeadersTable extends Migration
+class CreateEmploymentTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,10 @@ class CreatePayrollHeadersTable extends Migration
      */
     public function up()
     {
-        Schema::create('payroll_headers', function (Blueprint $table) {
+        Schema::create('employment_types', function (Blueprint $table) {
             $table->id();
-            $table->string("month");
-            $table->string("year");
-            $table->string("year");
-            $table->text("created_by")->comment("Saved Logged Employee data - Json Format");
-            $table->boolean("is_locked")->default(false);
+            $table->string('name')->nullable();
+            $table->string('code')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ class CreatePayrollHeadersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payroll_headers');
+        Schema::dropIfExists('employment_types');
     }
 }
