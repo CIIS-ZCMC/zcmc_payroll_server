@@ -139,9 +139,11 @@ class EmployeeDeductionController extends Controller
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
-                    'Billing cycle' => $deduction->frequency,
+                    'Billing cycle' => $deduction->frequency ?? 'N/A',
                     'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage,
+                    'Percentage' => $deduction->percentage  ?? 'N/A',
+                    'is_default' => $deduction->is_default,
+                    'with_terms' => $deduction->with_terms,
                 ];
             })->toArray();
 
@@ -178,15 +180,19 @@ class EmployeeDeductionController extends Controller
                 return in_array($deduction->status, ['Suspended']);
             })->map(function ($deduction) {
                 return [
-                        'Id' => $deduction->deduction_id,
-                        'Deduction' => $deduction->deductions->name ?? 'N/A',
-                        'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' =>  $deduction->amount,
-                        'Date' => $deduction->updated_at,
-                        'Terms to pay' => $deduction->total_term,
-                        'Billing cycle' => $deduction->frequency,
-                        'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage,
+                    'Id' => $deduction->deduction_id,
+                    'Deduction' => $deduction->deductions->name ?? 'N/A',
+                    'Code' => $deduction->deductions->code ?? 'N/A',
+                    'Amount' =>  '₱' . $deduction->amount,
+                    'Updated on' => $deduction->updated_at,
+                    'Terms paid' => $deduction->with_terms
+                        ? $deduction->total_paid . "/" . $deduction->total_term
+                        : $deduction->total_paid,
+                    'Billing cycle' => $deduction->frequency  ?? 'N/A',
+                    'Status' => $deduction->status,
+                    'Percentage' => $deduction->percentage  ?? 'N/A',
+                    'is_default' => $deduction->is_default,
+                    'with_terms' => $deduction->with_terms,
                 ];
             })->toArray();
 
@@ -225,12 +231,15 @@ class EmployeeDeductionController extends Controller
                     'Id' => $deduction->deduction_id,
                     'Deduction' => $deduction->deductions->name ?? 'N/A',
                     'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => $deduction->amount,
-                    'Date' => $deduction->updated_at,
-                    'Terms to pay' => $deduction->total_term,
-                    'Billing cycle' => $deduction->frequency,
+                    'Amount' => '₱' . $deduction->amount,
+                    'Terms paid' => $deduction->with_terms
+                        ? $deduction->total_paid . "/" . $deduction->total_term
+                        : $deduction->total_paid,
+                    'Billing Cycle' => $deduction->frequency  ?? 'N/A',
                     'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage,
+                    'Percentage' => $deduction->percentage  ?? 'N/A',
+                    'is_default' => $deduction->is_default,
+                    'with_terms' => $deduction->with_terms,
                 ];
             })->toArray();
 
