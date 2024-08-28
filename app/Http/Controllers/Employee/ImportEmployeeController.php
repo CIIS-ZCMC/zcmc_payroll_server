@@ -21,6 +21,13 @@ class ImportEmployeeController extends Controller
         $client = new Client();
         $month = $request->month;
         $year = $request->year;
+        $first_half = $request->first_half ?? 0;
+        $second_half = $request->second_half ?? 0;
+        $defaultmonthCount = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $from = 1;
+        $to = $defaultmonthCount;
+
+
 
 
         $currentyear = date('Y');
@@ -38,9 +45,10 @@ class ImportEmployeeController extends Controller
         //   return "generated";
 
         try {
-            $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year);
+            $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year . '&first_half='. $first_half . '&second_half='.$second_half );
             $generatedcount = 0;
             $updatedData = 0;
+
 
 
             foreach ($data as $row) {
@@ -90,6 +98,7 @@ class ImportEmployeeController extends Controller
                     ->where("employee_profile_id",$empinfo['id'])
                     ->where("employee_number",$employee['employee_id'])
                     ;
+
 
 
                 $nighttotalHours = 0;
@@ -184,6 +193,15 @@ class ImportEmployeeController extends Controller
                         }
 
                     }
+                    if ($empType['name'] === "Job Order" ){
+                        if($first_half){
+                            $from = 1;
+                            $to = 15;
+                        }else if ($second_half){
+                            $from = 16;
+                            $to = $defaultmonthCount;
+                        }
+                    }
 
 
                     $timeRecordsData = [
@@ -201,6 +219,8 @@ class ImportEmployeeController extends Controller
                         'undertime_rate' => $undertimeRate,
                         'month' => $month,
                         'year' => $year,
+                        'from'=>$from,
+                        'to'=>$to,
                         'minutes' => $minutesRate,
                         'daily' => $dailyRate,
                         'hourly' => $hourlyRate,
@@ -223,8 +243,7 @@ class ImportEmployeeController extends Controller
 
                     $currTimerecordslist = $timeRecords->first();
 
-
-              $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist, $timeRecordsData);
+                    $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist, $timeRecordsData);
 
 
                     if (count($mismatchTimeRecordslist) >= 1) {

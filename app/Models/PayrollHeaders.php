@@ -14,6 +14,7 @@ class PayrollHeaders extends Model
     protected $fillable = [
         'month',
         'year',
+        'employment_type',
         'created_by',
         'is_locked',
     ];
