@@ -183,7 +183,7 @@ class EmployeeDeductionController extends Controller
                     'Id' => $deduction->deduction_id,
                     'Deduction' => $deduction->deductions->name ?? 'N/A',
                     'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' =>  '₱' . $deduction->amount,
+                    'Amount' =>  $deduction->amount,
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
@@ -232,11 +232,11 @@ class EmployeeDeductionController extends Controller
                     'Id' => $deduction->deduction_id,
                     'Deduction' => $deduction->deductions->name ?? 'N/A',
                     'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => '₱' . $deduction->amount,
+                    'Amount' => $deduction->amount,
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
-                    'Billing Cycle' => $deduction->frequency  ?? 'N/A',
+                    'Billing cycle' => $deduction->frequency  ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
                     'Date' => $deduction->status === 'Stopped'
