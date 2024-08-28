@@ -239,7 +239,7 @@ class EmployeeDeductionController extends Controller
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
                     'Terms' => $deduction->total_term,
-                    'Billing Cycle' => $deduction->frequency  ?? 'N/A',
+                    'Billing cycle' => $deduction->frequency  ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
                     'Date' => $deduction->status === 'Stopped'
