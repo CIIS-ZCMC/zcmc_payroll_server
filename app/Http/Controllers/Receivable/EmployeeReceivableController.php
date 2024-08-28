@@ -109,7 +109,7 @@ class EmployeeReceivableController extends Controller
                     'percentage' => $receivable->percentage . '%' ?? 'N/A',
                     'is_default' => $receivable->is_default,
                     'with_terms' => $receivable->with_terms,
-                    'Reason' => $receivable->reason,
+                    'Reason' => $receivable->reason ?? 'N/A',
                 ];
             })->toArray();
 
@@ -155,7 +155,7 @@ class EmployeeReceivableController extends Controller
                         : ($receivable->status === 'Completed'
                             ? $receivable->completed_at
                             : 'N/A'),
-                    'Reason' => $receivable->reason,
+                    'Reason' => $receivable->reason ?? 'N/A',
                     'percentage' => $receivable->percentage . '%' ?? 'N/A',
                     'is_default' => $receivable->is_default,
                 ];
@@ -200,7 +200,7 @@ class EmployeeReceivableController extends Controller
                     'Status' => $receivable->status,
                     'Suspended on' => $deduction->date_from ?? 'N/A',
                     'Suspended until' => $deduction->date_to ?? 'N/A',
-                    'Reason' => $receivable->reason,
+                    'Reason' => $receivable->reason ?? 'N/A',
                     'percentage' => $receivable->percentage . '%',
                     'is_default' => $receivable->is_default,
                 ];
