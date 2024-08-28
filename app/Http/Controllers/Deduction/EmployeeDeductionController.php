@@ -186,7 +186,7 @@ class EmployeeDeductionController extends Controller
                     'Id' => $deduction->deduction_id,
                     'Deduction' => $deduction->deductions->name ?? 'N/A',
                     'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' =>  '₱' . $deduction->amount,
+                    'Amount' =>  $deduction->amount,
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
@@ -237,7 +237,7 @@ class EmployeeDeductionController extends Controller
                     'Id' => $deduction->deduction_id,
                     'Deduction' => $deduction->deductions->name ?? 'N/A',
                     'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => '₱' . $deduction->amount,
+                    'Amount' => $deduction->amount,
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
