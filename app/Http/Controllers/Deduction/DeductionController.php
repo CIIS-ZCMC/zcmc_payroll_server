@@ -44,8 +44,8 @@ class DeductionController extends Controller
         try {
             $data = Deduction::create($request->all());
 
-            Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
+            // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 

@@ -78,7 +78,9 @@ class EmployeeDeductionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+    }
 
     public function getDeductions(Request $request)
     {
@@ -127,6 +129,7 @@ class EmployeeDeductionController extends Controller
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
+<<<<<<< Updated upstream
             $data = $employee->employeeDeductions->filter(function ($deduction) {
                 return in_array($deduction->status, ['Active']);
             })->map(function ($deduction) {
@@ -151,6 +154,29 @@ class EmployeeDeductionController extends Controller
             })->toArray();
 
             $data = array_slice($data, 0, 1);
+=======
+            // Prepare the response data
+            $data = [
+                'employee_list_id' => $employee->id,
+                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                'designation' => $employee->designation, // Ensure designation relationship exists
+                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Active']);
+                })->map(function ($deduction) {
+                    return [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => '₱' . $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
+                    ];
+                })->toArray()
+            ];
+>>>>>>> Stashed changes
 
             return response()->json([
                 'responseData' => $data,
@@ -177,6 +203,29 @@ class EmployeeDeductionController extends Controller
             }
 
             // Prepare the response data
+<<<<<<< Updated upstream
+=======
+            $data = [
+                'employee_list_id' => $employee->id,
+                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                'designation' => $employee->designation, // Ensure designation relationship exists
+                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Suspended']);
+                })->map(function ($deduction) {
+                    return [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => '₱' . $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
+                    ];
+                })->toArray()
+            ];
+>>>>>>> Stashed changes
 
 
             $data = $employee->employeeDeductions->filter(function ($deduction) {
@@ -572,7 +621,8 @@ class EmployeeDeductionController extends Controller
 
             if ($employee_deductions) {
                 if ($status === 'Stopped') {
-                    $stopped_at = now()->format('Y-m-d');;
+                    $stopped_at = now()->format('Y-m-d');
+                    ;
                 }
                 $employee_deductions->update([
                     'status' => $status,

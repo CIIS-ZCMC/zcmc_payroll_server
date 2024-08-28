@@ -46,7 +46,7 @@ class DeductionGroupController extends Controller
             $data = DeductionGroup::create($request->all());
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['responseData' => new DeductionGroupResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
+            return response()->json(['data' => new DeductionGroupResource($data), 'message' => "Data Successfully saved", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 
@@ -65,7 +65,7 @@ class DeductionGroupController extends Controller
     {
         try {
             $data = DeductionGroup::findOrFail($id);
-            return response()->json(['responseData' => DeductionGroupResource::collection($data)], Response::HTTP_OK);
+            return response()->json(['data' => new DeductionGroupResource($data)], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -87,13 +87,20 @@ class DeductionGroupController extends Controller
             $data = DeductionGroup::findOrFail($id);
 
             if (!$data) {
-                return response()->json(['message' => 'No record found.'], Response::HTTP_NOT_FOUND);
+                return response()->json([
+                    'message' => 'No record found.',
+                    'statusCode' => Response::HTTP_NOT_FOUND
+                ]);
             }
 
             $data->update($request->all());
 
-            Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionGroupResource($data), 'message' => "Data Successfully update"], Response::HTTP_OK);
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json([
+                'data' => new DeductionGroupResource($data),
+                'message' => "Successfully update",
+                'statusCode' => Response::HTTP_OK
+            ]);
 
         } catch (\Throwable $th) {
 
