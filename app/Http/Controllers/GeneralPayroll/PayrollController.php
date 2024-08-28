@@ -23,7 +23,7 @@ class PayrollController extends Controller
     public function index(){
         $headers = PayrollHeaders::all();
         return response()->json([
-            'message'=>"List retrieved successfully",
+            'Message'=>"List retrieved successfully",
             'responseData'=>  PayrollHeaderResources::collection($headers),
             'statusCode'=> 200
         ]);

@@ -16,6 +16,7 @@ use App\Http\Controllers\GeneralPayroll\ComputationController;
 use App\Helpers\Helpers;
 use App\Models\GeneralPayroll;
 use App\Http\Resources\EmployeeInformationResource;
+use App\Helpers\Token;
 
 class EmployeeListController extends Controller
 {
@@ -31,11 +32,19 @@ class EmployeeListController extends Controller
 
     public function AuthorizationPin(Request $request){
         try {
-            $employee_lists = EmployeeList::with('salary')->get();
+            $pin = $request->pinCode;
+
+            if($pin == Token::UserInfo()['authorization_pin']){
+                return response()->json([
+                    'Message'=>"Access Granted",
+                    'statusCode'=>200,
+                ], Response::HTTP_OK);
+            }
             return response()->json([
-                'data' => $employee_lists,
-                'message' => 'Retrieve employees with salary.'
+                'Message'=>"Access Denied",
+                'statusCode'=>401,
             ], Response::HTTP_OK);
+
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
