@@ -108,7 +108,7 @@ class EmployeeReceivableController extends Controller
                     'Status' => $receivable->status,
                     'percentage' => $receivable->percentage . '%',
                     'is_default' => $receivable->is_default,
-
+                    'with_terms' => $receivable->with_terms,
                 ];
             })->toArray();
 
@@ -148,10 +148,10 @@ class EmployeeReceivableController extends Controller
                     'Amount' => '₱' . $receivable->amount,
                     'Updated on' => $receivable->updated_at,
                     'Payment terms received' => $receivable->total_paid,
-                    'Billing Cycle' => $receivable->frequency,
+                    'Billing Cycle' => $receivable->frequency ?? 'N/A',
                     'Status' => $receivable->status,
-                    'percentage' => $receivable->percentage . '%',
-                    'is_default' => $receivable->is_default,
+                    'percentage' => $receivable->percentage . '%' ?? 'N/A',
+                    'is_default' => $receivable->is_default ,
                 ];
             })->toArray();
 
