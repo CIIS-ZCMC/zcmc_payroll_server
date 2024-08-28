@@ -139,6 +139,7 @@ class EmployeeDeductionController extends Controller
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
+                    'Terms' => $deduction->total_term,
                     'Billing cycle' => $deduction->frequency ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
@@ -187,6 +188,7 @@ class EmployeeDeductionController extends Controller
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
+                    'Terms' => $deduction->total_term,
                     'Billing cycle' => $deduction->frequency  ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
@@ -236,6 +238,7 @@ class EmployeeDeductionController extends Controller
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
+                    'Terms' => $deduction->total_term,
                     'Billing Cycle' => $deduction->frequency  ?? 'N/A',
                     'Status' => $deduction->status,
                     'Percentage' => $deduction->percentage  ?? 'N/A',
