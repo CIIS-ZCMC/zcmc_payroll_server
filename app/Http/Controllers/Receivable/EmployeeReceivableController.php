@@ -103,10 +103,10 @@ class EmployeeReceivableController extends Controller
                     'Code' => $receivable->receivables->code ?? 'N/A',
                     'Amount' => '₱' . $receivable->amount,
                     'Updated on' => $receivable->updated_at,
-                    'Payment terms received' => $receivable->total_paid,
-                    'Billing Cycle' => $receivable->frequency,
+                    'Terms received' => $receivable->total_paid,
+                    'Billing cycle' => $receivable->frequency,
                     'Status' => $receivable->status,
-                    'percentage' => $receivable->percentage . '%',
+                    'percentage' => $receivable->percentage . '%' ?? 'N/A',
                     'is_default' => $receivable->is_default,
                     'with_terms' => $receivable->with_terms,
                 ];
@@ -146,12 +146,16 @@ class EmployeeReceivableController extends Controller
                     'Receivable' => $receivable->receivables->name ?? 'N/A',
                     'Code' => $receivable->receivables->code ?? 'N/A',
                     'Amount' => '₱' . $receivable->amount,
-                    'Updated on' => $receivable->updated_at,
-                    'Payment terms received' => $receivable->total_paid,
+                    'Terms received' => $receivable->total_paid,
                     'Billing Cycle' => $receivable->frequency ?? 'N/A',
                     'Status' => $receivable->status,
+                    'Date' => $receivable->status === 'Stopped'
+                        ? $receivable->stopped_at
+                        : ($receivable->status === 'Completed'
+                            ? $receivable->completed_at
+                            : 'N/A'),
                     'percentage' => $receivable->percentage . '%' ?? 'N/A',
-                    'is_default' => $receivable->is_default ,
+                    'is_default' => $receivable->is_default,
                 ];
             })->toArray();
 
@@ -189,10 +193,11 @@ class EmployeeReceivableController extends Controller
                     'Receivable' => $receivable->receivables->name ?? 'N/A',
                     'Code' => $receivable->receivables->code ?? 'N/A',
                     'Amount' => '₱' . $receivable->amount,
-                    'Updated on' => $receivable->updated_at,
-                    'Payment terms received' => $receivable->total_paid,
+                    'Terms received' => $receivable->total_paid,
                     'Billing Cycle' => $receivable->frequency,
                     'Status' => $receivable->status,
+                    'Suspended on' => $deduction->date_from ?? 'N/A',
+                    'Suspended until' => $deduction->date_to ?? 'N/A',
                     'percentage' => $receivable->percentage . '%',
                     'is_default' => $receivable->is_default,
                 ];
