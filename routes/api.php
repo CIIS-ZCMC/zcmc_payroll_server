@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
 Route::middleware('umis_server')->group(function () {
     Route::namespace('App\Http\Controllers\Employee')->group(function () {
         Route::get('FetchData', 'ImportEmployeeController@FetchList');
@@ -91,7 +92,15 @@ Route::
             Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
             Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
         });
+
+
+/**
+ * Settings
+ *
+ */
+
 Route::group(['middleware' => ['stripTags']], function () {
+    //  Deduction Group & Deduction
     Route::namespace('App\Http\Controllers\Deduction')->group(function () {
         Route::get('deduction-groups', 'DeductionGroupController@index');
         Route::post('deduction-group', 'DeductionGroupController@store');
@@ -107,6 +116,7 @@ Route::group(['middleware' => ['stripTags']], function () {
         Route::delete('deduction/{id}', 'DeductionController@destroy');
     });
 
+    //  Receivables
     Route::namespace('App\Http\Controllers\Receivable')->group(function () {
         Route::get('receivables', 'ReceivableController@index');
         Route::post('receivable', 'ReceivableController@store');
