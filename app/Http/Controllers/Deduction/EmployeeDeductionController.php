@@ -151,6 +151,9 @@ class EmployeeDeductionController extends Controller
                     'Percentage' => $deduction->percentage ?? 'N/A',
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
+                    'default_amount' => ($deduction->deductions->amount == 0
+                    ? ($basicSalary * ($deduction->deductions->percentage / 100))
+                    : $deduction->deductions->amount),
                     'with_terms' => $deduction->with_terms,
 
                 ];

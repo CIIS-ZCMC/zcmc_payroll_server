@@ -113,6 +113,9 @@ class EmployeeReceivableController extends Controller
                     'Reason' => $receivable->reason ?? 'N/A',
                     'percentage' => $receivable->percentage . '%' ?? 'N/A',
                     'is_default' => $receivable->is_default,
+                    'default_amount' => ($receivable->receivables->amount == 0
+                        ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                        : $receivable->receivables->amount),
                     'with_terms' => $receivable->with_terms,
 
 
