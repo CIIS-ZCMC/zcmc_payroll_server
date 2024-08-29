@@ -31,6 +31,8 @@ class TimeRecordResource extends JsonResource
             'undertime_rate' => $this->undertime_rate,
             'month' => $this->month,
             'year' => $this->year,
+            'from'=>$this->fromPeriod,
+            'to'=>$this->toPeriod,
             'minutes' => $this->minutes,
             'daily' => $this->daily,
             'hourly' => $this->hourly,

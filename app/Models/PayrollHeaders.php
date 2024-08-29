@@ -15,6 +15,8 @@ class PayrollHeaders extends Model
         'month',
         'year',
         'employment_type',
+        'fromPeriod',
+        'toPeriod',
         'created_by',
         'is_locked',
     ];

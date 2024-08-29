@@ -27,12 +27,12 @@ class ImportEmployeeController extends Controller
         $from = 1;
         $to = $defaultmonthCount;
 
-
-
-
         $currentyear = date('Y');
         $currentMonth= date('m');
 
+
+
+        if(!$first_half && !$second_half){
         if($currentyear == $year && $currentMonth == $month){
             return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate latest records"], 500);
         }
@@ -41,14 +41,13 @@ class ImportEmployeeController extends Controller
             return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate future months"], 500);
           }
 
-        //   echo $currentyear ." ".$currentMonth."\n";
-        //   return "generated";
+        }
+
 
         try {
             $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year . '&first_half='. $first_half . '&second_half='.$second_half );
             $generatedcount = 0;
             $updatedData = 0;
-
 
 
             foreach ($data as $row) {
@@ -245,7 +244,6 @@ class ImportEmployeeController extends Controller
 
                     $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist, $timeRecordsData);
 
-
                     if (count($mismatchTimeRecordslist) >= 1) {
                         $created = false;
                         foreach ($mismatchTimeRecordslist as $value) {
@@ -256,6 +254,7 @@ class ImportEmployeeController extends Controller
                                     ->where("employee_list_id", $Employee->id)
                                     ->where("month", $month)
                                     ->where("year", $year);
+
 
 
                                 if ($checkingRecords->count()) {
