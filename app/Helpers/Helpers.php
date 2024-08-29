@@ -28,9 +28,10 @@ class Helpers
         ];
     }
 
-    public static function customRound($numericValue){
-        return number_format($numericValue, 2, '.', '');
+    public static function customRound($numericValue) {
+        return (double) number_format($numericValue, 2, '.', '');
     }
+
 
     public static function errorLog($controller, $module, $errorMessage)
     {

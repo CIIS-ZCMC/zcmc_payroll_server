@@ -17,6 +17,7 @@ class CreatePayrollHeadersTable extends Migration
             $table->id();
             $table->string("month");
             $table->string("year");
+            $table->string("year");
             $table->text("created_by")->comment("Saved Logged Employee data - Json Format");
             $table->boolean("is_locked")->default(false);
             $table->timestamps();
