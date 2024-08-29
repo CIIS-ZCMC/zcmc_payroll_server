@@ -108,12 +108,17 @@ Route::group(['middleware' => ['stripTags']], function () {
         Route::put('deduction-group/{id}', 'DeductionGroupController@update');
         Route::delete('deduction-group/{id}', 'DeductionGroupController@destroy');
 
-
         Route::get('deductions', 'DeductionController@index');
         Route::post('deduction', 'DeductionController@store');
         Route::get('deduction/{id}', 'DeductionController@show');
-        Route::put('deduction/{id}', 'DeductionController@updapte');
+        Route::put('deduction/{id}', 'DeductionController@update');
         Route::delete('deduction/{id}', 'DeductionController@destroy');
+
+        Route::get('deduction-employment-type', 'DeductionController@getEmploymentType');
+        Route::get('deduction-designation', 'DeductionController@getDesignation');
+        Route::get('deduction-area', 'DeductionController@getArea');
+        Route::get('deduction-salary-grade', 'DeductionController@getSalaryGrade');
+
     });
 
     //  Receivables

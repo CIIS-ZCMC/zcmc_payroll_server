@@ -20,7 +20,7 @@ class CreateDeductionsTable extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('employment_type');
-            $table->string('employee_position');
+            $table->string('designation');
             $table->string('assigned_area');
             $table->string('charge_basis');
             $table->double('charge_value')->nullable();

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DeductionRequest;
 use App\Http\Resources\DeductionResource;
 use App\Models\Deduction;
+use App\Models\EmployeeSalary;
+use DB;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -119,6 +121,58 @@ class DeductionController extends Controller
         } catch (\Throwable $th) {
 
             Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getEmploymentType()
+    {
+        try {
+            $data = DB::connection('mysql2')->select('SELECT * FROM employment_types');
+            return response()->json(['responseData' => $data], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getDesignation()
+    {
+        try {
+            $data = DB::connection('mysql2')->select('SELECT * FROM designations');
+            return response()->json(['responseData' => $data], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getArea()
+    {
+        try {
+            $data = Helpers::getAllArea();
+            return response()->json(['responseData' => $data], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getSalaryGrade()
+    {
+        try {
+            $data = DB::connection('mysql2')->select('SELECT * FROM salary_grades');
+            return response()->json(['responseData' => $data], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
