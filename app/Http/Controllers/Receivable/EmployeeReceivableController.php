@@ -49,9 +49,8 @@ class EmployeeReceivableController extends Controller
                     'Id' => $employee->id,
                     'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                     'Designation' => $employee->designation,
-                    'Gross Salary' => $basic_salary,
+                    'Gross salary' => $basic_salary,
                     'Total receivables' => $total_receivables,
-                    'Net salary' => $net_salary,
                     'Number of receivables' => $receivables_count,
                 ];
             }
@@ -96,20 +95,27 @@ class EmployeeReceivableController extends Controller
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
                 return in_array($receivable->status, ['Active']);
-            })->map(function ($receivable) {
+            })->map(function ($receivable) use ($employee) {
+                $basicSalary = $employee->getSalary->basic_salary ?? 0;
                 return [
                     'Id' => $receivable->receivable_id,
                     'Receivable' => $receivable->receivables->name ?? 'N/A',
                     'Code' => $receivable->receivables->code ?? 'N/A',
-                    'Amount' => '₱' . $receivable->amount,
+                    'Amount' => $receivable->is_default
+                        ? ($receivable->receivables->amount == 0
+                            ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                            : $receivable->receivables->amount)
+                        : $receivable->amount,
                     'Updated on' => $receivable->updated_at,
                     'Terms received' => $receivable->total_paid,
                     'Billing cycle' => $receivable->frequency,
                     'Status' => $receivable->status,
+                    'Reason' => $receivable->reason ?? 'N/A',
                     'percentage' => $receivable->percentage . '%' ?? 'N/A',
                     'is_default' => $receivable->is_default,
                     'with_terms' => $receivable->with_terms,
-                    'Reason' => $receivable->reason ?? 'N/A',
+
+
                 ];
             })->toArray();
 

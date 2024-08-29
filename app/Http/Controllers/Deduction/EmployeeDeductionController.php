@@ -129,12 +129,18 @@ class EmployeeDeductionController extends Controller
 
             $data = $employee->employeeDeductions->filter(function ($deduction) {
                 return in_array($deduction->status, ['Active']);
-            })->map(function ($deduction) {
+            })->map(function ($deduction) use ($employee) {
+                // Ensure that getSalary is not null and retrieve the basic salary
+                $basicSalary = $employee->getSalary->basic_salary ?? 0; // Default to 0 if no salary record is found
                 return [
                     'Id' => $deduction->deduction_id,
                     'Deduction' => $deduction->deductions->name ?? 'N/A',
                     'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => $deduction->amount,
+                    'Amount' => $deduction->is_default
+                        ? ($deduction->deductions->amount == 0
+                            ? ($basicSalary * ($deduction->deductions->percentage / 100))
+                            : $deduction->deductions->amount)
+                        : $deduction->amount,
                     'Updated on' => $deduction->updated_at,
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
@@ -142,14 +148,13 @@ class EmployeeDeductionController extends Controller
                     'Terms' => $deduction->total_term,
                     'Billing cycle' => $deduction->frequency ?? 'N/A',
                     'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage  ?? 'N/A',
+                    'Percentage' => $deduction->percentage ?? 'N/A',
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
 
                 ];
             })->toArray();
-
             $data = array_slice($data, 0, 1);
 
             return response()->json([
