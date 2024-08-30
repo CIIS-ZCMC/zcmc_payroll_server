@@ -139,7 +139,7 @@ class EmployeeDeductionController extends Controller
             $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
                 ->where('id', $id)
                 ->first();
-
+                
             if (!$employee) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
