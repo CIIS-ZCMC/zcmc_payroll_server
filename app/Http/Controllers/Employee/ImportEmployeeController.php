@@ -34,7 +34,7 @@ class ImportEmployeeController extends Controller
 
         if(!$first_half && !$second_half){
         if($currentyear == $year && $currentMonth == $month){
-            return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate latest records"], 500);
+            return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate latest records for permanent employees"], 500);
         }
 
           if($currentyear == $year && $currentMonth < $month){
@@ -84,7 +84,7 @@ class ImportEmployeeController extends Controller
                 $undertimeRate = $timeDeductions['UndertimeRate'];
                 $netSalary = $row['NetSalary'];
 
-
+                $OverallNetSalary = $row['OverallNetSalary'];
                 $empinfo =  $row['Employee']['Information'];
                 $empDesig = $row['Employee']['Designation'];
                 $empHired = $row['Employee']['Hired'];
@@ -138,7 +138,7 @@ class ImportEmployeeController extends Controller
                     $generatedcount += 1;
                     $New_Employee = EmployeeList::create($empInfodata);
 
-                     $this->excludedEmployees($empExcluded,$New_Employee,$year,$month,$empStudyLeave,$isout,$netSalary);
+                     $this->excludedEmployees($empExcluded,$New_Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary);
 
                     $arr_emp = array_merge(['employee_list_id' => $New_Employee->id], $empSalaryData);
                  $New_salary = EmployeeSalary::create($arr_emp);
@@ -149,7 +149,7 @@ class ImportEmployeeController extends Controller
                 if($Employee){
 
                     $EmpSalary = EmployeeSalary::where('employee_list_id', $Employee->id)->where('is_active',1);
-                    $this->excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary);
+                    $this->excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary);
                     $mismatchEmployeekeys = $this->getMismatchedKeys($Employee, $empInfodata);
                     $mismatchSalarykeys = $this->getMismatchedKeys($EmpSalary->first(), $empSalaryData);
 
@@ -218,8 +218,8 @@ class ImportEmployeeController extends Controller
                         'undertime_rate' => $undertimeRate,
                         'month' => $month,
                         'year' => $year,
-                        'from'=>$from,
-                        'to'=>$to,
+                        'fromPeriod'=>$from,
+                        'toPeriod'=>$to,
                         'minutes' => $minutesRate,
                         'daily' => $dailyRate,
                         'hourly' => $hourlyRate,
@@ -374,7 +374,7 @@ class ImportEmployeeController extends Controller
 
 
 
-    public function excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary){
+    public function excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary){
 
             $excludedListEmp = ExcludedEmployee::where('month',$month)
                 ->where('year',$year)
@@ -385,6 +385,7 @@ class ImportEmployeeController extends Controller
                     if ($empExcluded ) {
                         ExcludedEmployee::create([
                             'employee_list_id' => $Employee->id,
+                            'payroll_headers_id'=>null,
                             'reason' => json_encode([
                                 'reason'=>$empExcluded['status'],
                                 'remarks'=>$empExcluded['remarks'],
@@ -398,6 +399,7 @@ class ImportEmployeeController extends Controller
                     }else if ($empStudyLeave){
                         ExcludedEmployee::create([
                             'employee_list_id' => $Employee->id,
+                            'payroll_headers_id'=>null,
                             'reason' => json_encode([
                                 'reason'=>$empStudyLeave['name'],
                                 'remarks'=>$empStudyLeave['date_from']." ".$empStudyLeave['date_to'],
@@ -423,7 +425,7 @@ class ImportEmployeeController extends Controller
                                     'reason'=> json_encode([
                                         'reason'=>'Salary Below 5000',
                                         'remarks'=>'',
-                                        'Amount'=>$netSalary,
+                                        'Amount'=>$OverallNetSalary,
                                     ]),
                                 ]);
                                 }
@@ -431,10 +433,11 @@ class ImportEmployeeController extends Controller
                             }else {
                                     ExcludedEmployee::create([
                                         'employee_list_id' => $Employee->id,
+                                        'payroll_headers_id'=>null,
                                         'reason' =>  json_encode([
                                             'reason'=>'Salary Below 5000',
                                             'remarks'=>'',
-                                            'Amount'=>$netSalary,
+                                            'Amount'=>$OverallNetSalary,
                                         ]),
                                         'year' => $year,
                                         'month' => $month,

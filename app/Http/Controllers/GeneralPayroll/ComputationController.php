@@ -74,9 +74,13 @@ class ComputationController extends Controller
         $CheckExcluded = ExcludedEmployee::where("employee_list_id", $data['employee_list']->id)
         ->where("year", $year)
         ->where("month",$month);
+        $requiredAmount = 5000;
 
+        if($data['employment_type'] == "Job Order"){
+            $requiredAmount = 2500;
+        }
 
-       if( $data['NETSalary'] < 5000){
+       if( $data['NETSalary'] < $requiredAmount){
         if($CheckExcluded->exists()){
             //Update is removed to 0 . then update the amount and message
             if($CheckExcluded->first()->is_removed){
@@ -95,6 +99,7 @@ class ComputationController extends Controller
             //Create new Excluded..
             ExcludedEmployee::create([
                 'employee_list_id' =>$data['employee_list']->id,
+                'payroll_headers_id'=>$data['PayheaderID'] ?? null,
                 'reason' => json_encode([
                 'reason'=>'Salary Below 5000',
                  'remarks'=>'General payroll processed and output is below 5k',
