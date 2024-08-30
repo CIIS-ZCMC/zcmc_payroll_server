@@ -30,8 +30,9 @@ class CreateDeductionsTable extends Migration
             $table->string('apply_salarygrade_from')->nullable();
             $table->string('apply_salarygrade_to')->nullable();
             $table->boolean('is_mandatory');
-            $table->boolean('is_active');
+            $table->string('status')->default("Active");
             $table->string('reason');
+            $table->timestamp('stopped_at')->nullable();
             $table->timestamps();
         });
     }

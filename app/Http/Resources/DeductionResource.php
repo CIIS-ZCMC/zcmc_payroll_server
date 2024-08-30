@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DeductionResource extends JsonResource
@@ -19,12 +20,22 @@ class DeductionResource extends JsonResource
             'deduction_group_id' => $this->deduction_group_id,
             'name' => $this->name,
             'code' => $this->code,
-            'amount' => $this->amount !== null ? '₱' . $this->amount : $this->percentage . '%',
-            'date_from' => $this->date_from,
-            'date_to' => $this->date_to,
             'employment_type' => $this->employment_type,
-            'is_mandatory' => $this->is_mandatory,
-            'is_active' => $this->is_active,
+            'designation' => $this->designation,
+            'assigned_area' => $this->assigned_area,
+            'charge_basis' => $this->charge_basis,
+            'charge_value' => $this->charge_value,
+            'billing_cycle' => $this->billing_cycle,
+            'terms_to_pay' => $this->terms_to_pay,
+            'is_applied_to_all' => $this->is_applied_to_all,
+            'apply_salarygrade_from' => $this->apply_salarygrade_from,
+            'apply_salarygrade_to' => $this->apply_salarygrade_to,
+            'is_mandatory' => $this->is_mandatory ? "Yes" : "No",
+            'status' => $this->status,
+            'reason' => $this->reason,
+            'created_at' => Carbon::parse($this->created_at)->format('M d, Y'),
+            'updated_at' => Carbon::parse($this->updated_at)->format('M d, Y'),
+            'stopped_at' => "N/A"
         ];
     }
 }

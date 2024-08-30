@@ -18,5 +18,7 @@ class DeductionGroupSeeder extends Seeder
         DeductionGroup::firstOrCreate(['name' => 'Social Security System', 'code' => 'SSS']);
         DeductionGroup::firstOrCreate(['name' => 'Pag-Ibig Fund', 'code' => 'Pag-Ibig']);
         DeductionGroup::firstOrCreate(['name' => 'PhilHealth', 'code' => 'PhilHealth']);
+        DeductionGroup::firstOrCreate(['name' => 'Others', 'code' => 'OTHERS']);
+
     }
 }

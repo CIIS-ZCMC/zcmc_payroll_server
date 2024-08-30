@@ -26,7 +26,7 @@ class DeductionController extends Controller
     public function index()
     {
         try {
-            return response()->json(['data' => DeductionResource::collection(Deduction::all())], Response::HTTP_OK);
+            return response()->json(['responseData' => DeductionResource::collection(Deduction::all())], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -48,10 +48,9 @@ class DeductionController extends Controller
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK]);
-
         } catch (\Throwable $th) {
 
-            Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
+            // Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
