@@ -17,6 +17,7 @@ class PayrollHeaders extends Model
         'employment_type',
         'fromPeriod',
         'toPeriod',
+        'days_of_duty',
         'created_by',
         'is_locked',
     ];

@@ -24,6 +24,7 @@ class PayrollHeaderResources extends JsonResource
             'period'=>$this->from.' - '.$this->to,
             'from'=>$this->fromPeriod,
             'to'=>$this->toPeriod,
+            'days_of_duty'=>$this->days_of_duty,
             'created_by'=>UserInformationResource::collection([decrypt($this->created_by)]),
             'is_locked'=>$this->is_locked,
             'created_at'=>$this->created_at,
