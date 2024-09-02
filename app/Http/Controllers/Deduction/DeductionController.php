@@ -64,8 +64,9 @@ class DeductionController extends Controller
     public function show($id)
     {
         try {
-            $data = Deduction::find($id);
-            return response()->json(['data' => DeductionResource::collection($data)], Response::HTTP_OK);
+            $data = Deduction::findOrFail($id);
+            return response()->json(['data' => new DeductionResource($data)], Response::HTTP_OK);
+
 
         } catch (\Throwable $th) {
 
