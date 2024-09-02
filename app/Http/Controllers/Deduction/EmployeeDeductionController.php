@@ -328,7 +328,7 @@ class EmployeeDeductionController extends Controller
                         'is_default' => $is_default,
                         'status' => "Active",
                         'with_terms' => $with_terms,
-                        'reason' => $reason
+                        'reason' => $reason,
                     ]);
 
                     EmployeeDeductionLog::create([
@@ -591,7 +591,7 @@ class EmployeeDeductionController extends Controller
                     if ($date_from === $today) {
                         $status = 'Suspended';
                     } else {
-                        $status = 'Active'; 
+                        $status = 'Active';
                     }
                 }
 
@@ -625,7 +625,7 @@ class EmployeeDeductionController extends Controller
                     'statusCode' => 200
                 ], Response::HTTP_OK);
             } else {
-                return response()->json(['message' => 'Deduction not found for this employee.'], 404);
+                return response()->json(['message' => 'Deduction not found for this employee.']);
             }
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
