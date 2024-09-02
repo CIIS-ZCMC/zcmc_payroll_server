@@ -292,8 +292,11 @@ class EmployeeDeductionController extends Controller
             $reason = $request->reason;
 
             // Check if the deduction already exists for the employee
-            $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
-                ->where('employee_list_id', $employee_list_id)->where('deduction_id', $deduction_id)->first();
+                $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
+                ->where('employee_list_id', $employee_list_id)
+                ->where('deduction_id', $deduction_id)
+                ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
+                ->first();
 
             if ($existingDeduction) {
                 return response()->json([

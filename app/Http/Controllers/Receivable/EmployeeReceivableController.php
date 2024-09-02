@@ -252,7 +252,10 @@ class EmployeeReceivableController extends Controller
 
             // Check if the receivable already exists for the employee
             $existingreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
-                ->where('employee_list_id', $employee_list_id)->where('receivable_id', $receivable_id)->first();
+            ->where('employee_list_id', $employee_list_id)
+            ->where('receivable_id', $receivable_id)
+            ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
+            ->first();
 
             if ($existingreceivable) {
                 return response()->json([
