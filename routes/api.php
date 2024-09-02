@@ -34,7 +34,8 @@ Route::middleware('auth.token')->group(function () {
 
     Route::namespace('App\Http\Controllers\Employee')->group(function () {
         Route::get("employee_index", "EmployeeListController@index");
-        Route::post("authorizepin", "EmployeeListController@AuthorizationPin");
+
+        Route::get("employee_index", "EmployeeListController@index");
     });
     /**
      * Deductions

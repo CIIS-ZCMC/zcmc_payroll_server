@@ -33,17 +33,25 @@ class ImportEmployeeController extends Controller
 
 
 
+
         if(!$first_half && !$second_half){
-        if($currentyear == $year && $currentMonth == $month){
-            return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate latest records for permanent employees"], 500);
+        if($currentyear == $year && $currentMonth == $month ){
+            return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate latest records for permanent employees",'statusCode'=>500]);
         }
 
           if($currentyear == $year && $currentMonth < $month){
-            return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate future months"], 500);
+            return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate future months",'statusCode'=>500]);
+          }
+
+          if($currentMonth > $month){
+           if(($currentMonth - $month) == 1 ){
+                if(floor(date('d',strtotime($year."-".$month."-1"))) <= 11){
+                    return response()->json(['error' => 'Generation failed', 'message' =>"Could not generate latest records for permanent employees",'statusCode'=>500]);
+                }
+           }
           }
 
         }
-
 
         try {
             $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year . '&first_half='. $first_half . '&second_half='.$second_half );
@@ -267,6 +275,7 @@ class ImportEmployeeController extends Controller
 
 
 
+                    $empID = $Employee->id;
                     if ($timeRecords->count() == 0) {
 
                         if($empType['name'] == "Job Order"){
@@ -279,7 +288,7 @@ class ImportEmployeeController extends Controller
                            }
 
 
-                            $empID = $Employee->id;
+
                             $prevRecord = DB::table('time_records')
                             ->where('is_active', 1)
                             ->where('fromPeriod',$from)
@@ -310,7 +319,7 @@ class ImportEmployeeController extends Controller
                          if($trueThatTimeRecord->exists()){
 
                             EmployeeComputedSalary::where('time_record_id',$trueThatTimeRecord->first()->id)->update([
-                                'computed_salary' => encrypt($netSalary)
+                                'computed_salary' =>$netSalary  //encrypt($netSalary)
                             ]);
                             $trueThatTimeRecord->update([
                                 'is_active'=>1
@@ -320,30 +329,64 @@ class ImportEmployeeController extends Controller
                             //previous month checking...
                             $this->ChangedPreviousMonthStatusForJO($Employee->id,Helpers::getPreviousMonthYear($month,$year),$month);
 
-
-
-
                             $timeRecord =  TimeRecord::Create($timeRecordsData);
                             EmployeeComputedSalary::create([
                                 'time_record_id' => $timeRecord->id,
-                                'computed_salary' => encrypt($netSalary)
+                                'computed_salary' => $netSalary //encrypt($netSalary)
                             ]);
                            }
 
                         }else {
 
 
-                        $timeRecord =  TimeRecord::Create($timeRecordsData);
-                        EmployeeComputedSalary::create([
-                            'time_record_id' => $timeRecord->id,
-                            'computed_salary' => encrypt($netSalary)
-                        ]);
+
+                            $prevRecord = DB::table('time_records')
+                            ->where('is_active', 1)
+                            ->where('month',$month)
+                            ->where('year',$year)
+                            ->whereIn('employee_list_id', function ($query) use($empID){
+                                $query->select('employee_list_id')
+                                      ->from('employee_salaries')
+                                      ->where('employment_type', '!=', 'Job Order')
+                                      ->where('employee_list_id',$empID);
+                            })->first();
+
+                            if($prevRecord){
+                                TimeRecord::where('id',$prevRecord->id)->update([
+                                    'is_active'=>0
+                                ]);
+                            }
+                            $trueThatTimeRecord = TimeRecord::where('month',$timeRecordsData['month'])
+                            ->where('year',$timeRecordsData['year'])
+                            ->where('month',$month)
+                            ->where('year',$year)
+                            ->where('is_active',0)
+                            ->where('employee_list_id',$Employee->id)
+                            ;
+                         if($trueThatTimeRecord->exists()){
+
+                            EmployeeComputedSalary::where('time_record_id',$trueThatTimeRecord->first()->id)->update([
+                                'computed_salary' =>$netSalary  //encrypt($netSalary)
+                            ]);
+                            $trueThatTimeRecord->update([
+                                'is_active'=>1
+                            ]);
+                           }else {
+                            $this->ChangedPreviousMonthStatusForPermanent($month,$empID);
+                            //previous month checking...
+                          $timeRecord =  TimeRecord::Create($timeRecordsData);
+                            EmployeeComputedSalary::create([
+                                'time_record_id' => $timeRecord->id,
+                                'computed_salary' => $netSalary //encrypt($netSalary)
+                            ]);
+                           }
+
 
                          }
 
 
                     }
-
+                    $this->ChangedPreviousMonthStatusForPermanent($month,$empID);
                     $this->ChangedPreviousMonthStatusForJO($Employee->id,Helpers::getPreviousMonthYear($month,$year),$month);
 
 
@@ -351,8 +394,7 @@ class ImportEmployeeController extends Controller
                     $currTimerecordslist = $timeRecords->first();
 
                     $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist, $timeRecordsData);
-
-                    if (count($mismatchTimeRecordslist) >= 1) {
+                 if (count($mismatchTimeRecordslist) >= 1) {
                         TimeRecord::whereNot('month',$month-2)
                             ->whereNot('year',$year)->update([
                                 'is_active'=>0
@@ -391,7 +433,7 @@ class ImportEmployeeController extends Controller
 
                                     EmployeeComputedSalary::where("time_record_id", $checkingRecords->first()->id)
                                         ->update([
-                                            'computed_salary' => encrypt($netSalary)
+                                            'computed_salary' =>  $netSalary //encrypt($netSalary)
                                         ]);
                                 $checkingRecords->first()->update($timeRecordsData);
                                 } else {
@@ -403,7 +445,7 @@ class ImportEmployeeController extends Controller
                                     $newtimerecords = TimeRecord::Create($timeRecordsData);
                                     EmployeeComputedSalary::create([
                                         'time_record_id' => $newtimerecords->id,
-                                        'computed_salary' => encrypt($netSalary)
+                                        'computed_salary' => $netSalary //encrypt($netSalary)
                                     ]);
                                 }
                                 $created = true;
@@ -413,7 +455,7 @@ class ImportEmployeeController extends Controller
                             $timeRecords->first()->update($timeRecordsData);
                             EmployeeComputedSalary::where("time_record_id", $timeRecords->first()->id)
                                 ->update([
-                                    'computed_salary' =>encrypt($netSalary)
+                                    'computed_salary' =>$netSalary //encrypt($netSalary)
                                 ]);
                         }
                     }
@@ -423,7 +465,7 @@ class ImportEmployeeController extends Controller
 
 
             }
-            return response()->json(['Message' => "Successfully Fetched.", "GeneratedCount" => $generatedcount, 'UpdatedCount' => $updatedData], 200);
+            return response()->json(['Message' => "Successfully Fetched.", "GeneratedCount" => $generatedcount, 'UpdatedCount' => $updatedData,'statusCode'=>200], 200);
         } catch (\Exception $e) {
             // Handle the exception
             return $e;
@@ -464,6 +506,29 @@ if ($otherRecord) {
     ]);
 }
 
+}
+
+public function ChangedPreviousMonthStatusForPermanent($month,$EmpID){
+
+
+    $otherRecord = DB::table('time_records')
+    ->where('is_active', 1)
+    ->where('month', '!=', $month)
+    ->whereIn('employee_list_id', function ($query) use ($EmpID) {
+        $query->select('employee_list_id')
+              ->from('employee_salaries')
+              ->where('employment_type', '!=', 'Job Order');
+    })
+    ->get(); // Retrieve the first matching record
+if (count($otherRecord)>=1) {
+    foreach ($otherRecord as $row) {
+        TimeRecord::where('id', $row->id)->update([
+            'is_active' => 0
+        ]);
+    }
+
+
+}
 }
 
 

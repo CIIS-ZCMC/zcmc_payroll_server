@@ -42,7 +42,7 @@ class TimeRecordResource extends JsonResource
                 'computed_salary' => [
                     'id' => $this->ComputedSalary['id'],
                     'time_record_id' => $this->ComputedSalary['time_record_id'],
-                    'computed_salary' => decrypt($this->ComputedSalary['computed_salary']),
+                    'computed_salary' =>$this->ComputedSalary['computed_salary'],// decrypt($this->ComputedSalary['computed_salary']),
                     'created_at' => $this->ComputedSalary['created_at'],
                     'updated_at' => $this->ComputedSalary['updated_at'],
                 ],

@@ -35,23 +35,12 @@ class PayrollController extends Controller
     }
 
     public function ActiveTimeRecord(){
-  $record = DB::table('time_records')
-    ->select([
-        DB::raw('month as month_'),
-        DB::raw('year as year_'),
-        'fromPeriod',
-        'toPeriod'
-    ])
-    ->where('is_active', 1)
-    ->whereIn('employee_list_id', function ($query) {
-        $query->select('employee_list_id')
-              ->from('employee_salaries')
-              ->where('employment_type', '!=', 'Job Order');
-    })
-    ->limit(1)
-    ->first();
-    return $record;
 
+     return response()->json([
+        'message'=>'active Record retrieved successfully',
+        'Data'=>request()->processMonth,
+        'statusCode'=>200,
+     ]);
     }
 
     public function GeneralPayrollList($HeaderID)
@@ -189,7 +178,7 @@ class PayrollController extends Controller
                 }
             }
 
-            return $In_payroll;
+
             if (count($In_payroll) == 0) {
                 return response()->json([
                     'message' => "No data to generate.",
@@ -204,7 +193,7 @@ class PayrollController extends Controller
             if ($is_permanent) {
                    $generatedCount =   $this->ProcessGeneralPayrollPermanent($In_payroll, $payroll_ID);
             } else {
-             return   $generatedCount = $this->processGeneralPayrollJobOrders($In_payroll, $payroll_ID, $first_half, $second_half);
+                $generatedCount = $this->processGeneralPayrollJobOrders($In_payroll, $payroll_ID, $first_half, $second_half);
             }
 
 
@@ -239,7 +228,7 @@ class PayrollController extends Controller
 
     public function processPayroll($row)
     {
-        $tempNetSalary =  decrypt($row->getTimeRecords->ComputedSalary->computed_salary);
+        $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;//decrypt($row->getTimeRecords->ComputedSalary->computed_salary);
         $monthly_rate =   decrypt($row->getSalary->basic_salary);
         $NetSalarywNightDifferential = $this->computer->computeNightDifferentialAmount($row, $monthly_rate, $tempNetSalary);
         $TotalDeductions =  $this->computer->computeDeductionAmount($row);
@@ -251,7 +240,7 @@ class PayrollController extends Controller
 
     public function payrolResource($row, $month, $year, $Total, $is_permanent, $from, $to, $payroll_ID)
     {
-        $tempNetSalary =  decrypt($row->getTimeRecords->ComputedSalary->computed_salary);
+        $tempNetSalary =  $row->getTimeRecords->ComputedSalary->computed_salary;//decrypt($row->getTimeRecords->ComputedSalary->computed_salary);
         $monthly_rate =   decrypt($row->getSalary->basic_salary);
         list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($Total);
         $GrossPay = $tempNetSalary + $this->computer->computeReceivableAmounts($row);
@@ -264,17 +253,31 @@ class PayrollController extends Controller
             }
         }
 
-       // return TimeRecordResource::collection([$row->getTimeRecords]);
+        if($row->getSalary->employment_type == "Job Order"){
+            return [
+                'id' => $row->id,
+                'month' => $month,
+                'year' => $year,
+                'time_record' => TimeRecordResource::collection([$row->getTimeRecords])->where('fromPeriod',$from)
+                ->where("toPeriod",$to)
+                ->where('month',$month)
+                ->where('year',$year),
+                'receivables' => $row->getEmployeeReceivables()->with(['receivables'])->get(),
+                'deductions' => $row->getListOfDeductions()->with(['deductions'])->get(),
+                'taxexs' => $row->getTaxes,
+                'gross_pay' => $GrossPay,
+                'net_pay' => $GrossPay - $this->computer->computeDeductionAmount($row),
+                'NETSalary' => $Total,
+                'first_half' => $firstHalf,
+                'second_half' => Helpers::customRound($secondHalf),
+            ];
+        }
 
-
-        return [
+     return [
             'id' => $row->id,
             'month' => $month,
             'year' => $year,
-            'time_record' => TimeRecordResource::collection([$row->getTimeRecords])->where('fromPeriod',$from)
-            ->where("toPeriod",$to)
-            ->where('month',$month)
-            ->where('year',$year),
+            'time_record' =>TimeRecordResource::collection([$row->getTimeRecords])->where('month',Helpers::getPreviousMonthYear($month,$year)['month'])->where('year',Helpers::getPreviousMonthYear($month,$year)['year']),
             'receivables' => $row->getEmployeeReceivables()->with(['receivables'])->get(),
             'deductions' => $row->getListOfDeductions()->with(['deductions'])->get(),
             'taxexs' => $row->getTaxes,
@@ -284,6 +287,7 @@ class PayrollController extends Controller
             'first_half' => $firstHalf,
             'second_half' => Helpers::customRound($secondHalf),
         ];
+
     }
 
     public function GeneratedPayrollHeaders($month, $year, $payroll_ID,$days_of_duty)
@@ -419,7 +423,7 @@ class PayrollController extends Controller
                 $general_payroll =  GeneralPayroll::where("month", $In_payroll[0]['processmonth'])
                     ->where("year", $In_payroll[0]['processyear'])
                     ->where("employee_list_id", $row['data']['id'])
-                    ->where("is_active",1)
+
                     ;
                 $genPayroll = [
                     'payroll_headers_id' => $payrollHead->first()->id,
@@ -511,7 +515,6 @@ class PayrollController extends Controller
                     'year' => $In_payroll[0]['processyear'],
                 ];
 
-                return "stop";
 
                 if ($general_payroll->exists()) {
                     $updatedCount += 1;
