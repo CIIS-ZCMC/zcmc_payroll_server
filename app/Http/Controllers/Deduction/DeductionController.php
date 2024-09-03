@@ -8,6 +8,7 @@ use App\Http\Requests\DeductionRequest;
 use App\Http\Resources\DeductionResource;
 use App\Models\Deduction;
 use App\Models\EmployeeSalary;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -88,17 +89,17 @@ class DeductionController extends Controller
             $data = Deduction::findOrFail($id);
 
             if (!$data) {
-                return response()->json(['message' => 'No record found.'], Response::HTTP_NOT_FOUND);
+                return response()->json(['message' => 'No record found.', 'statusCode' => Response::HTTP_NOT_FOUND]);
             }
 
             $data->update($request->all());
 
-            Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionResource($data), 'message' => "Data Successfully update"], Response::HTTP_OK);
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['data' => new DeductionResource($data), 'message' => "Data Successfully update", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 
-            Helpers::errorLog($this->CONTROLLER_NAME, 'update', $th->getMessage());
+            // Helpers::errorLog($this->CONTROLLER_NAME, 'update', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -121,6 +122,29 @@ class DeductionController extends Controller
         } catch (\Throwable $th) {
 
             Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function stop(Request $request, $id)
+    {
+        try {
+            $data = Deduction::findOrFail($id);
+            $data->status = $request->status;
+            $data->stopped_at = Carbon::now();
+            $data->update();
+
+            // if ($data != null) {
+            //     $data = new DeductionTrailController();
+            //     return $data->store($request);
+            // }
+
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['message' => "Data Successfully deleted", 'statusCode' => Response::HTTP_OK]);
+
+        } catch (\Throwable $th) {
+
+            // Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
