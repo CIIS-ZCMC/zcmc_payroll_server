@@ -372,7 +372,7 @@ class ImportEmployeeController extends Controller
                                 'is_active'=>1
                             ]);
                            }else {
-                            $this->ChangedPreviousMonthStatusForPermanent($month,$empID);
+                           $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
                             //previous month checking...
                           $timeRecord =  TimeRecord::Create($timeRecordsData);
                             EmployeeComputedSalary::create([
@@ -386,7 +386,7 @@ class ImportEmployeeController extends Controller
 
 
                     }
-                    $this->ChangedPreviousMonthStatusForPermanent($month,$empID);
+                    $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
                     $this->ChangedPreviousMonthStatusForJO($Employee->id,Helpers::getPreviousMonthYear($month,$year),$month);
 
 
@@ -508,9 +508,10 @@ if ($otherRecord) {
 
 }
 
-public function ChangedPreviousMonthStatusForPermanent($month,$EmpID){
-
-
+public function ChangedPreviousMonthStatusForPermanent($month,$EmpID,$empType,$year){
+    if($empType == "Job Order"){
+        $month = Helpers::getPreviousMonthYear($month,$year)['month'];
+    }
     $otherRecord = DB::table('time_records')
     ->where('is_active', 1)
     ->where('month', '!=', $month)

@@ -66,10 +66,17 @@ class AuthenticateToken
             ->limit(1)
             ->first();
             if($record){
+                $month = $record->month_ + 1;
+                $year = $record->year_;
+                if( $month  == 13){
+                    $month = 1;
+                    $year = $year + 1;
+                }
+
                 $tr =  [
-                    'month'=>$record->month_,
-                    'year'=>$record->year_,
-                    'monthName'=>date('F',strtotime($record->year_."-".$record->month_."-1"))
+                    'month'=>$month,
+                    'year'=> $year,
+                    'monthName'=>date('F',strtotime( $year."-".$month."-1"))
                 ];
             }else {
                 if(date('d') >= 11){
