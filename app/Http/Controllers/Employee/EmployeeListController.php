@@ -22,11 +22,46 @@ class EmployeeListController extends Controller
 {
 
     public function index(Request $request){
-
-        $Emp = EmployeeList::all();
-        return EmployeeInformationResource::collection($Emp);
+        if(isset($request->all)){
+            $Emp = $this->allEmployees();
+        }
+        if(isset($request->with_active_pay)){
+            $Emp = $this->withActivePay();
+        }
+        if(isset($request->designation)){
+            $Emp = $this->withDesignation();
+        }
+        return response()->json([
+            'Message'=>"List has been retrieved",
+            'responseData'=>EmployeeInformationResource::collection($Emp),
+            'statusCode'=>200,
+        ], Response::HTTP_OK);
 
     }
+
+    public function allEmployees(){
+        $Emp = EmployeeList::all();
+        return $Emp;
+    }
+    public function withActivePay(){
+        $Emp = EmployeeList::whereNotIn('id', function ($query) {
+            $query->select('employee_list_id')
+                  ->from('excluded_employees');
+        })->get();
+        return $Emp;
+    }
+
+    public function withDesignation(){
+        $designation = request()->designation;
+        $Emp = EmployeeList::with(['getSalaries'])->get()->filter(function($row) use($designation) {
+            return $row->getSalaries->contains(function ($salary) use ($designation) {
+                return stripos($salary->employment_type, $designation) !== false;
+            });
+        });
+
+        return $Emp;
+    }
+
 
     //--------------------------------------------------------------------------
 

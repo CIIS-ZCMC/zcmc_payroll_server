@@ -33,6 +33,10 @@ class LoginController extends Controller
              * Add validation code here
              * to check for access in [ Payroll Modules ]
              */
+
+
+
+
             if ($AccessToken->count() >= 1) {
                 if ($AccessToken->first()->token == Token::myToken()) {
                     //check expiry
