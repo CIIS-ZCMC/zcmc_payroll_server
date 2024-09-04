@@ -134,13 +134,13 @@ class DeductionController extends Controller
             $data->stopped_at = Carbon::now();
             $data->update();
 
-            // if ($data != null) {
-            //     $data = new DeductionTrailController();
-            //     return $data->store($request);
-            // }
+            if ($data != null) {
+                $deductionTrailController = new DeductionTrailController();
+                $deductionTrailController->store($request);
+            }
 
             // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['message' => "Data Successfully deleted", 'statusCode' => Response::HTTP_OK]);
+            return response()->json(['message' => "Data Successfully stop", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 

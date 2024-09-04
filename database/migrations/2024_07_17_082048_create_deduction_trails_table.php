@@ -20,7 +20,7 @@ class CreateDeductionTrailsTable extends Migration
             $table->string("status");
             $table->date("from");
             $table->date("to");
-            $table->string("reasons");
+            $table->string("reason");
             $table->timestamps();
         });
     }

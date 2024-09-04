@@ -18,7 +18,7 @@ class DeductionTrail extends Model
         'status',
         'from',
         'to',
-        'reasons'
+        'reason'
     ];
 
     public $timestamps = true;

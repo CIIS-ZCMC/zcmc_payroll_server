@@ -40,7 +40,7 @@ class DeductionTrailController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(DeductionTrailRequest $request)
+    public function store(Request $request)
     {
         try {
             $data = DeductionTrail::create($request->all());
