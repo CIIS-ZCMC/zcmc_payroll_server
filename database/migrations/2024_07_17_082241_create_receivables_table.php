@@ -24,6 +24,7 @@ class CreateReceivablesTable extends Migration
             $table->string('emmployment_type');
             $table->boolean('is_mandatory');
             $table->boolean('is_active');
+            $table->string('frequency');
             $table->timestamps();
         });
     }

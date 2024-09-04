@@ -48,15 +48,9 @@ Route::middleware('auth.token')->group(function () {
     Route::namespace('App\Http\Controllers\GeneralPayroll')->group(function () {
         Route::get("payrollHeaders", "PayrollController@index");
         Route::post("generatePayroll", "PayrollController@computePayroll");
-        Route::get("GeneralPayrollList/{id}","PayrollController@GeneralPayrollList");
-        Route::get("GeneralPayrollTrailsList/{id}","PayrollController@GeneralPayrollTrails");
+        Route::get("GeneralPayrollList/{id}", "PayrollController@GeneralPayrollList");
+        Route::get("GeneralPayrollTrailsList/{id}", "PayrollController@GeneralPayrollTrails");
     });
-
-
-
-
-
-
 });
 
 

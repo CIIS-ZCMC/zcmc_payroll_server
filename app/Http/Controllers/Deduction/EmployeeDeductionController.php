@@ -292,8 +292,11 @@ class EmployeeDeductionController extends Controller
             $reason = $request->reason;
 
             // Check if the deduction already exists for the employee
-            $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
-                ->where('employee_list_id', $employee_list_id)->where('deduction_id', $deduction_id)->first();
+                $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
+                ->where('employee_list_id', $employee_list_id)
+                ->where('deduction_id', $deduction_id)
+                ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
+                ->first();
 
             if ($existingDeduction) {
                 return response()->json([
@@ -328,7 +331,7 @@ class EmployeeDeductionController extends Controller
                         'is_default' => $is_default,
                         'status' => "Active",
                         'with_terms' => $with_terms,
-                        'reason' => $reason
+                        'reason' => $reason,
                     ]);
 
                     EmployeeDeductionLog::create([
@@ -574,14 +577,27 @@ class EmployeeDeductionController extends Controller
             $status = $request->status;
             $reason = $request->reason;
             $stopped_at = null;
+
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $employee_list_id)
                 ->where('deduction_id', $deduction_id)
                 ->first();
 
             if ($employee_deductions) {
+                // If the status is 'Stopped', set stopped_at to today's date
                 if ($status === 'Stopped') {
-                    $stopped_at = now()->format('Y-m-d');;
+                    $stopped_at = now()->format('Y-m-d');
                 }
+
+                // If the status is 'Suspended', check if date_from equals today's date
+                if ($status === 'Suspended') {
+                    $today = now()->format('Y-m-d');
+                    if ($date_from === $today) {
+                        $status = 'Suspended';
+                    } else {
+                        $status = 'Active';
+                    }
+                }
+
                 $employee_deductions->update([
                     'status' => $status,
                     'reason' => $reason,
@@ -590,6 +606,7 @@ class EmployeeDeductionController extends Controller
                     'stopped_at' => $stopped_at,
                 ]);
 
+                // Log the stoppage
                 StoppageLog::create([
                     'employee_deduction_id' => $employee_deductions->id,
                     'status' => $status,
@@ -599,6 +616,7 @@ class EmployeeDeductionController extends Controller
                     'reason' => $reason,
                 ]);
 
+                // Log the action
                 EmployeeDeductionLog::create([
                     'employee_deduction_id' => $employee_deductions->id,
                     'action_by' => $user,
@@ -608,10 +626,9 @@ class EmployeeDeductionController extends Controller
                 return response()->json([
                     'message' => 'Employee deduction updated successfully.',
                     'statusCode' => 200
-                    // 'responseData' => new EmployeeDeductionResource($employee_deductions),
                 ], Response::HTTP_OK);
             } else {
-                return response()->json(['message' => 'Deduction not found for this employee.'], 404);
+                return response()->json(['message' => 'Deduction not found for this employee.']);
             }
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
