@@ -23,6 +23,7 @@ class EmployeeInformationResource extends JsonResource
             'last_name'=>$this->last_name,
             'middle_name'=>$this->middle_name,
             'designation'=>$this->designation,
+            'created'=>$this->created_at,
             'assigned_area'=>json_decode($this->assigned_area),
             'status'=>$this->status,
             'is_newly_hired'=>$this->is_newly_hired,

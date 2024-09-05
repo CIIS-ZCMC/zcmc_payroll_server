@@ -64,24 +64,84 @@ class AuthenticateToken
             })
             ->limit(1)
             ->first();
+
+
+            $JobOrderrecord = DB::table('time_records')
+            ->select('fromPeriod', 'toPeriod')
+            ->where('is_active', 1)
+            ->where('month', '=', DB::raw("
+                CASE
+                    WHEN (
+                        SELECT `month`
+                        FROM `time_records`
+                        WHERE `is_active` = 1
+                        AND `employee_list_id` IN (
+                            SELECT `employee_list_id`
+                            FROM `employee_salaries`
+                            WHERE `employment_type` != 'Job Order'
+                        )
+                        LIMIT 1
+                    ) = 12 THEN 1
+                    ELSE (
+                        SELECT `month` + 1
+                        FROM `time_records`
+                        WHERE `is_active` = 1
+                        AND `employee_list_id` IN (
+                            SELECT `employee_list_id`
+                            FROM `employee_salaries`
+                            WHERE `employment_type` != 'Job Order'
+                        )
+                        LIMIT 1
+                    )
+                END
+            "))
+            ->whereIn('employee_list_id', function ($query) {
+                $query->select('employee_list_id')
+                      ->from('employee_salaries')
+                      ->where('employment_type', 'Job Order');
+            })
+            ->limit(1)
+            ->first();
+
+
+            $fromPeriod = 0;
+            $toPeriod = 0;
+            if( $JobOrderrecord){
+                $fromPeriod  = $JobOrderrecord->fromPeriod;
+                $toPeriod = $JobOrderrecord->toPeriod;
+            }
+
             if($record){
+                $month = $record->month_ + 1;
+                $year = $record->year_;
+                if( $month  == 13){
+                    $month = 1;
+                    $year = $year + 1;
+                }
+
                 $tr =  [
-                    'month'=>$record->month_,
-                    'year'=>$record->year_,
-                    'monthName'=>date('F',strtotime($record->year_."-".$record->month_."-1"))
+                    'month'=>$month,
+                    'year'=> $year,
+                    'monthName'=>date('F',strtotime( $year."-".$month."-1")),
+                    'JOfromPeriod' =>$fromPeriod,
+                    'JOtoPeriod' =>$toPeriod,
                 ];
             }else {
                 if(date('d') >= 11){
                     $tr =  [
                         'month'=>date('m'),
                         'year'=>date('Y'),
-                        'monthName'=>date('F',strtotime(date('Y')."-".date('m')."-1"))
+                        'monthName'=>date('F',strtotime(date('Y')."-".date('m')."-1")),
+                        'JOfromPeriod' =>$fromPeriod,
+                        'JOtoPeriod' =>$toPeriod,
                     ];
                 }else {
                     $tr =  [
                         'month'=>Helpers::getPreviousMonthYear(date('m'),date('Y'))['month'],
                         'year'=>Helpers::getPreviousMonthYear(date('m'),date('Y'))['year'],
-                        'monthName'=>date('F',strtotime(Helpers::getPreviousMonthYear(date('m'),date('Y'))['year']."-".Helpers::getPreviousMonthYear(date('m'),date('Y'))['month']."-1"))
+                        'monthName'=>date('F',strtotime(Helpers::getPreviousMonthYear(date('m'),date('Y'))['year']."-".Helpers::getPreviousMonthYear(date('m'),date('Y'))['month']."-1")),
+                        'JOfromPeriod' =>$fromPeriod,
+                        'JOtoPeriod' =>$toPeriod,
                     ];
                 }
             }
