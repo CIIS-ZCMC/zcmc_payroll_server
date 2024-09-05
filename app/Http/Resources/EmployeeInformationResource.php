@@ -29,6 +29,7 @@ class EmployeeInformationResource extends JsonResource
             'is_newly_hired'=>$this->is_newly_hired,
             'Salary'=> EmployeeSalaryResource::collection([$this->getSalary]),
             'TimeRecord'=> $this->getTimeRecords,
+            'deductions'=> EmployeeDeductionResource::collection($this->getListOfDeductions)
         ];
     }
 }

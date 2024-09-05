@@ -17,6 +17,9 @@ use App\Helpers\Helpers;
 use App\Models\GeneralPayroll;
 use App\Http\Resources\EmployeeInformationResource;
 use App\Helpers\Token;
+use App\Http\Resources\ListOfEmployeeByDeductionResource;
+use App\Models\Deduction;
+use App\Models\EmployeeDeduction;
 
 class EmployeeListController extends Controller
 {
@@ -38,6 +41,11 @@ class EmployeeListController extends Controller
         if(isset($request->specialPayroll) && $request->specialPayroll){
             $Emp = $this->QualifiedSpecialPayrollList();
         }
+        if(isset($request->getEmployeeByDeduction) && $request->deductionId){
+          return  $this->getEmployeebyDeduction($request->deductionId);
+        }
+
+
 
         if(isset($request->withDeduction)){
 
@@ -55,6 +63,22 @@ class EmployeeListController extends Controller
         return $Emp;
     }
 
+    public function getEmployeebyDeduction($deductionId)
+    {
+        $deduct = Deduction::find($deductionId);
+        if (!$deduct) {
+            return response()->json([
+                'Message' => "Deduction not found",
+                'responseData' => null,
+                'statusCode' => 404,
+            ], Response::HTTP_NOT_FOUND);
+        }
+        return response()->json([
+            'Message' => "List has been retrieved",
+            'responseData' => ListOfEmployeeByDeductionResource::collection($deduct->employeeDeductions),
+            'statusCode' => 200,
+        ], Response::HTTP_OK);
+    }
     public function QualifiedGeneralPayrollList(){
         $jobOrder = request()->jobOrder;
         $condition = "=";

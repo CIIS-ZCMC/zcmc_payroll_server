@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class EmployeeDeductionResource extends JsonResource
+class ListOfEmployeeByDeductionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,7 +20,7 @@ class EmployeeDeductionResource extends JsonResource
                 'name' => $this->deductions->name ?? 'N/A',
                 'code' => $this->deductions->code ?? 'N/A',
             ],
-            'amount' => '₱' . $this->amount,
+            'amount' => $this->amount,
             'percentage' => $this->percentage . '%',
             'frequency' => $this->frequency,
             'total_term' => $this->total_term,
@@ -29,7 +29,7 @@ class EmployeeDeductionResource extends JsonResource
             'date_from' =>  $this->date_from,
             'date_to' =>  $this->date_to,
             'stopped_at' =>  $this->stopped_at,
-            'default_value' => $this->getDeductions
+            'employeeDeductionList' => $this->employeeList
         ];
     }
 }
