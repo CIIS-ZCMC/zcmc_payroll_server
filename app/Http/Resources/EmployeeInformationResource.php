@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\EmployeeSalaryResource;
+use App\Http\Resources\TimeRecordResource;
 
 class EmployeeInformationResource extends JsonResource
 {
@@ -28,7 +29,7 @@ class EmployeeInformationResource extends JsonResource
             'status'=>$this->status,
             'is_newly_hired'=>$this->is_newly_hired,
             'Salary'=> EmployeeSalaryResource::collection([$this->getSalary]),
-            'TimeRecord'=> $this->getTimeRecords,
+            'TimeRecord'=> TimeRecordResource::collection([$this->getTimeRecords]),
         ];
     }
 }
