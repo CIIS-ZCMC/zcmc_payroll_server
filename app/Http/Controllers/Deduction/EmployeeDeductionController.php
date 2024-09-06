@@ -150,6 +150,8 @@ class EmployeeDeductionController extends Controller
                         'Billing cycle' => $deduction->frequency ?? 'N/A',
                         'Status' => $deduction->status ?? 'N/A',
                         'Percentage' => $deduction->percentage ?? 'N/A',
+                        'Suspended on' => $deduction->date_from ?? 'N/A',
+                    'Suspended until' => $deduction->date_to ?? 'N/A',
                         'Reason' => $deduction->reason ?? 'N/A',
                         'is_default' => $deduction->is_default ?? false,
                         'default_amount' => ($deduction->deductions->amount == 0
@@ -207,6 +209,7 @@ class EmployeeDeductionController extends Controller
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
+                    'Updated on' => $deduction->updated_at ?? 'N/A',
                 ];
             })->toArray();
 
@@ -261,6 +264,7 @@ class EmployeeDeductionController extends Controller
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
+                    'Updated on' => $deduction->updated_at ?? 'N/A',
                 ];
             })->toArray();
 
