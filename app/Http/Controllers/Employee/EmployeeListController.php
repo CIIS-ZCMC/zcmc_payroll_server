@@ -17,10 +17,15 @@ use App\Helpers\Helpers;
 use App\Models\GeneralPayroll;
 use App\Http\Resources\EmployeeInformationResource;
 use App\Helpers\Token;
+use App\Http\Controllers\Employee\ExcludedEmployeeController;
 
 class EmployeeListController extends Controller
 {
 
+    private $excluded;
+    public function __construct() {
+        $this->excluded = new ExcludedEmployeeController();
+    }
     public function index(Request $request){
          $Emp = $this->allEmployees();
 
@@ -37,6 +42,10 @@ class EmployeeListController extends Controller
 
         if(isset($request->specialPayroll) && $request->specialPayroll){
             $Emp = $this->QualifiedSpecialPayrollList();
+        }
+
+        if(isset($request->isExcluded)){
+            $Emp = $this->isExcluded()['Emplist'];
         }
 
         if(isset($request->withDeduction)){
@@ -72,7 +81,8 @@ class EmployeeListController extends Controller
             $query->select("employee_list_id")
                     ->from("employee_salaries")
                     ->where("employment_type",$condition,"Job Order");
-        })->get();
+        })->whereNotIn("employee_profile_id", $this->isExcluded()['ids'])
+        ->get();
         return $Emp;
     }
 
@@ -126,6 +136,23 @@ class EmployeeListController extends Controller
         });
 
         return $Emp;
+    }
+
+    public function isExcluded(){
+        $response = $this->excluded->index();
+        $decodedResponse = $response->getData(true);
+        $excluded =  $decodedResponse['responseData'];
+
+        $ids = array_map(function($row){
+            return $row['employee_list_id'];
+        },$excluded);
+        return [
+            'ids'=>$ids,
+            'Emplist'=>EmployeeList::whereIn('employee_profile_id',$ids)->get()
+        ];
+
+
+
     }
 
 

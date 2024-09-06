@@ -17,6 +17,7 @@ class EmployeeInformationResource extends JsonResource
     public function toArray($request)
     {
         //return parent::toArray($request);
+
         return [
             'id'=>$this->id,
             'employee_number'=>$this->employee_number,
@@ -30,6 +31,9 @@ class EmployeeInformationResource extends JsonResource
             'is_newly_hired'=>$this->is_newly_hired,
             'Salary'=> EmployeeSalaryResource::collection([$this->getSalary]),
             'TimeRecord'=> TimeRecordResource::collection([$this->getTimeRecords]),
+            'isExcluded'=>$this->getExclusionDetails()->where('month', request()->processMonth['month'])
+                ->where('year',request()->processMonth['year'])
+            ->get()
         ];
     }
 }
