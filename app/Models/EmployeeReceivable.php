@@ -55,4 +55,9 @@ class EmployeeReceivable extends Model
     {
         return $this->hasMany(EmployeeReceivableLog::class);
     }
+
+    public function stoppageLogs()
+    {
+        return $this->hasMany(StoppageLog::class, 'employee_receivable_id');
+    }
 }
