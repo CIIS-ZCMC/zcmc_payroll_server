@@ -25,7 +25,8 @@ class EmployeeReceivable extends Model
         'stopped_at',
         'completed_at',
         'reason',
-        'total_paid'
+        'total_paid',
+        'frequency'
     ];
 
     public $timestamps = true;

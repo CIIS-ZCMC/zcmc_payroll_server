@@ -111,7 +111,7 @@ class EmployeeReceivableController extends Controller
                     'Billing cycle' => $receivable->frequency ?? 'N/A',
                     'Status' => $receivable->status,
                     'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage . '%' ?? 'N/A',
+                    'percentage' => $receivable->percentage ?? 'N/A',
                     'is_default' => $receivable->is_default,
                     'default_amount' => ($receivable->receivables->amount == 0
                         ? ($basicSalary * ($receivable->receivables->percentage / 100))
@@ -170,7 +170,7 @@ class EmployeeReceivableController extends Controller
                             ? $receivable->completed_at
                             : 'N/A'),
                     'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage . '%' ?? 'N/A',
+                    'percentage' => $receivable->percentage ?? 'N/A',
                     'is_default' => $receivable->is_default,
                 ];
             })->toArray();
@@ -220,7 +220,7 @@ class EmployeeReceivableController extends Controller
                     'Suspended on' => $deduction->date_from ?? 'N/A',
                     'Suspended until' => $deduction->date_to ?? 'N/A',
                     'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage . '%',
+                    'percentage' => $receivable->percentage,
                     'is_default' => $receivable->is_default,
                 ];
             })->toArray();
@@ -243,7 +243,8 @@ class EmployeeReceivableController extends Controller
             // Retrieve input data from the request
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
-            $amount = $request->amount;
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
             $reason = $request->reasonn;
@@ -374,7 +375,8 @@ class EmployeeReceivableController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
-            $amount = $request->amount;
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
             $reason = $request->reason;
