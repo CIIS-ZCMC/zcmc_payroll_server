@@ -28,6 +28,7 @@ class CreateEmployeeReceivablesTable extends Migration
             $table->string('completed_at')->nullable();
             $table->integer('total_paid')->nullable();
             $table->string('reason')->nullable();
+            $table->string('frequency');
             $table->boolean('is_default');
             $table->timestamps();
         });

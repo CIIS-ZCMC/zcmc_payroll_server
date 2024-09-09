@@ -49,9 +49,8 @@ class EmployeeReceivableController extends Controller
                     'Id' => $employee->id,
                     'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
                     'Designation' => $employee->designation,
-                    'Gross Salary' => $basic_salary,
+                    'Gross salary' => $basic_salary,
                     'Total receivables' => $total_receivables,
-                    'Net salary' => $net_salary,
                     'Number of receivables' => $receivables_count,
                 ];
             }
@@ -96,20 +95,30 @@ class EmployeeReceivableController extends Controller
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
                 return in_array($receivable->status, ['Active']);
-            })->map(function ($receivable) {
+            })->map(function ($receivable) use ($employee) {
+                $basicSalary = $employee->getSalary->basic_salary ?? 0;
                 return [
                     'Id' => $receivable->receivable_id,
                     'Receivable' => $receivable->receivables->name ?? 'N/A',
                     'Code' => $receivable->receivables->code ?? 'N/A',
-                    'Amount' => '₱' . $receivable->amount,
+                    'Amount' => $receivable->is_default
+                        ? ($receivable->receivables->amount == 0
+                            ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                            : $receivable->receivables->amount)
+                        : $receivable->amount,
                     'Updated on' => $receivable->updated_at,
                     'Terms received' => $receivable->total_paid,
-                    'Billing cycle' => $receivable->frequency,
+                    'Billing cycle' => $receivable->frequency ?? 'N/A',
                     'Status' => $receivable->status,
+                    'Reason' => $receivable->reason ?? 'N/A',
                     'percentage' => $receivable->percentage . '%' ?? 'N/A',
                     'is_default' => $receivable->is_default,
+                    'default_amount' => ($receivable->receivables->amount == 0
+                        ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                        : $receivable->receivables->amount),
                     'with_terms' => $receivable->with_terms,
-                    'Reason' => $receivable->reason ?? 'N/A',
+
+
                 ];
             })->toArray();
 
@@ -141,18 +150,23 @@ class EmployeeReceivableController extends Controller
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
                 return in_array($receivable->status, ['Stopped', 'Completed']);
-            })->map(function ($receivable) {
+            })->map(function ($receivable) use ($employee) {
+                $basicSalary = $employee->getSalary->basic_salary ?? 0;
                 return [
                     'Id' => $receivable->receivable_id,
                     'Receivable' => $receivable->receivables->name ?? 'N/A',
                     'Code' => $receivable->receivables->code ?? 'N/A',
-                    'Amount' => '₱' . $receivable->amount,
+                    'Amount' => $receivable->is_default
+                        ? ($receivable->receivables->amount == 0
+                            ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                            : $receivable->receivables->amount)
+                        : $receivable->amount,
                     'Terms received' => $receivable->total_paid,
-                    'Billing Cycle' => $receivable->frequency ?? 'N/A',
+                    'Billing cycle' => $receivable->frequency ?? 'N/A',
                     'Status' => $receivable->status,
-                    'Date' => $receivable->status === 'Stopped'
+                    'Date' => $receivable->status === "Stopped"
                         ? $receivable->stopped_at
-                        : ($receivable->status === 'Completed'
+                        : ($receivable->status === "Completed"
                             ? $receivable->completed_at
                             : 'N/A'),
                     'Reason' => $receivable->reason ?? 'N/A',
@@ -189,14 +203,19 @@ class EmployeeReceivableController extends Controller
             // Prepare the response data
             $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
                 return in_array($receivable->status, ['Suspended']);
-            })->map(function ($receivable) {
+            })->map(function ($receivable)  use ($employee) {
+                $basicSalary = $employee->getSalary->basic_salary ?? 0;
                 return [
                     'Id' => $receivable->receivable_id,
                     'Receivable' => $receivable->receivables->name ?? 'N/A',
                     'Code' => $receivable->receivables->code ?? 'N/A',
-                    'Amount' => '₱' . $receivable->amount,
+                    'Amount' => $receivable->is_default
+                        ? ($receivable->receivables->amount == 0
+                            ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                            : $receivable->receivables->amount)
+                        : $receivable->amount,
                     'Terms received' => $receivable->total_paid,
-                    'Billing Cycle' => $receivable->frequency,
+                    'Billing cycle' => $receivable->frequency ?? 'N/A',
                     'Status' => $receivable->status,
                     'Suspended on' => $deduction->date_from ?? 'N/A',
                     'Suspended until' => $deduction->date_to ?? 'N/A',
@@ -227,12 +246,15 @@ class EmployeeReceivableController extends Controller
             $amount = $request->amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
-            $reason = $request->reason;
-            $user = $request->user_id;
-
+            $reason = $request->reasonn;
+            $frequency = $request->frequency;
+            $user = 1;
             // Check if the receivable already exists for the employee
             $existingreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
-                ->where('employee_list_id', $employee_list_id)->where('receivable_id', $receivable_id)->first();
+                ->where('employee_list_id', $employee_list_id)
+                ->where('receivable_id', $receivable_id)
+                ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
+                ->first();
 
             if ($existingreceivable) {
                 return response()->json([
@@ -240,7 +262,7 @@ class EmployeeReceivableController extends Controller
                     'statusCode' => 200
                     // 'data' => new EmployeeReceivableResource($existingreceivable),
                 ], Response::HTTP_OK);
-
+            } else {
                 if ($is_default) {
 
                     $receivable = Receivable::where('id', $receivable_id)->first();
@@ -259,6 +281,7 @@ class EmployeeReceivableController extends Controller
                         'is_default' => $is_default,
                         'status' => "Active",
                         'total_paid' => 0,
+                        'frequency' => $frequency,
                         'reason' => $reason
                     ]);
 
@@ -279,11 +302,13 @@ class EmployeeReceivableController extends Controller
                 } else {
 
                     if ($request->percentage === null) {
+
                         $newreceivable = EmployeeReceivable::create([
                             'employee_list_id' => $employee_list_id,
                             'receivable_id' => $receivable_id,
                             'amount' => $amount,
                             'percentage' => $percentage,
+                            'frequency' => $frequency,
                             'is_default' => $is_default,
                             'status' => "Active",
                             'total_paid' => 0,
@@ -314,6 +339,7 @@ class EmployeeReceivableController extends Controller
                             'receivable_id' => $receivable_id,
                             'amount' => $percentaheAmount,
                             'percentage' => $percentage,
+                            'frequency' => $frequency,
                             'is_default' => $is_default,
                             'status' => "Active",
                             'total_paid' => 0,
@@ -353,6 +379,7 @@ class EmployeeReceivableController extends Controller
             $is_default = $request->is_default;
             $reason = $request->reason;
             $user = $request->user_id;
+            $frequency = $request->frequency;
             $employee_receivables = Employeereceivable::where('employee_list_id', $request->employee_list_id)
                 ->where('receivable_id', $request->receivable_id)
                 ->first();
@@ -375,6 +402,7 @@ class EmployeeReceivableController extends Controller
                         'receivable_id' => $receivable_id,
                         'amount' => $defaultAmount,
                         'percentage' => $percentage,
+                        'frequency' => $frequency,
                         'is_default' => $is_default,
                         'reason' => $reason
                     ]);
@@ -396,6 +424,7 @@ class EmployeeReceivableController extends Controller
                 } else {
 
                     if ($request->percentage === null) {
+
                         $employee_receivables->update([
                             'employee_list_id' => $employee_list_id,
                             'receivable_id' => $receivable_id,
@@ -474,9 +503,20 @@ class EmployeeReceivableController extends Controller
                 ->first();
 
             if ($employee_receivables) {
+
                 if ($status === 'Stopped') {
                     $stopped_at = now()->format('Y-m-d');;
                 }
+
+                if ($status === 'Suspended') {
+                    $today = now()->format('Y-m-d');
+                    if ($date_from === $today) {
+                        $status = 'Suspended';
+                    } else {
+                        $status = 'Active';
+                    }
+                }
+
                 $employee_receivables->update([
                     'status' => $status,
                     'date_from' => $date_from,
@@ -506,7 +546,7 @@ class EmployeeReceivableController extends Controller
                     // 'responseData' => new EmployeereceivableResource($employee_receivables),
                 ], Response::HTTP_OK);
             } else {
-                return response()->json(['message' => 'Deduction not found for this employee.'], 404);
+                return response()->json(['message' => 'Deduction not found for this employee.']);
             }
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

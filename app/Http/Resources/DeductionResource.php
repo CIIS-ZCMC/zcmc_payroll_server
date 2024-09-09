@@ -19,7 +19,7 @@ class DeductionResource extends JsonResource
             'deduction_group_id' => $this->deduction_group_id,
             'name' => $this->name,
             'code' => $this->code,
-            'amount' => $this->amount !== null ? '₱' . $this->amount : $this->percentage . '%',
+            'amount' => $this->amount !== null ? $this->amount : $this->percentage,
             'date_from' => $this->date_from,
             'date_to' => $this->date_to,
             'employment_type' => $this->employment_type,
