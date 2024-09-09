@@ -180,6 +180,12 @@ class EmployeeListController extends Controller
         }
     }
 
+    public function benefitsList(){
+
+        return "ok";
+
+    }
+
 
 
 
