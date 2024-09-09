@@ -15,6 +15,7 @@ class ExcludedEmployee extends Model
 
     protected $fillable = [
         'employee_list_id',
+        'payroll_headers_id',
         'reason',
         'year',
         'month',

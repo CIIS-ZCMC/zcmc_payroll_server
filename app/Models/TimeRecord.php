@@ -28,6 +28,8 @@ class TimeRecord extends Model
         'undertime_rate',
         'month',
         'year',
+        'fromPeriod',
+        'toPeriod',
         'minutes',
         'daily',
         'hourly',

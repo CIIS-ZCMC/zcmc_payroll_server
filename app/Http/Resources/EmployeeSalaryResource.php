@@ -17,6 +17,7 @@ class EmployeeSalaryResource extends JsonResource
         return [
             'id' => $this->id,
             'employee_list_id' => $this->employee_list_id,
+            'employmentType'=>$this->employment_type,
             'Employee' => $this->employeeList->first_name . ' ' . $this->employeeList->middle_name . ' ' . $this->employeeList->last_name,
             'Designation' => $this->employeeList->designation,
             'Base salary' => decrypt($this->basic_salary),
