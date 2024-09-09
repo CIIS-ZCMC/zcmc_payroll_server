@@ -246,16 +246,15 @@ class EmployeeReceivableController extends Controller
             $amount = $request->amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
-            $reason = $request->reason;
-            $user = $request->user_id;
+            $reason = $request->reasonn;
             $frequency = $request->frequency;
 
             // Check if the receivable already exists for the employee
             $existingreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
-            ->where('employee_list_id', $employee_list_id)
-            ->where('receivable_id', $receivable_id)
-            ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
-            ->first();
+                ->where('employee_list_id', $employee_list_id)
+                ->where('receivable_id', $receivable_id)
+                ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
+                ->first();
 
             if ($existingreceivable) {
                 return response()->json([
