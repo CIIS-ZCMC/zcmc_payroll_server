@@ -30,6 +30,8 @@ class CreateTimeRecordsTable extends Migration
             $table->double('undertime_rate');
             $table->string('month');
             $table->string('year');
+            $table->string('fromPeriod')->nullable()->comment('period from , ex.1-15');
+            $table->string('toPeriod')->nullable()->comment('period to , ex.16-31');
             $table->double('minutes');
             $table->double('daily');
             $table->double('hourly');

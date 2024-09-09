@@ -111,7 +111,7 @@ class EmployeeReceivableController extends Controller
                     'Billing cycle' => $receivable->frequency ?? 'N/A',
                     'Status' => $receivable->status ?? 'N/A',
                     'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage . '%' ?? 'N/A',
+                    'percentage' => $receivable->percentage ?? 'N/A',
                     'Suspended on' => $deduction->date_from ?? 'N/A',
                     'Suspended until' => $deduction->date_to ?? 'N/A',
                     'is_default' => $receivable->is_default,
@@ -173,7 +173,7 @@ class EmployeeReceivableController extends Controller
                             : 'N/A'),
                     'Updated on' => $receivable->updated_at,
                     'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage . '%' ?? 'N/A',
+                    'percentage' => $receivable->percentage ?? 'N/A',
                     'is_default' => $receivable->is_default,
                 ];
             })->toArray();
@@ -223,7 +223,7 @@ class EmployeeReceivableController extends Controller
                     'Suspended on' => $deduction->date_from ?? 'N/A',
                     'Suspended until' => $deduction->date_to ?? 'N/A',
                     'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage . '%',
+                    'percentage' => $receivable->percentage,
                     'is_default' => $receivable->is_default,
                     'Updated on' => $receivable->updated_at,
                 ];
@@ -247,19 +247,20 @@ class EmployeeReceivableController extends Controller
             // Retrieve input data from the request
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
-            $amount = $request->amount;
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
             $reason = $request->reason;
-            $user = 1;
+            $user = $request->user_id;
             $frequency = $request->frequency;
-
+            $user = 1;
             // Check if the receivable already exists for the employee
             $existingreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
-            ->where('employee_list_id', $employee_list_id)
-            ->where('receivable_id', $receivable_id)
-            ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
-            ->first();
+                ->where('employee_list_id', $employee_list_id)
+                ->where('receivable_id', $receivable_id)
+                ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
+                ->first();
 
             if ($existingreceivable) {
                 return response()->json([
@@ -267,7 +268,6 @@ class EmployeeReceivableController extends Controller
                     'statusCode' => 200
                     // 'data' => new EmployeeReceivableResource($existingreceivable),
                 ], Response::HTTP_OK);
-            }else{
 
                 if ($is_default) {
 
@@ -308,6 +308,7 @@ class EmployeeReceivableController extends Controller
                 } else {
 
                     if ($request->percentage === null) {
+
                         $newreceivable = EmployeeReceivable::create([
                             'employee_list_id' => $employee_list_id,
                             'receivable_id' => $receivable_id,
@@ -379,7 +380,8 @@ class EmployeeReceivableController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
-            $amount = $request->amount;
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
             $reason = $request->reason;

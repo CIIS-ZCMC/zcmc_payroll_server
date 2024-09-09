@@ -151,7 +151,7 @@ class EmployeeDeductionController extends Controller
                         'Status' => $deduction->status ?? 'N/A',
                         'Percentage' => $deduction->percentage ?? 'N/A',
                         'Suspended on' => $deduction->date_from ?? 'N/A',
-                    'Suspended until' => $deduction->date_to ?? 'N/A',
+                        'Suspended until' => $deduction->date_to ?? 'N/A',
                         'Reason' => $deduction->reason ?? 'N/A',
                         'is_default' => $deduction->is_default ?? false,
                         'default_amount' => ($deduction->deductions->amount == 0
@@ -287,16 +287,17 @@ class EmployeeDeductionController extends Controller
             $frequency = $request->frequency;
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
-            $amount = $request->amount;
-            $percentage = $request->$user = 1;
-
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
+            $percentage = $request->percentage;
+            $user = 1;
             $total_term = null;
             $is_default = $request->is_default;
             $with_terms = $request->with_terms;
             $reason = $request->reason;
 
             // Check if the deduction already exists for the employee
-                $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
+            $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
                 ->where('employee_list_id', $employee_list_id)
                 ->where('deduction_id', $deduction_id)
                 ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
@@ -438,7 +439,8 @@ class EmployeeDeductionController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
-            $amount = $request->amount;
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
             $percentage = $request->percentage;
             $frequency = $request->frequency;
             $total_term = null;

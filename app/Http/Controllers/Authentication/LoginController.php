@@ -8,6 +8,7 @@ use \App\Helpers\Helpers;
 use \App\Helpers\Token;
 use \App\Helpers\Logging;
 use \App\Models\PersonalAccessToken;
+use PHPUnit\Framework\Constraint\ObjectHasProperty;
 
 
 class LoginController extends Controller
@@ -19,6 +20,18 @@ class LoginController extends Controller
                 'employee_id' => $request->employee_id,
                 'password' => $request->password,
             ]);
+
+            if (!array_key_exists('data', $LoginResponse) && array_key_exists('message', $LoginResponse)) {
+                if($LoginResponse['message'] == "expired-optional"){
+                    return response()->json([
+                        'message' => 'Password Expired. Please redirect to UMIS to change or manage your password',
+                        'responseData'=>[],
+                        'statusCode'=>307
+                    ]);
+                }
+
+            }
+
             $GetInformation = Helpers::umisPOSTrequest("getUserInformations", [
                 'profileID' => $LoginResponse['data']['employee_profile_id']
             ]);
@@ -28,11 +41,14 @@ class LoginController extends Controller
             $generatedToken = Token::generateToken();
 
 
-
             /**
              * Add validation code here
              * to check for access in [ Payroll Modules ]
              */
+
+
+
+
             if ($AccessToken->count() >= 1) {
                 if ($AccessToken->first()->token == Token::myToken()) {
                     //check expiry
@@ -107,7 +123,7 @@ class LoginController extends Controller
 
 
             return response()->json([
-                'message' => "Login failed",
+                'message' => "Login failed \n You have entered an incorrect credentials ",
                 'Response' => $th->getMessage()
             ], 401);
         }
