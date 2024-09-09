@@ -18,6 +18,7 @@ use App\Models\GeneralPayroll;
 use App\Http\Resources\EmployeeInformationResource;
 use App\Helpers\Token;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
+use App\Models\Receivable;
 
 class EmployeeListController extends Controller
 {
@@ -181,9 +182,11 @@ class EmployeeListController extends Controller
     }
 
     public function benefitsList(){
-
-        return "ok";
-
+        return response()->json([
+            'Message'=>"List has been retrieved",
+            'responseData'=>Receivable::all(),
+            'statusCode'=>200,
+        ], Response::HTTP_OK);
     }
 
 

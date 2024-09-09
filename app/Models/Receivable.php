@@ -29,10 +29,7 @@ class Receivable extends Model
 
     public function employeeList()
     {
-        return $this->belongsToMany(EmployeeList::class, 'employee_receivabls')
-            ->using(EmployeeDeduction::class)
-            ->withPivot('amount', 'percentage', 'frequency', 'total_term', 'is_default')
-            ->withTimestamps();
+        return $this->belongsToMany(EmployeeList::class, 'employee_receivables');
     }
 
     public function employeeReceivables()
