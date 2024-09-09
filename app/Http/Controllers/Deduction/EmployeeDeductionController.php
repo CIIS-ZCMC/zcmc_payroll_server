@@ -132,31 +132,33 @@ class EmployeeDeductionController extends Controller
             })->map(function ($deduction) use ($employee) {
                 // Ensure that getSalary is not null and retrieve the basic salary
                 $basicSalary = $employee->getSalary->basic_salary ?? 0; // Default to 0 if no salary record is found
-                return [
-                    'Id' => $deduction->deduction_id,
-                    'Deduction' => $deduction->deductions->name ?? 'N/A',
-                    'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => $deduction->is_default
-                        ? ($deduction->deductions->amount == 0
-                            ? ($basicSalary * ($deduction->deductions->percentage / 100))
-                            : $deduction->deductions->amount)
-                        : $deduction->amount,
-                    'Updated on' => $deduction->updated_at,
-                    'Terms paid' => $deduction->with_terms
-                        ? $deduction->total_paid . "/" . $deduction->total_term
-                        : $deduction->total_paid,
-                    'Terms' => $deduction->total_term,
-                    'Billing cycle' => $deduction->frequency ?? 'N/A',
-                    'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage ?? 'N/A',
-                    'Reason' => $deduction->reason ?? 'N/A',
-                    'is_default' => $deduction->is_default,
-                    'default_amount' => ($deduction->deductions->amount == 0
-                    ? ($basicSalary * ($deduction->deductions->percentage / 100))
-                    : $deduction->deductions->amount),
-                    'with_terms' => $deduction->with_terms,
-
-                ];
+                return
+                    [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => $deduction->is_default
+                            ? ($deduction->deductions->amount == 0
+                                ? ($basicSalary * ($deduction->deductions->percentage / 100) ?? 0)
+                                : $deduction->deductions->amount ?? 0)
+                            : $deduction->amount ?? 0,
+                        'Updated on' => $deduction->updated_at ?? 'N/A',
+                        'Terms paid' => $deduction->with_terms
+                            ? ($deduction->total_paid ?? 0) . "/" . ($deduction->total_term ?? 0)
+                            : $deduction->total_paid ?? 0,
+                        'Terms' => $deduction->total_term ?? 0,
+                        'Billing cycle' => $deduction->frequency ?? 'N/A',
+                        'Status' => $deduction->status ?? 'N/A',
+                        'Percentage' => $deduction->percentage ?? 'N/A',
+                        'Suspended on' => $deduction->date_from ?? 'N/A',
+                    'Suspended until' => $deduction->date_to ?? 'N/A',
+                        'Reason' => $deduction->reason ?? 'N/A',
+                        'is_default' => $deduction->is_default ?? false,
+                        'default_amount' => ($deduction->deductions->amount == 0
+                            ? ($basicSalary * ($deduction->deductions->percentage / 100) ?? 0)
+                            : $deduction->deductions->amount ?? 0),
+                        'with_terms' => $deduction->with_terms ?? false,
+                    ];
             })->toArray();
             $data = array_slice($data, 0, 1);
 
@@ -207,6 +209,7 @@ class EmployeeDeductionController extends Controller
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
+                    'Updated on' => $deduction->updated_at ?? 'N/A',
                 ];
             })->toArray();
 
@@ -261,6 +264,7 @@ class EmployeeDeductionController extends Controller
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
+                    'Updated on' => $deduction->updated_at ?? 'N/A',
                 ];
             })->toArray();
 
@@ -441,7 +445,7 @@ class EmployeeDeductionController extends Controller
             $is_default = $request->is_default;
             $with_terms = $request->with_terms;
             $reason = $request->reason;
-            $user = $request->user_id;
+            $user = 1;
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $request->employee_list_id)
                 ->where('deduction_id', $request->deduction_id)
                 ->first();
@@ -569,7 +573,7 @@ class EmployeeDeductionController extends Controller
     public function updateStatus(Request $request)
     {
         try {
-            $user = $request->user_id;
+            $user = 1;
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
             $date_from = $request->date_from;
