@@ -248,7 +248,7 @@ class EmployeeReceivableController extends Controller
             $is_default = $request->is_default;
             $reason = $request->reasonn;
             $frequency = $request->frequency;
-
+            $user = 1;
             // Check if the receivable already exists for the employee
             $existingreceivable = EmployeeReceivable::with(['employeeList.getSalary', 'receivables'])
                 ->where('employee_list_id', $employee_list_id)
@@ -262,7 +262,7 @@ class EmployeeReceivableController extends Controller
                     'statusCode' => 200
                     // 'data' => new EmployeeReceivableResource($existingreceivable),
                 ], Response::HTTP_OK);
-
+            } else {
                 if ($is_default) {
 
                     $receivable = Receivable::where('id', $receivable_id)->first();
@@ -302,6 +302,7 @@ class EmployeeReceivableController extends Controller
                 } else {
 
                     if ($request->percentage === null) {
+
                         $newreceivable = EmployeeReceivable::create([
                             'employee_list_id' => $employee_list_id,
                             'receivable_id' => $receivable_id,
