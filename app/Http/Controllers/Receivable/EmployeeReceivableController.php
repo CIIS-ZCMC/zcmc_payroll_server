@@ -288,8 +288,7 @@ class EmployeeReceivableController extends Controller
             $amount = (float) $amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
-            $reason = $request->reason;
-            $user = $request->user_id;
+            $reason = $request->reasonn;
             $frequency = $request->frequency;
             $user = 1;
             // Check if the receivable already exists for the employee
@@ -301,11 +300,11 @@ class EmployeeReceivableController extends Controller
 
             if ($existingreceivable) {
                 return response()->json([
-                    'Message' => 'receivable already exists for this employee.',
+                    'message' => 'receivable already exists for this employee.',
                     'statusCode' => 200
                     // 'data' => new EmployeeReceivableResource($existingreceivable),
                 ], Response::HTTP_OK);
-
+            } else {
                 if ($is_default) {
 
                     $receivable = Receivable::where('id', $receivable_id)->first();
@@ -400,7 +399,7 @@ class EmployeeReceivableController extends Controller
                             ->findOrFail($newreceivable->id);
 
                         return response()->json([
-                            'Message' => 'receivable added successfully.',
+                            'message' => 'receivable added successfully.',
                             'statusCode' => 200
                             // 'data' => new EmployeereceivableResource($newreceivable),
                         ], Response::HTTP_OK);
@@ -422,7 +421,7 @@ class EmployeeReceivableController extends Controller
             $percentage = $request->percentage;
             $is_default = $request->is_default;
             $reason = $request->reason;
-            $user = 1;
+            $user = $request->user_id;
             $frequency = $request->frequency;
             $employee_receivables = Employeereceivable::where('employee_list_id', $request->employee_list_id)
                 ->where('receivable_id', $request->receivable_id)
