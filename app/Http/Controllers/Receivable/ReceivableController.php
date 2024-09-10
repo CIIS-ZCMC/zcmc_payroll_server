@@ -45,7 +45,7 @@ class ReceivableController extends Controller
             $data = Receivable::create($request->all());
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new ReceivableResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
+            return response()->json(['data' => new ReceivableResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 
