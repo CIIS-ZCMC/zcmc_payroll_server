@@ -111,7 +111,7 @@ class LoginController extends Controller
 
         } catch (\Throwable $th) {
 
-
+                return $th;
             Logging::RecordTransaction([
                 'module'=>"UMIS/Authentication",
                 'action'=>"Signin Failed",

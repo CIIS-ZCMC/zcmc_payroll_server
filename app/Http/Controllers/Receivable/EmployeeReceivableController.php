@@ -198,6 +198,7 @@ class EmployeeReceivableController extends Controller
                         'Stopped at' => $receivable->stopped_at ?? 'N/A',
                         'percentage' => $receivable->percentage ?? 'N/A',
                         'is_default' => $receivable->is_default,
+                        'Updated on' => $receivable->updated_at,
                     ];
                 });
             })->toArray();
@@ -263,6 +264,7 @@ class EmployeeReceivableController extends Controller
                         )->reason ?? 'N/A',
                         'percentage' => $receivable->percentage ?? 'N/A',
                         'is_default' => $receivable->is_default,
+                        'Updated on' => $receivable->updated_at,
                     ];
                 });
             })->toArray();
@@ -288,7 +290,7 @@ class EmployeeReceivableController extends Controller
             $amount = (float) $amount;
             $percentage = $request->percentage;
             $is_default = $request->is_default;
-            $reason = $request->reasonn;
+            $reason = $request->reason;
             $frequency = $request->frequency;
             $user = 1;
             // Check if the receivable already exists for the employee
@@ -421,7 +423,7 @@ class EmployeeReceivableController extends Controller
             $percentage = $request->percentage;
             $is_default = $request->is_default;
             $reason = $request->reason;
-            $user = $request->user_id;
+            $user = 1;
             $frequency = $request->frequency;
             $employee_receivables = Employeereceivable::where('employee_list_id', $request->employee_list_id)
                 ->where('receivable_id', $request->receivable_id)
@@ -444,7 +446,7 @@ class EmployeeReceivableController extends Controller
                         'employee_list_id' => $employee_list_id,
                         'receivable_id' => $receivable_id,
                         'amount' => $defaultAmount,
-                        'percentage' => $percentage,
+                        // 'percentage' => $percentage,
                         'frequency' => $frequency,
                         'is_default' => $is_default,
                         'reason' => $reason
@@ -472,7 +474,6 @@ class EmployeeReceivableController extends Controller
                             'employee_list_id' => $employee_list_id,
                             'receivable_id' => $receivable_id,
                             'amount' => $amount,
-                            'percentage' => $percentage,
                             'is_default' => $is_default,
                             'reason' => $reason
                         ]);
@@ -532,7 +533,7 @@ class EmployeeReceivableController extends Controller
     public function updateStatus(Request $request)
     {
         try {
-            $user = $request->user_id;
+            $user = 1;
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
             $date_from = $request->date_from;

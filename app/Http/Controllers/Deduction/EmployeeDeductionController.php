@@ -541,7 +541,6 @@ class EmployeeDeductionController extends Controller
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
                             'amount' => $amount,
-                            'percentage' => $percentage,
                             'frequency' => $frequency,
                             'total_term' => $total_term,
                             'is_default' => $is_default,
