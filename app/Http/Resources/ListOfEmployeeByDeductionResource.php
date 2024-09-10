@@ -29,7 +29,8 @@ class ListOfEmployeeByDeductionResource extends JsonResource
             'date_from' =>  $this->date_from,
             'date_to' =>  $this->date_to,
             'stopped_at' =>  $this->stopped_at,
-            'employeeDeductionList' => $this->employeeList
+            'employeeDeductionList' => $this->employeeList,
+            'isDifferential'=>$this->isDifferential
         ];
     }
 }
