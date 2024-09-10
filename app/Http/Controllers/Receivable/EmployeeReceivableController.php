@@ -12,6 +12,7 @@ use App\Models\EmployeeReceivableLog;
 use App\Models\EmployeeSalary;
 use App\Models\Receivable;
 use App\Models\StoppageLog;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -83,157 +84,193 @@ class EmployeeReceivableController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related receivables and salary
-            $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
+            // Retrieve the employees with related receivables and salary
+            $employees = EmployeeList::with(['employeeReceivables.receivables', 'getSalary', 'employeeReceivables.stoppageLogs'])
                 ->where('id', $id)
-                ->first();
+                ->get();
 
-            if (!$employee) {
+            if ($employees->isEmpty()) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            // Prepare the response data
-            $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Active']);
-            })->map(function ($receivable) use ($employee) {
-                $basicSalary = $employee->getSalary->basic_salary ?? 0;
-                return [
-                    'Id' => $receivable->receivable_id,
-                    'Receivable' => $receivable->receivables->name ?? 'N/A',
-                    'Code' => $receivable->receivables->code ?? 'N/A',
-                    'Amount' => $receivable->is_default
-                        ? ($receivable->receivables->amount == 0
+            // Flatten the data from all employees
+            $receivablesData = $employees->flatMap(function ($employee) {
+                return $employee->employeeReceivables->filter(function ($receivable) {
+                    return in_array($receivable->status, ['Active']);
+                })->map(function ($receivable) use ($employee) {
+                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    return [
+                        'Id' => $receivable->receivable_id,
+                        'Receivable' => $receivable->receivables->name ?? 'N/A',
+                        'Code' => $receivable->receivables->code ?? 'N/A',
+                        'Amount' => $receivable->is_default
+                            ? ($receivable->receivables->amount == 0
+                                ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                                : $receivable->receivables->amount)
+                            : $receivable->amount,
+                        'Updated on' => $receivable->updated_at,
+                        'Terms received' => $receivable->total_paid,
+                        'Billing cycle' => $receivable->frequency ?? 'N/A',
+                        'Status' => $receivable->status,
+                        'Reason' => $receivable->reason ?? 'N/A',
+                        'Suspended on' => optional(
+                            $receivable->stoppageLogs
+                                ->where('status', 'Suspended')
+                                ->last()
+                        )->date_from ?? 'N/A',
+                        'Suspended until' => optional(
+                            $receivable->stoppageLogs
+                                ->where('status', 'Suspended')
+                                ->last()
+                        )->date_to ?? 'N/A',
+                        'Suspension Reason' => optional(
+                            $receivable->stoppageLogs
+                                ->where('status', 'Suspended')
+                                ->filter(function ($log) {
+                                    // Parse the date_from as Carbon to compare strictly for greater than today
+                                    return Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today());
+                                })
+                                ->last()
+                        )->reason ?? 'N/A',
+                        'percentage' => $receivable->percentage ?? 'N/A',
+                        'is_default' => $receivable->is_default,
+                        'default_amount' => ($receivable->receivables->amount == 0
                             ? ($basicSalary * ($receivable->receivables->percentage / 100))
-                            : $receivable->receivables->amount)
-                        : $receivable->amount,
-                    'Updated on' => $receivable->updated_at,
-                    'Terms received' => $receivable->total_paid,
-                    'Billing cycle' => $receivable->frequency ?? 'N/A',
-                    'Status' => $receivable->status ?? 'N/A',
-                    'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage ?? 'N/A',
-                    'Suspended on' => $deduction->date_from ?? 'N/A',
-                    'Suspended until' => $deduction->date_to ?? 'N/A',
-                    'is_default' => $receivable->is_default,
-                    'default_amount' => ($receivable->receivables->amount == 0
-                        ? ($basicSalary * ($receivable->receivables->percentage / 100))
-                        : $receivable->receivables->amount),
-                    // 'with_terms' => $receivable->with_terms,
-
-
-                ];
+                            : $receivable->receivables->amount),
+                    ];
+                });
             })->toArray();
 
-            $data = array_slice($receivablesData, 0, 1);
-
+            // No need for array_slice(), as we want to return all receivables
             return response()->json([
-                'responseData' => $data,
-                'message' => 'Retrieve employee deductions.'
+                'responseData' => $receivablesData,
+                'message' => 'Retrieve employee receivables.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
     public function getInactiveEmployeeReceivables(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related receivables and salary
-            $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
+            // Retrieve the employees with related receivables and salary
+            $employees = EmployeeList::with(['employeeReceivables.receivables', 'getSalary', 'employeeReceivables.stoppageLogs'])
                 ->where('id', $id)
-                ->first();
+                ->get();
 
-            if (!$employee) {
+            if ($employees->isEmpty()) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            // Prepare the response data
-            $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Stopped', 'Completed']);
-            })->map(function ($receivable) use ($employee) {
-                $basicSalary = $employee->getSalary->basic_salary ?? 0;
-                return [
-                    'Id' => $receivable->receivable_id,
-                    'Receivable' => $receivable->receivables->name ?? 'N/A',
-                    'Code' => $receivable->receivables->code ?? 'N/A',
-                    'Amount' => $receivable->is_default
-                        ? ($receivable->receivables->amount == 0
-                            ? ($basicSalary * ($receivable->receivables->percentage / 100))
-                            : $receivable->receivables->amount)
-                        : $receivable->amount,
-                    'Terms received' => $receivable->total_paid,
-                    'Billing cycle' => $receivable->frequency ?? 'N/A',
-                    'Status' => $receivable->status,
-                    'Date' => $receivable->status === "Stopped"
-                        ? $receivable->stopped_at
-                        : ($receivable->status === "Completed"
-                            ? $receivable->completed_at
-                            : 'N/A'),
-                    'Updated on' => $receivable->updated_at,
-                    'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage ?? 'N/A',
-                    'is_default' => $receivable->is_default,
-                ];
+            // Flatten the data from all employees
+            $receivablesData = $employees->flatMap(function ($employee) {
+                return $employee->employeeReceivables->filter(function ($receivable) {
+                    return in_array($receivable->status, ['Stopped', 'Completed']);
+                })->map(function ($receivable) use ($employee) {
+                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    return [
+                        'Id' => $receivable->receivable_id,
+                        'Receivable' => $receivable->receivables->name ?? 'N/A',
+                        'Code' => $receivable->receivables->code ?? 'N/A',
+                        'Amount' => $receivable->is_default
+                            ? ($receivable->receivables->amount == 0
+                                ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                                : $receivable->receivables->amount)
+                            : $receivable->amount,
+                        'Terms received' => $receivable->total_paid,
+                        'Billing cycle' => $receivable->frequency ?? 'N/A',
+                        'Status' => $receivable->status,
+                        'Date' => $receivable->status === "Stopped"
+                            ? $receivable->stopped_at
+                            : ($receivable->status === "Completed"
+                                ? $receivable->completed_at
+                                : 'N/A'),
+                        'Reason' => $receivable->reason ?? 'N/A',
+                        'Stoppage Reason' => optional(
+                            $receivable->stoppageLogs
+                                ->where('status', 'Stopped')
+                                ->last()
+                        )->reason ?? 'N/A',
+                        'Stopped at' => $receivable->stopped_at ?? 'N/A',
+                        'percentage' => $receivable->percentage ?? 'N/A',
+                        'is_default' => $receivable->is_default,
+                    ];
+                });
             })->toArray();
 
-            $data = array_slice($receivablesData, 0, 1);
-
+            // No need for array_slice(), returning all inactive receivables
             return response()->json([
-                'responseData' => $data,
-                'message' => 'Retrieve employee deductions.'
+                'responseData' => $receivablesData,
+                'message' => 'Retrieve employee inactive receivables.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
+
     public function getSuspendedEmployeeReceivables(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related receivables and salary
-            $employee = EmployeeList::with(['employeeReceivables.receivables', 'getSalary'])
+            // Retrieve employees with related receivables and salary
+            $employees = EmployeeList::with(['employeeReceivables.receivables', 'getSalary', 'employeeReceivables.stoppageLogs'])
                 ->where('id', $id)
-                ->first();
+                ->get();
 
-            if (!$employee) {
+            if ($employees->isEmpty()) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            // Prepare the response data
-            $receivablesData = $employee->employeeReceivables->filter(function ($receivable) {
-                return in_array($receivable->status, ['Suspended']);
-            })->map(function ($receivable)  use ($employee) {
-                $basicSalary = $employee->getSalary->basic_salary ?? 0;
-                return [
-                    'Id' => $receivable->receivable_id,
-                    'Receivable' => $receivable->receivables->name ?? 'N/A',
-                    'Code' => $receivable->receivables->code ?? 'N/A',
-                    'Amount' => $receivable->is_default
-                        ? ($receivable->receivables->amount == 0
-                            ? ($basicSalary * ($receivable->receivables->percentage / 100))
-                            : $receivable->receivables->amount)
-                        : $receivable->amount,
-                    'Terms received' => $receivable->total_paid,
-                    'Billing cycle' => $receivable->frequency ?? 'N/A',
-                    'Status' => $receivable->status,
-                    'Suspended on' => $deduction->date_from ?? 'N/A',
-                    'Suspended until' => $deduction->date_to ?? 'N/A',
-                    'Reason' => $receivable->reason ?? 'N/A',
-                    'percentage' => $receivable->percentage,
-                    'is_default' => $receivable->is_default,
-                    'Updated on' => $receivable->updated_at,
-                ];
+            // Flatten and prepare response data
+            $receivablesData = $employees->flatMap(function ($employee) {
+                return $employee->employeeReceivables->filter(function ($receivable) {
+                    return $receivable->status === 'Suspended';
+                })->map(function ($receivable) use ($employee) {
+                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    return [
+                        'Id' => $receivable->receivable_id,
+                        'Receivable' => $receivable->receivables->name ?? 'N/A',
+                        'Code' => $receivable->receivables->code ?? 'N/A',
+                        'Amount' => $receivable->is_default
+                            ? ($receivable->receivables->amount == 0
+                                ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                                : $receivable->receivables->amount)
+                            : $receivable->amount,
+                        'Terms received' => $receivable->total_paid,
+                        'Billing cycle' => $receivable->frequency ?? 'N/A',
+                        'Status' => $receivable->status,
+                        'Reason' => $receivable->reason ?? 'N/A',
+                        'Suspended on' => optional(
+                            $receivable->stoppageLogs
+                                ->where('status', 'Suspended')
+                                ->last()
+                        )->date_from ?? 'N/A',
+                        'Suspended until' => optional(
+                            $receivable->stoppageLogs
+                                ->where('status', 'Suspended')
+                                ->last()
+                        )->date_to ?? 'N/A',
+                        'Suspension Reason' => optional(
+                            $receivable->stoppageLogs
+                                ->where('status', 'Suspended')
+                                ->last()
+                        )->reason ?? 'N/A',
+                        'percentage' => $receivable->percentage ?? 'N/A',
+                        'is_default' => $receivable->is_default,
+                    ];
+                });
             })->toArray();
 
-            $data = array_slice($receivablesData, 0, 1);
-
+            // No need for array_slice, return all suspended receivables
             return response()->json([
-                'responseData' => $data,
-                'message' => 'Retrieve employee deductions.'
+                'responseData' => $receivablesData,
+                'message' => 'Retrieve suspended employee receivables.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -531,6 +568,8 @@ class EmployeeReceivableController extends Controller
                     'stopped_at' => $stopped_at,
                     'reason' => $reason,
                 ]);
+
+                $status = $request->status;
 
                 StoppageLog::create([
                     'employee_receivable_id' => $employee_receivables->id,
