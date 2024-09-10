@@ -318,7 +318,7 @@ class EmployeeDeductionController extends Controller
     {
         try {
             // Retrieve input data from the request
-            $user =1;
+            $user = 1;
             $frequency = $request->frequency;
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
@@ -390,7 +390,7 @@ class EmployeeDeductionController extends Controller
                     ], Response::HTTP_OK);
                 } else {
 
-                    if ($request->percentage === null) {
+                    if ($request->percentage === null || $request->percentage == 0) {
 
                         if ($with_terms) {
                             $total_term = $request->total_term;
@@ -533,7 +533,7 @@ class EmployeeDeductionController extends Controller
                     ], Response::HTTP_OK);
                 } else {
 
-                    if ($request->percentage === null) {
+                    if ($request->percentage === null || $request->percentage == 0) {
                         if ($with_terms) {
                             $total_term = $request->total_term;
                         }

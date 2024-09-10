@@ -345,7 +345,7 @@ class EmployeeReceivableController extends Controller
                     ], Response::HTTP_OK);
                 } else {
 
-                    if ($request->percentage === null) {
+                    if ($request->percentage === null || $request->percentage == 0) {
 
                         $newreceivable = EmployeeReceivable::create([
                             'employee_list_id' => $employee_list_id,
@@ -469,7 +469,7 @@ class EmployeeReceivableController extends Controller
                     ], Response::HTTP_OK);
                 } else {
 
-                    if ($request->percentage === null) {
+                    if ($request->percentage === null || $request->percentage == 0) {
 
                         $employee_receivables->update([
                             'employee_list_id' => $employee_list_id,
