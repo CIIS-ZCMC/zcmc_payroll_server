@@ -318,7 +318,7 @@ class EmployeeDeductionController extends Controller
     {
         try {
             // Retrieve input data from the request
-            // $user = $request->user_id;
+            $user =1;
             $frequency = $request->frequency;
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
