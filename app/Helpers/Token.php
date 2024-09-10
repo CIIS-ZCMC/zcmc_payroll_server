@@ -11,8 +11,19 @@ use Illuminate\Support\Str;
         return hash('sha256', Str::random(80));
     }
 
+    // public static function myToken(){
+    //     return json_decode(request()->cookie(env("COOKIE_NAME")))->token ?? request()->bearerToken();
+    // }
+
     public static function myToken(){
-        return json_decode(request()->cookie(env("COOKIE_NAME")))->token ?? request()->bearerToken();
+        $cookieValue = request()->cookie(env("COOKIE_NAME"));
+        
+        // Ensure $cookieValue is a string
+        if (is_string($cookieValue)) {
+            $decodedValue = json_decode($cookieValue);
+            return $decodedValue->token ?? request()->bearerToken();
+        }
+        return request()->bearerToken();
     }
 
      public static function UserInfo(){
