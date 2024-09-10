@@ -121,7 +121,7 @@ class DeductionGroupController extends Controller
             $data = DeductionGroup::findOrFail($id);
             $data->delete();
 
-            Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
 
         } catch (\Throwable $th) {

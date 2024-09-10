@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ReceivableRequest;
 use App\Http\Resources\ReceivableResource;
 use App\Models\Receivable;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,7 @@ class ReceivableController extends Controller
         try {
             $data = Receivable::create($request->all());
 
-            Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
+            // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new ReceivableResource($data), 'message' => "Successfully saved"], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
@@ -90,7 +91,7 @@ class ReceivableController extends Controller
 
             $data->update($request->all());
 
-            Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new ReceivableResource($data), 'message' => "Data Successfully update"], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
@@ -112,8 +113,26 @@ class ReceivableController extends Controller
             $data = Receivable::findOrFail($id);
             $data->delete();
 
-            Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function stop(Request $request, $id)
+    {
+        try {
+            $data = Receivable::findOrFail($id);
+            $data->status = $request->status;
+            $data->stopped_at = Carbon::now();
+            $data->update();
+
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['message' => "Data Successfully stop", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 
