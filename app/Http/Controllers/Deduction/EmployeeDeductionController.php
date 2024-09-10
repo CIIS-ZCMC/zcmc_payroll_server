@@ -163,7 +163,7 @@ class EmployeeDeductionController extends Controller
                                 ->where('status', 'Suspended')
                                 ->last()
                         )->date_to ?? 'N/A',
-                        'Suspension Reason' => optional(
+                        'Other Reason' => optional(
                             $deduction->stoppageLogs
                                 ->where('status', 'Suspended') // Check for Suspended status
                                 ->filter(function ($log) {
@@ -233,7 +233,7 @@ class EmployeeDeductionController extends Controller
                                 ->where('status', 'Suspended')
                                 ->last()
                         )->date_to ?? 'N/A',
-                        'Suspension Reason' => optional(
+                        'Other Reason' => optional(
                             $deduction->stoppageLogs
                                 ->where('status', 'Suspended')
                                 ->last()
@@ -291,7 +291,7 @@ class EmployeeDeductionController extends Controller
                                 ? $deduction->completed_at
                                 : 'N/A'),
                         'Reason' => $deduction->reason ?? 'N/A',
-                        'Stoppage Reason' => optional(
+                        'Other Reason' => optional(
                             $deduction->stoppageLogs
                                 ->where('status', 'Stopped')
                                 ->last()

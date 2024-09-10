@@ -123,7 +123,7 @@ class EmployeeReceivableController extends Controller
                                 ->where('status', 'Suspended')
                                 ->last()
                         )->date_to ?? 'N/A',
-                        'Suspension Reason' => optional(
+                        'Other Reason' => optional(
                             $receivable->stoppageLogs
                                 ->where('status', 'Suspended')
                                 ->filter(function ($log) {
@@ -190,7 +190,7 @@ class EmployeeReceivableController extends Controller
                                 ? $receivable->completed_at
                                 : 'N/A'),
                         'Reason' => $receivable->reason ?? 'N/A',
-                        'Stoppage Reason' => optional(
+                        'Other Reason' => optional(
                             $receivable->stoppageLogs
                                 ->where('status', 'Stopped')
                                 ->last()
@@ -256,7 +256,7 @@ class EmployeeReceivableController extends Controller
                                 ->where('status', 'Suspended')
                                 ->last()
                         )->date_to ?? 'N/A',
-                        'Suspension Reason' => optional(
+                        'Other Reason' => optional(
                             $receivable->stoppageLogs
                                 ->where('status', 'Suspended')
                                 ->last()
