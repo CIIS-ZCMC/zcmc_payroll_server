@@ -151,7 +151,7 @@ class EmployeeDeductionController extends Controller
                         'Terms' => $deduction->total_term ?? 0,
                         'Billing cycle' => $deduction->frequency ?? 'N/A',
                         'Status' => $deduction->status ?? 'N/A',
-                        'Percentage' => $deduction->percentage ?? 'N/A',
+                        'Percentage' => $deduction->percentage ?? 0,
                         'Reason' => $deduction->reason ?? 'N/A',
                         'Suspended on' => optional(
                             $deduction->stoppageLogs
@@ -221,7 +221,7 @@ class EmployeeDeductionController extends Controller
                         'Terms' => $deduction->total_term ?? 0,
                         'Billing cycle' => $deduction->frequency ?? 'N/A',
                         'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage ?? 'N/A',
+                        'Percentage' => $deduction->percentage ?? 0,
                         'Reason' => $deduction->reason ?? 'N/A',
                         'Suspended on' => optional(
                             $deduction->stoppageLogs
@@ -284,7 +284,7 @@ class EmployeeDeductionController extends Controller
                         'Terms' => $deduction->total_term ?? 0,
                         'Billing cycle' => $deduction->frequency ?? 'N/A',
                         'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage ?? 'N/A',
+                        'Percentage' => $deduction->percentage ?? 0,
                         'Date' => $deduction->status === 'Stopped'
                             ? $deduction->stopped_at
                             : ($deduction->status === 'Completed'
@@ -483,6 +483,7 @@ class EmployeeDeductionController extends Controller
             $with_terms = $request->with_terms;
             $reason = $request->reason;
             $user = 1;
+
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $request->employee_list_id)
                 ->where('deduction_id', $request->deduction_id)
                 ->first();

@@ -132,7 +132,7 @@ class EmployeeReceivableController extends Controller
                                 })
                                 ->last()
                         )->reason ?? 'N/A',
-                        'percentage' => $receivable->percentage ?? 'N/A',
+                        'percentage' => $receivable->percentage ?? 0,
                         'is_default' => $receivable->is_default,
                         'default_amount' => ($receivable->receivables->amount == 0
                             ? ($basicSalary * ($receivable->receivables->percentage / 100))
@@ -196,7 +196,7 @@ class EmployeeReceivableController extends Controller
                                 ->last()
                         )->reason ?? 'N/A',
                         'Stopped at' => $receivable->stopped_at ?? 'N/A',
-                        'percentage' => $receivable->percentage ?? 'N/A',
+                        'percentage' => $receivable->percentage ?? 0,
                         'is_default' => $receivable->is_default,
                     ];
                 });
@@ -261,7 +261,7 @@ class EmployeeReceivableController extends Controller
                                 ->where('status', 'Suspended')
                                 ->last()
                         )->reason ?? 'N/A',
-                        'percentage' => $receivable->percentage ?? 'N/A',
+                        'percentage' => $receivable->percentage ?? 0,
                         'is_default' => $receivable->is_default,
                     ];
                 });
@@ -421,9 +421,10 @@ class EmployeeReceivableController extends Controller
             $percentage = $request->percentage;
             $is_default = $request->is_default;
             $reason = $request->reason;
-            $user = $request->user_id;
+            $user = 1;
             $frequency = $request->frequency;
-            $employee_receivables = Employeereceivable::where('employee_list_id', $request->employee_list_id)
+
+            $employee_receivables = EmployeeReceivable::where('employee_list_id', $request->employee_list_id)
                 ->where('receivable_id', $request->receivable_id)
                 ->first();
 
@@ -522,7 +523,7 @@ class EmployeeReceivableController extends Controller
                     }
                 }
             } else {
-                return response()->json(['message' => 'Deduction not found for this employee.'], 404);
+                return response()->json(['message' => 'Receivable not found for this employee.'], 404);
             }
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -591,7 +592,7 @@ class EmployeeReceivableController extends Controller
                     // 'responseData' => new EmployeereceivableResource($employee_receivables),
                 ], Response::HTTP_OK);
             } else {
-                return response()->json(['message' => 'Deduction not found for this employee.']);
+                return response()->json(['message' => 'Receivable not found for this employee.']);
             }
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
