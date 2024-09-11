@@ -138,9 +138,9 @@ class EmployeeReceivableController extends Controller
                             'Suspended on' => $suspended_on,
                             'Suspended until' => $suspended_until,
                             'Other Reason' => $otherReason ?? 'N/A',
-                            'Percentage' => $receivable->percentage ?? 0,
-                            'Is Default' => $receivable->is_default,
-                            'Default Amount' => ($receivable->receivables->amount == 0
+                            'percentage' => $receivable->percentage ?? 0,
+                            'is_default' => $receivable->is_default,
+                            'default_amount' => ($receivable->receivables->amount == 0
                                 ? ($basicSalary * ($receivable->receivables->percentage / 100))
                                 : $receivable->receivables->amount),
                         ];
