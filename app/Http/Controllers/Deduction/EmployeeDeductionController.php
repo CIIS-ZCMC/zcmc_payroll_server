@@ -230,6 +230,7 @@ class EmployeeDeductionController extends Controller
         }
     }
 
+
     public function getInactiveEmployeeDeductions(Request $request, $id)
     {
         try {
