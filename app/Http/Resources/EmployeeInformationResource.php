@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\EmployeeSalaryResource;
+use App\Http\Resources\TimeRecordResource;
 
 class EmployeeInformationResource extends JsonResource
 {
@@ -16,6 +17,7 @@ class EmployeeInformationResource extends JsonResource
     public function toArray($request)
     {
         //return parent::toArray($request);
+
         return [
             'id'=>$this->id,
             'employee_number'=>$this->employee_number,
@@ -23,11 +25,15 @@ class EmployeeInformationResource extends JsonResource
             'last_name'=>$this->last_name,
             'middle_name'=>$this->middle_name,
             'designation'=>$this->designation,
+            'created'=>$this->created_at,
             'assigned_area'=>json_decode($this->assigned_area),
             'status'=>$this->status,
             'is_newly_hired'=>$this->is_newly_hired,
             'Salary'=> EmployeeSalaryResource::collection([$this->getSalary]),
-            'TimeRecord'=> $this->getTimeRecords,
+            'TimeRecord'=> TimeRecordResource::collection([$this->getTimeRecords]),
+            'isExcluded'=>$this->getExclusionDetails()->where('month', request()->processMonth['month'])
+                ->where('year',request()->processMonth['year'])
+            ->get()
         ];
     }
 }

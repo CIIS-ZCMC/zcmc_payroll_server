@@ -35,7 +35,8 @@ Route::middleware('auth.token')->group(function () {
 
     Route::namespace('App\Http\Controllers\Employee')->group(function () {
         Route::get("employee_index", "EmployeeListController@index");
-        Route::post("authorizepin", "EmployeeListController@AuthorizationPin");
+        Route::get("employee_benefits", "EmployeeListController@benefitsList");
+
     });
     /**
      * Deductions
@@ -47,17 +48,12 @@ Route::middleware('auth.token')->group(function () {
      *
      */
     Route::namespace('App\Http\Controllers\GeneralPayroll')->group(function () {
+        Route::get("activeTimeRecord", "PayrollController@ActiveTimeRecord");
         Route::get("payrollHeaders", "PayrollController@index");
         Route::post("generatePayroll", "PayrollController@computePayroll");
         Route::get("GeneralPayrollList/{id}", "PayrollController@GeneralPayrollList");
         Route::get("GeneralPayrollTrailsList/{id}", "PayrollController@GeneralPayrollTrails");
     });
-
-
-
-
-
-
 });
 
 

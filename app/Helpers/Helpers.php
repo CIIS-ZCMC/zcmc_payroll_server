@@ -57,6 +57,24 @@ class Helpers
         return json_decode($response->getBody(), true);
     }
 
+    public static function getPreviousMonthYear($month, $year)
+    {
+        // Calculate the previous month
+        $previousMonth = $month - 1;
+        $previousYear = $year;
+
+        // If the previous month is less than 1, set it to 12 (December)
+        if ($previousMonth < 1) {
+            $previousMonth = 12;
+            $previousYear = $year - 1;
+        }
+
+        return [
+            'month' => $previousMonth,
+            'year' => $previousYear
+        ];
+    }
+
     public static function getAllArea()
     {
         $divisions = DB::connection('mysql2')->select('SELECT * FROM divisions');

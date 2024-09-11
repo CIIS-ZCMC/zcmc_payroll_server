@@ -10,7 +10,11 @@ class ExcludedEmployeeController extends Controller
 {
     public function index(){
 
-        $employeeList = ExcludedEmployee::with(['EmployeeList'])->get();
+        //return request()->processMonth['month'];
+        $employeeList = ExcludedEmployee::with(['EmployeeList'])->where('month',request()->processMonth['month'])
+        ->where('year',request()->processMonth['year'])
+        ->where('is_removed',0)
+        ->get();
         return response()->json([
             'message'=>"List retrieved successfully",
             'responseData'=>  $employeeList,
