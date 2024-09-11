@@ -54,6 +54,41 @@ Route::middleware('auth.token')->group(function () {
         Route::get("GeneralPayrollList/{id}", "PayrollController@GeneralPayrollList");
         Route::get("GeneralPayrollTrailsList/{id}", "PayrollController@GeneralPayrollTrails");
     });
+
+    /**
+     * Settings
+     *
+     */
+    //  Deduction Group & Deduction
+    Route::namespace('App\Http\Controllers\Deduction')->group(function () {
+        Route::get('deduction-groups', 'DeductionGroupController@index');
+        Route::post('deduction-group', 'DeductionGroupController@store');
+        Route::get('deduction-group/{id}', 'DeductionGroupController@show');
+        Route::put('deduction-group/{id}', 'DeductionGroupController@update');
+        Route::delete('deduction-group/{id}', 'DeductionGroupController@destroy');
+
+        Route::get('deductions', 'DeductionController@index');
+        Route::post('deduction', 'DeductionController@store');
+        Route::get('deduction/{id}', 'DeductionController@show');
+        Route::put('deduction/{id}', 'DeductionController@update');
+        Route::delete('deduction/{id}', 'DeductionController@destroy');
+        Route::put('deduction-stop/{id}', 'DeductionController@stop');
+
+        Route::get('deduction-employment-type', 'DeductionController@getEmploymentType');
+        Route::get('deduction-designation', 'DeductionController@getDesignation');
+        Route::get('deduction-area', 'DeductionController@getArea');
+        Route::get('deduction-salary-grade', 'DeductionController@getSalaryGrade');
+    });
+
+    //  Receivables
+    Route::namespace('App\Http\Controllers\Receivable')->group(function () {
+        Route::get('receivables', 'ReceivableController@index');
+        Route::post('receivable', 'ReceivableController@store');
+        Route::get('receivable/{id}', 'ReceivableController@show');
+        Route::put('receivable/{id}', 'ReceivableController@update');
+        Route::delete('receivable/{id}', 'ReceivableController@destroy');
+        Route::put('receivable-stop/{id}', 'ReceivableController@stop');
+    });
 });
 
 
@@ -88,45 +123,3 @@ Route::
             Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
             Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
         });
-
-
-/**
- * Settings
- *
- */
-
-// Route::group(['middleware' => ['stripTags']], function () {
-//  Deduction Group & Deduction
-Route::
-        namespace('App\Http\Controllers\Deduction')->group(function () {
-            Route::get('deduction-groups', 'DeductionGroupController@index');
-            Route::post('deduction-group', 'DeductionGroupController@store');
-            Route::get('deduction-group/{id}', 'DeductionGroupController@show');
-            Route::put('deduction-group/{id}', 'DeductionGroupController@update');
-            Route::delete('deduction-group/{id}', 'DeductionGroupController@destroy');
-
-            Route::get('deductions', 'DeductionController@index');
-            Route::post('deduction', 'DeductionController@store');
-            Route::get('deduction/{id}', 'DeductionController@show');
-            Route::put('deduction/{id}', 'DeductionController@update');
-            Route::delete('deduction/{id}', 'DeductionController@destroy');
-            Route::put('deduction-stop/{id}', 'DeductionController@stop');
-
-            Route::get('deduction-employment-type', 'DeductionController@getEmploymentType');
-            Route::get('deduction-designation', 'DeductionController@getDesignation');
-            Route::get('deduction-area', 'DeductionController@getArea');
-            Route::get('deduction-salary-grade', 'DeductionController@getSalaryGrade');
-
-        });
-
-//  Receivables
-Route::
-        namespace('App\Http\Controllers\Receivable')->group(function () {
-            Route::get('receivables', 'ReceivableController@index');
-            Route::post('receivable', 'ReceivableController@store');
-            Route::get('receivable/{id}', 'ReceivableController@show');
-            Route::put('receivable/{id}', 'ReceivableController@update');
-            Route::delete('receivable/{id}', 'ReceivableController@destroy');
-            Route::put('receivable-stop/{id}', 'ReceivableController@stop');
-        });
-// });
