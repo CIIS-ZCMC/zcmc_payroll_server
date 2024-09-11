@@ -66,8 +66,23 @@ class Helpers
         }
 
         return [
-            'month' => $previousMonth,
-            'year'=>$previousYear
+            'month' => (string)$previousMonth,
+            'year'=>(string)$previousYear
+        ];
+    }
+
+    public static function getAdvanceMonthYear($month,$year){
+        $advMonth = $month + 1;
+        $advYear = $year;
+
+        if($advMonth >= 13){
+            $advMonth = 1;
+            $advYear = $year + 1;
+        }
+
+        return [
+            'month' => (string)$advMonth,
+            'year'=>(string)$advYear
         ];
     }
 

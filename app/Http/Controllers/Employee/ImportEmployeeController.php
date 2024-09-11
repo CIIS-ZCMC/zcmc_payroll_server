@@ -178,13 +178,6 @@ class ImportEmployeeController extends Controller
 
                     if (count($mismatchSalarykeys) >= 1) {
 
-
-                        // foreach ($mismatchSalarykeys as  $row) {
-                        //     EmployeeSalary::where('id', $row['id'])->update([
-                        //         'is_active' => 0
-                        //     ]);
-                        //     $updatedData += 1;
-                        // }
                         $validateSalary = EmployeeSalary::where('employee_list_id',$Employee->id)
                             ->where('month',$month)
                             ->where('year',$year)
@@ -240,11 +233,11 @@ class ImportEmployeeController extends Controller
 
                     if($empType['name'] == "Job Order"){
 
-                    // $timeRecords = TimeRecord::where("is_active", 1)
-                    // ->where("employee_list_id", $Employee->id)
-                    // ->where('fromPeriod',$from)
-                    // ->where('toPeriod',$to)
-                    // ;
+                    $timeRecords = TimeRecord::where("is_active", 1)
+                    ->where("employee_list_id", $Employee->id)
+                    ->where('fromPeriod',$from)
+                    ->where('toPeriod',$to)
+                    ;
 
                     $timeRecords = DB::table('time_records')
                     ->where('is_active', 1)
@@ -262,6 +255,8 @@ class ImportEmployeeController extends Controller
 
                     }else {
 
+
+
                         $timeRecords = DB::table('time_records')
                         ->where('is_active', 1)
                         ->where('month',$month)
@@ -275,6 +270,7 @@ class ImportEmployeeController extends Controller
 
 
                     }
+
 
 
 
@@ -341,10 +337,10 @@ class ImportEmployeeController extends Controller
 
 
 
-                            $prevRecord = DB::table('time_records')
+                            $prevAdvanceRecord = DB::table('time_records')
                             ->where('is_active', 1)
-                            ->where('month',$month)
-                            ->where('year',$year)
+                            ->where('month',Helpers::getAdvanceMonthYear($month,$year)['month'])
+                            ->where('year',Helpers::getAdvanceMonthYear($month,$year)['year'])
                             ->whereIn('employee_list_id', function ($query) use($empID){
                                 $query->select('employee_list_id')
                                       ->from('employee_salaries')
@@ -352,9 +348,25 @@ class ImportEmployeeController extends Controller
                                       ->where('employee_list_id',$empID);
                             })->first();
 
+
+                            $prevRecord = DB::table('time_records')
+                            ->where('is_active', 1)
+                            ->where('month',Helpers::getPreviousMonthYear($month,$year)['month'])
+                            ->where('year',Helpers::getPreviousMonthYear($month,$year)['year'])
+                            ->whereIn('employee_list_id', function ($query) use($empID){
+                                $query->select('employee_list_id')
+                                      ->from('employee_salaries')
+                                      ->where('employment_type', '!=', 'Job Order')
+                                      ->where('employee_list_id',$empID);
+                            })->first();
                             if($prevRecord){
+                                //  $timerecs = array_merge(['is_active' => 0], $timeRecordsData);
+                                  TimeRecord::where('id',$prevRecord->id)->update(['is_active' => 0]);
+                              }
+
+                            if($prevAdvanceRecord){
                               //  $timerecs = array_merge(['is_active' => 0], $timeRecordsData);
-                                TimeRecord::where('id',$prevRecord->id)->update(['is_active' => 0]);
+                                TimeRecord::where('id',$prevAdvanceRecord->id)->update(['is_active' => 0]);
                             }
                             $trueThatTimeRecord = TimeRecord::where('month',$timeRecordsData['month'])
                             ->where('year',$timeRecordsData['year'])
@@ -363,6 +375,8 @@ class ImportEmployeeController extends Controller
                             ->where('is_active',0)
                             ->where('employee_list_id',$Employee->id)
                             ;
+
+
                          if($trueThatTimeRecord->exists()){
 
                             EmployeeComputedSalary::where('time_record_id',$trueThatTimeRecord->first()->id)->update([
@@ -386,7 +400,7 @@ class ImportEmployeeController extends Controller
 
 
                     }
-                    $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
+                 //   $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
                     $this->ChangedPreviousMonthStatusForJO($Employee->id,Helpers::getPreviousMonthYear($month,$year),$month);
 
 
@@ -409,66 +423,45 @@ class ImportEmployeeController extends Controller
                                 'is_active'=>0
                             ]);
                         }
-
-                        $created = false;
                         foreach ($mismatchTimeRecordslist as $value) {
-                            if ("month" == $value['key'] || "year" == $value['key']) {
-                                //UPDATE Current active
-
-                                if($empType['name'] == "Job Order"){
-                                    $checkingRecords = TimeRecord::where("is_active", 0)
-                                    ->where("employee_list_id", $Employee->id)
-                                    ->where("month", $month)
-                                    ->where("year", $year)
-                                    ->where('fromPeriod',$from)
-                                    ->where('toPeriod',$to);
-
-                                }else {
-                                    $checkingRecords = TimeRecord::where("is_active", 0)
-                                    ->where("employee_list_id", $Employee->id)
-                                    ->where("month", $month)
-                                    ->where("year", $year);
-
-                                }
-
-
-                                if ($checkingRecords->count()) {
-
-                                    //UPDATE - if records exist
-                                    $timeRecords->update([
-                                        'is_active' => 0
-                                    ]);
-
-
-
-                                    EmployeeComputedSalary::where("time_record_id", $checkingRecords->first()->id)
-                                        ->update([
-                                            'computed_salary' =>  $netSalary //encrypt($netSalary)
-                                        ]);
-                                $checkingRecords->first()->update($timeRecordsData);
-                                } else {
-                                    //CREATE NEW - if no existing record
-                                    $timeRecords->update([
-                                        'is_active' => 0
-                                    ]);
-
-                                    $newtimerecords = TimeRecord::Create($timeRecordsData);
-                                    EmployeeComputedSalary::create([
-                                        'time_record_id' => $newtimerecords->id,
-                                        'computed_salary' => $netSalary //encrypt($netSalary)
-                                    ]);
-                                }
-                                $created = true;
-                            }
-                        }
-                        if (!$created) {
-                            $timeRecords->first()->update($timeRecordsData);
+                            $timerecs = array_merge(['is_active' => 1], $timeRecordsData);
+                            $timeRecords->update($timerecs);
                             EmployeeComputedSalary::where("time_record_id", $timeRecords->first()->id)
-                                ->update([
-                                    'computed_salary' =>$netSalary //encrypt($netSalary)
-                                ]);
+                            ->update([
+                                'computed_salary' =>  $netSalary //encrypt($netSalary)
+                            ]);
+
                         }
+
                     }
+
+                    // $timeRecord = TimeRecord::where('is_active',1)->latest()->first();
+                    // $tr = [];
+                    // if($timeRecord){
+                    //     $tr = [
+                    //         'month'=>$timeRecord->month,
+                    //         'year'=>$timeRecord->year
+                    //     ];
+                    // }
+
+
+                    // $record = DB::table('time_records')
+                    // ->select([
+                    //     DB::raw('month as month_'),
+                    //     DB::raw('year as year_'),
+                    // ])
+                    // ->where('is_active', 1)
+                    // ->whereIn('employee_list_id', function ($query) {
+                    //     $query->select('employee_list_id')
+                    //           ->from('employee_salaries')
+                    //           ->where('employment_type', '!=', 'Job Order');
+                    // })
+                    // ->limit(1)
+                    // ->first();
+
+
+                    // return $timeRecord;
+
 
 
                 }
@@ -638,11 +631,11 @@ if (count($otherRecord)>=1) {
 
 
 
-        // Ensure $current is an array
         if (!is_array($current)) {
-
-            $current = [$current];
+            // Convert stdClass to an array
+            $current = json_decode(json_encode($current), true);
         }
+
 
 
         // Ensure $coming is an array
@@ -660,8 +653,14 @@ if (count($otherRecord)>=1) {
 
 
 
+        $keys = [];
+
         foreach ($coming as $key => $value) {
+
+
             if (array_key_exists($key, $current)) {
+                $keys[] = $key;
+
                 // Decrypt value if key is "basic_salary"
                 if ($key == "basic_salary") {
                     $currentValue = decrypt($current[$key]);
@@ -684,14 +683,19 @@ if (count($otherRecord)>=1) {
                     ];
                 }
             } else {
+
+
                 $mismatchedKeys[] = [
                     'id' => $current['id'] ?? null, // Handle potential missing 'id'
                     'key' => $key,
                     'current_value' => null,
                     'coming_value' => $value
                 ];
+
+
             }
         }
+
 
         return $mismatchedKeys;
     }
