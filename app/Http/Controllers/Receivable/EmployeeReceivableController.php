@@ -536,8 +536,11 @@ class EmployeeReceivableController extends Controller
             $user = 1;
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
-            $date_from = $request->date_from ? Carbon::parse($request->date_from)->format('Y-m-d') : null;
-            $date_to = $request->date_to ? Carbon::parse($request->date_to)->format('Y-m-d') : null;
+            // Handle date_from
+            $date_from = $this->parseDate($request->date_from);
+
+            // Handle date_to
+            $date_to = $this->parseDate($request->date_to);
             $status = $request->status;
             $reason = $request->reason;
             $stopped_at = null;
@@ -599,6 +602,19 @@ class EmployeeReceivableController extends Controller
         }
     }
 
+    private function parseDate($dateString)
+    {
+        try {
+            if (!empty($dateString)) {
+                // Parse date and strip time if it's a valid datetime string
+                return Carbon::parse($dateString)->format('Y-m-d');
+            }
+        } catch (\Exception $e) {
+            // Log or handle exception if needed
+        }
+
+        return null;  // Return null if invalid date
+    }
 
 
     /**
