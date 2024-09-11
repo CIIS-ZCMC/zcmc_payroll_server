@@ -574,8 +574,8 @@ class EmployeeReceivableController extends Controller
                 StoppageLog::create([
                     'employee_receivable_id' => $employee_receivables->id,
                     'status' => $status,
-                    'date_from' => $date_from,
-                    'date_to' => $date_to,
+                    'date_from' => $date_from ?? null,
+                    'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
                     'reason' => $reason,
                 ]);
