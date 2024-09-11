@@ -625,8 +625,8 @@ class EmployeeDeductionController extends Controller
                 $employee_deductions->update([
                     'status' => $status,
                     'reason' => $reason,
-                    'date_from' => $date_from,
-                    'date_to' => $date_to,
+                    'date_from' => $date_from ?? null,
+                    'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
                 ]);
 
