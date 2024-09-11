@@ -136,7 +136,7 @@ class EmployeeReceivableController extends Controller
                             'Status' => $receivable->status,
                             'Reason' => $receivable->reason ?? 'N/A',
                             'Suspended on' => $suspended_on,
-                            'Suspended until' => $suspended_until,
+                            'Suspended until' => $suspended_until ?? 'N/A',
                             'Other Reason' => $otherReason ?? 'N/A',
                             'percentage' => $receivable->percentage ?? 0,
                             'is_default' => $receivable->is_default,
