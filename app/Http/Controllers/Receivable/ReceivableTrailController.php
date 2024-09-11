@@ -39,7 +39,7 @@ class ReceivableTrailController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ReceivableTrailRequest $request)
+    public function store(Request $request)
     {
         try {
             $data = ReceivableTrail::create($request->all());

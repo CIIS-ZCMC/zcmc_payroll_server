@@ -26,8 +26,8 @@ class ReceivableTrailRequest extends FormRequest
         return [
             'receivable_id' => 'required|integer',
             'status' => 'required|string',
-            'from' => 'required|date',
-            'to' => 'required|date',
+            'from' => 'required|string',
+            'to' => 'required|string',
             'reason' => 'required|string'
         ];
     }

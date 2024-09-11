@@ -24,10 +24,10 @@ class DeductionTrailRequest extends FormRequest
     public function rules()
     {
         return [
-            'deduction_id' => 'required|integer',
+            'deduction_id' => 'required|string',
             'status' => 'required|string',
-            'from' => 'required|date',
-            'to' => 'required|date',
+            'from' => 'required|string',
+            'to' => 'required|string',
             'reason' => 'required|string'
         ];
     }

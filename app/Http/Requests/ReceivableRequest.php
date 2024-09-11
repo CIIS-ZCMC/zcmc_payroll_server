@@ -28,13 +28,13 @@ class ReceivableRequest extends FormRequest
             'code' => 'required|string',
             'employment_type' => 'required|string',
             'charge_basis' => 'required|string',
-            'charge_value' => 'nullable|double',
+            'charge_value' => 'nullable|numeric',
             'billing_cycle' => 'required|string',
             'terms_to_pay' => 'nullable|integer',
             'is_applied_to_all' => 'required|boolean',
             'apply_salarygrade_from' => 'nullable|string',
             'apply_salarygrade_to' => 'nullable|string',
-            'is_mandatory' => 'required|integer',
+            'is_mandatory' => 'required|boolean',
             'reason' => 'required|string',
         ];
     }
