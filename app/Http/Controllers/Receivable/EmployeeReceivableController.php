@@ -536,8 +536,8 @@ class EmployeeReceivableController extends Controller
             $user = 1;
             $employee_list_id = $request->employee_list_id;
             $receivable_id = $request->receivable_id;
-            $date_from = $request->date_from;
-            $date_to = $request->date_to;
+            $date_from = $request->date_from ? Carbon::parse($request->date_from)->format('Y-m-d') : null;
+            $date_to = $request->date_to ? Carbon::parse($request->date_to)->format('Y-m-d') : null;
             $status = $request->status;
             $reason = $request->reason;
             $stopped_at = null;
