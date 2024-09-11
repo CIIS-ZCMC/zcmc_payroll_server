@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeductionTrailRequest extends FormRequest
+class ReceivableTrailRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,7 @@ class DeductionTrailRequest extends FormRequest
     public function rules()
     {
         return [
-            'deduction_id' => 'required|integer',
+            'receivable_id' => 'required|integer',
             'status' => 'required|string',
             'from' => 'required|date',
             'to' => 'required|date',

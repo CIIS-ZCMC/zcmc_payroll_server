@@ -116,7 +116,6 @@ Route::
             Route::delete('deduction/{id}', 'DeductionController@destroy');
             Route::put('deduction-stop/{id}', 'DeductionController@stop');
 
-
             Route::get('deduction-employment-type', 'DeductionController@getEmploymentType');
             Route::get('deduction-designation', 'DeductionController@getDesignation');
             Route::get('deduction-area', 'DeductionController@getArea');
@@ -132,5 +131,6 @@ Route::
             Route::get('receivable/{id}', 'ReceivableController@show');
             Route::put('receivable/{id}', 'ReceivableController@update');
             Route::delete('receivable/{id}', 'ReceivableController@destroy');
+            Route::put('receivable-stop/{id}', 'ReceivableController@stop');
         });
 // });

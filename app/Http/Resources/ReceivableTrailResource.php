@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DeductionTrailResource extends JsonResource
+class ReceivableTrailResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,8 +17,8 @@ class DeductionTrailResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'deduction_id' => $this->deductions->id,
-            'deduction_name' => $this->deductions->name,
+            'receivable_id' => $this->receivables->id,
+            'receivable_name' => $this->receivables->name,
             'status' => $this->status,
             'date_from' => Carbon::parse($this->from)->format('M d, Y'),
             'date_to' => Carbon::parse($this->to)->format('M d, Y'),

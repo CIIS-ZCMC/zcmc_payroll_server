@@ -48,10 +48,10 @@ class DeductionController extends Controller
             $data = Deduction::create($request->all());
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK]);
+            return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
 
-            Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
+            // Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -95,7 +95,7 @@ class DeductionController extends Controller
             $data->update($request->all());
 
             // Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionResource($data), 'message' => "Data Successfully update", 'statusCode' => Response::HTTP_OK]);
+            return response()->json(['data' => new DeductionResource($data), 'message' => "Data Successfully update", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -140,7 +140,7 @@ class DeductionController extends Controller
             }
 
             // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['message' => "Data Successfully stop", 'statusCode' => Response::HTTP_OK]);
+            return response()->json(['message' => "Data Successfully stop", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 

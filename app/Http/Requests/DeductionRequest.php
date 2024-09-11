@@ -11,7 +11,7 @@ class DeductionRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -19,12 +19,26 @@ class DeductionRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'deduction_group_id' => 'required|integer',
+            'employment_type' => 'required|string',
+            'designation' => 'required|string',
+            'assigned_area' => 'required|string',
+            'charge_basis' => 'required|string',
+            'charge_value' => 'nullable|numeric',
+            'billing_cycle' => 'required|string',
+            'terms_to_pay' => 'nullable|integer',
+            'is_applied_to_all' => 'required|boolean',
+            'apply_salarygrade_from' => 'nullable|string',
+            'apply_salarygrade_to' => 'nullable|string',
+            'is_mandatory' => 'required|boolean',
+            'reason' => 'required|string',
         ];
     }
 }

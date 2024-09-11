@@ -1,21 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Deduction;
+namespace App\Http\Controllers\Receivable;
 
-use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DeductionTrailRequest;
-use App\Http\Resources\DeductionTrailResource;
-use App\Models\DeductionTrail;
+use App\Http\Requests\ReceivableTrailRequest;
+use App\Http\Resources\ReceivableTrailResource;
+use App\Models\ReceivableTrail;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class DeductionTrailController extends Controller
+class ReceivableTrailController extends Controller
 {
 
-    private $CONTROLLER_NAME = 'Deduction Trail';
-    private $PLURAL_MODULE_NAME = 'deduction trails';
-    private $SINGULAR_MODULE_NAME = 'deduction trail';
+    private $CONTROLLER_NAME = 'Receivable Trail';
+    private $PLURAL_MODULE_NAME = 'receivable trails';
+    private $SINGULAR_MODULE_NAME = 'receivable trail';
 
     /**
      * Display a listing of the resource.
@@ -25,7 +24,7 @@ class DeductionTrailController extends Controller
     public function index()
     {
         try {
-            return response()->json(['responseData' => DeductionTrailResource::collection(DeductionTrail::all())], Response::HTTP_OK);
+            return response()->json(['responseData' => ReceivableTrailResource::collection(ReceivableTrail::all())], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -40,13 +39,13 @@ class DeductionTrailController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(DeductionTrailRequest $request)
+    public function store(ReceivableTrailRequest $request)
     {
         try {
-            $data = DeductionTrail::create($request->all());
+            $data = ReceivableTrail::create($request->all());
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionTrailResource($data), 'message' => "Data Successfully saved", 'statusCode' => Response::HTTP_OK]);
+            return response()->json(['data' => new ReceivableTrailResource($data), 'message' => "Data Successfully saved", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 

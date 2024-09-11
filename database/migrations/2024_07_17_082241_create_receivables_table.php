@@ -17,7 +17,7 @@ class CreateReceivablesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('code');
-            $table->string('emmployment_type');
+            $table->string('employment_type');
             $table->string('charge_basis');
             $table->double('charge_value')->nullable();
             $table->string('billing_cycle');

@@ -24,7 +24,7 @@ class ReceivableController extends Controller
     public function index()
     {
         try {
-            return response()->json(['data' => ReceivableResource::collection(Receivable::all())], Response::HTTP_OK);
+            return response()->json(['responseData' => ReceivableResource::collection(Receivable::all())], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -63,8 +63,9 @@ class ReceivableController extends Controller
     public function show($id)
     {
         try {
-            $data = Receivable::find($id);
-            return response()->json(['data' => ReceivableResource::collection($data)], Response::HTTP_OK);
+
+            $data = Receivable::findOrFail($id);
+            return response()->json(['data' => new ReceivableResource($data)], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -86,13 +87,14 @@ class ReceivableController extends Controller
             $data = Receivable::findOrFail($id);
 
             if (!$data) {
-                return response()->json(['message' => 'No record found.'], Response::HTTP_NOT_FOUND);
+                return response()->json(['message' => 'No record found.', 'statusCode' => Response::HTTP_NOT_FOUND]);
             }
 
             $data->update($request->all());
 
             // Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new ReceivableResource($data), 'message' => "Data Successfully update"], Response::HTTP_OK);
+            return response()->json(['data' => new ReceivableResource($data), 'message' => "Data Successfully update", 'statusCode' => Response::HTTP_OK]);
+
 
         } catch (\Throwable $th) {
 
@@ -131,12 +133,17 @@ class ReceivableController extends Controller
             $data->stopped_at = Carbon::now();
             $data->update();
 
+            if ($data != null) {
+                $receivableTrailController = new ReceivableTrailController();
+                $receivableTrailController->store($request);
+            }
+
             // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['message' => "Data Successfully stop", 'statusCode' => Response::HTTP_OK]);
 
         } catch (\Throwable $th) {
 
-            Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            Helpers::errorLog($this->CONTROLLER_NAME, 'stop', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

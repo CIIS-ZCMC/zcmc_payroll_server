@@ -24,7 +24,18 @@ class ReceivableRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'employment_type' => 'required|string',
+            'charge_basis' => 'required|string',
+            'charge_value' => 'nullable|double',
+            'billing_cycle' => 'required|string',
+            'terms_to_pay' => 'nullable|integer',
+            'is_applied_to_all' => 'required|boolean',
+            'apply_salarygrade_from' => 'nullable|string',
+            'apply_salarygrade_to' => 'nullable|string',
+            'is_mandatory' => 'required|integer',
+            'reason' => 'required|string',
         ];
     }
 }
