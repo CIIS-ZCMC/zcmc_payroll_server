@@ -33,6 +33,7 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->integer('total_paid')->nullable();
             $table->boolean('is_default');
             $table->longText('isDifferential')->nullable();
+            $table->boolean('willDeduct');
             $table->timestamps();
         });
     }
