@@ -108,15 +108,22 @@ class EmployeeReceivableController extends Controller
                             ->sortByDesc('date_from')
                             ->first();
 
-                        $suspended_on = $suspendedLog ? $suspendedLog->date_from : 'N/A';
-                        $suspended_until = $suspendedLog ? $suspendedLog->date_to : 'N/A';
-                        $otherReason = null;
 
-                        foreach ($receivable->stoppageLogs as $log) {
-                            // Validate if the date is in the correct format before using Carbon
-                            if ($log->status == 'Suspended' && $this->isValidDate($log->date_from, 'Y-m-d') && Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today())) {
-                                $otherReason = $log->reason;
-                                break;
+                        if ($suspendedLog && $suspendedLog->is_active) {
+                            $suspended_on = 'N/A';
+                            $suspended_until = 'N/A';
+                            $otherReason = 'N/A';
+                        } else {
+                            $suspended_on = $suspendedLog ? $suspendedLog->date_from : 'N/A';
+                            $suspended_until = $suspendedLog ? $suspendedLog->date_to : 'N/A';
+                            $otherReason = null;
+
+                            foreach ($receivable->stoppageLogs as $log) {
+                                // Validate if the date is in the correct format before using Carbon
+                                if ($log->status == 'Suspended' && $this->isValidDate($log->date_from, 'Y-m-d') && Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today())) {
+                                    $otherReason = $log->reason;
+                                    break;
+                                }
                             }
                         }
 
@@ -135,7 +142,7 @@ class EmployeeReceivableController extends Controller
                             'Billing cycle' => $receivable->frequency ?? 'N/A',
                             'Status' => $receivable->status,
                             'Reason' => $receivable->reason ?? 'N/A',
-                            'Suspended on' => $suspended_on,
+                            'Suspended on' => $suspended_on ?? 'N/A',
                             'Suspended until' => $suspended_until ?? 'N/A',
                             'Other Reason' => $otherReason ?? 'N/A',
                             'percentage' => $receivable->percentage ?? 0,
@@ -548,6 +555,7 @@ class EmployeeReceivableController extends Controller
             $date_to = $this->parseDate($request->date_to);
             $status = $request->status;
             $reason = $request->reason;
+            $is_active = 0;
             $stopped_at = null;
 
             $employee_receivables = EmployeeReceivable::where('employee_list_id', $employee_list_id)
@@ -564,8 +572,10 @@ class EmployeeReceivableController extends Controller
                     $today = now()->format('Y-m-d');
                     if ($date_from === $today) {
                         $status = 'Suspended';
+                        $is_active = 0;
                     } else {
                         $status = 'Active';
+                        $is_active = 0;
                     }
                 }
 
@@ -585,8 +595,20 @@ class EmployeeReceivableController extends Controller
                     'date_from' => $date_from ?? null,
                     'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
+                    'is_active' => $is_active,
                     'reason' => $reason,
                 ]);
+
+                if ($status === 'Active') {
+                    $suspendedLog = StoppageLog::where('employee_receivable_id', $employee_receivables->id)
+                        ->where('status', 'Suspended')
+                        ->orderBy('date_from', 'desc')
+                        ->first();
+
+                    if ($suspendedLog) {
+                        $suspendedLog->update(['is_active' => 1]);
+                    }
+                }
 
                 EmployeeReceivableLog::create([
                     'employee_receivable_id' => $employee_receivables->id,

@@ -21,6 +21,7 @@ class StoppageLog extends Model
         'date_from',
         'reason',
         'stopped_at',
+        'is_active'
     ];
 
     public function employeeDeduction()

@@ -140,6 +140,33 @@ class EmployeeDeductionController extends Controller
                             : $deduction->deductions->amount)
                         : $deduction->amount;
 
+
+                    // Apply your logic for suspended logs
+                    $suspendedLog = $deduction->stoppageLogs
+                        ->where('status', 'Suspended')
+                        ->sortByDesc('date_from')
+                        ->first();
+
+                    // Check if the log exists and if it's active
+                    if ($suspendedLog && $suspendedLog->is_active) {
+                        $suspended_on = 'N/A';
+                        $suspended_until = 'N/A';
+                        $otherReason = 'N/A';
+                    } else {
+                        $suspended_on = $suspendedLog ? $suspendedLog->date_from : 'N/A';
+                        $suspended_until = $suspendedLog ? $suspendedLog->date_to : 'N/A';
+                        $otherReason = null;
+
+                        foreach ($deduction->stoppageLogs as $log) {
+                            // Validate if the date is in the correct format before using Carbon
+                            if ($log->status == 'Suspended' && $this->isValidDate($log->date_from, 'Y-m-d') && Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today())) {
+                                $otherReason = $log->reason;
+                                break;
+                            }
+                        }
+                    }
+
+
                     return [
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
@@ -154,9 +181,9 @@ class EmployeeDeductionController extends Controller
                         'Status' => $deduction->status,
                         'Percentage' => $deduction->percentage ?? 0,
                         'Reason' => $deduction->reason ?? 'N/A',
-                        'Suspended on' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->date_from ?? 'N/A',
-                        'Suspended until' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->date_to ?? 'N/A',
-                        'Other Reason' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->reason ?? 'N/A',
+                        'Suspended on' => $suspended_on ?? 'N/A',
+                        'Suspended until' => $suspended_until ?? 'N/A',
+                        'Other Reason' => $otherReason ?? 'N/A',
                         'is_default' => $deduction->is_default,
                         'default_amount' => $deductionAmount,
                         'with_terms' => $deduction->with_terms ?? false,
@@ -173,6 +200,11 @@ class EmployeeDeductionController extends Controller
         }
     }
 
+    private function isValidDate($date, $format = 'Y-m-d')
+    {
+        $d = \DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) === $date;
+    }
 
     public function getSuspendedEmployeeDeductions(Request $request, $id)
     {
@@ -467,6 +499,7 @@ class EmployeeDeductionController extends Controller
             $reason = $request->reason;
             $user = 1;
 
+
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $request->employee_list_id)
                 ->where('deduction_id', $request->deduction_id)
                 ->first();
@@ -604,6 +637,7 @@ class EmployeeDeductionController extends Controller
             $status = $request->status;
             $reason = $request->reason;
             $stopped_at = null;
+            $is_active = 0;
 
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $employee_list_id)
                 ->where('deduction_id', $deduction_id)
@@ -620,8 +654,10 @@ class EmployeeDeductionController extends Controller
                     $today = now()->format('Y-m-d');
                     if ($date_from === $today) {
                         $status = 'Suspended';
+                        $is_active = 0;
                     } else {
                         $status = 'Active';
+                        $is_active = 0;
                     }
                 }
 
@@ -642,8 +678,20 @@ class EmployeeDeductionController extends Controller
                     'date_from' => $date_from ?? null,
                     'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
+                    'is_active' => $is_active,
                     'reason' => $reason,
                 ]);
+
+                if ($status === 'Active') {
+                    $suspendedLog = StoppageLog::where('employee_deduction_id', $employee_deductions->id)
+                        ->where('status', 'Suspended')
+                        ->orderBy('date_from', 'desc')
+                        ->first();
+
+                    if ($suspendedLog) {
+                        $suspendedLog->update(['is_active' => 1]);
+                    }
+                }
 
                 // Log the action
                 EmployeeDeductionLog::create([
