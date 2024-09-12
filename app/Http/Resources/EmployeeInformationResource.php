@@ -30,8 +30,8 @@ class EmployeeInformationResource extends JsonResource
             'is_newly_hired'=>$this->is_newly_hired,
             'Salary'=> EmployeeSalaryResource::collection([$this->getSalary]),
             'TimeRecord'=> TimeRecordResource::collection([$this->getTimeRecords]),
-            'Deduction'=>$this->getListOfDeductions,
-            'Receivables'=>$this->getEmployeeReceivables,
+            'Deduction' => EmployeeDeductionResource::collection($this->employeeDeductions),
+            'Receivables' => EmployeeReceivableResource::collection($this->employeeReceivables),
             'isExcluded'=>$this->getExclusionDetails()->where('month', request()->processMonth['month'])
                 ->where('year',request()->processMonth['year'])
             ->get()
