@@ -112,9 +112,9 @@ class EmployeeReceivableController extends Controller
                         $suspended_until = $suspendedLog ? $suspendedLog->date_to : 'N/A';
                         $otherReason = null;
 
-
                         foreach ($receivable->stoppageLogs as $log) {
-                            if ($log->status == 'Suspended' && Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today())) {
+                            // Validate if the date is in the correct format before using Carbon
+                            if ($log->status == 'Suspended' && $this->isValidDate($log->date_from, 'Y-m-d') && Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today())) {
                                 $otherReason = $log->reason;
                                 break;
                             }
@@ -158,6 +158,11 @@ class EmployeeReceivableController extends Controller
         }
     }
 
+    private function isValidDate($date, $format = 'Y-m-d')
+    {
+        $d = \DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) === $date;
+    }
 
     public function getInactiveEmployeeReceivables(Request $request, $id)
     {
