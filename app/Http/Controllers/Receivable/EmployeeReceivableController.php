@@ -215,7 +215,6 @@ class EmployeeReceivableController extends Controller
                                     : 'N/A'),
                             'Reason' => $receivable->reason ?? 'N/A',
                             'Other Reason' =>  $stoppageLog->reason ?? 'N/A',
-                            'Stopped at' => $receivable->stopped_at ?? 'N/A',
                             'percentage' => $receivable->percentage ?? 0,
                             'is_default' => $receivable->is_default,
                             'Updated on' => $receivable->updated_at,
