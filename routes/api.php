@@ -56,6 +56,14 @@ Route::middleware('auth.token')->group(function () {
     });
 
     /**
+     * UMIS REPORT
+     *
+     */
+    Route::namespace('App\Http\Controllers\Employee')->group(function () {
+        Route::post('excluded-employee', 'ExcludedEmployeeController@store');
+    });
+
+    /**
      * Settings
      *
      */
