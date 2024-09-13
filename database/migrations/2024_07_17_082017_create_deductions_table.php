@@ -19,13 +19,20 @@ class CreateDeductionsTable extends Migration
             $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
             $table->string('name');
             $table->string('code');
-            $table->double('amount');
-            $table->double('percentage')->nullable();
-            $table->date('date_from')->nullable();
-            $table->date('date_to')->nullable();
-            $table->string('emmployment_type');
+            $table->string('employment_type');
+            $table->string('designation');
+            $table->string('assigned_area');
+            $table->string('charge_basis');
+            $table->double('charge_value')->nullable();
+            $table->string('billing_cycle');
+            $table->integer('terms_to_pay')->nullable();
+            $table->boolean('is_applied_to_all');
+            $table->string('apply_salarygrade_from')->nullable();
+            $table->string('apply_salarygrade_to')->nullable();
             $table->boolean('is_mandatory');
-            $table->boolean('is_active');
+            $table->string('status')->default("Active");
+            $table->string('reason');
+            $table->timestamp('stopped_at')->nullable();
             $table->timestamps();
         });
     }

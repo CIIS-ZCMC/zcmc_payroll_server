@@ -26,7 +26,7 @@ class EmployeeSalaryController extends Controller
                 'message' => 'Retrieve employees with salary.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
-            return $th;
+
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -17,13 +17,20 @@ class Deduction extends Model
         'deduction_group_id',
         'name',
         'code',
-        'amount',
-        'percentage',
-        'date_from',
-        'date_to',
-        'emmployment_type',
+        'employment_type',
+        'designation',
+        'assigned_area',
+        'charge_basis',
+        'charge_value',
+        'billing_cycle',
+        'terms_to_pay',
+        'is_applied_to_all',
+        'apply_salarygrade_from',
+        'apply_salarygrade_to',
         'is_mandatory',
-        'is_active'
+        'status',
+        'reason',
+        'stopped_at'
     ];
 
     public $timestamps = true;

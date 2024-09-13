@@ -29,5 +29,9 @@ class ExcludedEmployee extends Model
         return $this->belongsTo(EmployeeList::class);
     }
 
+    public function payrollHeader()
+    {
+        return $this->belongsTo(PayrollHeaders::class);
+    }
 
 }
