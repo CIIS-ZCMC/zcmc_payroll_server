@@ -53,6 +53,7 @@ class EmployeeReceivableController extends Controller
                     'Gross salary' => $basic_salary,
                     'Total receivables' => $total_receivables,
                     'Number of receivables' => $receivables_count,
+                    'Employment type' => $employee->getSalary->employment_type,
                 ];
             }
 

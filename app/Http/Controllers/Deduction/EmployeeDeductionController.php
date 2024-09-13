@@ -52,6 +52,7 @@ class EmployeeDeductionController extends Controller
                     'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,
                     'Net salary' => $net_salary,
+                    'Employment type' => $employee->getSalary->employment_type,
                 ];
             }
 
