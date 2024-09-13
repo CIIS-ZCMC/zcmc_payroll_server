@@ -141,4 +141,20 @@ class Helpers
 
         return $all_areas;
     }
+
+    public static function convertToStdObject(){
+        
+        if (is_object($genpayrollList)) {  
+            $genpayrollList = [$genpayrollList];
+        } elseif (is_array($genpayrollList)) {      
+            foreach ($genpayrollList as &$entry) {
+                if (is_array($entry)) {          
+                    $entry = (object) $entry;
+                }
+            }
+        }
+
+        return $genpayrollList;
+    }
+
 }
