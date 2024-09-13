@@ -471,7 +471,6 @@ class ImportEmployeeController extends Controller
             return response()->json(['Message' => "Successfully Fetched.", "GeneratedCount" => $generatedcount, 'UpdatedCount' => $updatedData, 'statusCode' => 200], 200);
         } catch (\Exception $e) {
             // Handle the exception
-            return $e;
             return response()->json(['error' => 'API request failed', 'message' => $e->getMessage()], 500);
         }
     }

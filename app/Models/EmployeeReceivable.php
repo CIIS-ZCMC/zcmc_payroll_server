@@ -27,7 +27,8 @@ class EmployeeReceivable extends Model
         'completed_at',
         'reason',
         'total_paid',
-        'frequency'
+        'frequency',
+
     ];
 
     public $timestamps = true;
@@ -55,5 +56,10 @@ class EmployeeReceivable extends Model
     public function receivableLogs()
     {
         return $this->hasMany(EmployeeReceivableLog::class);
+    }
+
+    public function stoppageLogs()
+    {
+        return $this->hasMany(StoppageLog::class, 'employee_receivable_id');
     }
 }
