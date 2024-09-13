@@ -296,7 +296,7 @@ class EmployeeDeductionController extends Controller
 
             // Prepare the response data
 
-            $data = $employee->employeeDeductions->filter(function ($deduction) {
+            $data = $employees->employeeDeductions->filter(function ($deduction) {
                 return in_array($deduction->status, ['Stopped', 'Completed']);
             })->map(function ($deduction) {
                 return [
@@ -308,9 +308,9 @@ class EmployeeDeductionController extends Controller
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
                     'Terms' => $deduction->total_term,
-                    'Billing cycle' => $deduction->frequency  ?? 'N/A',
+                    'Billing cycle' => $deduction->frequency ?? 'N/A',
                     'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage  ?? 'N/A',
+                    'Percentage' => $deduction->percentage ?? 'N/A',
                     'Date' => $deduction->status === 'Stopped'
                         ? $deduction->stopped_at
                         : ($deduction->status === 'Completed'
