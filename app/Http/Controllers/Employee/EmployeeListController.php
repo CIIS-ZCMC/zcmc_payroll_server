@@ -51,10 +51,6 @@ class EmployeeListController extends Controller
             $Emp = $this->isExcluded()['Emplist'];
         }
 
-        if (isset($request->isBelow5K)) {
-            $Emp = $this->below5K();
-        }
-
         if (isset($request->withDeduction)) {
 
         }
@@ -165,11 +161,6 @@ class EmployeeListController extends Controller
             'ids' => $ids,
             'Emplist' => EmployeeList::whereIn('id', $ids)->get()
         ];
-    }
-
-    public function below5K()
-    {
-
     }
 
 
