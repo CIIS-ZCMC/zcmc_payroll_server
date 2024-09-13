@@ -225,10 +225,10 @@ class EmployeeDeductionController extends Controller
 
             // Prepare the response data
             $data = [
-                'employee_list_id' => $employee->id,
-                'name' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
-                'designation' => $employee->designation, // Ensure designation relationship exists
-                'deductions' => $employee->employeeDeductions->filter(function ($deduction) {
+                'employee_list_id' => $employees->id,
+                'name' => $employees->first_name . ' ' . $employees->middle_name . ' ' . $employees->last_name,
+                'designation' => $employees->designation, // Ensure designation relationship exists
+                'deductions' => $employees->employeeDeductions->filter(function ($deduction) {
                     return in_array($deduction->status, ['Suspended']);
                 })->map(function ($deduction) {
                     return [
@@ -246,7 +246,7 @@ class EmployeeDeductionController extends Controller
             ];
 
 
-            $data = $employee->employeeDeductions->filter(function ($deduction) {
+            $data = $employees->employeeDeductions->filter(function ($deduction) {
                 return in_array($deduction->status, ['Suspended']);
             })->map(function ($deduction) {
                 return [
