@@ -18,6 +18,7 @@ use App\Models\GeneralPayroll;
 use App\Http\Resources\EmployeeInformationResource;
 use App\Helpers\Token;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
+use App\Models\Receivable;
 
 class EmployeeListController extends Controller
 {
@@ -46,6 +47,8 @@ class EmployeeListController extends Controller
 
         if(isset($request->isExcluded)){
             $Emp = $this->isExcluded()['Emplist'];
+
+
         }
 
         if(isset($request->withDeduction)){
@@ -81,7 +84,7 @@ class EmployeeListController extends Controller
             $query->select("employee_list_id")
                     ->from("employee_salaries")
                     ->where("employment_type",$condition,"Job Order");
-        })->whereNotIn("employee_profile_id", $this->isExcluded()['ids'])
+        })->whereNotIn("id", $this->isExcluded()['ids'])
         ->get();
         return $Emp;
     }
@@ -139,6 +142,7 @@ class EmployeeListController extends Controller
     }
 
     public function isExcluded(){
+
         $response = $this->excluded->index();
         $decodedResponse = $response->getData(true);
         $excluded =  $decodedResponse['responseData'];
@@ -146,10 +150,12 @@ class EmployeeListController extends Controller
         $ids = array_map(function($row){
             return $row['employee_list_id'];
         },$excluded);
+
         return [
             'ids'=>$ids,
-            'Emplist'=>EmployeeList::whereIn('employee_profile_id',$ids)->get()
+            'Emplist'=>EmployeeList::whereIn('id',$ids)->get()
         ];
+
 
 
 
@@ -181,9 +187,11 @@ class EmployeeListController extends Controller
     }
 
     public function benefitsList(){
-
-        return "ok";
-
+        return response()->json([
+            'Message'=>"List has been retrieved",
+            'responseData'=>Receivable::all(),
+            'statusCode'=>200,
+        ], Response::HTTP_OK);
     }
 
 

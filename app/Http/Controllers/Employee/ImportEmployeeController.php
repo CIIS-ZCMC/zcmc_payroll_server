@@ -25,8 +25,8 @@ class ImportEmployeeController extends Controller
         $first_half = $request->first_half ?? 0;
         $second_half = $request->second_half ?? 0;
         $defaultmonthCount = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-        $from = 1;
-        $to = $defaultmonthCount;
+        $from = "1";
+        $to = (string)$defaultmonthCount;
 
         $currentyear = date('Y');
         $currentMonth= date('m');
@@ -68,7 +68,7 @@ class ImportEmployeeController extends Controller
                 $ppto = $row['To'];
                 $ppmonth = $row['Month'];
                 $ppyear = $row['Year'];
-                $isout = $row['Is_out'];
+                $isout = $row['Is_out'] ?? 0;
                 $nightdifferential = $row['NightDifferentials'];
                 $totalworkingminutes = $row['TotalWorkingMinutes'];
                 $totalWorkingHours = $row['TotalWorkingHours'];
@@ -128,7 +128,7 @@ class ImportEmployeeController extends Controller
                     'assigned_area'=> json_encode($assigned_area ),
                     'status' => 1,
                     'is_newly_hired' => 1,
-                    'is_excluded'=>$isout
+                    'is_excluded'=>$isout ?? 0
                 ];
 
                 $empSalaryData = [
@@ -159,16 +159,18 @@ class ImportEmployeeController extends Controller
 
                     $EmpSalary = EmployeeSalary::where('employee_list_id', $Employee->id)->where('is_active',1);
                     $this->excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary);
-                    $mismatchEmployeekeys = $this->getMismatchedKeys($Employee, $empInfodata);
-                    $mismatchSalarykeys = $this->getMismatchedKeys($EmpSalary->first(), $empSalaryData);
 
+                    $mismatchEmployeekeys = $this->getMismatchedKeys($Employee, $empInfodata);
+
+
+                    $mismatchSalarykeys = $this->getMismatchedKeys($EmpSalary->first(), $empSalaryData);
 
 
                     if (count($mismatchEmployeekeys) >= 1) {
                         //update employee
                         foreach ($mismatchEmployeekeys as  $row) {
                             EmployeeList::where('id', $row['id'])->update([
-                                $row['key'] => $row['value']
+                                $row['key'] => $row['coming_value']
                             ]);
                             $updatedData += 1;
                         }
@@ -176,13 +178,6 @@ class ImportEmployeeController extends Controller
 
                     if (count($mismatchSalarykeys) >= 1) {
 
-
-                        // foreach ($mismatchSalarykeys as  $row) {
-                        //     EmployeeSalary::where('id', $row['id'])->update([
-                        //         'is_active' => 0
-                        //     ]);
-                        //     $updatedData += 1;
-                        // }
                         $validateSalary = EmployeeSalary::where('employee_list_id',$Employee->id)
                             ->where('month',$month)
                             ->where('year',$year)
@@ -203,10 +198,10 @@ class ImportEmployeeController extends Controller
                     }
                     if ($empType['name'] === "Job Order" ){
                         if($first_half){
-                            $from = 1;
-                            $to = 15;
+                            $from = "1";
+                            $to = "15";
                         }else if ($second_half){
-                            $from = 16;
+                            $from = "16";
                             $to = $defaultmonthCount;
                         }
                     }
@@ -232,16 +227,17 @@ class ImportEmployeeController extends Controller
                         'minutes' => $minutesRate,
                         'daily' => $dailyRate,
                         'hourly' => $hourlyRate,
-                        'is_active' => 1
                     ];
+
+
 
                     if($empType['name'] == "Job Order"){
 
-                    // $timeRecords = TimeRecord::where("is_active", 1)
-                    // ->where("employee_list_id", $Employee->id)
-                    // ->where('fromPeriod',$from)
-                    // ->where('toPeriod',$to)
-                    // ;
+                    $timeRecords = TimeRecord::where("is_active", 1)
+                    ->where("employee_list_id", $Employee->id)
+                    ->where('fromPeriod',$from)
+                    ->where('toPeriod',$to)
+                    ;
 
                     $timeRecords = DB::table('time_records')
                     ->where('is_active', 1)
@@ -259,6 +255,8 @@ class ImportEmployeeController extends Controller
 
                     }else {
 
+
+
                         $timeRecords = DB::table('time_records')
                         ->where('is_active', 1)
                         ->where('month',$month)
@@ -272,6 +270,7 @@ class ImportEmployeeController extends Controller
 
 
                     }
+
 
 
 
@@ -303,9 +302,8 @@ class ImportEmployeeController extends Controller
                             })->first();
 
                             if($prevRecord){
-                                TimeRecord::where('id',$prevRecord->id)->update([
-                                    'is_active'=>0
-                                ]);
+                               // $timerecs = array_merge(['is_active' => 0], $timeRecordsData);
+                                TimeRecord::where('id',$prevRecord->id)->update(['is_active' => 0]);
                             }
                             $trueThatTimeRecord = TimeRecord::where('month',$timeRecordsData['month'])
                             ->where('year',$timeRecordsData['year'])
@@ -321,15 +319,14 @@ class ImportEmployeeController extends Controller
                             EmployeeComputedSalary::where('time_record_id',$trueThatTimeRecord->first()->id)->update([
                                 'computed_salary' =>$netSalary  //encrypt($netSalary)
                             ]);
-                            $trueThatTimeRecord->update([
-                                'is_active'=>1
-                            ]);
+                            $timerecs = array_merge(['is_active' => 1], $timeRecordsData);
+                            $trueThatTimeRecord->update($timerecs);
                            }else {
 
                             //previous month checking...
                             $this->ChangedPreviousMonthStatusForJO($Employee->id,Helpers::getPreviousMonthYear($month,$year),$month);
-
-                            $timeRecord =  TimeRecord::Create($timeRecordsData);
+                            $timerecs = array_merge(['is_active' => 1], $timeRecordsData);
+                            $timeRecord =  TimeRecord::Create($timerecs);
                             EmployeeComputedSalary::create([
                                 'time_record_id' => $timeRecord->id,
                                 'computed_salary' => $netSalary //encrypt($netSalary)
@@ -340,10 +337,10 @@ class ImportEmployeeController extends Controller
 
 
 
-                            $prevRecord = DB::table('time_records')
+                            $prevAdvanceRecord = DB::table('time_records')
                             ->where('is_active', 1)
-                            ->where('month',$month)
-                            ->where('year',$year)
+                            ->where('month',Helpers::getAdvanceMonthYear($month,$year)['month'])
+                            ->where('year',Helpers::getAdvanceMonthYear($month,$year)['year'])
                             ->whereIn('employee_list_id', function ($query) use($empID){
                                 $query->select('employee_list_id')
                                       ->from('employee_salaries')
@@ -351,10 +348,25 @@ class ImportEmployeeController extends Controller
                                       ->where('employee_list_id',$empID);
                             })->first();
 
+
+                            $prevRecord = DB::table('time_records')
+                            ->where('is_active', 1)
+                            ->where('month',Helpers::getPreviousMonthYear($month,$year)['month'])
+                            ->where('year',Helpers::getPreviousMonthYear($month,$year)['year'])
+                            ->whereIn('employee_list_id', function ($query) use($empID){
+                                $query->select('employee_list_id')
+                                      ->from('employee_salaries')
+                                      ->where('employment_type', '!=', 'Job Order')
+                                      ->where('employee_list_id',$empID);
+                            })->first();
                             if($prevRecord){
-                                TimeRecord::where('id',$prevRecord->id)->update([
-                                    'is_active'=>0
-                                ]);
+                                //  $timerecs = array_merge(['is_active' => 0], $timeRecordsData);
+                                  TimeRecord::where('id',$prevRecord->id)->update(['is_active' => 0]);
+                              }
+
+                            if($prevAdvanceRecord){
+                              //  $timerecs = array_merge(['is_active' => 0], $timeRecordsData);
+                                TimeRecord::where('id',$prevAdvanceRecord->id)->update(['is_active' => 0]);
                             }
                             $trueThatTimeRecord = TimeRecord::where('month',$timeRecordsData['month'])
                             ->where('year',$timeRecordsData['year'])
@@ -363,18 +375,20 @@ class ImportEmployeeController extends Controller
                             ->where('is_active',0)
                             ->where('employee_list_id',$Employee->id)
                             ;
+
+
                          if($trueThatTimeRecord->exists()){
 
                             EmployeeComputedSalary::where('time_record_id',$trueThatTimeRecord->first()->id)->update([
                                 'computed_salary' =>$netSalary  //encrypt($netSalary)
                             ]);
-                            $trueThatTimeRecord->update([
-                                'is_active'=>1
-                            ]);
+                            $timerecs = array_merge(['is_active' => 1], $timeRecordsData);
+                            $trueThatTimeRecord->update($timerecs);
                            }else {
                            $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
                             //previous month checking...
-                          $timeRecord =  TimeRecord::Create($timeRecordsData);
+                            $timerecs = array_merge(['is_active' => 1], $timeRecordsData);
+                          $timeRecord =  TimeRecord::Create($timerecs);
                             EmployeeComputedSalary::create([
                                 'time_record_id' => $timeRecord->id,
                                 'computed_salary' => $netSalary //encrypt($netSalary)
@@ -386,81 +400,70 @@ class ImportEmployeeController extends Controller
 
 
                     }
-                    $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
+                 //   $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
                     $this->ChangedPreviousMonthStatusForJO($Employee->id,Helpers::getPreviousMonthYear($month,$year),$month);
 
 
 
                     $currTimerecordslist = $timeRecords->first();
-
+                    $timerecs = array_merge(['is_active' => 1], $timeRecordsData);
+                    // return [
+                    //     'one'=>$currTimerecordslist,
+                    //     'two'=>$timerecs,
+                    //     'result'=>$this->getMismatchedKeys($currTimerecordslist, $timerecs)
+                    // ];
                     $mismatchTimeRecordslist = $this->getMismatchedKeys($currTimerecordslist, $timeRecordsData);
+
                  if (count($mismatchTimeRecordslist) >= 1) {
-                        TimeRecord::whereNot('month',$month-2)
-                            ->whereNot('year',$year)->update([
+
+                       $tr =  TimeRecord::where('month', '!=', $month - 2)
+                       ->where('year', '!=', $year);
+                        if ($tr->exists()){
+                            $tr->update([
                                 'is_active'=>0
                             ]);
-
-                        $created = false;
+                        }
                         foreach ($mismatchTimeRecordslist as $value) {
-                            if ("month" == $value['key'] || "year" == $value['key']) {
-                                //UPDATE Current active
-
-                                if($empType['name'] == "Job Order"){
-                                    $checkingRecords = TimeRecord::where("is_active", 0)
-                                    ->where("employee_list_id", $Employee->id)
-                                    ->where("month", $month)
-                                    ->where("year", $year)
-                                    ->where('fromPeriod',$from)
-                                    ->where('toPeriod',$to);
-
-                                }else {
-                                    $checkingRecords = TimeRecord::where("is_active", 0)
-                                    ->where("employee_list_id", $Employee->id)
-                                    ->where("month", $month)
-                                    ->where("year", $year);
-
-                                }
-
-
-                                if ($checkingRecords->count()) {
-
-                                    //UPDATE - if records exist
-                                    $timeRecords->update([
-                                        'is_active' => 0
-                                    ]);
-
-
-
-                                    EmployeeComputedSalary::where("time_record_id", $checkingRecords->first()->id)
-                                        ->update([
-                                            'computed_salary' =>  $netSalary //encrypt($netSalary)
-                                        ]);
-                                $checkingRecords->first()->update($timeRecordsData);
-                                } else {
-                                    //CREATE NEW - if no existing record
-                                    $timeRecords->update([
-                                        'is_active' => 0
-                                    ]);
-
-                                    $newtimerecords = TimeRecord::Create($timeRecordsData);
-                                    EmployeeComputedSalary::create([
-                                        'time_record_id' => $newtimerecords->id,
-                                        'computed_salary' => $netSalary //encrypt($netSalary)
-                                    ]);
-                                }
-                                $created = true;
-                            }
-                        }
-                        if (!$created) {
-                            $timeRecords->first()->update($timeRecordsData);
+                            $timerecs = array_merge(['is_active' => 1], $timeRecordsData);
+                            $timeRecords->update($timerecs);
                             EmployeeComputedSalary::where("time_record_id", $timeRecords->first()->id)
-                                ->update([
-                                    'computed_salary' =>$netSalary //encrypt($netSalary)
-                                ]);
+                            ->update([
+                                'computed_salary' =>  $netSalary //encrypt($netSalary)
+                            ]);
+
                         }
+
                     }
 
-                  //  return "no changes applied";
+                    // $timeRecord = TimeRecord::where('is_active',1)->latest()->first();
+                    // $tr = [];
+                    // if($timeRecord){
+                    //     $tr = [
+                    //         'month'=>$timeRecord->month,
+                    //         'year'=>$timeRecord->year
+                    //     ];
+                    // }
+
+
+                    // $record = DB::table('time_records')
+                    // ->select([
+                    //     DB::raw('month as month_'),
+                    //     DB::raw('year as year_'),
+                    // ])
+                    // ->where('is_active', 1)
+                    // ->whereIn('employee_list_id', function ($query) {
+                    //     $query->select('employee_list_id')
+                    //           ->from('employee_salaries')
+                    //           ->where('employment_type', '!=', 'Job Order');
+                    // })
+                    // ->limit(1)
+                    // ->first();
+
+
+                    // return $timeRecord;
+
+
+
                 }
 
 
@@ -533,6 +536,90 @@ if (count($otherRecord)>=1) {
 }
 
 
+    // public function getMismatchedKeys($current, $coming)
+    // {
+    //     $mismatchedKeys = [];
+
+    //     // Convert to array if $current is an instance of Eloquent Model
+    //     if ($current instanceof \Illuminate\Database\Eloquent\Model) {
+    //         $current = $current->toArray();
+    //     }
+
+    //     // Ensure $current is an array
+    //     if (!is_array($current)) {
+    //         $current = [];
+    //     }
+
+    //     // Ensure $coming is an array
+    //     if (!is_array($coming)) {
+    //         $coming = [];
+    //     }
+
+    //     // Return an empty array if either $current or $coming is empty
+    //     if (count($current) == 0 || count($coming) == 0) {
+    //         return [];
+    //     }
+
+    //     foreach ($coming as $key => $value) {
+
+    //         if (array_key_exists($key, $current)) {
+    //             // Decrypt value if key is "basic_salary"
+    //             if ($key == "basic_salary") {
+    //                 $currentValue = decrypt($current[$key]);
+    //             } else {
+    //                 $currentValue = $current[$key];
+    //             }
+
+    //             // Compare numeric values
+    //             if (is_numeric($currentValue) && is_numeric($value)) {
+    //                 if ((float)$currentValue <= (float)$value) {
+    //                     $mismatchedKeys[] = [
+    //                         'id' => $current['id'] ?? null, // Handle potential missing 'id'
+    //                         'key' => $key,
+    //                         'value' => $value
+    //                     ];
+    //                 }
+
+    //                 if ((double)$currentValue <= (double)$value) {
+    //                     $mismatchedKeys[] = [
+    //                         'id' => $current['id'] ?? null, // Handle potential missing 'id'
+    //                         'key' => $key,
+    //                         'value' => $value
+    //                     ];
+    //                 }
+
+    //                 if ((integer)$currentValue <= (integer)$value) {
+    //                     $mismatchedKeys[] = [
+    //                         'id' => $current['id'] ?? null, // Handle potential missing 'id'
+    //                         'key' => $key,
+    //                         'value' => $value
+    //                     ];
+    //                 }
+
+
+
+    //             } else {
+    //                 // Compare non-numeric values
+    //                 if ($currentValue !== $value) {
+    //                     $mismatchedKeys[] = [
+    //                         'id' => $current['id'] ?? null, // Handle potential missing 'id'
+    //                         'key' => $key,
+    //                         'value' => $value
+    //                     ];
+    //                 }
+    //             }
+    //         } else {
+    //             $mismatchedKeys[] = [
+    //                 'id' => $current['id'] ?? null, // Handle potential missing 'id'
+    //                 'key' => $key,
+    //                 'value' => $value
+    //             ];
+    //         }
+    //     }
+
+    //     return $mismatchedKeys;
+    // }
+
     public function getMismatchedKeys($current, $coming)
     {
         $mismatchedKeys = [];
@@ -542,23 +629,38 @@ if (count($otherRecord)>=1) {
             $current = $current->toArray();
         }
 
-        // Ensure $current is an array
+
+
         if (!is_array($current)) {
-            $current = [];
+            // Convert stdClass to an array
+            $current = json_decode(json_encode($current), true);
         }
+
+
 
         // Ensure $coming is an array
         if (!is_array($coming)) {
+
             $coming = [];
         }
 
+
+
         // Return an empty array if either $current or $coming is empty
-        if (count($current) == 0 || count($coming) == 0) {
+        if (empty($current) || empty($coming)) {
             return [];
         }
 
+
+
+        $keys = [];
+
         foreach ($coming as $key => $value) {
+
+
             if (array_key_exists($key, $current)) {
+                $keys[] = $key;
+
                 // Decrypt value if key is "basic_salary"
                 if ($key == "basic_salary") {
                     $currentValue = decrypt($current[$key]);
@@ -566,36 +668,52 @@ if (count($otherRecord)>=1) {
                     $currentValue = $current[$key];
                 }
 
-                // Compare numeric values
-                if (is_numeric($currentValue) && is_numeric($value)) {
-                    if ((float)$currentValue !== (float)$value) {
-                        $mismatchedKeys[] = [
-                            'id' => $current['id'] ?? null, // Handle potential missing 'id'
-                            'key' => $key,
-                            'value' => $value
-                        ];
-                    }
-                } else {
-                    // Compare non-numeric values
-                    if ($currentValue !== $value) {
-                        $mismatchedKeys[] = [
-                            'id' => $current['id'] ?? null, // Handle potential missing 'id'
-                            'key' => $key,
-                            'value' => $value
-                        ];
-                    }
+
+                $currentValue = $this->normalizeValue($currentValue);
+                $value = $this->normalizeValue($value);
+
+
+                // Compare normalized values
+                if ($currentValue !== $value) {
+                    $mismatchedKeys[] = [
+                        'id' => $current['id'] ?? null, // Handle potential missing 'id'
+                        'key' => $key,
+                        'current_value' => $currentValue,
+                        'coming_value' => $value
+                    ];
                 }
             } else {
+
+
                 $mismatchedKeys[] = [
                     'id' => $current['id'] ?? null, // Handle potential missing 'id'
                     'key' => $key,
-                    'value' => $value
+                    'current_value' => null,
+                    'coming_value' => $value
                 ];
+
+
             }
         }
 
+
         return $mismatchedKeys;
     }
+
+    private function normalizeValue($value)
+    {
+        // Normalize value to string for consistent comparison
+        if (is_numeric($value)) {
+            return (float)$value; // Convert to float for consistent numeric comparison
+        }
+
+        if (!$value){
+            return 0;
+        }
+
+        return (string)$value; // Convert to string for non-numeric comparison
+    }
+
 
 
     public function excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary){
