@@ -49,8 +49,6 @@ class EmployeeListController extends Controller
 
         if (isset($request->isExcluded)) {
             $Emp = $this->isExcluded()['Emplist'];
-
-
         }
 
         if (isset($request->withDeduction)) {
@@ -90,6 +88,7 @@ class EmployeeListController extends Controller
                 ->where("employment_type", $condition, "Job Order");
         })->whereNotIn("id", $this->isExcluded()['ids'])
             ->get();
+
         return $Emp;
     }
 
@@ -150,7 +149,6 @@ class EmployeeListController extends Controller
 
     public function isExcluded()
     {
-
         $response = $this->excluded->index();
         $decodedResponse = $response->getData(true);
         $excluded = $decodedResponse['responseData'];
@@ -163,10 +161,6 @@ class EmployeeListController extends Controller
             'ids' => $ids,
             'Emplist' => EmployeeList::whereIn('id', $ids)->get()
         ];
-
-
-
-
     }
 
 
