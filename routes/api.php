@@ -69,7 +69,7 @@ Route::middleware('auth.token')->group(function () {
      */
     // Below 5K
     Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
-        Route::get('adjustment-below5k', 'AdjustmentController@index');
+        Route::get('adjustment-below5k', 'Below5kController@index');
     });
 
     /**
