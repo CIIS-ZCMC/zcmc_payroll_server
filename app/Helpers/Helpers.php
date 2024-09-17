@@ -142,7 +142,7 @@ class Helpers
         return $all_areas;
     }
 
-    public static function convertToStdObject(){
+    public static function convertToStdObject($genpayrollList){
         
         if (is_object($genpayrollList)) {  
             $genpayrollList = [$genpayrollList];

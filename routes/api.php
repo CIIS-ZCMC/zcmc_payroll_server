@@ -48,6 +48,7 @@ Route::middleware('auth.token')->group(function () {
      *
      */
     Route::namespace('App\Http\Controllers\GeneralPayroll')->group(function () {
+        Route::get("validatePayroll/{employmenttype}", "PayrollController@validatePayroll");
         Route::get("activeTimeRecord", "PayrollController@ActiveTimeRecord");
         Route::get("payrollHeaders", "PayrollController@index");
         Route::post("generatePayroll", "PayrollController@computePayroll");

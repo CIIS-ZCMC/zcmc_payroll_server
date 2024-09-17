@@ -34,7 +34,28 @@ class PayrollController extends Controller
             'statusCode' => 200
         ]);
     }
+    public function validatePayroll($employmenttype){
 
+        $header = PayrollHeaders::where("employment_type",$employmenttype)
+            ->where("month",request()->processMonth['month'])
+            ->where("year",request()->processMonth['year']);
+
+            if($header->exists()){
+                return response()->json([
+                    'Message' => "Payroll already exists",
+                    'responseData' =>  PayrollHeaderResources::collection($header->get()),
+                    'statusCode' => 401
+                ]);
+            }
+
+
+            return response()->json([
+                'Message' => "No payroll detected",
+                'statusCode' => 200
+            ]);
+
+
+    }
     public function ActiveTimeRecord(){
 
      return response()->json([
@@ -78,7 +99,7 @@ class PayrollController extends Controller
      //  $genpayrollList = json_decode($genpayrollList);
         $payroll_ID = 0;
         $days_of_duty = $request->days_of_duty;
-        $selectedType =  "Permanentxx"; //$request->selectedType;
+        $selectedType =  $request->selectedType;
         $receivable= [];
 
         $genpayrollList= Helpers::convertToStdObject($genpayrollList);
@@ -181,7 +202,7 @@ class PayrollController extends Controller
     $INpayroll = [
         'payroll_headers_id'=>null,
         'employee_list_id'=>$ID,
-        'time_records'=>json_encode($entry->row->row->TimeRecord),
+        'time_records'=>json_encode($entry->row['row']['TimeRecord']),
         'employee_receivables'=>json_encode($receivables),
         'employee_deductions'=>json_encode($deductions),
         'employee_taxes'=>"",
