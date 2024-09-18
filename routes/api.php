@@ -119,6 +119,7 @@ Route::
             Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
             Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
             Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
+            Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
         });
 
 Route::

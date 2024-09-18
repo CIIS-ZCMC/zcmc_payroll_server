@@ -54,8 +54,6 @@ class EmployeeListController extends Controller
           return  $this->getEmployeebyDeduction($request->deductionId);
         }
 
-
-
         if (isset($request->isExcluded)) {
             $Emp = $this->isExcluded()['Emplist'];
 
