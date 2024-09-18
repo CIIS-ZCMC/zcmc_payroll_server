@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class EmployeeReceivable extends Model
 {
     use HasFactory;
@@ -18,13 +19,16 @@ class EmployeeReceivable extends Model
         'receivable_id',
         'amount',
         'percentage',
-        'total_term',
         'is_default',
         'status',
         'date_to',
         'date_from',
         'stopped_at',
-        'reason'
+        'completed_at',
+        'reason',
+        'total_paid',
+        'frequency',
+       
     ];
 
     public $timestamps = true;
@@ -52,5 +56,10 @@ class EmployeeReceivable extends Model
     public function receivableLogs()
     {
         return $this->hasMany(EmployeeReceivableLog::class);
+    }
+
+    public function stoppageLogs()
+    {
+        return $this->hasMany(StoppageLog::class, 'employee_receivable_id');
     }
 }

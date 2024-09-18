@@ -41,35 +41,35 @@ class AuthenticateToken
                 //EXPIRED
                 return response()->json(['message' => 'Un-Authorized', 'response' => 'Expired Token'], Response::HTTP_UNAUTHORIZED);
             }
-            $timeRecord = TimeRecord::where('is_active',1)->latest()->first();
+            $timeRecord = TimeRecord::where('is_active', 1)->latest()->first();
             $tr = [];
-            if($timeRecord){
+            if ($timeRecord) {
                 $tr = [
-                    'month'=>$timeRecord->month,
-                    'year'=>$timeRecord->year
+                    'month' => $timeRecord->month,
+                    'year' => $timeRecord->year
                 ];
             }
 
 
             $record = DB::table('time_records')
-            ->select([
-                DB::raw('month as month_'),
-                DB::raw('year as year_'),
-            ])
-            ->where('is_active', 1)
-            ->whereIn('employee_list_id', function ($query) {
-                $query->select('employee_list_id')
-                      ->from('employee_salaries')
-                      ->where('employment_type', '!=', 'Job Order');
-            })
-            ->limit(1)
-            ->first();
+                ->select([
+                    DB::raw('month as month_'),
+                    DB::raw('year as year_'),
+                ])
+                ->where('is_active', 1)
+                ->whereIn('employee_list_id', function ($query) {
+                    $query->select('employee_list_id')
+                        ->from('employee_salaries')
+                        ->where('employment_type', '!=', 'Job Order');
+                })
+                ->limit(1)
+                ->first();
 
 
             $JobOrderrecord = DB::table('time_records')
-            ->select('fromPeriod', 'toPeriod')
-            ->where('is_active', 1)
-            ->where('month', '=', DB::raw("
+                ->select('fromPeriod', 'toPeriod')
+                ->where('is_active', 1)
+                ->where('month', '=', DB::raw("
                 CASE
                     WHEN (
                         SELECT `month`
@@ -95,53 +95,53 @@ class AuthenticateToken
                     )
                 END
             "))
-            ->whereIn('employee_list_id', function ($query) {
-                $query->select('employee_list_id')
-                      ->from('employee_salaries')
-                      ->where('employment_type', 'Job Order');
-            })
-            ->limit(1)
-            ->first();
+                ->whereIn('employee_list_id', function ($query) {
+                    $query->select('employee_list_id')
+                        ->from('employee_salaries')
+                        ->where('employment_type', 'Job Order');
+                })
+                ->limit(1)
+                ->first();
 
 
             $fromPeriod = 0;
             $toPeriod = 0;
-            if( $JobOrderrecord){
-                $fromPeriod  = $JobOrderrecord->fromPeriod;
+            if ($JobOrderrecord) {
+                $fromPeriod = $JobOrderrecord->fromPeriod;
                 $toPeriod = $JobOrderrecord->toPeriod;
             }
 
-            if($record){
+            if ($record) {
                 $month = $record->month_ + 1;
                 $year = $record->year_;
-                if( $month  == 13){
+                if ($month == 13) {
                     $month = 1;
                     $year = $year + 1;
                 }
 
-                $tr =  [
-                    'month'=>$month,
-                    'year'=> $year,
-                    'monthName'=>date('F',strtotime( $year."-".$month."-1")),
-                    'JOfromPeriod' =>$fromPeriod,
-                    'JOtoPeriod' =>$toPeriod,
+                $tr = [
+                    'month' => $month,
+                    'year' => $year,
+                    'monthName' => date('F', strtotime($year . "-" . $month . "-1")),
+                    'JOfromPeriod' => $fromPeriod,
+                    'JOtoPeriod' => $toPeriod,
                 ];
-            }else {
-                if(date('d') >= 11){
-                    $tr =  [
-                        'month'=>date('m'),
-                        'year'=>date('Y'),
-                        'monthName'=>date('F',strtotime(date('Y')."-".date('m')."-1")),
-                        'JOfromPeriod' =>$fromPeriod,
-                        'JOtoPeriod' =>$toPeriod,
+            } else {
+                if (date('d') >= 11) {
+                    $tr = [
+                        'month' => date('m'),
+                        'year' => date('Y'),
+                        'monthName' => date('F', strtotime(date('Y') . "-" . date('m') . "-1")),
+                        'JOfromPeriod' => $fromPeriod,
+                        'JOtoPeriod' => $toPeriod,
                     ];
-                }else {
-                    $tr =  [
-                        'month'=>Helpers::getPreviousMonthYear(date('m'),date('Y'))['month'],
-                        'year'=>Helpers::getPreviousMonthYear(date('m'),date('Y'))['year'],
-                        'monthName'=>date('F',strtotime(Helpers::getPreviousMonthYear(date('m'),date('Y'))['year']."-".Helpers::getPreviousMonthYear(date('m'),date('Y'))['month']."-1")),
-                        'JOfromPeriod' =>$fromPeriod,
-                        'JOtoPeriod' =>$toPeriod,
+                } else {
+                    $tr = [
+                        'month' => Helpers::getPreviousMonthYear(date('m'), date('Y'))['month'],
+                        'year' => Helpers::getPreviousMonthYear(date('m'), date('Y'))['year'],
+                        'monthName' => date('F', strtotime(Helpers::getPreviousMonthYear(date('m'), date('Y'))['year'] . "-" . Helpers::getPreviousMonthYear(date('m'), date('Y'))['month'] . "-1")),
+                        'JOfromPeriod' => $fromPeriod,
+                        'JOtoPeriod' => $toPeriod,
                     ];
                 }
             }
@@ -150,7 +150,7 @@ class AuthenticateToken
                 'last_used_at' => now(),
             ]);
 
-            $request->merge(['user' => Token::UserInfo(),'processMonth'=>$tr]);
+            $request->merge(['user' => Token::UserInfo(), 'processMonth' => $tr]);
             return $next($request);
         } catch (\Throwable $th) {
             Log::channel('code')->error($th);

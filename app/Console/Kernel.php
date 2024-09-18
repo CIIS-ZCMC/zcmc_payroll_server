@@ -4,6 +4,8 @@ namespace App\Console;
 
 use App\Console\Commands\CheckEmployeeDeductions;
 use App\Console\Commands\ResumeDeduction;
+use App\Console\Commands\SuspendDeductions;
+use App\Console\Commands\SuspendReceivables;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -20,7 +22,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command(ResumeDeduction::class)->dailyAt('00:00');
         $schedule->command(CheckEmployeeDeductions::class)->dailyAt('00:00');
-        $schedule->command(ResumeDeduction::class)->runInBackground();
+        $schedule->command(SuspendDeductions::class)->dailyAt('00:00');
+        $schedule->command(SuspendReceivables::class)->dailyAt('00:00');
     }
 
     /**

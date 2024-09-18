@@ -8,6 +8,7 @@ use App\Http\Resources\DeductionStatusListResources;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Http\Resources\EmployeeListResource;
 use App\Models\Deduction;
+use Carbon\Carbon;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionLog;
 use App\Models\EmployeeList;
@@ -52,6 +53,7 @@ class EmployeeDeductionController extends Controller
                     'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,
                     'Net salary' => $net_salary,
+                    'Employment type' => $employee->getSalary->employment_type,
                 ];
             }
 
@@ -135,39 +137,77 @@ class EmployeeDeductionController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related deductions and salary
-            $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
+            // Retrieve all employees with related deductions and salary
+            $employees = EmployeeList::with(['employeeDeductions.deductions', 'getSalary', 'employeeDeductions.stoppageLogs'])
                 ->where('id', $id)
-                ->first();
-                
-            if (!$employee) {
+                ->get();
+
+            if ($employees->isEmpty()) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            $data = $employee->employeeDeductions->filter(function ($deduction) {
-                return in_array($deduction->status, ['Active']);
-            })->map(function ($deduction) {
-                return [
-                    'Id' => $deduction->deduction_id,
-                    'Deduction' => $deduction->deductions->name ?? 'N/A',
-                    'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => $deduction->amount,
-                    'Updated on' => $deduction->updated_at,
-                    'Terms paid' => $deduction->with_terms
-                        ? $deduction->total_paid . "/" . $deduction->total_term
-                        : $deduction->total_paid,
-                    'Terms' => $deduction->total_term,
-                    'Billing cycle' => $deduction->frequency ?? 'N/A',
-                    'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage  ?? 'N/A',
-                    'Reason' => $deduction->reason ?? 'N/A',
-                    'is_default' => $deduction->is_default,
-                    'with_terms' => $deduction->with_terms,
+            // Flatten the data from all employees
+            $data = $employees->flatMap(function ($employee) {
+                return $employee->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Active']);
+                })->map(function ($deduction) use ($employee) {
+                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    $deductionAmount = $deduction->is_default
+                        ? ($deduction->deductions->amount == 0
+                            ? ($basicSalary * ($deduction->deductions->percentage / 100))
+                            : $deduction->deductions->amount)
+                        : $deduction->amount;
 
-                ];
+
+                    // Apply your logic for suspended logs
+                    $suspendedLog = $deduction->stoppageLogs
+                        ->where('status', 'Suspended')
+                        ->sortByDesc('date_from')
+                        ->first();
+
+                    // Check if the log exists and if it's active
+                    if ($suspendedLog && $suspendedLog->is_active) {
+                        $suspended_on = 'N/A';
+                        $suspended_until = 'N/A';
+                        $otherReason = 'N/A';
+                    } else {
+                        $suspended_on = $suspendedLog ? $suspendedLog->date_from : 'N/A';
+                        $suspended_until = $suspendedLog ? $suspendedLog->date_to : 'N/A';
+                        $otherReason = null;
+
+                        foreach ($deduction->stoppageLogs as $log) {
+                            // Validate if the date is in the correct format before using Carbon
+                            if ($log->status == 'Suspended' && $this->isValidDate($log->date_from, 'Y-m-d') && Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today())) {
+                                $otherReason = $log->reason;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    return [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => $deductionAmount,
+                        'Updated on' => $deduction->updated_at ?? 'N/A',
+                        'Terms paid' => $deduction->with_terms
+                            ? ($deduction->total_paid ?? 0) . "/" . ($deduction->total_term ?? 0)
+                            : $deduction->total_paid ?? 0,
+                        'Terms' => $deduction->total_term ?? 0,
+                        'Billing cycle' => $deduction->frequency ?? 'N/A',
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage ?? 0,
+                        'Reason' => $deduction->reason ?? 'N/A',
+                        'Suspended on' => $suspended_on ?? 'N/A',
+                        'Suspended until' => $suspended_until ?? 'N/A',
+                        'Other Reason' => $otherReason ?? 'N/A',
+                        'is_default' => $deduction->is_default,
+                        'default_amount' => $deductionAmount,
+                        'with_terms' => $deduction->with_terms ?? false,
+                    ];
+                });
             })->toArray();
-
-            $data = array_slice($data, 0, 1);
 
             return response()->json([
                 'responseData' => $data,
@@ -178,76 +218,100 @@ class EmployeeDeductionController extends Controller
         }
     }
 
+    private function isValidDate($date, $format = 'Y-m-d')
+    {
+        $d = \DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) === $date;
+    }
 
     public function getSuspendedEmployeeDeductions(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related deductions and salary
-            $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
+            // Retrieve all employees with related deductions and salary
+            $employees = EmployeeList::with(['employeeDeductions.deductions', 'getSalary', 'employeeDeductions.stoppageLogs'])
                 ->where('id', $id)
-                ->first();
+                ->get();
 
-            if (!$employee) {
+            if ($employees->isEmpty()) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
             // Prepare the response data
+            $data = [
+                'employee_list_id' => $employees->id,
+                'name' => $employees->first_name . ' ' . $employees->middle_name . ' ' . $employees->last_name,
+                'designation' => $employees->designation, // Ensure designation relationship exists
+                'deductions' => $employees->employeeDeductions->filter(function ($deduction) {
+                    return in_array($deduction->status, ['Suspended']);
+                })->map(function ($deduction) {
+                    return [
+                        'Id' => $deduction->deduction_id,
+                        'Deduction' => $deduction->deductions->name ?? 'N/A',
+                        'Code' => $deduction->deductions->code ?? 'N/A',
+                        'Amount' => '₱' . $deduction->amount,
+                        'Updated on' => $deduction->updated_at,
+                        'Terms to pay' => $deduction->total_term,
+                        'Billing Cycle' => $deduction->frequency,
+                        'Status' => $deduction->status,
+                        'Percentage' => $deduction->percentage,
+                    ];
+                })->toArray()
+            ];
 
 
-            $data = $employee->employeeDeductions->filter(function ($deduction) {
+            $data = $employees->employeeDeductions->filter(function ($deduction) {
                 return in_array($deduction->status, ['Suspended']);
             })->map(function ($deduction) {
                 return [
                     'Id' => $deduction->deduction_id,
                     'Deduction' => $deduction->deductions->name ?? 'N/A',
                     'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' =>  $deduction->amount,
+                    'Amount' => $deduction->amount,
                     'Terms paid' => $deduction->with_terms
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
                     'Terms' => $deduction->total_term,
-                    'Billing cycle' => $deduction->frequency  ?? 'N/A',
+                    'Billing cycle' => $deduction->frequency ?? 'N/A',
                     'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage  ?? 'N/A',
+                    'Percentage' => $deduction->percentage ?? 'N/A',
                     'Suspended on' => $deduction->date_from ?? 'N/A',
                     'Suspended until' => $deduction->date_to ?? 'N/A',
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
+                    'Updated on' => $deduction->updated_at ?? 'N/A',
                 ];
             })->toArray();
 
-
-
-            $data = array_slice($data, 0, 1);
             return response()->json([
                 'responseData' => $data,
-                'message' => 'Retrieve employee deductions.',
+                'message' => 'Retrieve suspended employee deductions.',
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
+
     public function getInactiveEmployeeDeductions(Request $request, $id)
     {
         try {
             $employee_list_id = $request->employee_list_id;
 
-            // Retrieve the employee with related deductions and salary
-            $employee = EmployeeList::with(['employeeDeductions.deductions', 'getSalary'])
+            // Retrieve all employees with related deductions and salary
+            $employees = EmployeeList::with(['employeeDeductions.deductions', 'getSalary', 'employeeDeductions.stoppageLogs'])
                 ->where('id', $id)
-                ->first();
+                ->get();
 
-            if (!$employee) {
+            if ($employees->isEmpty()) {
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
             // Prepare the response data
 
-            $data = $employee->employeeDeductions->filter(function ($deduction) {
+            $data = $employees->employeeDeductions->filter(function ($deduction) {
                 return in_array($deduction->status, ['Stopped', 'Completed']);
             })->map(function ($deduction) {
                 return [
@@ -270,31 +334,33 @@ class EmployeeDeductionController extends Controller
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
+                    'Updated on' => $deduction->updated_at ?? 'N/A',
                 ];
             })->toArray();
 
-            $data = array_slice($data, 0, 1);
-
             return response()->json([
                 'responseData' => $data,
-                'message' => 'Retrieve employee deductions.'
+                'message' => 'Retrieve inactive employee deductions.',
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
+
+
     public function storeDeduction(Request $request)
     {
         try {
             // Retrieve input data from the request
-            $user = $request->user_id;
+            $user = 1;
             $frequency = $request->frequency;
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
-            $amount = $request->amount;
-            $percentage = $request->$user = 1;
-
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
+            $percentage = $request->percentage;
+            $user = 1;
             $total_term = null;
             $is_default = $request->is_default;
             $with_terms = $request->with_terms;
@@ -302,7 +368,10 @@ class EmployeeDeductionController extends Controller
 
             // Check if the deduction already exists for the employee
             $existingDeduction = EmployeeDeduction::with(['employeeList.getSalary', 'deductions'])
-                ->where('employee_list_id', $employee_list_id)->where('deduction_id', $deduction_id)->first();
+                ->where('employee_list_id', $employee_list_id)
+                ->where('deduction_id', $deduction_id)
+                ->whereIn('status', ['Active', 'Suspended']) // Added condition for status
+                ->first();
 
             if ($existingDeduction) {
                 return response()->json([
@@ -337,7 +406,7 @@ class EmployeeDeductionController extends Controller
                         'is_default' => $is_default,
                         'status' => "Active",
                         'with_terms' => $with_terms,
-                        'reason' => $reason
+                        'reason' => $reason,
                     ]);
 
                     EmployeeDeductionLog::create([
@@ -356,7 +425,7 @@ class EmployeeDeductionController extends Controller
                     ], Response::HTTP_OK);
                 } else {
 
-                    if ($request->percentage === null) {
+                    if ($request->percentage === null || $request->percentage == 0) {
 
                         if ($with_terms) {
                             $total_term = $request->total_term;
@@ -440,14 +509,17 @@ class EmployeeDeductionController extends Controller
         try {
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
-            $amount = $request->amount;
+            $amount = preg_replace('/[^\d.]/', '', $request->amount);
+            $amount = (float) $amount;
             $percentage = $request->percentage;
             $frequency = $request->frequency;
             $total_term = null;
             $is_default = $request->is_default;
             $with_terms = $request->with_terms;
             $reason = $request->reason;
-            $user = $request->user_id;
+            $user = 1;
+
+
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $request->employee_list_id)
                 ->where('deduction_id', $request->deduction_id)
                 ->first();
@@ -460,7 +532,7 @@ class EmployeeDeductionController extends Controller
                     if ($deduction->amount === null) {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $defaultAmount = ($basicSalary->basic_salary)  * ($deduction->percentage / 100);
+                        $defaultAmount = ($basicSalary->basic_salary) * ($deduction->percentage / 100);
                     } else {
                         $defaultAmount = $deduction->amount;
                     }
@@ -497,7 +569,7 @@ class EmployeeDeductionController extends Controller
                     ], Response::HTTP_OK);
                 } else {
 
-                    if ($request->percentage === null) {
+                    if ($request->percentage === null || $request->percentage == 0) {
                         if ($with_terms) {
                             $total_term = $request->total_term;
                         }
@@ -506,7 +578,6 @@ class EmployeeDeductionController extends Controller
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
                             'amount' => $amount,
-                            'percentage' => $percentage,
                             'frequency' => $frequency,
                             'total_term' => $total_term,
                             'is_default' => $is_default,
@@ -534,7 +605,7 @@ class EmployeeDeductionController extends Controller
                             $total_term = $request->total_term;
                         }
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $percentaheAmount = ($basicSalary->basic_salary)  * ($percentage / 100);
+                        $percentaheAmount = ($basicSalary->basic_salary) * ($percentage / 100);
                         $employee_deductions->update([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
@@ -575,39 +646,74 @@ class EmployeeDeductionController extends Controller
     public function updateStatus(Request $request)
     {
         try {
-            $user = $request->user_id;
+            $user = 1;
             $employee_list_id = $request->employee_list_id;
             $deduction_id = $request->deduction_id;
-            $date_from = $request->date_from;
-            $date_to = $request->date_to;
+            // Handle date_from
+            $date_from = $this->parseDate($request->date_from);
+
+            // Handle date_to
+            $date_to = $this->parseDate($request->date_to);
             $status = $request->status;
             $reason = $request->reason;
             $stopped_at = null;
+            $is_active = 0;
+
             $employee_deductions = EmployeeDeduction::where('employee_list_id', $employee_list_id)
                 ->where('deduction_id', $deduction_id)
                 ->first();
 
             if ($employee_deductions) {
+                // If the status is 'Stopped', set stopped_at to today's date
                 if ($status === 'Stopped') {
-                    $stopped_at = now()->format('Y-m-d');;
+                    $stopped_at = now()->format('Y-m-d');
                 }
+
+                // If the status is 'Suspended', check if date_from equals today's date
+                if ($status === 'Suspended') {
+                    $today = now()->format('Y-m-d');
+                    if ($date_from === $today) {
+                        $status = 'Suspended';
+                        $is_active = 0;
+                    } else {
+                        $status = 'Active';
+                        $is_active = 0;
+                    }
+                }
+
                 $employee_deductions->update([
                     'status' => $status,
                     'reason' => $reason,
-                    'date_from' => $date_from,
-                    'date_to' => $date_to,
+                    'date_from' => $date_from ?? null,
+                    'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
                 ]);
 
+
+                $status = $request->status;
+                // Log the stoppage
                 StoppageLog::create([
                     'employee_deduction_id' => $employee_deductions->id,
                     'status' => $status,
-                    'date_from' => $date_from,
-                    'date_to' => $date_to,
+                    'date_from' => $date_from ?? null,
+                    'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
+                    'is_active' => $is_active,
                     'reason' => $reason,
                 ]);
 
+                if ($status === 'Active') {
+                    $suspendedLog = StoppageLog::where('employee_deduction_id', $employee_deductions->id)
+                        ->where('status', 'Suspended')
+                        ->orderBy('date_from', 'desc')
+                        ->first();
+
+                    if ($suspendedLog) {
+                        $suspendedLog->update(['is_active' => 1]);
+                    }
+                }
+
+                // Log the action
                 EmployeeDeductionLog::create([
                     'employee_deduction_id' => $employee_deductions->id,
                     'action_by' => $user,
@@ -617,14 +723,27 @@ class EmployeeDeductionController extends Controller
                 return response()->json([
                     'message' => 'Employee deduction updated successfully.',
                     'statusCode' => 200
-                    // 'responseData' => new EmployeeDeductionResource($employee_deductions),
                 ], Response::HTTP_OK);
             } else {
-                return response()->json(['message' => 'Deduction not found for this employee.'], 404);
+                return response()->json(['message' => 'Deduction not found for this employee.']);
             }
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private function parseDate($dateString)
+    {
+        try {
+            if (!empty($dateString)) {
+                // Parse date and strip time if it's a valid datetime string
+                return Carbon::parse($dateString)->format('Y-m-d');
+            }
+        } catch (\Exception $e) {
+            // Log or handle exception if needed
+        }
+
+        return null;  // Return null if invalid date
     }
     /**
      * Display the specified resource.

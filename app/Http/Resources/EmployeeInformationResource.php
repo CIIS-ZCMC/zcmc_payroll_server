@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\EmployeeSalaryResource;
+use App\Http\Resources\TimeRecordResource;
 
 class EmployeeInformationResource extends JsonResource
 {
@@ -15,7 +16,13 @@ class EmployeeInformationResource extends JsonResource
      */
     public function toArray($request)
     {
-        //return parent::toArray($request);
+        $excludedDetails = $this->getExclusionDetails()->where("month",$request->processMonth['month'])
+        ->where('year',$request->processMonth['year'])
+        ->first();
+        if($excludedDetails){
+            $reasons = json_decode($excludedDetails->reason);
+        }
+
         return [
             'id'=>$this->id,
             'employee_number'=>$this->employee_number,
@@ -28,8 +35,15 @@ class EmployeeInformationResource extends JsonResource
             'status'=>$this->status,
             'is_newly_hired'=>$this->is_newly_hired,
             'Salary'=> EmployeeSalaryResource::collection([$this->getSalary]),
-            'TimeRecord'=> $this->getTimeRecords,
-            'deductions'=> EmployeeDeductionResource::collection($this->getListOfDeductions)
+            'TimeRecord'=> TimeRecordResource::collection([$this->getTimeRecords]),
+            'Deduction' => EmployeeDeductionResource::collection($this->employeeDeductions),
+            'Receivables' => EmployeeReceivableResource::collection($this->employeeReceivables),
+            'isExcluded'=> [
+                'Details'=>$excludedDetails,
+                'Reason'=>$reasons->reason ?? null,
+                'Remarks'=>$reasons->remarks ?? null,
+                'Amount'=>$reasons->Amount ?? null
+            ]
         ];
     }
 }

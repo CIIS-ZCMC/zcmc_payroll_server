@@ -28,6 +28,12 @@ class EmployeeDeduction extends Model
         'is_default',
         'isDifferential',
         'willDeduct',
+        'status',
+        'date_to',
+        'date_from',
+        'stopped_at',
+        'reason',
+        'completed_at'
     ];
     public $timestamps = true;
 
@@ -47,15 +53,19 @@ class EmployeeDeduction extends Model
     }
     public function getDeductions()
     {
-        return $this->belongsTo(Deduction::class,'id');
+        return $this->belongsTo(Deduction::class, 'id');
     }
     public function getDeductionGroup()
     {
-        return $this->belongsTo(DeductionGroup::class,'id');
+        return $this->belongsTo(DeductionGroup::class, 'id');
     }
-    public function DeductionTrails(){
-        return $this->hasMany(EmployeeDeductionTrail::class,"employee_deduction_id");
-
+    public function DeductionTrails()
+    {
+        return $this->hasMany(EmployeeDeductionTrail::class, "employee_deduction_id");
     }
 
+    public function stoppageLogs()
+    {
+        return $this->hasMany(StoppageLog::class, 'employee_deduction_id');
+    }
 }

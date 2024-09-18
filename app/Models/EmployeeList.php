@@ -61,9 +61,16 @@ class EmployeeList extends Model
         if (!$timeRecord) {
             return $this->hasMany(ExcludedEmployee::class)->whereRaw('1 = 0');
         }
-        return $this->hasMany(ExcludedEmployee::class, 'employee_list_id')
+        return $this->hasMany(ExcludedEmployee::class, 'employee_list_id', 'employee_list_id')
             ->where('month', $timeRecord->month)
-            ->where('year', $timeRecord->year);
+            ->where('year', $timeRecord->year)
+            ->where('is_removed',0);
+    }
+
+public function getExclusionDetails(){
+    $timeRecord = $this->getTimeRecords;
+        return $this->hasMany(ExcludedEmployee::class, 'employee_list_id', 'id')
+       ;
     }
 
     public function getListOfTimeRecords()

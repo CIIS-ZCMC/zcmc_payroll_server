@@ -15,9 +15,22 @@ class StoppageLog extends Model
 
     protected $fillable = [
         'employee_deduction_id',
+        'employee_receivable_id',
         'status',
         'date_to',
         'date_from',
-        'reason'
+        'reason',
+        'stopped_at',
+        'is_active'
     ];
+
+    public function employeeDeduction()
+    {
+        return $this->belongsTo(EmployeeDeduction::class, 'employee_deduction_id');
+    }
+
+    public function employeeReceivable()
+    {
+        return $this->belongsTo(EmployeeReceivable::class, 'employee_receivable_id');
+    }
 }

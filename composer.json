@@ -2,7 +2,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
@@ -29,7 +32,6 @@
         "files": [
             "app/Helpers/Helpers.php"
         ]
-    
     },
     "autoload-dev": {
         "psr-4": {
