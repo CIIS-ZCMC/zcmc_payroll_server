@@ -74,12 +74,12 @@ class EmployeeListController extends Controller
     {
         $jobOrder = request()->jobOrder;
         $condition = "=";
-        if ($jobOrder == "True") {
+        if ($jobOrder) {
             $condition = "=";
         } else {
             $condition = "!=";
         }
-        
+
 
         $Emp = EmployeeList::whereIn("id", function ($query) use ($condition) {
             $query->select("employee_list_id")
@@ -96,7 +96,7 @@ class EmployeeListController extends Controller
                       $subQuery->select("id")
                                ->from("payroll_headers")
                                ->where("month", request()->processMonth['month'])
-                               ->where("year", request()->processMonth['year']);                             
+                               ->where("year", request()->processMonth['year']);
                   });
         })
         ->whereNotIn("id", $this->isExcluded()['ids'])
@@ -111,7 +111,7 @@ class EmployeeListController extends Controller
 
         $jobOrder = request()->jobOrder;
         $condition = "=";
-        if ($jobOrder == "True") {
+        if ($jobOrder ) {
             $condition = "=";
         } else {
             $condition = "!=";
@@ -133,9 +133,26 @@ class EmployeeListController extends Controller
             $query->select("employee_list_id")
                 ->from("employee_salaries")
                 ->where("employment_type", $condition, "Job Order");
-        })->get();
+        })
+        ->get();
 
-        return $Emp;
+        $Emp2 = EmployeeList::whereIn("id", function ($query) use ($condition) {
+            $query->select("employee_list_id")
+                ->from("employee_salaries")
+                ->where("employment_type", $condition, "Job Order");
+        })->whereNotIn("id", function ($query) {
+                $query->select("employee_list_id")
+                      ->from("general_payrolls")
+                      ->whereIn("payroll_headers_id", function ($subQuery) {
+                          $subQuery->select("id")
+                                   ->from("payroll_headers")
+                                   ->where("month", request()->processMonth['month'])
+                                   ->where("year", request()->processMonth['year']);
+                      });
+                    })
+        ->get();
+
+        return $Emp->merge($Emp2);
     }
 
     public function withActivePay()

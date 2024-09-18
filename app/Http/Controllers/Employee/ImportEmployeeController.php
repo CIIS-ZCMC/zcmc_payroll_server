@@ -147,7 +147,7 @@ class ImportEmployeeController extends Controller
                     $generatedcount += 1;
                     $New_Employee = EmployeeList::create($empInfodata);
 
-                     $this->excludedEmployees($empExcluded,$New_Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary);
+                     $this->excludedEmployees($empExcluded,$New_Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary,$empType['name']);
 
                     $arr_emp = array_merge(['employee_list_id' => $New_Employee->id], $empSalaryData);
                  $New_salary = EmployeeSalary::create($arr_emp);
@@ -158,7 +158,7 @@ class ImportEmployeeController extends Controller
                 if($Employee){
 
                     $EmpSalary = EmployeeSalary::where('employee_list_id', $Employee->id)->where('is_active',1);
-                    $this->excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary);
+                    $this->excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary,$empType['name']);
 
                     $mismatchEmployeekeys = $this->getMismatchedKeys($Employee, $empInfodata);
 
@@ -285,8 +285,6 @@ class ImportEmployeeController extends Controller
                             $from = 16;
                             $to = $defaultmonthCount;
                            }
-
-
 
                             $prevRecord = DB::table('time_records')
                             ->where('is_active', 1)
@@ -716,7 +714,7 @@ if (count($otherRecord)>=1) {
 
 
 
-    public function excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary){
+    public function excludedEmployees($empExcluded,$Employee,$year,$month,$empStudyLeave,$isout,$netSalary,$OverallNetSalary,$empType){
 
             $excludedListEmp = ExcludedEmployee::where('month',$month)
                 ->where('year',$year)
@@ -773,6 +771,25 @@ if (count($otherRecord)>=1) {
                                 }
 
                             }else {
+                                //eeeee
+
+                                if($empType == "Job Order"){
+                                    if ($OverallNetSalary < 2500){
+                                        ExcludedEmployee::create([
+                                            'employee_list_id' => $Employee->id,
+                                            'payroll_headers_id'=>null,
+                                            'reason' =>  json_encode([
+                                                'reason'=>'Salary Below 5000',
+                                                'remarks'=>'',
+                                                'Amount'=>$OverallNetSalary,
+                                            ]),
+                                            'year' => $year,
+                                            'month' => $month,
+                                            'is_removed'=>0
+                                        ]);
+                                    }
+
+                                }else {
                                     ExcludedEmployee::create([
                                         'employee_list_id' => $Employee->id,
                                         'payroll_headers_id'=>null,
@@ -786,6 +803,10 @@ if (count($otherRecord)>=1) {
                                         'is_removed'=>0
                                     ]);
 
+                                }
+
+
+                                 
                             }
 
 
