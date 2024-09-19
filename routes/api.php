@@ -54,6 +54,8 @@ Route::middleware('auth.token')->group(function () {
         Route::post("generatePayroll", "PayrollController@computePayroll");
         Route::get("GeneralPayrollList/{id}", "PayrollController@GeneralPayrollList");
         Route::get("GeneralPayrollTrailsList/{id}", "PayrollController@GeneralPayrollTrails");
+
+        Route::get("payrollSummary/{PayrollHeaderID}", "PayrollController@PayrollSummary");
     });
 
     /**

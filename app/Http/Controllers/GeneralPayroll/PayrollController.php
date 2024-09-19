@@ -41,12 +41,28 @@ class PayrollController extends Controller
             ->where("month",request()->processMonth['month'])
             ->where("year",request()->processMonth['year']);
 
-        if (count($header->get()) == 2){
-            return response()->json([
-                'Message' => "Payroll already exists",
-                'responseData' =>  PayrollHeaderResources::collection($header->get()),
-                'statusCode' => 406
-            ]);
+        if ($header->count() == 2){
+            $data = [];
+            if($employmenttype == "joborder"){
+                foreach($header->get() as $row){
+                 if($row->fromPeriod !== request()->processMonth['JOfromPeriod'] && $row->toPeriod !== request()->processMonth['JOtoPeriod'] ){
+                    return response()->json([
+                        'Message' => "No payroll detected",
+                        'Data'=>request()->processMonth,
+                        'statusCode' => 200
+                    ]);
+                 }
+           }
+            }
+
+           return response()->json([
+            'Message' => "Payroll already exists",
+            'responseData' =>  PayrollHeaderResources::collection($header->get()),
+            'Data'=>request()->processMonth,
+            'statusCode' => 406
+        ]);
+
+
         }
 
             if($header->exists()){
@@ -224,18 +240,18 @@ class PayrollController extends Controller
         'year'=>$curryear,
     ];
 
-    
-   
+
+
                 $isPermanent = 0;
                 if ($employmentType !== "Job Order"){
                     $isPermanent = 1;
                 }
 
-            
+
 
         $validation = $this->GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$isPermanent,$selectedType,$is_special);
-     
-      
+
+
         if ($validation['result']) {
          if($employmentType !== "Job Order"){
              $this->ProcessGeneralPayrollPermanent($INpayroll,$payroll_ID,$is_special);
@@ -253,142 +269,7 @@ class PayrollController extends Controller
                 'statusCode' => 200,
             ]);
 
-        // $employees = EmployeeList::with(['getTimeRecords.ComputedSalary'])->get();
-        // $In_payroll = [];
 
-        // $month = date('m');
-        // $year = date('Y');
-
-        // $currentmonth = $request->month_of;
-        // $curryear = $request->year_of;
-        // $is_permanent = $request->is_permanent ?? 1;
-        // $payroll_ID = $request->payroll_ID;
-        // $first_half = $request->first_half;
-        // $second_half = $request->second_half;
-        // $days_of_duty = $request->days_of_duty;
-
-
-        // if (!$payroll_ID && $month == $currentmonth && $year == $curryear && !$is_permanent && !$first_half && !$second_half) {
-        //     return response()->json([
-        //         'message' => "Could not generate whole month payroll for job order employees.",
-        //         'statusCode' => 401
-        //     ]);
-        // }
-
-        // $from = 1;
-        // $to = cal_days_in_month(CAL_GREGORIAN, $currentmonth, $curryear);
-        // if ($first_half) {
-        //     $from = 1;
-        //     $to = 15;
-        // } else if ($second_half) {
-        //     $from = 16;
-        //     $to = cal_days_in_month(CAL_GREGORIAN, $currentmonth, $curryear);
-        // }
-
-
-        // $validation = $this->GeneratedPayrollHeaders($currentmonth, $curryear, $payroll_ID,$days_of_duty);
-
-        // if ($validation['result']) {
-
-
-
-        //     foreach ($employees as  $row) {
-        //         $year_ = $request->processMonth['year'];
-        //         $previousmonth_ =  $request->processMonth['month'];
-
-
-        //         if ($row->isPayrollExcluded->count() == 0) {
-        //             $Total = $this->processPayroll($row);
-        //             if ($this->computer->checkOutofPayroll([
-        //                 'employee_list' => $row,
-        //                 'empID' => $row->employee_profile_id,
-        //                 'NETSalary' => $Total,
-        //                 'employment_type' => $row->getSalary->employment_type,
-        //                 'PayheaderID' => $validation['payroll_ID']
-        //             ])) {
-        //                 continue;
-        //             }
-
-
-
-        //             if ($is_permanent) {
-        //                 if ($row->getSalary->employment_type != "Job Order") {
-
-        //                     $In_payroll[] = [
-        //                         'processmonth' => $currentmonth,
-        //                         'processyear' => $year_,
-        //                         'data' => $this->payrolResource($row, $previousmonth_, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                     ];
-        //                 }
-        //             } else {
-
-        //                 if ($row->getSalary->employment_type == "Job Order") {
-        //                     $In_payroll[] = [
-        //                         'processmonth' => $currentmonth,
-        //                         'processyear' => $year_,
-        //                         'data' => $this->payrolResource($row, $currentmonth, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                     ];
-        //                 }
-        //             }
-        //         } else {
-
-        //             if ($row->isPayrollExcluded->first()->is_removed) {
-        //                 $Total = $this->processPayroll($row);
-
-        //                 if ($is_permanent) {
-        //                     if ($row->getSalary->employment_type != "Job Order") {
-
-        //                         $In_payroll[] = [
-        //                             'processmonth' => $previousmonth_,
-        //                             'processyear' => $year_,
-        //                             'data' => $this->payrolResource($row, $previousmonth_, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                         ];
-        //                     }
-        //                 } else {
-
-        //                     if ($row->getSalary->employment_type == "Job Order") {
-
-        //                         $In_payroll[] = [
-        //                             'processmonth' => $currentmonth,
-        //                             'processyear' => $year_,
-        //                             'data' => $this->payrolResource($row, $currentmonth, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                         ];
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-
-
-        //     if (count($In_payroll) == 0) {
-        //         return response()->json([
-        //             'message' => "No data to generate.",
-        //             'statusCode' => 401
-        //         ]);
-        //     }
-
-
-        //     $generatedCount = 0;
-
-
-        //     if ($is_permanent) {
-        //            $generatedCount =   $this->ProcessGeneralPayrollPermanent($In_payroll, $payroll_ID);
-        //     } else {
-        //         $generatedCount = $this->processGeneralPayrollJobOrders($In_payroll, $payroll_ID, $first_half, $second_half);
-        //     }
-
-
-
-        //     return response()->json([
-        //         'message' => 'Payroll Generated Successfully!',
-        //         'statusCode' => 202,
-        //         'generated' => $generatedCount
-        //     ]);
-        // }
-        // return response()->json([
-        //     'message' => $validation['message'],
-        //     'statusCode' => 401
-        // ]);
     }
 
 
@@ -478,14 +359,14 @@ class PayrollController extends Controller
         $isSpecial = false;
 
         $to = request()->processMonth['JOtoPeriod'];
-
+        $first_half = 1;
         if($to == "15"){
             $first_half = 1;
-        }else {       
+        }else {
             $second_half = 1;
         }
 
-      
+
         $from = 1;
         $to = cal_days_in_month(CAL_GREGORIAN, $month, $year);
         if ($first_half) {
@@ -670,7 +551,7 @@ class PayrollController extends Controller
             $general_payroll =  GeneralPayroll::where("month", $In_payroll['month'])
             ->where("year", $In_payroll['year'])
             ->where("employee_list_id", $In_payroll['employee_list_id']);
-        
+
                         if ($general_payroll->exists()) {
                             $updatedCount += 1;
                             unset($In_payroll['payroll_headers_id']);
@@ -685,5 +566,112 @@ class PayrollController extends Controller
             'created' => $generatedCount,
             'updated' => $updatedCount
         ];
+    }
+
+    public function PayrollSummary($PayrollHeaderID){
+
+        $header = PayrollHeaders::find($PayrollHeaderID);
+        if(!$header){
+
+            return response()->json([
+                'message' => "No Data found",
+                'statusCode' => 404
+            ]);
+        }
+
+
+        $totalPera = 0.00;
+        $totalHazardPay = 0.00;
+        $totalGrossPay = 0.00;
+        $totalNetSal= 0.00;
+        $totalDeductions = 0.00;
+        $receivableOther = [];
+        $deductionOther = [];
+         foreach($header->genPayrolls as $row){
+            $timerecords = json_decode($row->time_records);
+            $receivables = json_decode($row->employee_receivables);
+            $deductions = json_decode($row->employee_deductions);
+            $tempnetpay = decrypt($row->net_pay);
+            $gross_pay = decrypt($row->gross_pay);
+            $net_total_salary = decrypt($row->net_total_salary);
+            foreach($receivables as $rec){
+                if ($rec->receivable->code == "PERA"){
+                    $totalPera += $rec->amount;
+                }
+                if ($rec->receivable->code == "HAZARD"){
+                    $totalHazardPay += $rec->amount;
+                }
+                if($rec->receivable->code !== "PERA" && $rec->receivable->code !== "HAZARD" && $rec->amount >=1 ){
+                    $receivableOther[] = $rec;
+                }
+            }
+            foreach($deductions as $ded){
+                $totalDeductions += $ded->amount;
+                if($ded->deduction->code !== "Undertime" and $ded->deduction->code !== "Absent" && $ded->amount >=1 ){
+                    $deductionOther[] = $ded;
+                }
+            }
+            $totalGrossPay += $gross_pay;
+            $totalNetSal += $net_total_salary;
+         }
+         $employmentType = ($header->employment_type == "permanent") ? "Regular/Permanent" : "Job Order";
+         $totalNetSal = $totalGrossPay - $totalDeductions;
+         $others = array_merge($receivableOther,$deductionOther);
+
+         $period = strtoupper(date('F',strtotime($header->year."-".$header->month."-1")))."-".$header->year;
+
+         foreach ($others as $item) {
+            if (isset($item->receivable)) {
+                $code = $item->receivable->code;
+                $name = $item->receivable->name;
+                if (!isset($results[$code])) {
+                    $results[$code] = [
+                        'name'=>$name,
+                        'code' => $code,
+                        'totalAmount' => 0
+                    ];
+                }
+                $results[$code]['totalAmount'] += $item->amount;
+            }
+
+            if (isset($item->deduction)) {
+                $code = $item->deduction->code;
+                $name = $item->deduction->name;
+                if (!isset($results[$code])) {
+                    $results[$code] = [
+                        'name'=>$name,
+                        'code' => $code,
+                        'totalAmount' => 0
+                    ];
+                }
+                $results[$code]['totalAmount'] += $item->amount;
+            }
+        }
+        $newothers = array_values($results);
+
+
+       return response()->json([
+        'message' => "List retrieved successfully",
+        'Data' => [
+            'id'=> $PayrollHeaderID,
+            'period'=>$period,
+            'inRecords'=>$header->genPayrolls()->count(),
+            'month'=>$header->month,
+            'year'=>$header->year,
+            'from'=>$header->fromPeriod,
+            'to'=>$header->toPeriod,
+            'employmentType'=>$employmentType,
+            'status'=>$header->is_locked,// 1 if locked
+            'special'=>$header->is_special,
+            'others'=>$newothers,
+            'HazardPay'=>$totalHazardPay,
+            'Pera'=>$totalPera,
+            'Gross'=>$totalGrossPay,
+            'totalDeduction'=>$totalDeductions,
+            'Net'=>$totalNetSal,
+            'Data'=>GeneralPayrollResources::collection($header->genPayrolls)
+           ],
+        'statusCode' => 200
+    ]);
     }
 }
