@@ -2,7 +2,10 @@
 
 namespace App\Http\Resources;
 
+
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\EmployeeListResource;
+use App\Models\EmployeeList;
 
 class GeneralPayrollResources extends JsonResource
 {
@@ -18,11 +21,13 @@ class GeneralPayrollResources extends JsonResource
         return [
             'id' => $this->id,
             'payroll_headers_id' => $this->payroll_headers_id,
-            'employee_list_id' => $this->employee_list_id,
+            'employee_list_id'=>$this->employee_list_id,
+            'employee_list' =>EmployeeListResource::collection([EmployeeList::find($this->employee_list_id)])->first(),
             'time_records' => json_decode($this->time_records),
             'employee_receivables' => json_decode($this->employee_receivables),
             'employee_deductions' => json_decode($this->employee_deductions),
             'employee_taxes' => json_decode($this->employee_taxes),
+            'base_salary'=>$this->base_salary,
             'net_pay' => decrypt($this->net_pay),
             'gross_pay' => decrypt($this->gross_pay),
             'net_salary_first_half' =>$this->net_salary_first_half !=0 ? decrypt($this->net_salary_first_half) :  0,//decrypt($this->net_salary_first_half),

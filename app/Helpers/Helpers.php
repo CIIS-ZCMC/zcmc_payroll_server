@@ -29,6 +29,29 @@ class Helpers
         ];
     }
 
+    public static function DateFormats($date){
+        $timestamp = strtotime($date); // Convert the date to a timestamp
+
+        return [
+            'ISO' => date('Y-m-d', $timestamp),                   // 2024-09-20
+            'US' => date('m/d/Y', $timestamp),                     // 09/20/2024
+            'EU' => date('d/m/Y', $timestamp),                     // 20/09/2024
+            'FullMonth' => date('F j, Y', $timestamp),            // September 20, 2024
+            'Suffix' => date('jS F Y', $timestamp),               // 20th September 2024
+            'Dot' => date('Y.m.d', $timestamp),                    // 2024.09.20
+            'Dash' => date('d-m-Y', $timestamp),                   // 20-09-2024
+            'DayDate' => date('D, d M Y', $timestamp),            // Fri, 20 Sep 2024
+            'FullDay' => date('l, F j, Y', $timestamp),           // Friday, September 20, 2024
+            'FullDateTime' => date('Y-m-d H:i:s', $timestamp),    // 2024-09-20 00:00:00
+            'USDateTime' => date('m/d/Y H:i', $timestamp),        // 09/20/2024 00:00
+            'EUDateTime' => date('d/m/Y H:i', $timestamp),        // 20/09/2024 00:00
+            'Slash' => date('Y/m/d', $timestamp),                  // 2024/09/20
+            'AbbrMonth' => date('M d, Y', $timestamp),            // Sep 20, 2024
+            'Time' => date('H:i:s', $timestamp),                   // 00:00:00
+            'ISO8601' => date('Y-m-d\TH:i:sP', $timestamp)        // 2024-09-20T00:00:00+00:00
+        ];
+    }
+
     public static function customRound($numericValue)
     {
         return (double) number_format($numericValue, 2, '.', '');
@@ -143,12 +166,12 @@ class Helpers
     }
 
     public static function convertToStdObject($genpayrollList){
-        
-        if (is_object($genpayrollList)) {  
+
+        if (is_object($genpayrollList)) {
             $genpayrollList = [$genpayrollList];
-        } elseif (is_array($genpayrollList)) {      
+        } elseif (is_array($genpayrollList)) {
             foreach ($genpayrollList as &$entry) {
-                if (is_array($entry)) {          
+                if (is_array($entry)) {
                     $entry = (object) $entry;
                 }
             }

@@ -230,7 +230,7 @@ class PayrollController extends Controller
         'time_records'=>json_encode($entry->row['row']['TimeRecord']),
         'employee_receivables'=>json_encode($receivables),
         'employee_deductions'=>json_encode($deductions),
-        'employee_taxes'=>"",
+        'base_salary'=>$monthlySalary,
         'net_pay'=>encrypt($tempnet),
         'gross_pay'=>encrypt($grossSalary) ,
         'net_salary_first_half'=>encrypt($firstHalf),
@@ -587,6 +587,7 @@ class PayrollController extends Controller
         $totalDeductions = 0.00;
         $receivableOther = [];
         $deductionOther = [];
+        $results =[];
          foreach($header->genPayrolls as $row){
             $timerecords = json_decode($row->time_records);
             $receivables = json_decode($row->employee_receivables);
@@ -626,7 +627,7 @@ class PayrollController extends Controller
                 $name = $item->receivable->name;
                 if (!isset($results[$code])) {
                     $results[$code] = [
-                        'name'=>$name,
+                        'name'=>"Receivable( $name )",
                         'code' => $code,
                         'totalAmount' => 0
                     ];
@@ -639,7 +640,7 @@ class PayrollController extends Controller
                 $name = $item->deduction->name;
                 if (!isset($results[$code])) {
                     $results[$code] = [
-                        'name'=>$name,
+                        'name'=>"Deduction( $name )",
                         'code' => $code,
                         'totalAmount' => 0
                     ];
@@ -669,6 +670,7 @@ class PayrollController extends Controller
             'Gross'=>$totalGrossPay,
             'totalDeduction'=>$totalDeductions,
             'Net'=>$totalNetSal,
+            'Created_at'=>Helpers::DateFormats($header->created_at),
             'Data'=>GeneralPayrollResources::collection($header->genPayrolls)
            ],
         'statusCode' => 200
