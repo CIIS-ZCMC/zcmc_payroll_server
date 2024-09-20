@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Adjustment;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Deduction\EmployeeDeductionController;
+use App\Http\Controllers\Deduction\EmployeeDeductionLogController;
 use App\Http\Controllers\GeneralPayroll\ComputationController;
+use App\Http\Resources\EmployeeDeductionResource;
+use App\Models\EmployeeDeduction;
+use App\Models\EmployeeDeductionLog;
 use App\Models\EmployeeList;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;

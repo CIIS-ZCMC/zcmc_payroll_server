@@ -156,7 +156,7 @@ class EmployeeDeductionController extends Controller
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => $deductionAmount,
+                        'Amount' => number_format($deductionAmount, 2),
                         'Updated on' => $deduction->updated_at ?? 'N/A',
                         'Terms paid' => $deduction->with_terms
                             ? ($deduction->total_paid ?? 0) . "/" . ($deduction->total_term ?? 0)
