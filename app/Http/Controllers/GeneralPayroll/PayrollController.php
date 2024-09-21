@@ -18,6 +18,8 @@ use App\Models\TimeRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 
+
+
 class PayrollController extends Controller
 {
 
@@ -675,5 +677,16 @@ class PayrollController extends Controller
            ],
         'statusCode' => 200
     ]);
+    }
+
+    public function LockPayroll(Request $request){
+        $head = PayrollHeaders::find($request->PayrollHeaderID)->update([
+            'is_locked'=>1
+        ]);
+
+        return [
+            'message' => 'Payroll Locked',
+            'statusCode' => 200
+        ];
     }
 }

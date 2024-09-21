@@ -56,6 +56,7 @@ Route::middleware('auth.token')->group(function () {
         Route::get("GeneralPayrollTrailsList/{id}", "PayrollController@GeneralPayrollTrails");
 
         Route::get("payrollSummary/{PayrollHeaderID}", "PayrollController@PayrollSummary");
+        Route::post("Lockpayroll", "PayrollController@LockPayroll");
     });
 
     /**
