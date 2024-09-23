@@ -57,6 +57,9 @@ class EmployeeListController extends Controller
         if (isset($request->withDeduction)) {
 
         }
+        if(isset($request->regenerateList)){
+            $Emp =  $request->listofemployee;
+        }
         return response()->json([
             'Message' => "List has been retrieved",
             'responseData' => EmployeeInformationResource::collection($Emp),

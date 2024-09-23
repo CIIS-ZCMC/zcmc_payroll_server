@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\PayrollHeaders;
 use App\Models\EmployeeList;
 use App\Http\Controllers\GeneralPayroll\ComputationController;
+use App\Http\Controllers\Employee\EmployeeListController;
 use App\Helpers\Helpers;
 use App\Helpers\GenPayroll;
 use App\Models\GeneralPayroll;
@@ -24,9 +25,11 @@ class PayrollController extends Controller
 {
 
     protected $computer;
+    protected $employee;
     public function __construct()
     {
         $this->computer = new ComputationController();
+        $this->employee = new EmployeeListController();
     }
     public function index()
     {
@@ -119,6 +122,29 @@ class PayrollController extends Controller
             ]);
         }
     }
+
+    public function Regenerate($PayrollHeaderID){
+
+        $header = PayrollHeaders::find($PayrollHeaderID);
+        if ($header){
+           $listofIDs = $header->genPayrolls->map(function($row){
+                return $row->employee_list_id;
+            });
+            $listofemployee = EmployeeList::whereIn('id',$listofIDs);
+            $data = $this->employee->index(New Request([
+                'regenerateList'=>1,
+                'listofemployee'=>$listofemployee->get()
+            ]))->original['responseData'];
+
+            $header->touch();
+            return response()->json([
+                'responseData' => $data,
+                'statusCode' => 200
+            ]);
+        }
+    }
+
+
     public function computePayroll(Request $request)
     {
 
@@ -129,6 +155,8 @@ class PayrollController extends Controller
         $selectedType =  $request->selectedType;
         $is_special = $request->is_special;
         $receivable= [];
+
+   
 
         $genpayrollList= Helpers::convertToStdObject($genpayrollList);
 
@@ -197,7 +225,6 @@ class PayrollController extends Controller
     ,$defFormat);
 
 
-    $receivables = array_merge([$pera, $hazardPay, $nightDifferential], $entry->row['row']['Receivables']);
 
 
     $undertimeRate = array_merge(
@@ -222,17 +249,30 @@ class PayrollController extends Controller
         ]
     ,$defFormat);
 
-    $deductions = array_merge([$undertimeRate,$withoutPayAbsencesRate],$entry->row['row']['Deduction']);
+    if (isset($request->regenerate) && $request->regenerate){
+ 
+        $receivables = array_merge([$pera, $hazardPay, $nightDifferential], $entry->row['Receivables']);
+        $deductions = array_merge([$undertimeRate,$withoutPayAbsencesRate],$entry->row['Deduction']);
+        $timeRecords = $entry->row['TimeRecord'];
+
+     } else {
+        $receivables = array_merge([$pera, $hazardPay, $nightDifferential], $entry->row['row']['Receivables']);
+        $deductions = array_merge([$undertimeRate,$withoutPayAbsencesRate],$entry->row['row']['Deduction']);
+        $timeRecords = $entry->row['row']['TimeRecord'];
+    }
+
+
+
     list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($netSalary);
     $currentmonth = request()->processMonth['month'];
     $curryear = request()->processMonth['year'];
     $INpayroll = [
         'payroll_headers_id'=>null,
         'employee_list_id'=>$ID,
-        'time_records'=>json_encode($entry->row['row']['TimeRecord']),
+        'time_records'=>json_encode($timeRecords),
         'employee_receivables'=>json_encode($receivables),
         'employee_deductions'=>json_encode($deductions),
-        'base_salary'=>$monthlySalary,
+        'base_salary'=>encrypt($monthlySalary),
         'net_pay'=>encrypt($tempnet),
         'gross_pay'=>encrypt($grossSalary) ,
         'net_salary_first_half'=>encrypt($firstHalf),
@@ -251,7 +291,7 @@ class PayrollController extends Controller
 
 
 
-        $validation = $this->GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$isPermanent,$selectedType,$is_special);
+        $validation = $this->GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$isPermanent,$selectedType,$is_special,$genpayrollList);
 
 
         if ($validation['result']) {
@@ -354,7 +394,7 @@ class PayrollController extends Controller
 
     }
 
-    public function GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$is_permanent,$employment_type,$is_special)
+    public function GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$is_permanent,$employment_type,$is_special,$genpayrollList)
     {
         $month = request()->processMonth['month'];
         $year =  request()->processMonth['year'];
@@ -673,6 +713,7 @@ class PayrollController extends Controller
             'totalDeduction'=>$totalDeductions,
             'Net'=>$totalNetSal,
             'Created_at'=>Helpers::DateFormats($header->created_at),
+            'Updated_at'=>Helpers::DateFormats($header->updated_at),
             'Data'=>GeneralPayrollResources::collection($header->genPayrolls)
            ],
         'statusCode' => 200
@@ -680,7 +721,7 @@ class PayrollController extends Controller
     }
 
     public function LockPayroll(Request $request){
-        $head = PayrollHeaders::find($request->PayrollHeaderID)->update([
+        PayrollHeaders::find($request->PayrollHeaderID)->update([
             'is_locked'=>1
         ]);
 
