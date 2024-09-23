@@ -24,13 +24,12 @@ class CreateEmployeeDeductionAdjustmentsTable extends Migration
             $table->unsignedBigInteger('deduction_id');
             $table->foreign('deduction_id')->references('id')->on('deductions');
 
-            $table->unsignedBigInteger('action_by');
-            $table->foreign('action_by')->references('id')->on('employee_lists');
-
             $table->string('month');
             $table->string('year');
             $table->string('amount');
             $table->string('reason');
+
+            $table->text("action_by")->comment("Employee Details is from UMIS");
             $table->timestamps();
         });
     }

@@ -73,11 +73,11 @@ Route::middleware('auth.token')->group(function () {
     });
 
     Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
-        Route::get('adjustment-employee-deduction', 'EmployeeDeductionAdjustmentController@store');
+        Route::post('adjustment-employee-deduction', 'EmployeeDeductionAdjustmentController@store');
     });
 
     /**
-     * Settings
+     * Settings 
      *
      */
     //  Deduction Group & Deduction

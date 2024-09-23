@@ -3,12 +3,7 @@
 namespace App\Http\Controllers\Adjustment;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Deduction\EmployeeDeductionController;
-use App\Http\Controllers\Deduction\EmployeeDeductionLogController;
 use App\Http\Controllers\GeneralPayroll\ComputationController;
-use App\Http\Resources\EmployeeDeductionResource;
-use App\Models\EmployeeDeduction;
-use App\Models\EmployeeDeductionLog;
 use App\Models\EmployeeList;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -43,7 +38,7 @@ class Below5kController extends Controller
                         'receivable_amount' => number_format($receivableAmount, 2),
                         'deduction_amount' => number_format($deductionAmount, 2),
                         'total_tax' => number_format($TotalTaxex, 2),
-                        'total_net_salary' => number_format($total_net_salary, 2)
+                        'total_net_salary' => number_format($total_net_salary, 2),
                     ];
                 }
             }

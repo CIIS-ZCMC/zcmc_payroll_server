@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,7 @@ class StripTags
                 $cleanData[$key] = $value;
                 continue;
             }
-            
+
             if (is_array($value)) {
                 $cleanData[$key] = $value;
                 continue;
@@ -39,13 +40,13 @@ class StripTags
                 $cleanData[$key] = $datetime->format('Y-m-d'); // Adjust the format as needed
                 continue;
             }
-            
+
 
             $cleanData[$key] = strip_tags($value);
         }
 
         $request->merge($cleanData);
-        
+
         return $next($request);
     }
 }

@@ -172,6 +172,7 @@ class EmployeeDeductionController extends Controller
                         'is_default' => $deduction->is_default,
                         'default_amount' => $deductionAmount,
                         'with_terms' => $deduction->with_terms ?? false,
+                        'employee_deduction_id' => $deduction->id
                     ];
                 });
             })->toArray();
@@ -249,6 +250,7 @@ class EmployeeDeductionController extends Controller
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
                     'Updated on' => $deduction->updated_at ?? 'N/A',
+                    'employee_deduction_id' => $deduction->id
                 ];
             })->toArray();
 
@@ -302,6 +304,7 @@ class EmployeeDeductionController extends Controller
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
                     'Updated on' => $deduction->updated_at ?? 'N/A',
+                    'employee_deduction_id' => $deduction->id
                 ];
             })->toArray();
 
