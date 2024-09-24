@@ -15,11 +15,16 @@ class CreateImportsTable extends Migration
     {
         Schema::create('imports', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('deduction_id')->nullable(); // Make deduction_id nullable
+            $table->unsignedBigInteger('receivables_id')->nullable(); // Make receivables_id nullable
             $table->string('module');
             $table->unsignedBigInteger('module_id');
             $table->string('file_name');
             $table->string('employment_type');
             $table->timestamps();
+
+            $table->foreign('deduction_id')->references('id')->on('deductions')->onDelete('set null');
+            $table->foreign('receivables_id')->references('id')->on('receivables')->onDelete('set null');
         });
     }
 
@@ -30,6 +35,12 @@ class CreateImportsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('imports');
+        Schema::table('imports', function (Blueprint $table) {
+            // Drop the foreign key constraint
+            $table->dropForeign(['deduction_id']);
+
+            // Drop the column
+            $table->dropColumn('deduction_id');
+        });
     }
 }
