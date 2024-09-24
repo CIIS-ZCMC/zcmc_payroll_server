@@ -321,11 +321,11 @@ class PayrollController extends Controller
     ];
 
 
-    // return response()->json([
-    //     'message'
-    //     'responseData'=>$receivables,
-    //     'statusCode'=>500
-    // ]);
+    return response()->json([
+        'message'=>$ID,
+        'responseData'=>$receivables,
+        'statusCode'=>500
+    ]);
 
 
                 $isPermanent = 0;
