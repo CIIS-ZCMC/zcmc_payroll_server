@@ -38,7 +38,7 @@ class ExcludedEmployeeController extends Controller
             $data = new ExcludedEmployee();
             $data->employee_list_id = $request->employee_list_id;
             $data->payroll_headers_id = $request->payroll_headers_id ? $request->payroll_headers_id : null;
-            $data->reason = $request->reason;
+            $data->reason = json_encode($request->reason);
             $data->year = $request->processMonth['year'];
             $data->month = $request->processMonth['month'];
             $data->is_removed = $request->is_removed;

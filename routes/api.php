@@ -69,7 +69,20 @@ Route::middleware('auth.token')->group(function () {
     });
 
     /**
-     * Settings
+     * Adjustment
+     *
+     */
+    // Below 5K
+    Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
+        Route::get('adjustment-below5k', 'Below5kController@index');
+    });
+
+    Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
+        Route::post('adjustment-employee-deduction', 'EmployeeDeductionAdjustmentController@store');
+    });
+
+    /**
+     * Settings 
      *
      */
     //  Deduction Group & Deduction
