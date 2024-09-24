@@ -18,8 +18,8 @@ class CreateReceivablesTable extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('employment_type');
-            $table->string('charge_basis');
-            $table->double('charge_value')->nullable();
+            $table->double('amount');
+            $table->double('percentage')->nullable();
             $table->string('billing_cycle');
             $table->integer('terms_to_pay')->nullable();
             $table->boolean('is_applied_to_all');
