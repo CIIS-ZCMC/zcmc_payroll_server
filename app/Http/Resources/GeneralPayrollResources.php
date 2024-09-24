@@ -27,7 +27,7 @@ class GeneralPayrollResources extends JsonResource
             'employee_receivables' => json_decode($this->employee_receivables),
             'employee_deductions' => json_decode($this->employee_deductions),
             'employee_taxes' => json_decode($this->employee_taxes),
-            'base_salary'=>$this->base_salary,
+            'base_salary'=>decrypt($this->base_salary),
             'net_pay' => decrypt($this->net_pay),
             'gross_pay' => decrypt($this->gross_pay),
             'net_salary_first_half' =>$this->net_salary_first_half !=0 ? decrypt($this->net_salary_first_half) :  0,//decrypt($this->net_salary_first_half),

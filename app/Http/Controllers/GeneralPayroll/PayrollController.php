@@ -42,6 +42,8 @@ class PayrollController extends Controller
     }
     public function validatePayroll($employmenttype){
 
+      
+
         $header = PayrollHeaders::where("employment_type",$employmenttype)
             ->where("month",request()->processMonth['month'])
             ->where("year",request()->processMonth['year']);
@@ -71,11 +73,26 @@ class PayrollController extends Controller
         }
 
             if($header->exists()){
-                return response()->json([
-                    'Message' => "Payroll already exists",
-                    'responseData' =>  PayrollHeaderResources::collection($header->get()),
-                    'statusCode' => 401
-                ]);
+
+              
+                if ($employmenttype == "joborder"){
+                  
+                    if (request()->processMonth['JOfromPeriod'] == $header->get()->first()->fromPeriod){
+                        return response()->json([
+                            'Message' => "Payroll already exists",
+                            'responseData' =>  PayrollHeaderResources::collection($header->get()),
+                            'statusCode' => 401
+                        ]);
+                    }
+                
+                }else {
+                    return response()->json([
+                        'Message' => "Payroll already exists",
+                        'responseData' =>  PayrollHeaderResources::collection($header->get()),
+                        'statusCode' => 401
+                    ]);
+                }
+              
             }
 
 
@@ -143,7 +160,18 @@ class PayrollController extends Controller
             ]);
         }
     }
-
+    public function getNestedValue($entryRow, $key, $default = [])
+    {
+        if (isset($entryRow[$key]) && is_array($entryRow[$key])) {
+            return $entryRow[$key];
+        }
+    
+        if (isset($entryRow['row'][$key]) && is_array($entryRow['row'][$key])) {
+            return $entryRow['row'][$key];
+        }
+    
+        return $default;
+    }
 
     public function computePayroll(Request $request)
     {
@@ -156,7 +184,7 @@ class PayrollController extends Controller
         $is_special = $request->is_special;
         $receivable= [];
 
-   
+
 
         $genpayrollList= Helpers::convertToStdObject($genpayrollList);
 
@@ -249,19 +277,15 @@ class PayrollController extends Controller
         ]
     ,$defFormat);
 
-    if (isset($request->regenerate) && $request->regenerate){
- 
-        $receivables = array_merge([$pera, $hazardPay, $nightDifferential], $entry->row['Receivables']);
-        $deductions = array_merge([$undertimeRate,$withoutPayAbsencesRate],$entry->row['Deduction']);
-        $timeRecords = $entry->row['TimeRecord'];
-
-     } else {
-        $receivables = array_merge([$pera, $hazardPay, $nightDifferential], $entry->row['row']['Receivables']);
-        $deductions = array_merge([$undertimeRate,$withoutPayAbsencesRate],$entry->row['row']['Deduction']);
-        $timeRecords = $entry->row['row']['TimeRecord'];
-    }
-
-
+        $receivables = array_merge(
+            [$pera, $hazardPay, $nightDifferential],
+            $this->getNestedValue($entry->row, 'Receivables')
+        );
+        $deductions = array_merge(
+            [$undertimeRate, $withoutPayAbsencesRate],
+            $this->getNestedValue($entry->row, 'Deduction')
+        );
+        $timeRecords = $this->getNestedValue($entry->row, 'TimeRecord');
 
     list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($netSalary);
     $currentmonth = request()->processMonth['month'];
@@ -285,7 +309,7 @@ class PayrollController extends Controller
 
 
                 $isPermanent = 0;
-                if ($employmentType !== "Job Order"){
+                if ($employmentType !== "joborder"){
                     $isPermanent = 1;
                 }
 
@@ -295,7 +319,7 @@ class PayrollController extends Controller
 
 
         if ($validation['result']) {
-         if($employmentType !== "Job Order"){
+         if($employmentType !== "joborder"){
              $this->ProcessGeneralPayrollPermanent($INpayroll,$payroll_ID,$is_special);
             }else {
             $this->processGeneralPayrollJobOrders($INpayroll,$is_special,$validation['payroll_ID']);
@@ -450,7 +474,7 @@ class PayrollController extends Controller
         if ($is_permanent) {
 
 
-            if ($employment_type != "Job Order") {
+            if ($employment_type != "joborder") {
                 $timeRecord  = TimeRecord::where('month',Helpers::getPreviousMonthYear($month,$year)['month'])
                     ->where('year',Helpers::getPreviousMonthYear($month,$year)['year']);
 
@@ -461,10 +485,8 @@ class PayrollController extends Controller
                     ];
                 }
             }
-        }
-
-        if (!$is_permanent) {
-            if ($employment_type == "Job Order") {
+        }else {
+            if ($employment_type == "joborder") {
                 $timeRecord  = TimeRecord::where('fromPeriod', $payrollHeader['fromPeriod'])
                     ->where('toPeriod', $payrollHeader['toPeriod'])
                     ->where('month', $month)
@@ -479,12 +501,19 @@ class PayrollController extends Controller
             }
         }
 
-
-
         if ($payrollHead->exists() && $payrollHead->first()->is_locked) {
             return [
                 'message' => 'Payroll is locked',
                 'result' => false
+            ];
+        }
+
+       
+
+        if ($employment_type == "joborder" && $from == 1 && $to == 31) {
+            return [
+                'message' => 'Payroll generated',
+                'result' => True
             ];
         }
 
@@ -500,8 +529,8 @@ class PayrollController extends Controller
             if ($is_special){
                 $isSpecial = true;
             }
-
-
+    
+         
             PayrollHeaders::create([
                 'month' => $month,
                 'year' => $year,

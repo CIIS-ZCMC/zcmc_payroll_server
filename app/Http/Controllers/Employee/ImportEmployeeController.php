@@ -11,6 +11,7 @@ use App\Models\TimeRecord;
 use App\Models\EmployeeComputedSalary;
 use App\Helpers\Helpers;
 use App\Models\ExcludedEmployee;
+use App\Models\PayrollHeaders;
 use Illuminate\Support\Facades\DB;
 
 class ImportEmployeeController extends Controller
@@ -51,6 +52,17 @@ class ImportEmployeeController extends Controller
            }
           }
 
+        }
+        if ($second_half){
+            //Auto Lock Payroll 1-15..
+
+            PayrollHeaders::where("fromPeriod",1)
+            ->where("toPeriod",15)
+            ->where("month",$request->month)
+            ->where("year",$request->year)
+            ->update([
+                'is_locked'=>1
+            ]);
         }
 
         try {
@@ -806,7 +818,7 @@ if (count($otherRecord)>=1) {
                                 }
 
 
-                                 
+
                             }
 
 
