@@ -29,11 +29,12 @@ class Helpers
         ];
     }
 
-    public static function DateFormats($date){
+    public static function DateFormats($date)
+    {
         $timestamp = strtotime($date); // Convert the date to a timestamp
 
         return [
-            'customFormat'=> date('h:iA F j,Y',$timestamp),
+            'customFormat' => date('h:iA F j,Y', $timestamp),
             'ISO' => date('Y-m-d', $timestamp),                   // 2024-09-20
             'US' => date('m/d/Y', $timestamp),                     // 09/20/2024
             'EU' => date('d/m/Y', $timestamp),                     // 20/09/2024
@@ -166,7 +167,8 @@ class Helpers
         return $all_areas;
     }
 
-    public static function convertToStdObject($genpayrollList){
+    public static function convertToStdObject($genpayrollList)
+    {
 
         if (is_object($genpayrollList)) {
             $genpayrollList = [$genpayrollList];
