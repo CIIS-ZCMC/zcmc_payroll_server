@@ -17,8 +17,8 @@ class CreateExcludedEmployeesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_list_id');
             $table->foreign('employee_list_id')->references('id')->on('employee_lists');
-            $table->unsignedBigInteger('payroll_headers_id')->nullable();
-            $table->foreign('payroll_headers_id')->references('id')->on('payroll_headers');
+             $table->unsignedBigInteger('payroll_headers_id')->nullable();
+             $table->foreign('payroll_headers_id')->references('id')->on('payroll_headers');
             $table->string('reason');
             $table->string("year");
             $table->string("month");

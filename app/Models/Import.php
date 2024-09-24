@@ -16,8 +16,10 @@ class Import extends Model
     protected $fillable = [
         'module',
         'module_id',
+        'deduction_id',
+        'receivables_id',
         'file_name',
-        'employment_type'
+        'employment_type',
     ];
 
     public $timestamps = true;

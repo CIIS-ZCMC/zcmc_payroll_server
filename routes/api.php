@@ -48,11 +48,16 @@ Route::middleware('auth.token')->group(function () {
      *
      */
     Route::namespace('App\Http\Controllers\GeneralPayroll')->group(function () {
+        Route::get("validatePayroll/{employmenttype}", "PayrollController@validatePayroll");
         Route::get("activeTimeRecord", "PayrollController@ActiveTimeRecord");
         Route::get("payrollHeaders", "PayrollController@index");
         Route::post("generatePayroll", "PayrollController@computePayroll");
         Route::get("GeneralPayrollList/{id}", "PayrollController@GeneralPayrollList");
         Route::get("GeneralPayrollTrailsList/{id}", "PayrollController@GeneralPayrollTrails");
+
+        Route::get("payrollSummary/{PayrollHeaderID}", "PayrollController@PayrollSummary");
+        Route::post("Lockpayroll", "PayrollController@LockPayroll");
+        Route::post("regenerate/{PayrollHeaderID}", "PayrollController@Regenerate");
     });
 
     /**
@@ -130,6 +135,8 @@ Route::
             Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
             Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
             Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
+            Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
+            Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
         });
 
 Route::

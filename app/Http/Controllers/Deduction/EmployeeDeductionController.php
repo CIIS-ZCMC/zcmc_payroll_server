@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Deduction;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DeductionResource;
+use App\Http\Resources\DeductionStatusListResources;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Http\Resources\EmployeeListResource;
 use App\Models\Deduction;
@@ -64,7 +65,25 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+    }
     public function getDeductionsStatusList(Request $request)
     {
         try {
@@ -86,8 +105,9 @@ class EmployeeDeductionController extends Controller
         try {
             $deduction_group_id = $request->deduction_group_id;
             $deductions = Deduction::get();
+            $final = DeductionResource::collection($deductions);
             return response()->json([
-                'responseData' => DeductionResource::collection($deductions),
+                'responseData' => $final,
                 'message' => 'Retrieve all deductions.'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {

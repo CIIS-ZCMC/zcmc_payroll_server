@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DeductionRequest;
 use App\Http\Resources\DeductionResource;
 use App\Models\Deduction;
+use App\Models\EmployeeDeduction;
 use App\Models\EmployeeSalary;
 use Carbon\Carbon;
 use DB;
@@ -200,4 +201,16 @@ class DeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function clearEmployeeDeductions($id)
+    {
+        try {
+            $data = Deduction::find($id)->employeeDeductions()->update(['willDeduct' => null]);
+            return response()->json(['responseData' => $data], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
