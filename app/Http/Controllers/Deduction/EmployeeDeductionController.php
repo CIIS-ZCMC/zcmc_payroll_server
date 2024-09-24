@@ -65,7 +65,22 @@ class EmployeeDeductionController extends Controller
         }
     }
 
+    public function getDeductionsStatusList(Request $request)
+    {
+        try {
+            $deduction_group_id = $request->deduction_group_id;
+            $deductions = Deduction::get();
 
+            $final = DeductionStatusListResources::collection($deductions);
+            return response()->json([
+                'responseData' => $final,
+                'message' => 'Retrieve all deductions.'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            // Handle any errors that occur
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     public function getDeductions(Request $request)
     {
         try {
@@ -714,49 +729,5 @@ class EmployeeDeductionController extends Controller
         }
 
         return null;  // Return null if invalid date
-    }
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }
