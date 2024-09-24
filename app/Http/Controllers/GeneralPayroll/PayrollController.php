@@ -42,7 +42,7 @@ class PayrollController extends Controller
     }
     public function validatePayroll($employmenttype){
 
-      
+
 
         $header = PayrollHeaders::where("employment_type",$employmenttype)
             ->where("month",request()->processMonth['month'])
@@ -74,9 +74,9 @@ class PayrollController extends Controller
 
             if($header->exists()){
 
-              
+
                 if ($employmenttype == "joborder"){
-                  
+
                     if (request()->processMonth['JOfromPeriod'] == $header->get()->first()->fromPeriod){
                         return response()->json([
                             'Message' => "Payroll already exists",
@@ -84,7 +84,7 @@ class PayrollController extends Controller
                             'statusCode' => 401
                         ]);
                     }
-                
+
                 }else {
                     return response()->json([
                         'Message' => "Payroll already exists",
@@ -92,7 +92,7 @@ class PayrollController extends Controller
                         'statusCode' => 401
                     ]);
                 }
-              
+
             }
 
 
@@ -104,6 +104,14 @@ class PayrollController extends Controller
 
     }
     public function ActiveTimeRecord(){
+       $tr =  TimeRecord::where("is_active",1);
+       if(!$tr->exists()){
+        return response()->json([
+            'message'=>'No Active TimeRecords yet..',
+            'statusCode'=>406,
+         ]);
+       }
+
 
      return response()->json([
         'message'=>'active Record retrieved successfully',
@@ -165,11 +173,11 @@ class PayrollController extends Controller
         if (isset($entryRow[$key]) && is_array($entryRow[$key])) {
             return $entryRow[$key];
         }
-    
+
         if (isset($entryRow['row'][$key]) && is_array($entryRow['row'][$key])) {
             return $entryRow['row'][$key];
         }
-    
+
         return $default;
     }
 
@@ -182,14 +190,20 @@ class PayrollController extends Controller
         $days_of_duty = $request->days_of_duty;
         $selectedType =  $request->selectedType;
         $is_special = $request->is_special;
+        $excludedIds = $request->excludedIds;
+        $benefitSelected = $request->benefitSelected;
         $receivable= [];
 
 
-
         $genpayrollList= Helpers::convertToStdObject($genpayrollList);
+        
+        $filteredGenPayrollList = array_filter($genpayrollList, function ($item) use ($excludedIds) {
+            return !in_array($item->ID, $excludedIds);
+        });
+        
 
-
-       foreach ($genpayrollList as $entry) {
+       
+       foreach ($filteredGenPayrollList as $entry) {
         $ID = $entry->ID;
         $employeeID = $entry->{"Employee ID"};
         $employeeName = $entry->{"Employee Name"};
@@ -307,19 +321,24 @@ class PayrollController extends Controller
     ];
 
 
+    return response()->json([
+        'message'=>$ID,
+        'responseData'=>$receivables,
+        'statusCode'=>500
+    ]);
+
 
                 $isPermanent = 0;
-                if ($employmentType !== "joborder"){
+                if ($employmentType !== "joborder" && $employmentType !== "Job Order"){
                     $isPermanent = 1;
                 }
-
-
-
+  
         $validation = $this->GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$isPermanent,$selectedType,$is_special,$genpayrollList);
 
+       
 
         if ($validation['result']) {
-         if($employmentType !== "joborder"){
+         if($employmentType !== "joborder" && $employmentType !== "Job Order"){
              $this->ProcessGeneralPayrollPermanent($INpayroll,$payroll_ID,$is_special);
             }else {
             $this->processGeneralPayrollJobOrders($INpayroll,$is_special,$validation['payroll_ID']);
@@ -448,6 +467,8 @@ class PayrollController extends Controller
             $to =  cal_days_in_month(CAL_GREGORIAN, $month, $year);
         }
 
+        
+
         if ($payroll_ID) {
             $payrollHead = PayrollHeaders::where('id', $payroll_ID);
         } else {
@@ -460,6 +481,7 @@ class PayrollController extends Controller
                 ;
         }
 
+          
         $payrollHeader = $payrollHead->first();
 
         if (!$payrollHeader) {
@@ -508,6 +530,7 @@ class PayrollController extends Controller
             ];
         }
 
+
        
 
         if ($employment_type == "joborder" && $from == 1 && $to == 31) {
@@ -517,9 +540,9 @@ class PayrollController extends Controller
             ];
         }
 
-        if ($payrollHead->count() == 0) {
-
-
+        if (!$payrollHead || $payrollHead->count() == 0) {
+          
+          
             if ($payroll_ID) {
                 return [
                     'message' => 'Payroll not found',
@@ -529,8 +552,8 @@ class PayrollController extends Controller
             if ($is_special){
                 $isSpecial = true;
             }
-    
-         
+
+
             PayrollHeaders::create([
                 'month' => $month,
                 'year' => $year,
@@ -542,8 +565,11 @@ class PayrollController extends Controller
                 "is_special"=>$isSpecial,
                 'is_locked' => 0,
             ]);
-
+          
+    
         }
+
+       
 
 
         return [
