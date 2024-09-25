@@ -23,6 +23,7 @@ class CreateEmployeeDeductionTrailsTable extends Migration
             $table->date('date_paid');
             $table->double('balance');
             $table->boolean('is_last_payment');
+            $table->string('remarks')->nullable();
             $table->timestamps();
         });
     }

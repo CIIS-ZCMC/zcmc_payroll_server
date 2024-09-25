@@ -33,11 +33,11 @@ class EmployeeDeductionAdjustmentResource extends JsonResource
                 'id' => $this->deduction->id,
                 'name' => $this->deduction->name
             ],
-            'month' => $this->month,
+            'month' => Carbon::createFromFormat('m', $this->month)->format('F'),
             'year' => $this->year,
-            'amount' => $this->amount,
-            'amount_to_pay' => $this->amount_to_pay,
-            'amount_balance' => $this->amount_balance,
+            'amount' => number_format($this->amount, 2),
+            'amount_to_pay' => number_format($this->amount_to_pay, 2),
+            'amount_balance' => number_format($this->amount_balance, 2),
             'reason' => $this->reason,
             'action_by' => $this->getActionBy(), // Decode JSON for action_by
             'created_at' => Carbon::parse($this->created_at)->format('M d, Y'),
