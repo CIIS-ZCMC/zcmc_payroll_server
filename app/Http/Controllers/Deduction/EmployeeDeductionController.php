@@ -32,6 +32,8 @@ class EmployeeDeductionController extends Controller
                 ->get();
 
             $response = [];
+            $currentMonth = now()->format('m'); // Get current month
+            $currentYear = now()->format('Y'); // Get current year
 
             foreach ($employees as $employee) {
                 $basic_salary = optional($employee->getSalary)->basic_salary ? (optional($employee->getSalary)->basic_salary) : 0;
@@ -40,6 +42,13 @@ class EmployeeDeductionController extends Controller
                 foreach ($employee->employeeDeductions as $employeeDeduction) {
                     $deductionAmount = $employeeDeduction->amount;
                     $total_deductions += $deductionAmount;
+
+                     // Check for additional adjustments in the employee_deduction_adjust table
+                    // $adjustment = DB::table('employee_deduction_adjust')
+                    // ->where('employee_deduction_id', $employeeDeduction->id)
+                    // ->whereMonth('date_from', $currentMonth)
+                    // ->whereYear('date_from', $currentYear)
+                    // ->first();
                 }
 
                 $net_salary = $basic_salary - $total_deductions;
@@ -685,7 +694,6 @@ class EmployeeDeductionController extends Controller
 
                 $employee_deductions->update([
                     'status' => $status,
-                    'reason' => $reason,
                     'date_from' => $date_from ?? null,
                     'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
