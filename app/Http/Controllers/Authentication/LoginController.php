@@ -22,11 +22,11 @@ class LoginController extends Controller
             ]);
 
             if (!array_key_exists('data', $LoginResponse) && array_key_exists('message', $LoginResponse)) {
-                if($LoginResponse['message'] == "expired-optional"){
+                if ($LoginResponse['message'] == "expired-optional") {
                     return response()->json([
                         'message' => 'Password Expired. Please redirect to UMIS to change or manage your password',
-                        'responseData'=>[],
-                        'statusCode'=>307
+                        'responseData' => [],
+                        'statusCode' => 307
                     ]);
                 }
 
@@ -69,9 +69,9 @@ class LoginController extends Controller
                         'abilities' => encrypt($data, true),
                         'last_used_at' => now(),
                     ]);
-                }else {
+                } else {
 
-                       $AccessToken->update([
+                    $AccessToken->update([
                         'token' => $generatedToken,
                         'abilities' => encrypt($data, true),
                         'last_used_at' => now(),
@@ -93,32 +93,31 @@ class LoginController extends Controller
 
 
             Logging::RecordTransaction([
-                'module'=>"UMIS/Authentication",
-                'action'=>"Signin Success",
-                'status'=>202,
-                'serverResponse'=>"Login Success",
-                'affected_entity'=>null,
-                'remarks'=>"Signin attempt successful."
+                'module' => "UMIS/Authentication",
+                'action' => "Signin Success",
+                'status' => 202,
+                'serverResponse' => "Login Success",
+                'affected_entity' => null,
+                'remarks' => "Signin attempt successful."
             ]);
 
             return response()->json([
                 'message' => 'Login Success',
-                'responseData'=>[],
-                'Token'=>$generatedToken,
-                'statusCode'=>200
+                'responseData' => [],
+                'Token' => $generatedToken,
+                'statusCode' => 200
             ])->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY"), '/', env("SESSION_DOMAIN"), false);
 
 
         } catch (\Throwable $th) {
 
-                return $th;
             Logging::RecordTransaction([
-                'module'=>"UMIS/Authentication",
-                'action'=>"Signin Failed",
-                'status'=>401,
-                'serverResponse'=>$th->getMessage(),
-                'affected_entity'=>null,
-                'remarks'=>"Signin attempt failed."
+                'module' => "UMIS/Authentication",
+                'action' => "Signin Failed",
+                'status' => 401,
+                'serverResponse' => $th->getMessage(),
+                'affected_entity' => null,
+                'remarks' => "Signin attempt failed."
             ]);
 
 

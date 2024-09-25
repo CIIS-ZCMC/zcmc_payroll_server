@@ -22,8 +22,8 @@ class CreateDeductionsTable extends Migration
             $table->string('employment_type');
             $table->string('designation');
             $table->string('assigned_area');
-            $table->string('charge_basis');
-            $table->double('charge_value')->nullable();
+            $table->double('amount')->nullable();
+            $table->double('percentage')->nullable();
             $table->string('billing_cycle');
             $table->integer('terms_to_pay')->nullable();
             $table->boolean('is_applied_to_all');

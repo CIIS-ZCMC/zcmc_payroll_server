@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\PayrollHeaders;
 use App\Models\EmployeeList;
 use App\Http\Controllers\GeneralPayroll\ComputationController;
+use App\Http\Controllers\Employee\EmployeeListController;
 use App\Helpers\Helpers;
 use App\Helpers\GenPayroll;
 use App\Models\GeneralPayroll;
@@ -16,14 +17,19 @@ use App\Http\Resources\GeneralPayrollResources;
 use App\Http\Resources\TimeRecordResource;
 use App\Models\TimeRecord;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Response;
+
+
 
 class PayrollController extends Controller
 {
 
     protected $computer;
+    protected $employee;
     public function __construct()
     {
         $this->computer = new ComputationController();
+        $this->employee = new EmployeeListController();
     }
     public function index()
     {
@@ -36,16 +42,57 @@ class PayrollController extends Controller
     }
     public function validatePayroll($employmenttype){
 
+
+
         $header = PayrollHeaders::where("employment_type",$employmenttype)
             ->where("month",request()->processMonth['month'])
             ->where("year",request()->processMonth['year']);
 
+        if ($header->count() == 2){
+            $data = [];
+            if($employmenttype == "joborder"){
+                foreach($header->get() as $row){
+                 if($row->fromPeriod !== request()->processMonth['JOfromPeriod'] && $row->toPeriod !== request()->processMonth['JOtoPeriod'] ){
+                    return response()->json([
+                        'Message' => "No payroll detected",
+                        'Data'=>request()->processMonth,
+                        'statusCode' => 200
+                    ]);
+                 }
+           }
+            }
+
+           return response()->json([
+            'Message' => "Payroll already exists",
+            'responseData' =>  PayrollHeaderResources::collection($header->get()),
+            'Data'=>request()->processMonth,
+            'statusCode' => 406
+        ]);
+
+
+        }
+
             if($header->exists()){
-                return response()->json([
-                    'Message' => "Payroll already exists",
-                    'responseData' =>  PayrollHeaderResources::collection($header->get()),
-                    'statusCode' => 401
-                ]);
+
+
+                if ($employmenttype == "joborder"){
+
+                    if (request()->processMonth['JOfromPeriod'] == $header->get()->first()->fromPeriod){
+                        return response()->json([
+                            'Message' => "Payroll already exists",
+                            'responseData' =>  PayrollHeaderResources::collection($header->get()),
+                            'statusCode' => 401
+                        ]);
+                    }
+
+                }else {
+                    return response()->json([
+                        'Message' => "Payroll already exists",
+                        'responseData' =>  PayrollHeaderResources::collection($header->get()),
+                        'statusCode' => 401
+                    ]);
+                }
+
             }
 
 
@@ -57,6 +104,14 @@ class PayrollController extends Controller
 
     }
     public function ActiveTimeRecord(){
+       $tr =  TimeRecord::where("is_active",1);
+       if(!$tr->exists()){
+        return response()->json([
+            'message'=>'No Active TimeRecords yet..',
+            'statusCode'=>406,
+         ]);
+       }
+
 
      return response()->json([
         'message'=>'active Record retrieved successfully',
@@ -92,6 +147,40 @@ class PayrollController extends Controller
             ]);
         }
     }
+
+    public function Regenerate($PayrollHeaderID){
+
+        $header = PayrollHeaders::find($PayrollHeaderID);
+        if ($header){
+           $listofIDs = $header->genPayrolls->map(function($row){
+                return $row->employee_list_id;
+            });
+            $listofemployee = EmployeeList::whereIn('id',$listofIDs);
+            $data = $this->employee->index(New Request([
+                'regenerateList'=>1,
+                'listofemployee'=>$listofemployee->get()
+            ]))->original['responseData'];
+
+            $header->touch();
+            return response()->json([
+                'responseData' => $data,
+                'statusCode' => 200
+            ]);
+        }
+    }
+    public function getNestedValue($entryRow, $key, $default = [])
+    {
+        if (isset($entryRow[$key]) && is_array($entryRow[$key])) {
+            return $entryRow[$key];
+        }
+
+        if (isset($entryRow['row'][$key]) && is_array($entryRow['row'][$key])) {
+            return $entryRow['row'][$key];
+        }
+
+        return $default;
+    }
+
     public function computePayroll(Request $request)
     {
 
@@ -100,13 +189,21 @@ class PayrollController extends Controller
         $payroll_ID = 0;
         $days_of_duty = $request->days_of_duty;
         $selectedType =  $request->selectedType;
+        $is_special = $request->is_special;
+        $excludedIds = $request->excludedIds;
+        $benefitSelected = $request->benefitSelected;
         $receivable= [];
 
-        $genpayrollList= Helpers::convertToStdObject($genpayrollList);
 
+        $genpayrollList= Helpers::convertToStdObject($genpayrollList);
+        
+        $filteredGenPayrollList = array_filter($genpayrollList, function ($item) use ($excludedIds) {
+            return !in_array($item->ID, $excludedIds);
+        });
         
 
-       foreach ($genpayrollList as $entry) {
+       
+       foreach ($filteredGenPayrollList as $entry) {
         $ID = $entry->ID;
         $employeeID = $entry->{"Employee ID"};
         $employeeName = $entry->{"Employee Name"};
@@ -170,7 +267,6 @@ class PayrollController extends Controller
     ,$defFormat);
 
 
-    $receivables = array_merge([$pera, $hazardPay, $nightDifferential], $entry->row['row']['Receivables']);
 
 
     $undertimeRate = array_merge(
@@ -195,17 +291,26 @@ class PayrollController extends Controller
         ]
     ,$defFormat);
 
-    $deductions = array_merge([$undertimeRate,$withoutPayAbsencesRate],$entry->row['row']['Deduction']);
+        $receivables = array_merge(
+            [$pera, $hazardPay, $nightDifferential],
+            $this->getNestedValue($entry->row, 'Receivables')
+        );
+        $deductions = array_merge(
+            [$undertimeRate, $withoutPayAbsencesRate],
+            $this->getNestedValue($entry->row, 'Deduction')
+        );
+        $timeRecords = $this->getNestedValue($entry->row, 'TimeRecord');
+
     list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($netSalary);
     $currentmonth = request()->processMonth['month'];
     $curryear = request()->processMonth['year'];
     $INpayroll = [
         'payroll_headers_id'=>null,
         'employee_list_id'=>$ID,
-        'time_records'=>json_encode($entry->row['row']['TimeRecord']),
+        'time_records'=>json_encode($timeRecords),
         'employee_receivables'=>json_encode($receivables),
         'employee_deductions'=>json_encode($deductions),
-        'employee_taxes'=>"",
+        'base_salary'=>encrypt($monthlySalary),
         'net_pay'=>encrypt($tempnet),
         'gross_pay'=>encrypt($grossSalary) ,
         'net_salary_first_half'=>encrypt($firstHalf),
@@ -214,142 +319,33 @@ class PayrollController extends Controller
         'month'=>$currentmonth,
         'year'=>$curryear,
     ];
+
+
+    return response()->json([
+        'message'=>$ID,
+        'responseData'=>$receivables,
+        'statusCode'=>500
+    ]);
+
+
                 $isPermanent = 0;
-                if ($employmentType !== "Job Order"){
+                if ($employmentType !== "joborder" && $employmentType !== "Job Order"){
                     $isPermanent = 1;
                 }
+  
+        $validation = $this->GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$isPermanent,$selectedType,$is_special,$genpayrollList);
 
-        $validation = $this->GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$isPermanent,$selectedType);
+       
+
         if ($validation['result']) {
-         if($employmentType !== "Job Order"){
-             $this->ProcessGeneralPayrollPermanent($INpayroll,$payroll_ID);
+         if($employmentType !== "joborder" && $employmentType !== "Job Order"){
+             $this->ProcessGeneralPayrollPermanent($INpayroll,$payroll_ID,$is_special);
             }else {
-
+            $this->processGeneralPayrollJobOrders($INpayroll,$is_special,$validation['payroll_ID']);
             }
         }else {
             return $validation;
         }
-
-
-
-
-        // Nested fields in 'row'
-        // $row = $entry['row'];
-        // $rowID = $row['id'];
-        // $empno = $row['empno'];
-        // $name = $row['name'];
-        // $positionRow = $row['position'];
-        // $periodRow = $row['period'];
-        // $baseSalary = GenPayroll::extractNumericValue($row['Base_salary']);
-        // $totalWorkingHours = $row['total_working_hours'];
-        // $totalWorkingMinutes = $row['total_working_minutes'];
-        // $totalPresentDays = $row['total_present_days'];
-        // $totalNightDutyHours = $row['total_night_duty_hours'];
-        // $totalAbsences = $row['total_absences'];
-        // $undertimeMinutes = $row['undertime_minutes'];
-        // $peraRow = GenPayroll::extractNumericValue($row['pera']);
-        // $grossSalaryRow = GenPayroll::extractNumericValue($row['Gross_salary']);
-        // $computedSalary = GenPayroll::extractNumericValue($row['computed_salary']);
-        // $designation = $row['designation'];
-
-        // // Nested fields in 'row' of 'row'
-        // $rowRow = $row['row'];
-        // $rowRowID = $rowRow['id'];
-        // $employeeNumber = $rowRow['employee_number'];
-        // $firstName = $rowRow['first_name'];
-        // $lastName = $rowRow['last_name'];
-        // $middleName = $rowRow['middle_name'];
-        // $designationRow = $rowRow['designation'];
-        // $created = $rowRow['created'];
-        // $assignedArea = $rowRow['assigned_area'];
-        // $status = $rowRow['status'];
-        // $isNewlyHired = $rowRow['is_newly_hired'];
-
-        // // Nested fields in 'Salary' array
-        // $salary = $rowRow['Salary'][0];
-        // $salaryID = $salary['id'];
-        // $employeeListID = $salary['employee_list_id'];
-        // $employmentTypeSalary = $salary['employmentType'];
-        // $employeeSalary = $salary['Employee'];
-        // $designationSalary = $salary['Designation'];
-        // $baseSalarySalary = $salary['BaseSalary'];
-        // $salaryGrade = $salary['SalaryGrade'];
-        // $step = $salary['Step'];
-        // $monthSalary = $salary['month'];
-        // $yearSalary = $salary['year'];
-        // $isActiveSalary = $salary['is_active'];
-
-        // // Nested fields in 'TimeRecord' array
-        // $timeRecord = $rowRow['TimeRecord'][0];
-        // $timeRecordID = $timeRecord['id'];
-        // $employeeListIDTimeRecord = $timeRecord['employee_list_id'];
-        // $totalWorkingHoursTimeRecord = $timeRecord['total_working_hours'];
-        // $totalWorkingMinutesTimeRecord = $timeRecord['total_working_minutes'];
-        // $totalLeaveWithPay = $timeRecord['total_leave_with_pay'];
-        // $totalLeaveWithoutPay = $timeRecord['total_leave_without_pay'];
-        // $totalWithoutPayDays = $timeRecord['total_without_pay_days'];
-        // $totalPresentDaysTimeRecord = $timeRecord['total_present_days'];
-        // $totalNightDutyHoursTimeRecord = $timeRecord['total_night_duty_hours'];
-        // $totalAbsencesTimeRecord = $timeRecord['total_absences'];
-        // $undertimeMinutesTimeRecord = $timeRecord['undertime_minutes'];
-        // $absentRate = $timeRecord['absent_rate'];
-        // $undertimeRateTimeRecord = $timeRecord['undertime_rate'];
-        // $monthTimeRecord = $timeRecord['month'];
-        // $yearTimeRecord = $timeRecord['year'];
-        // $from = $timeRecord['from'];
-        // $to = $timeRecord['to'];
-        // $minutes = $timeRecord['minutes'];
-        // $daily = $timeRecord['daily'];
-        // $hourly = $timeRecord['hourly'];
-        // $isActiveTimeRecord = $timeRecord['is_active'];
-        // $createdAt = $timeRecord['created_at'];
-        // $updatedAt = $timeRecord['updated_at'];
-        // $computedSalaryTimeRecord = $timeRecord['computed_salary'];
-        // $computedSalaryID = $computedSalaryTimeRecord['id'];
-        // $timeRecordIDComputedSalary = $computedSalaryTimeRecord['time_record_id'];
-        // $computedSalaryValue = GenPayroll::extractNumericValue($computedSalaryTimeRecord['computed_salary']);
-        // $createdAtComputedSalary = $computedSalaryTimeRecord['created_at'];
-        // $updatedAtComputedSalary = $computedSalaryTimeRecord['updated_at'];
-
-        // // Nested fields in 'Deduction' array
-        // foreach ($rowRow['Deduction'] as $deduction) {
-        //     $deductionID = $deduction['deduction_id'];
-        //     $deductionName = $deduction['deduction']['name'];
-        //     $deductionCode = $deduction['deduction']['code'];
-        //     $amount = $deduction['amount'];
-        //     $percentage = $deduction['percentage'];
-        //     $frequency = $deduction['frequency'];
-        //     $totalTerm = $deduction['total_term'];
-        //     $isDefault = $deduction['is_default'];
-        //     $statusDeduction = $deduction['status'];
-        //     $dateFrom = $deduction['date_from'];
-        //     $dateTo = $deduction['date_to'];
-        //     $stoppedAt = $deduction['stopped_at'];
-        // }
-
-        // // Nested fields in 'Receivables' array
-        // foreach ($rowRow['Receivables'] as $receivable) {
-        //     $receivableID = $receivable['receivable_id'];
-        //     $receivableName = $receivable['receivable']['name'];
-        //     $receivableCode = $receivable['receivable']['code'];
-        //     $amountReceivable = $receivable['amount'];
-        //     $percentageReceivable = $receivable['percentage'];
-        //     $frequencyReceivable = $receivable['frequency'];
-        //     $totalTermReceivable = $receivable['total_term'];
-        //     $isDefaultReceivable = $receivable['is_default'];
-        //     $statusReceivable = $receivable['status'];
-        //     $dateFromReceivable = $receivable['date_from'];
-        //     $dateToReceivable = $receivable['date_to'];
-        //     $stoppedAtReceivable = $receivable['stopped_at'];
-        // }
-
-        // // Nested fields in 'isExcluded' object
-        // $excludedDetails = $rowRow['isExcluded']['Details'];
-        // $excludedReason = $rowRow['isExcluded']['Reason'];
-        // $excludedRemarks = $rowRow['isExcluded']['Remarks'];
-        // $excludedAmount = $rowRow['isExcluded']['Amount'];
-
-
 
        }
 
@@ -358,142 +354,7 @@ class PayrollController extends Controller
                 'statusCode' => 200,
             ]);
 
-        // $employees = EmployeeList::with(['getTimeRecords.ComputedSalary'])->get();
-        // $In_payroll = [];
 
-        // $month = date('m');
-        // $year = date('Y');
-
-        // $currentmonth = $request->month_of;
-        // $curryear = $request->year_of;
-        // $is_permanent = $request->is_permanent ?? 1;
-        // $payroll_ID = $request->payroll_ID;
-        // $first_half = $request->first_half;
-        // $second_half = $request->second_half;
-        // $days_of_duty = $request->days_of_duty;
-
-
-        // if (!$payroll_ID && $month == $currentmonth && $year == $curryear && !$is_permanent && !$first_half && !$second_half) {
-        //     return response()->json([
-        //         'message' => "Could not generate whole month payroll for job order employees.",
-        //         'statusCode' => 401
-        //     ]);
-        // }
-
-        // $from = 1;
-        // $to = cal_days_in_month(CAL_GREGORIAN, $currentmonth, $curryear);
-        // if ($first_half) {
-        //     $from = 1;
-        //     $to = 15;
-        // } else if ($second_half) {
-        //     $from = 16;
-        //     $to = cal_days_in_month(CAL_GREGORIAN, $currentmonth, $curryear);
-        // }
-
-
-        // $validation = $this->GeneratedPayrollHeaders($currentmonth, $curryear, $payroll_ID,$days_of_duty);
-
-        // if ($validation['result']) {
-
-
-
-        //     foreach ($employees as  $row) {
-        //         $year_ = $request->processMonth['year'];
-        //         $previousmonth_ =  $request->processMonth['month'];
-
-
-        //         if ($row->isPayrollExcluded->count() == 0) {
-        //             $Total = $this->processPayroll($row);
-        //             if ($this->computer->checkOutofPayroll([
-        //                 'employee_list' => $row,
-        //                 'empID' => $row->employee_profile_id,
-        //                 'NETSalary' => $Total,
-        //                 'employment_type' => $row->getSalary->employment_type,
-        //                 'PayheaderID' => $validation['payroll_ID']
-        //             ])) {
-        //                 continue;
-        //             }
-
-
-
-        //             if ($is_permanent) {
-        //                 if ($row->getSalary->employment_type != "Job Order") {
-
-        //                     $In_payroll[] = [
-        //                         'processmonth' => $currentmonth,
-        //                         'processyear' => $year_,
-        //                         'data' => $this->payrolResource($row, $previousmonth_, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                     ];
-        //                 }
-        //             } else {
-
-        //                 if ($row->getSalary->employment_type == "Job Order") {
-        //                     $In_payroll[] = [
-        //                         'processmonth' => $currentmonth,
-        //                         'processyear' => $year_,
-        //                         'data' => $this->payrolResource($row, $currentmonth, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                     ];
-        //                 }
-        //             }
-        //         } else {
-
-        //             if ($row->isPayrollExcluded->first()->is_removed) {
-        //                 $Total = $this->processPayroll($row);
-
-        //                 if ($is_permanent) {
-        //                     if ($row->getSalary->employment_type != "Job Order") {
-
-        //                         $In_payroll[] = [
-        //                             'processmonth' => $previousmonth_,
-        //                             'processyear' => $year_,
-        //                             'data' => $this->payrolResource($row, $previousmonth_, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                         ];
-        //                     }
-        //                 } else {
-
-        //                     if ($row->getSalary->employment_type == "Job Order") {
-
-        //                         $In_payroll[] = [
-        //                             'processmonth' => $currentmonth,
-        //                             'processyear' => $year_,
-        //                             'data' => $this->payrolResource($row, $currentmonth, $year_, $Total, $is_permanent, $from, $to, $payroll_ID)
-        //                         ];
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-
-
-        //     if (count($In_payroll) == 0) {
-        //         return response()->json([
-        //             'message' => "No data to generate.",
-        //             'statusCode' => 401
-        //         ]);
-        //     }
-
-
-        //     $generatedCount = 0;
-
-
-        //     if ($is_permanent) {
-        //            $generatedCount =   $this->ProcessGeneralPayrollPermanent($In_payroll, $payroll_ID);
-        //     } else {
-        //         $generatedCount = $this->processGeneralPayrollJobOrders($In_payroll, $payroll_ID, $first_half, $second_half);
-        //     }
-
-
-
-        //     return response()->json([
-        //         'message' => 'Payroll Generated Successfully!',
-        //         'statusCode' => 202,
-        //         'generated' => $generatedCount
-        //     ]);
-        // }
-        // return response()->json([
-        //     'message' => $validation['message'],
-        //     'statusCode' => 401
-        // ]);
     }
 
 
@@ -576,15 +437,21 @@ class PayrollController extends Controller
 
     }
 
-    public function GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$is_permanent,$employment_type)
+    public function GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$is_permanent,$employment_type,$is_special,$genpayrollList)
     {
         $month = request()->processMonth['month'];
         $year =  request()->processMonth['year'];
+        $isSpecial = false;
+
+        $to = request()->processMonth['JOtoPeriod'];
+        $first_half = 1;
+        if($to == "15"){
+            $first_half = 1;
+        }else {
+            $second_half = 1;
+        }
 
 
-
-        $first_half = request()->first_half;
-        $second_half = request()->second_half;
         $from = 1;
         $to = cal_days_in_month(CAL_GREGORIAN, $month, $year);
         if ($first_half) {
@@ -600,6 +467,8 @@ class PayrollController extends Controller
             $to =  cal_days_in_month(CAL_GREGORIAN, $month, $year);
         }
 
+        
+
         if ($payroll_ID) {
             $payrollHead = PayrollHeaders::where('id', $payroll_ID);
         } else {
@@ -607,10 +476,12 @@ class PayrollController extends Controller
                 ->where("year", $year)
                 ->where("employment_type", $employment_type)
                 ->where('fromPeriod', $from)
-                ->where('toPeriod', $to);
+                ->where('toPeriod', $to)
+                ->where("is_special",$is_special)
+                ;
         }
 
-
+          
         $payrollHeader = $payrollHead->first();
 
         if (!$payrollHeader) {
@@ -625,7 +496,7 @@ class PayrollController extends Controller
         if ($is_permanent) {
 
 
-            if ($employment_type != "Job Order") {
+            if ($employment_type != "joborder") {
                 $timeRecord  = TimeRecord::where('month',Helpers::getPreviousMonthYear($month,$year)['month'])
                     ->where('year',Helpers::getPreviousMonthYear($month,$year)['year']);
 
@@ -636,10 +507,8 @@ class PayrollController extends Controller
                     ];
                 }
             }
-        }
-
-        if (!$is_permanent) {
-            if ($employment_type == "Job Order") {
+        }else {
+            if ($employment_type == "joborder") {
                 $timeRecord  = TimeRecord::where('fromPeriod', $payrollHeader['fromPeriod'])
                     ->where('toPeriod', $payrollHeader['toPeriod'])
                     ->where('month', $month)
@@ -654,8 +523,6 @@ class PayrollController extends Controller
             }
         }
 
-
-
         if ($payrollHead->exists() && $payrollHead->first()->is_locked) {
             return [
                 'message' => 'Payroll is locked',
@@ -664,14 +531,26 @@ class PayrollController extends Controller
         }
 
 
+       
 
-        if ($payrollHead->count() == 0) {
+        if ($employment_type == "joborder" && $from == 1 && $to == 31) {
+            return [
+                'message' => 'Payroll generated',
+                'result' => True
+            ];
+        }
 
+        if (!$payrollHead || $payrollHead->count() == 0) {
+          
+          
             if ($payroll_ID) {
                 return [
                     'message' => 'Payroll not found',
                     'result' => false
                 ];
+            }
+            if ($is_special){
+                $isSpecial = true;
             }
 
 
@@ -683,9 +562,16 @@ class PayrollController extends Controller
                 'toPeriod' => $to,
                 'days_of_duty'=>$days_of_duty,
                 'created_by' => encrypt(request()->user),
+                "is_special"=>$isSpecial,
                 'is_locked' => 0,
             ]);
+          
+    
         }
+
+       
+
+
         return [
             'payroll_ID' => $payrollHead->first()->id,
             'message' => 'Payroll generated',
@@ -693,7 +579,7 @@ class PayrollController extends Controller
         ];
     }
 
-    public function ProcessGeneralPayrollPermanent($In_payroll, $payroll_ID)
+    public function ProcessGeneralPayrollPermanent($In_payroll, $payroll_ID,$is_special)
     {
         ini_set('max_execution_time', 86400);
         $generatedCount = 0;
@@ -710,17 +596,15 @@ class PayrollController extends Controller
                 ->where("year", $In_payroll['year'])
                 ->where('is_locked', 0)
                 ->where('fromPeriod', $from)
-                ->where('toPeriod', $to);
+                ->where('toPeriod', $to)
+                ->where('is_special',$is_special)
+                ;
         }
 
 
 
         if ($payrollHead->exists()) {
             $In_payroll['payroll_headers_id'] = $payrollHead->first()->id;
-
-
-          //  foreach ($In_payroll as $row) {
-
 
                 $general_payroll =  GeneralPayroll::where("month", $In_payroll['month'])
                     ->where("year", $In_payroll['year'])
@@ -729,12 +613,13 @@ class PayrollController extends Controller
 
                 if ($general_payroll->exists()) {
                     $updatedCount += 1;
-                    $general_payroll->update($In_payroll);
+                    unset($In_payroll['payroll_headers_id']);
+                   $general_payroll->update($In_payroll);
                 } else {
                     $generatedCount += 1;
                     GeneralPayroll::create($In_payroll);
                 }
-            //}
+
         }
 
 
@@ -744,77 +629,160 @@ class PayrollController extends Controller
         ];
     }
 
-    public function processGeneralPayrollJobOrders($In_payroll, $payroll_ID, $first_half, $second_half)
+    public function processGeneralPayrollJobOrders($In_payroll, $is_special,$payroll_ID)
     {
         ini_set('max_execution_time', 86400);
-        $month = request()->processMonth["month"];
-        $year = request()->processMonth["year"];
+
         $generatedCount = 0;
         $updatedCount = 0;
-        $from = 1;
-        $to = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-        if ($first_half) {
-            $from = 1;
-            $to = 15;
-        } else if ($second_half) {
-            $from = 16;
-            $to = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-        }
-
-        if ($payroll_ID) {
-            $payrollHead = PayrollHeaders::where('id', $payroll_ID);
-        } else {
-            $payrollHead = PayrollHeaders::where("month", $In_payroll[0]['processmonth'])
-                ->where("year", $In_payroll[0]['processyear'])
-                ->where('is_locked', 0)
-                ->where('fromPeriod', $from)
-                ->where('toPeriod', $to);
-        }
+        $payrollHead = PayrollHeaders::where('id', $payroll_ID)
+            ->where("employment_type","joborder")
+            ->where("fromPeriod",request()->processMonth['JOfromPeriod'])
+            ->where("toPeriod",request()->processMonth['JOtoPeriod'])
+            ->where("is_special",$is_special)
+        ->first();
 
 
-        if ($payrollHead->exists()) {
-            foreach ($In_payroll as $row) {
+        if ($payrollHead) {
+            $In_payroll['payroll_headers_id'] = $payrollHead->id;
+            $general_payroll =  GeneralPayroll::where("month", $In_payroll['month'])
+            ->where("year", $In_payroll['year'])
+            ->where("employee_list_id", $In_payroll['employee_list_id']);
 
-                $general_payroll = GeneralPayroll::where('month', $In_payroll[0]['processmonth'])
-                    ->where('year', $In_payroll[0]['processyear'])
-                    ->where('employee_list_id', $row['data']['id'])
-                    ->whereIn('payroll_headers_id', function ($query) use ($from, $to) {
-                        $query->select('id')
-                            ->from('payroll_headers')
-                            ->where('fromPeriod', $from)
-                            ->where('toPeriod', $to);
-                    });
-
-                $genPayroll = [
-                    'payroll_headers_id' => $payrollHead->first()->id,
-                    'employee_list_id' => $row['data']['id'],
-                    'time_records' => $row['data']['time_record'],
-                    'employee_receivables' => json_encode($row['data']['receivables']),
-                    'employee_deductions' => json_encode($row['data']['deductions']),
-                    'employee_taxes' => json_encode($row['data']['taxexs']),
-                    'net_pay' => encrypt($row['data']['net_pay']),
-                    'gross_pay' => encrypt($row['data']['gross_pay']),
-                    'net_salary_first_half' => 0,
-                    'net_salary_second_half' => 0,
-                    'net_total_salary' => encrypt($row['data']['NETSalary']),
-                    'month' => $In_payroll[0]['processmonth'],
-                    'year' => $In_payroll[0]['processyear'],
-                ];
-
-
-                if ($general_payroll->exists()) {
-                    $updatedCount += 1;
-                    $general_payroll->update($genPayroll);
-                } else {
-                    $generatedCount += 1;
-                    GeneralPayroll::create($genPayroll);
-                }
-            }
+                        if ($general_payroll->exists()) {
+                            $updatedCount += 1;
+                            unset($In_payroll['payroll_headers_id']);
+                        $general_payroll->update($In_payroll);
+                        } else {
+                            $generatedCount += 1;
+                            GeneralPayroll::create($In_payroll);
+                        }
         }
 
         return [
             'created' => $generatedCount,
             'updated' => $updatedCount
+        ];
+    }
+
+    public function PayrollSummary($PayrollHeaderID){
+
+        $header = PayrollHeaders::find($PayrollHeaderID);
+        if(!$header){
+
+            return response()->json([
+                'message' => "No Data found",
+                'statusCode' => 404
+            ]);
+        }
+
+
+        $totalPera = 0.00;
+        $totalHazardPay = 0.00;
+        $totalGrossPay = 0.00;
+        $totalNetSal= 0.00;
+        $totalDeductions = 0.00;
+        $receivableOther = [];
+        $deductionOther = [];
+        $results =[];
+         foreach($header->genPayrolls as $row){
+            $timerecords = json_decode($row->time_records);
+            $receivables = json_decode($row->employee_receivables);
+            $deductions = json_decode($row->employee_deductions);
+            $tempnetpay = decrypt($row->net_pay);
+            $gross_pay = decrypt($row->gross_pay);
+            $net_total_salary = decrypt($row->net_total_salary);
+            foreach($receivables as $rec){
+                if ($rec->receivable->code == "PERA"){
+                    $totalPera += $rec->amount;
+                }
+                if ($rec->receivable->code == "HAZARD"){
+                    $totalHazardPay += $rec->amount;
+                }
+                if($rec->receivable->code !== "PERA" && $rec->receivable->code !== "HAZARD" && $rec->amount >=1 ){
+                    $receivableOther[] = $rec;
+                }
+            }
+            foreach($deductions as $ded){
+                $totalDeductions += $ded->amount;
+                if($ded->deduction->code !== "Undertime" and $ded->deduction->code !== "Absent" && $ded->amount >=1 ){
+                    $deductionOther[] = $ded;
+                }
+            }
+            $totalGrossPay += $gross_pay;
+            $totalNetSal += $net_total_salary;
+         }
+         $employmentType = ($header->employment_type == "permanent") ? "Regular/Permanent" : "Job Order";
+         $totalNetSal = $totalGrossPay - $totalDeductions;
+         $others = array_merge($receivableOther,$deductionOther);
+
+         $period = strtoupper(date('F',strtotime($header->year."-".$header->month."-1")))."-".$header->year;
+
+         foreach ($others as $item) {
+            if (isset($item->receivable)) {
+                $code = $item->receivable->code;
+                $name = $item->receivable->name;
+                if (!isset($results[$code])) {
+                    $results[$code] = [
+                        'name'=>"Receivable( $name )",
+                        'code' => $code,
+                        'totalAmount' => 0
+                    ];
+                }
+                $results[$code]['totalAmount'] += $item->amount;
+            }
+
+            if (isset($item->deduction)) {
+                $code = $item->deduction->code;
+                $name = $item->deduction->name;
+                if (!isset($results[$code])) {
+                    $results[$code] = [
+                        'name'=>"Deduction( $name )",
+                        'code' => $code,
+                        'totalAmount' => 0
+                    ];
+                }
+                $results[$code]['totalAmount'] += $item->amount;
+            }
+        }
+        $newothers = array_values($results);
+
+
+       return response()->json([
+        'message' => "List retrieved successfully",
+        'Data' => [
+            'id'=> $PayrollHeaderID,
+            'period'=>$period,
+            'inRecords'=>$header->genPayrolls()->count(),
+            'month'=>$header->month,
+            'year'=>$header->year,
+            'from'=>$header->fromPeriod,
+            'to'=>$header->toPeriod,
+            'employmentType'=>$employmentType,
+            'status'=>$header->is_locked,// 1 if locked
+            'special'=>$header->is_special,
+            'others'=>$newothers,
+            'HazardPay'=>$totalHazardPay,
+            'Pera'=>$totalPera,
+            'Gross'=>$totalGrossPay,
+            'totalDeduction'=>$totalDeductions,
+            'Net'=>$totalNetSal,
+            'Created_at'=>Helpers::DateFormats($header->created_at),
+            'Updated_at'=>Helpers::DateFormats($header->updated_at),
+            'Data'=>GeneralPayrollResources::collection($header->genPayrolls)
+           ],
+        'statusCode' => 200
+    ]);
+    }
+
+    public function LockPayroll(Request $request){
+        PayrollHeaders::find($request->PayrollHeaderID)->update([
+            'is_locked'=>1
+        ]);
+
+        return [
+            'message' => 'Payroll Locked',
+            'statusCode' => 200
         ];
     }
 }

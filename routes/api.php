@@ -54,6 +54,10 @@ Route::middleware('auth.token')->group(function () {
         Route::post("generatePayroll", "PayrollController@computePayroll");
         Route::get("GeneralPayrollList/{id}", "PayrollController@GeneralPayrollList");
         Route::get("GeneralPayrollTrailsList/{id}", "PayrollController@GeneralPayrollTrails");
+
+        Route::get("payrollSummary/{PayrollHeaderID}", "PayrollController@PayrollSummary");
+        Route::post("Lockpayroll", "PayrollController@LockPayroll");
+        Route::post("regenerate/{PayrollHeaderID}", "PayrollController@Regenerate");
     });
 
     /**
@@ -65,7 +69,20 @@ Route::middleware('auth.token')->group(function () {
     });
 
     /**
-     * Settings
+     * Adjustment
+     *
+     */
+    // Below 5K
+    Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
+        Route::get('adjustment-below5k', 'Below5kController@index');
+    });
+
+    Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
+        Route::post('adjustment-employee-deduction', 'EmployeeDeductionAdjustmentController@store');
+    });
+
+    /**
+     * Settings 
      *
      */
     //  Deduction Group & Deduction

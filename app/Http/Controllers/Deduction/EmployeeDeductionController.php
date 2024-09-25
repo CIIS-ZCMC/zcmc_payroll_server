@@ -81,7 +81,9 @@ class EmployeeDeductionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+    }
     public function getDeductionsStatusList(Request $request)
     {
         try {
@@ -188,7 +190,7 @@ class EmployeeDeductionController extends Controller
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => $deductionAmount,
+                        'Amount' => number_format($deductionAmount, 2),
                         'Updated on' => $deduction->updated_at ?? 'N/A',
                         'Terms paid' => $deduction->with_terms
                             ? ($deduction->total_paid ?? 0) . "/" . ($deduction->total_term ?? 0)
@@ -280,7 +282,7 @@ class EmployeeDeductionController extends Controller
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
-                    'Updated on' => $deduction->updated_at ?? 'N/A',
+                    'Updated on' => $deduction->updated_at ?? 'N/A'
                 ];
             })->toArray();
 
@@ -322,9 +324,9 @@ class EmployeeDeductionController extends Controller
                         ? $deduction->total_paid . "/" . $deduction->total_term
                         : $deduction->total_paid,
                     'Terms' => $deduction->total_term,
-                    'Billing cycle' => $deduction->frequency  ?? 'N/A',
+                    'Billing cycle' => $deduction->frequency ?? 'N/A',
                     'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage  ?? 'N/A',
+                    'Percentage' => $deduction->percentage ?? 'N/A',
                     'Date' => $deduction->status === 'Stopped'
                         ? $deduction->stopped_at
                         : ($deduction->status === 'Completed'
@@ -333,7 +335,7 @@ class EmployeeDeductionController extends Controller
                     'Reason' => $deduction->reason ?? 'N/A',
                     'is_default' => $deduction->is_default,
                     'with_terms' => $deduction->with_terms,
-                    'Updated on' => $deduction->updated_at ?? 'N/A',
+                    'Updated on' => $deduction->updated_at ?? 'N/A'
                 ];
             })->toArray();
 
@@ -743,49 +745,5 @@ class EmployeeDeductionController extends Controller
         }
 
         return null;  // Return null if invalid date
-    }
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }
