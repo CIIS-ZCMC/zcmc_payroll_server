@@ -123,6 +123,11 @@ Route::middleware('auth.token')->group(function () {
         Route::delete('receivable/{id}', 'ReceivableController@destroy');
         Route::put('receivable-stop/{id}', 'ReceivableController@stop');
     });
+    Route::namespace('App\Http\Controllers\Deduction')->group(function () {
+            Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
+            Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
+        });
+
 });
 
 
@@ -143,9 +148,7 @@ Route::
             Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
             Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
             Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
-            Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
-            Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
-        });
+            });
 
 Route::
         namespace('App\Http\Controllers\Receivable')->group(function () {
