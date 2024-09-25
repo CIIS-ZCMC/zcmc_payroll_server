@@ -19,7 +19,7 @@ class CreateEmployeeDeductionLogsTable extends Migration
             $table->foreign('employee_deduction_id')->references('id')->on('employee_deductions');
             $table->unsignedBigInteger('action_by');
             $table->string('action');
-            $table->string('remarks');
+            $table->string('remarks')->nullable();
             $table->timestamps();
         });
     }

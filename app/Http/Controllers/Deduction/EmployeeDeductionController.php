@@ -43,14 +43,13 @@ class EmployeeDeductionController extends Controller
                     $deductionAmount = $employeeDeduction->amount;
                     $total_deductions += $deductionAmount;
 
-                     // Check for additional adjustments in the employee_deduction_adjust table
-                    // $adjustment = DB::table('employee_deduction_adjust')
-                    // ->where('employee_deduction_id', $employeeDeduction->id)
-                    // ->whereMonth('date_from', $currentMonth)
-                    // ->whereYear('date_from', $currentYear)
-                    // ->first();
+                    // Check for additional adjustments using the Eloquent relationship
+                    foreach ($employeeDeduction->adjustments as $adjustment) {
+                        if ($adjustment->month == $currentMonth && $adjustment->year == $currentYear) {
+                            $total_deductions += $adjustment->amount;
+                        }
+                    }
                 }
-
                 $net_salary = $basic_salary - $total_deductions;
 
                 // Add employee data to the response
@@ -62,7 +61,7 @@ class EmployeeDeductionController extends Controller
                     'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,
                     'Net salary' => $net_salary,
-                    'Employment type' => $employee->getSalary->employment_type,
+                    'Employment type' => $employee->getSalary->employment_type ?? 'N/A',
                 ];
             }
 
@@ -90,9 +89,7 @@ class EmployeeDeductionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-    }
+    public function store(Request $request) {}
     public function getDeductionsStatusList(Request $request)
     {
         try {
