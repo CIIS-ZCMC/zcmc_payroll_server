@@ -25,6 +25,7 @@ class ImportEmployeeController extends Controller
         $year = $request->year;
         $first_half = $request->first_half ?? 0;
         $second_half = $request->second_half ?? 0;
+
         $defaultmonthCount = cal_days_in_month(CAL_GREGORIAN, $month, $year);
         $from = "1";
         $to = (string) $defaultmonthCount;
@@ -33,7 +34,7 @@ class ImportEmployeeController extends Controller
         $currentMonth = date('m');
 
 
-
+     
 
         if (!$first_half && !$second_half) {
             if ($currentyear == $year && $currentMonth == $month) {
