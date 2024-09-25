@@ -48,7 +48,7 @@ class Deduction extends Model
             ->withTimestamps();
     }
 
-     public function getImports(){
+    public function getImports(){
         return $this->hasMany(Import::class,'deduction_id');
     }
 

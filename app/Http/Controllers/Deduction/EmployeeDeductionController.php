@@ -85,9 +85,8 @@ class EmployeeDeductionController extends Controller
     public function getDeductionsStatusList(Request $request)
     {
         try {
-            $deduction_group_id = $request->deduction_group_id;
-            $deductions = Deduction::get();
-
+            $deductions = Deduction::all();
+            
             $final = DeductionStatusListResources::collection($deductions);
             return response()->json([
                 'responseData' => $final,
