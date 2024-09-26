@@ -271,6 +271,14 @@ class EmployeeListController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function deductionList(){
+        return response()->json([
+            'Message' => "List has been retrieved",
+            'responseData' => Deduction::all(),
+            'statusCode' => 200,
+        ], Response::HTTP_OK);
+    }
+
 
 
 

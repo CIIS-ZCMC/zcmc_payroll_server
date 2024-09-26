@@ -92,4 +92,10 @@ class EmployeeList extends Model
     {
         return $this->hasMany(EmployeeReceivable::class, 'employee_list_id');
     }
+
+    public function getGeneralPayrolls()
+    {
+        return $this->hasMany(GeneralPayroll::class, 'employee_list_id');
+    }
+
 }
