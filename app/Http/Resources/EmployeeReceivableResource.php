@@ -15,7 +15,7 @@ class EmployeeReceivableResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'receivable_id ' => $this->receivable_id,
+            'receivable_id' => $this->receivable_id,
             'receivable' => [
                 'name' => $this->receivables->name ?? 'N/A',
                 'code' => $this->receivables->code ?? 'N/A',

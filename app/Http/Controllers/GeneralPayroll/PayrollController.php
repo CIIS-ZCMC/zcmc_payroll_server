@@ -12,6 +12,7 @@ use App\Http\Controllers\Employee\EmployeeListController;
 use App\Helpers\Helpers;
 use App\Helpers\GenPayroll;
 use App\Models\GeneralPayroll;
+use App\Models\GeneralPayrollTrails;
 use App\Http\Resources\PayrollHeaderResources;
 use App\Http\Resources\GeneralPayrollResources;
 use App\Http\Resources\TimeRecordResource;
@@ -194,15 +195,17 @@ class PayrollController extends Controller
         $benefitSelected = $request->benefitSelected;
         $receivable= [];
 
+        $regenerate = $request->regenerate;
+
 
         $genpayrollList= Helpers::convertToStdObject($genpayrollList);
-        
+
         $filteredGenPayrollList = array_filter($genpayrollList, function ($item) use ($excludedIds) {
             return !in_array($item->ID, $excludedIds);
         });
-        
 
        
+
        foreach ($filteredGenPayrollList as $entry) {
         $ID = $entry->ID;
         $employeeID = $entry->{"Employee ID"};
@@ -304,11 +307,21 @@ class PayrollController extends Controller
     list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($netSalary);
     $currentmonth = request()->processMonth['month'];
     $curryear = request()->processMonth['year'];
+
+    $benefitIDs = array_map(function($row){
+        return $row['id'];
+    },$benefitSelected);
+
+    $filteredReceivables = array_values(array_filter($receivables, function($item) use($benefitIDs) {
+        return $item['receivable_id'] === null ||  in_array($item['receivable_id'], $benefitIDs);
+    }));
+
+
     $INpayroll = [
         'payroll_headers_id'=>null,
         'employee_list_id'=>$ID,
         'time_records'=>json_encode($timeRecords),
-        'employee_receivables'=>json_encode($receivables),
+        'employee_receivables'=>json_encode($filteredReceivables),
         'employee_deductions'=>json_encode($deductions),
         'base_salary'=>encrypt($monthlySalary),
         'net_pay'=>encrypt($tempnet),
@@ -321,22 +334,13 @@ class PayrollController extends Controller
     ];
 
 
-    return response()->json([
-        'message'=>$ID,
-        'responseData'=>$receivables,
-        'statusCode'=>500
-    ]);
-
-
                 $isPermanent = 0;
                 if ($employmentType !== "joborder" && $employmentType !== "Job Order"){
                     $isPermanent = 1;
                 }
-  
+
         $validation = $this->GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$isPermanent,$selectedType,$is_special,$genpayrollList);
-
        
-
         if ($validation['result']) {
          if($employmentType !== "joborder" && $employmentType !== "Job Order"){
              $this->ProcessGeneralPayrollPermanent($INpayroll,$payroll_ID,$is_special);
@@ -349,11 +353,49 @@ class PayrollController extends Controller
 
        }
 
+    
+        $this->savetoGeneralPayrollTrails($validation['payroll_ID']);
+    
          return response()->json([
                 'message' => 'Payroll Generated Successfully!',
                 'statusCode' => 200,
             ]);
+    }
 
+    public function savetoGeneralPayrollTrails($payroll_ID){
+        $headers = PayrollHeaders::find($payroll_ID);
+
+        foreach ($headers->genPayrolls as $row) {
+            $data =[
+                'general_payrolls_id'=>$row->id,
+                'payroll_headers_id'=>$payroll_ID,
+                'employee_list_id'=>$row->employee_list_id,
+                'time_records'=>$row->time_records,
+                'employee_receivables'=>$row->employee_receivables,
+                'employee_deductions'=>$row->employee_deductions,
+                'base_salary'=>encrypt(GenPayroll::extractNumericValue($row->base_salary)),
+                'net_pay'=>encrypt(GenPayroll::extractNumericValue($row->net_pay)),
+                'gross_pay'=>encrypt(GenPayroll::extractNumericValue($row->gross_pay)),
+                'net_salary_first_half'=>encrypt(GenPayroll::extractNumericValue($row->net_salary_first_half)),
+                'net_salary_second_half'=>encrypt(GenPayroll::extractNumericValue($row->net_salary_second_half)),
+                'net_total_salary'=>encrypt(GenPayroll::extractNumericValue($row->net_total_salary)),
+                'month'=>$row->month,
+                'year'=>$row->year,
+            ];
+
+            $validateEntry = GeneralPayrollTrails::where("payroll_headers_id",$payroll_ID)
+                            ->where("general_payrolls_id",$row->id);
+
+          
+
+            // if ($validateEntry->exists()){
+            //     $validateEntry->update($data);
+            // }else {
+                GeneralPayrollTrails::create($data);
+           // }
+
+            
+        }
 
     }
 
@@ -467,7 +509,7 @@ class PayrollController extends Controller
             $to =  cal_days_in_month(CAL_GREGORIAN, $month, $year);
         }
 
-        
+
 
         if ($payroll_ID) {
             $payrollHead = PayrollHeaders::where('id', $payroll_ID);
@@ -481,7 +523,8 @@ class PayrollController extends Controller
                 ;
         }
 
-          
+
+
         $payrollHeader = $payrollHead->first();
 
         if (!$payrollHeader) {
@@ -493,10 +536,11 @@ class PayrollController extends Controller
 
 
 
+
         if ($is_permanent) {
 
 
-            if ($employment_type != "joborder") {
+            if ($employment_type == "permanent") {
                 $timeRecord  = TimeRecord::where('month',Helpers::getPreviousMonthYear($month,$year)['month'])
                     ->where('year',Helpers::getPreviousMonthYear($month,$year)['year']);
 
@@ -523,6 +567,9 @@ class PayrollController extends Controller
             }
         }
 
+
+
+
         if ($payrollHead->exists() && $payrollHead->first()->is_locked) {
             return [
                 'message' => 'Payroll is locked',
@@ -531,7 +578,7 @@ class PayrollController extends Controller
         }
 
 
-       
+
 
         if ($employment_type == "joborder" && $from == 1 && $to == 31) {
             return [
@@ -540,9 +587,10 @@ class PayrollController extends Controller
             ];
         }
 
+
         if (!$payrollHead || $payrollHead->count() == 0) {
-          
-          
+
+
             if ($payroll_ID) {
                 return [
                     'message' => 'Payroll not found',
@@ -565,11 +613,11 @@ class PayrollController extends Controller
                 "is_special"=>$isSpecial,
                 'is_locked' => 0,
             ]);
-          
-    
+
+
         }
 
-       
+
 
 
         return [
