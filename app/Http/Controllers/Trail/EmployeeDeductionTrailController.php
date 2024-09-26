@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Trail;
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeDeductionTrailResource;
+use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionTrail;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -38,9 +39,24 @@ class EmployeeDeductionTrailController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        try {
+            $employeeDeduction = EmployeeDeduction::where([
+                ['employee_list_id', '=', $request->employee_list_id],
+                ['deduction_id', '=', $request->deduction_id],
+            ])->first();
+
+            $employeeDeductionID = $employeeDeduction->id;
+            $data = EmployeeDeductionTrail::where('employee_deduction_id', $employeeDeductionID)->get();
+
+            return response()->json(['responseData' => EmployeeDeductionTrailResource::collection($data)], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -69,39 +85,18 @@ class EmployeeDeductionTrailController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show all payments of selected employee deduction.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Request $request, $id)
+    public function show(Request $request, $id)
     {
         try {
-            $data = EmployeeDeductionTrail::where('employee_deduction_id', $id)->get();
+
+            $data = EmployeeDeductionTrail::findOrFail($id);
             return response()->json(['responseData' => EmployeeDeductionTrailResource::collection($data)], Response::HTTP_OK);
+
         } catch (\Throwable $th) {
 
             Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
     }
 
     /**
@@ -112,6 +107,17 @@ class EmployeeDeductionTrailController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $data = EmployeeDeductionTrail::findOrFail($id);
+            $data->delete();
+
+            // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
