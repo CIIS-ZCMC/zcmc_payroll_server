@@ -17,7 +17,7 @@ class GeneralPayrollTrails extends Model
         'time_records',
         'employee_receivables',
         'employee_deductions',
-        'employee_taxes',
+        'base_salary',
         'net_pay',
         'gross_pay',
         'net_salary_first_half',

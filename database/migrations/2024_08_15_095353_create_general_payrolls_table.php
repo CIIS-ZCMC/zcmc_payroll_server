@@ -28,7 +28,7 @@ class CreateGeneralPayrollsTable extends Migration
             $table->text("net_salary_first_half");
             $table->text("net_salary_second_half");
             $table->text("net_total_salary");
-               $table->string('month');
+            $table->string('month');
             $table->string('year');
             $table->timestamps();
         });
