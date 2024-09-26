@@ -32,6 +32,8 @@ class EmployeeDeductionController extends Controller
                 ->get();
 
             $response = [];
+            $currentMonth = now()->format('m'); // Get current month
+            $currentYear = now()->format('Y'); // Get current year
 
             foreach ($employees as $employee) {
                 $basic_salary = optional($employee->getSalary)->basic_salary ? (optional($employee->getSalary)->basic_salary) : 0;
@@ -40,8 +42,14 @@ class EmployeeDeductionController extends Controller
                 foreach ($employee->employeeDeductions as $employeeDeduction) {
                     $deductionAmount = $employeeDeduction->amount;
                     $total_deductions += $deductionAmount;
-                }
 
+                    // Check for additional adjustments using the Eloquent relationship
+                    foreach ($employeeDeduction->adjustments as $adjustment) {
+                        if ($adjustment->month == $currentMonth && $adjustment->year == $currentYear) {
+                            $total_deductions += $adjustment->amount;
+                        }
+                    }
+                }
                 $net_salary = $basic_salary - $total_deductions;
 
                 // Add employee data to the response
@@ -53,7 +61,7 @@ class EmployeeDeductionController extends Controller
                     'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,
                     'Net salary' => $net_salary,
-                    'Employment type' => $employee->getSalary->employment_type,
+                    'Employment type' => $employee->getSalary->employment_type ?? 'N/A',
                 ];
             }
 
@@ -65,25 +73,7 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-    }
     public function getDeductionsStatusList(Request $request)
     {
         try {
@@ -239,51 +229,39 @@ class EmployeeDeductionController extends Controller
                 return response()->json(['message' => 'Employee not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            // Prepare the response data
-            $data = [
-                'employee_list_id' => $employees->id,
-                'name' => $employees->first_name . ' ' . $employees->middle_name . ' ' . $employees->last_name,
-                'designation' => $employees->designation, // Ensure designation relationship exists
-                'deductions' => $employees->employeeDeductions->filter(function ($deduction) {
+            // Flatten the data from all employees
+            $data = $employees->flatMap(function ($employee) {
+                return $employee->employeeDeductions->filter(function ($deduction) {
                     return in_array($deduction->status, ['Suspended']);
-                })->map(function ($deduction) {
+                })->map(function ($deduction) use ($employee) {
+                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    $deductionAmount = $deduction->is_default
+                        ? ($deduction->deductions->amount == 0
+                            ? ($basicSalary * ($deduction->deductions->percentage / 100))
+                            : $deduction->deductions->amount)
+                        : $deduction->amount;
+
                     return [
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => '₱' . $deduction->amount,
-                        'Updated on' => $deduction->updated_at,
-                        'Terms to pay' => $deduction->total_term,
-                        'Billing Cycle' => $deduction->frequency,
+                        'Amount' => $deductionAmount,
+                        'Terms paid' => $deduction->with_terms
+                            ? ($deduction->total_paid ?? 0) . "/" . ($deduction->total_term ?? 0)
+                            : $deduction->total_paid ?? 0,
+                        'Terms' => $deduction->total_term ?? 0,
+                        'Billing cycle' => $deduction->frequency ?? 'N/A',
                         'Status' => $deduction->status,
-                        'Percentage' => $deduction->percentage,
+                        'Percentage' => $deduction->percentage ?? 0,
+                        'Reason' => $deduction->reason ?? 'N/A',
+                        'Suspended on' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->date_from ?? 'N/A',
+                        'Suspended until' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->date_to ?? 'N/A',
+                        'Other Reason' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->reason ?? 'N/A',
+                        'is_default' => $deduction->is_default,
+                        'with_terms' => $deduction->with_terms,
+                        'Updated on' => $deduction->updated_at ?? 'N/A',
                     ];
-                })->toArray()
-            ];
-
-
-            $data = $employees->employeeDeductions->filter(function ($deduction) {
-                return in_array($deduction->status, ['Suspended']);
-            })->map(function ($deduction) {
-                return [
-                    'Id' => $deduction->deduction_id,
-                    'Deduction' => $deduction->deductions->name ?? 'N/A',
-                    'Code' => $deduction->deductions->code ?? 'N/A',
-                    'Amount' => $deduction->amount,
-                    'Terms paid' => $deduction->with_terms
-                        ? $deduction->total_paid . "/" . $deduction->total_term
-                        : $deduction->total_paid,
-                    'Terms' => $deduction->total_term,
-                    'Billing cycle' => $deduction->frequency ?? 'N/A',
-                    'Status' => $deduction->status,
-                    'Percentage' => $deduction->percentage ?? 'N/A',
-                    'Suspended on' => $deduction->date_from ?? 'N/A',
-                    'Suspended until' => $deduction->date_to ?? 'N/A',
-                    'Reason' => $deduction->reason ?? 'N/A',
-                    'is_default' => $deduction->is_default,
-                    'with_terms' => $deduction->with_terms,
-                    'Updated on' => $deduction->updated_at ?? 'N/A'
-                ];
+                });
             })->toArray();
 
             return response()->json([
@@ -684,7 +662,6 @@ class EmployeeDeductionController extends Controller
 
                 $employee_deductions->update([
                     'status' => $status,
-                    'reason' => $reason,
                     'date_from' => $date_from ?? null,
                     'date_to' => $date_to ?? null,
                     'stopped_at' => $stopped_at,
