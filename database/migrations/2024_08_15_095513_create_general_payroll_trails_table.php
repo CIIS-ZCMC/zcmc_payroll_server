@@ -24,7 +24,7 @@ class CreateGeneralPayrollTrailsTable extends Migration
             $table->text('time_records');
             $table->text("employee_receivables");
             $table->text("employee_deductions");
-            $table->text("employee_taxes");
+            $table->text("base_salary");
             $table->text("net_pay");
             $table->text("gross_pay");
             $table->text("net_salary_first_half");
