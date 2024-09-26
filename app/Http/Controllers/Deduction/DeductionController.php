@@ -10,6 +10,7 @@ use App\Models\Deduction;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeSalary;
 use Carbon\Carbon;
+use DateTime;
 use DB;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -205,8 +206,27 @@ class DeductionController extends Controller
     public function clearEmployeeDeductions($id)
     {
         try {
-            $data = Deduction::find($id)->employeeDeductions()->update(['willDeduct' => null]);
-            return response()->json(['responseData' => $data], Response::HTTP_OK);
+            $dateArray = request()->processMonth;
+            $dateToString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOtoPeriod'];
+            $dateFromString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOfromPeriod'];
+            // Create a DateTime object from the generated date string
+            $payrollDateTo = new DateTime($dateToString);
+            $payrollDateFrom = new DateTime($dateFromString);
+
+            $deduction = Deduction::find($id);
+            if (!$deduction) {
+                
+
+                return response()->json([
+                    'message' => 'Deduction not found'
+                ], Response::HTTP_NOT_FOUND);
+            }
+            $deduction->getImports()
+                ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
+                ->delete();
+            $deduction->employeeDeductions()->update(['willDeduct' => null]);
+            
+            return response()->json(['Message'=>"Successfuly Cleared all willDeduct list ". $id,'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
             Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

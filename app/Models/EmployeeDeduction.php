@@ -68,4 +68,8 @@ class EmployeeDeduction extends Model
     {
         return $this->hasMany(StoppageLog::class, 'employee_deduction_id');
     }
+    public function adjustments()
+    {
+        return $this->hasMany(EmployeeDeductionAdjustment::class, 'employee_deduction_id');
+    }
 }
