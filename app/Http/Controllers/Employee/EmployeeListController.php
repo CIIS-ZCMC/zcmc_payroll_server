@@ -51,8 +51,8 @@ class EmployeeListController extends Controller
         if (isset($request->specialPayroll) && $request->specialPayroll) {
             $Emp = $this->QualifiedSpecialPayrollList();
         }
-        if(isset($request->getEmployeeByDeduction) && $request->deductionId){
-          return  $this->getEmployeebyDeduction($request->deductionId);
+        if (isset($request->getEmployeeByDeduction) && $request->deductionId) {
+            return $this->getEmployeebyDeduction($request->deductionId);
         }
 
         if (isset($request->isExcluded)) {
@@ -62,8 +62,8 @@ class EmployeeListController extends Controller
         if (isset($request->withDeduction)) {
 
         }
-        if(isset($request->regenerateList)){
-            $Emp =  $request->listofemployee;
+        if (isset($request->regenerateList)) {
+            $Emp = $request->listofemployee;
         }
         return response()->json([
             'Message' => "List has been retrieved",
@@ -95,7 +95,8 @@ class EmployeeListController extends Controller
             'statusCode' => 200,
         ], Response::HTTP_OK);
     }
-    public function QualifiedGeneralPayrollList(){
+    public function QualifiedGeneralPayrollList()
+    {
         $jobOrder = request()->jobOrder;
         $condition = "=";
         $month = request()->processMonth['month'];
@@ -105,30 +106,30 @@ class EmployeeListController extends Controller
         if ($jobOrder) {
             $condition = "=";
             $ValidateGeneralPayroll = DB::table('general_payrolls')
-            ->select('employee_list_id')
-            ->whereIn('payroll_headers_id', function ($query) use ($month, $year,$JOfromPeriod,$JOtoPeriod) {
-                $query->select('id')
-                      ->from('payroll_headers')
-                      ->where('month', $month)
-                      ->where('year', $year)
-                      ->where('fromPeriod',$JOfromPeriod)
-                      ->where('toPeriod',$JOtoPeriod);
-            });
+                ->select('employee_list_id')
+                ->whereIn('payroll_headers_id', function ($query) use ($month, $year, $JOfromPeriod, $JOtoPeriod) {
+                    $query->select('id')
+                        ->from('payroll_headers')
+                        ->where('month', $month)
+                        ->where('year', $year)
+                        ->where('fromPeriod', $JOfromPeriod)
+                        ->where('toPeriod', $JOtoPeriod);
+                });
 
         } else {
             $condition = "!=";
 
             $ValidateGeneralPayroll = DB::table('general_payrolls')
-            ->select('employee_list_id')
-            ->whereIn('payroll_headers_id', function ($query) use ($month, $year) {
-                $query->select('id')
-                      ->from('payroll_headers')
-                      ->where('month', $month)
-                      ->where('year', $year);
-            });
+                ->select('employee_list_id')
+                ->whereIn('payroll_headers_id', function ($query) use ($month, $year) {
+                    $query->select('id')
+                        ->from('payroll_headers')
+                        ->where('month', $month)
+                        ->where('year', $year);
+                });
 
         }
-     $ValidateGeneralPayroll = array_map(function($row) {
+        $ValidateGeneralPayroll = array_map(function ($row) {
             return $row->employee_list_id; // Use object access syntax
         }, $ValidateGeneralPayroll->get()->toArray());
 
@@ -141,8 +142,8 @@ class EmployeeListController extends Controller
             $query->select("employee_list_id")
                 ->from("employee_salaries")
                 ->where("employment_type", $condition, "Job Order");
-        })->whereNotIn("id",  $ValidateGeneralPayroll)
-        ->whereNotIn("id", $this->isExcluded()['ids'])
+        })->whereNotIn("id", $ValidateGeneralPayroll)
+            ->whereNotIn("id", $this->isExcluded()['ids'])
             ->get();
 
         return $Emp;
@@ -155,7 +156,7 @@ class EmployeeListController extends Controller
 
         $jobOrder = request()->jobOrder;
         $condition = "=";
-        if ($jobOrder ) {
+        if ($jobOrder) {
             $condition = "=";
         } else {
             $condition = "!=";
@@ -178,23 +179,23 @@ class EmployeeListController extends Controller
                 ->from("employee_salaries")
                 ->where("employment_type", $condition, "Job Order");
         })
-        ->get();
+            ->get();
 
         $Emp2 = EmployeeList::whereIn("id", function ($query) use ($condition) {
             $query->select("employee_list_id")
                 ->from("employee_salaries")
                 ->where("employment_type", $condition, "Job Order");
         })->whereNotIn("id", function ($query) {
-                $query->select("employee_list_id")
-                      ->from("general_payrolls")
-                      ->whereIn("payroll_headers_id", function ($subQuery) {
-                          $subQuery->select("id")
-                                   ->from("payroll_headers")
-                                   ->where("month", request()->processMonth['month'])
-                                   ->where("year", request()->processMonth['year']);
-                      });
-                    })
-        ->get();
+            $query->select("employee_list_id")
+                ->from("general_payrolls")
+                ->whereIn("payroll_headers_id", function ($subQuery) {
+                    $subQuery->select("id")
+                        ->from("payroll_headers")
+                        ->where("month", request()->processMonth['month'])
+                        ->where("year", request()->processMonth['year']);
+                });
+        })
+            ->get();
 
         return $Emp->merge($Emp2);
     }
@@ -269,74 +270,5 @@ class EmployeeListController extends Controller
             'responseData' => Receivable::all(),
             'statusCode' => 200,
         ], Response::HTTP_OK);
-    }
-
-
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

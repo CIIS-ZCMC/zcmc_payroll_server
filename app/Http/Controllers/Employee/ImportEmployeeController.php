@@ -34,7 +34,7 @@ class ImportEmployeeController extends Controller
         $currentMonth = date('m');
 
 
-     
+
 
         if (!$first_half && !$second_half) {
             if ($currentyear == $year && $currentMonth == $month) {

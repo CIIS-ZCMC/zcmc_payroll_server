@@ -215,7 +215,7 @@ class EmployeeReceivableController extends Controller
                                     ? $receivable->completed_at
                                     : 'N/A'),
                             'Reason' => $receivable->reason ?? 'N/A',
-                            'Other Reason' =>  $stoppageLog->reason ?? 'N/A',
+                            'Other Reason' => $stoppageLog->reason ?? 'N/A',
                             'percentage' => $receivable->percentage ?? 0,
                             'is_default' => $receivable->is_default,
                             'Updated on' => $receivable->updated_at,
@@ -273,7 +273,7 @@ class EmployeeReceivableController extends Controller
                             'Status' => $receivable->status,
                             'Reason' => $receivable->reason ?? 'N/A',
                             'Suspended on' => $suspensionLog->date_from ?? 'N/A',
-                            'Suspended until' =>  $suspensionLog->date_to ?? 'N/A',
+                            'Suspended until' => $suspensionLog->date_to ?? 'N/A',
                             'Other Reason' => $suspensionLog->reason ?? 'N/A',
                             'percentage' => $receivable->percentage ?? 0,
                             'is_default' => $receivable->is_default,
@@ -565,7 +565,8 @@ class EmployeeReceivableController extends Controller
             if ($employee_receivables) {
 
                 if ($status === 'Stopped') {
-                    $stopped_at = now()->format('Y-m-d');;
+                    $stopped_at = now()->format('Y-m-d');
+                    ;
                 }
 
                 if ($status === 'Suspended') {
@@ -641,72 +642,5 @@ class EmployeeReceivableController extends Controller
         }
 
         return null;  // Return null if invalid date
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }
