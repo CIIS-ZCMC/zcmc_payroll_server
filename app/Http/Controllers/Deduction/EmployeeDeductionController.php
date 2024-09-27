@@ -732,6 +732,63 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    
+
+    public function bulkimport(Request $request)
+    {
+        try {
+            // {
+            //     "empid": "2024031806",
+            //     "amount": "1000",
+            //     "savingtype": "Differential",
+            //     "changetoabs": false,
+            //     "changetodiff": false,
+            //     "isnew": false,
+            //     "isedit": true,
+            //     "willdeductedited": true,
+            //     "willdeduct": true
+            //   },
+
+
+///NOTE:there are two holder for the response info
+//failed,edited
+
+            //check if it is new
+                //identify if the employee exist in this system, if not add to the list of failed
+                //set isdefault = false frequency="monthly"
+            //else if old
+                //NOTE:touch the isdafault set to false if this are all true: changetoabs, isedited
+                //check if edited amount
+                    //set isdefault to false
+                    //set the new amount
+                //check if changetoabs is true
+                    //set the isdefault to false
+                    //delete all the member of the differentials with the date 
+                    //-value is between this payroll
+                //check if willdeductedited is true
+                    //set the willdeducted bool
+
+            //SAVE
+
+            
+
+            
+
+
+
+            // dd(->sample);
+        return response()->json([
+            'Message' => 'bulkupdaete updated successfully.',
+            'Data'=>["Sample"=>$request->all()],
+            'statusCode' => 200
+         // 'responseData' => new EmployeeDeductionResource($newDeduction),
+        ], Response::HTTP_OK);
+          
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 
     private function parseDate($dateString)
     {
