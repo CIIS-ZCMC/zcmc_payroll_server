@@ -28,12 +28,6 @@ class EmployeeDeduction extends Model
         'is_default',
         'isDifferential',
         'willDeduct',
-        'status',
-        'date_to',
-        'date_from',
-        'stopped_at',
-        'reason',
-        'completed_at'
     ];
     public $timestamps = true;
 
