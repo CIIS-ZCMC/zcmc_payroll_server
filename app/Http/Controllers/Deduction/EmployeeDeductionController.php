@@ -738,6 +738,34 @@ class EmployeeDeductionController extends Controller
         }
     }
     
+    private function modifyIsDifferential($jsonString, $fromDate, $toDate, $amount = null, $newDifferential) {
+        // Decode the JSON string into an array
+        $dataArray = json_decode($jsonString, true);
+    
+        // Loop through the array and process each item
+        foreach ($dataArray as $key => &$item) {
+            $tempfromDate = Carbon::createFromFormat('Y-m-d', $item['from'])->toDateString();
+            $temptoDate = Carbon::createFromFormat('Y-m-d', $item['to'])->toDateString();
+    
+            // Check if the toDate falls within or is the same as the given range
+            if (Carbon::parse($temptoDate)->isSameDay($fromDate) || 
+                Carbon::parse($temptoDate)->isSameDay($toDate) || 
+                Carbon::parse($temptoDate)->betweenIncluded($fromDate, $toDate)) {
+                unset($dataArray[$key]);
+            }
+        }
+
+        if($newDifferential){
+            $dataArray[] = [
+                "amount"=>$amount,
+                "from"=>$fromDate->format('Y-m-d'),
+                "to"=>$toDate->format('Y-m-d')
+            ];
+        }
+
+        // Convert the modified array back to a JSON string
+        return json_encode($dataArray);
+    }
 
     public function bulkimport(Request $request)
     {
@@ -775,6 +803,13 @@ class EmployeeDeductionController extends Controller
                 $willDeductEdited = $record['willdeductedited'];
                 $willDeduct = $record['willdeduct'];
                 $term = $record['term'];
+
+                if(
+                    !$isEdit && !$isNew && !$willDeductEdited && !$changeToAbs && !$changeToDiff
+                ){
+                    continue;
+                }
+
                 // Process the record (e.g., save to the database or perform other logic)
 
                             //check if it is new
@@ -815,126 +850,118 @@ class EmployeeDeductionController extends Controller
                             "desc"=>"New employee deduction record successfully",
                         ];
                     }else{
+                        $tempEditedLog=[
+                            "empid"=>$empId,
+                            "fullname"=>$fullname,
+                            "desc"=>"",
+                        ];
                         //else if old
                                 $employeeDeduction = $isEmployeeExist->employeeDeductions->firstWhere('deduction_id', $deductionid);
                                 //NOTE:touch the isdafault set to false if this are all true: changetoabs, isedited
                                 //check if edited amount
                                 if($isEdit){
+                                    
                                     //set isdefault to false
                                     $employeeDeduction->is_default = "0";
                                     
-                                    // $savingType = $record['savingtype'];
-                                    // $changeToAbs = $record['changetoabs'];
-                                    // $changeToDiff = $record['changetodiff'];
-                                    
                                         if($changeToAbs || $changeToDiff){
-                                           
-
+                                          
                                             if($changeToAbs){
                                                 //check if changetoabs is true
+                                                
                                                 //delete all the member of the differentials with the date 
-                                                $jsonString = $employeeDeduction->isDifferential;
-
-                                                $dataArray = json_decode($jsonString, true);
-                                            
-                                                foreach ($dataArray as $key => &$item) {
-                                                    $tempfromDate = Carbon::createFromFormat('Y-m-d', $item['from'])->toDateString();
-                                                    $temptoDate = Carbon::createFromFormat('Y-m-d', $item['to'])->toDateString();
-                                                    if (Carbon::parse($temptoDate)->isSameDay($fromDate) || 
-                                                        Carbon::parse($temptoDate)->isSameDay($toDate) || 
-                                                        Carbon::parse($temptoDate)->betweenIncluded($fromDate, $toDate)) {
-                                                        unset($dataArray[$key]);
-                                                    }
-                                                }
-
-                                                // Return the modified data (with date objects)
-                                                 // Convert the modified array back to a JSON string
-                                                $newJsonString = json_encode($dataArray);
-
-                                                // Save the updated JSON string back to the employeeDeduction's isDifferential field
-                                                $employeeDeduction->isDifferential = $newJsonString;
+                                                $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential,$fromDate,$toDate,null,false);
+                                                $employeeDeduction->amount = $amount;
+                                                $tempEditedLog['desc'] .= "Modified into Absolute with the amount of: {$amount}";
                                             }
                                             if($changeToDiff){
-                                                //////LEFT OFF
+                                                //delete all the member of the differentials with the date 
+                                                //then add the new
+                                                $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential,$fromDate,$toDate,$amount,true);
+                                                $tempEditedLog['desc'] .= "Modified into Differential with the amount of: {$amount}";
                                             }
                                             
                                             //-value is between this payroll
 
                                         }else{
-                                            
-                                        
+                                           
                                             //check if what type of saving if it is absolute or differential
                                             if($savingType == "Absolute"){
+                                               
                                                 //if absolute
                                                 //set the new amount in the employeeDeduction
+                                                $tempAmount = $employeeDeduction->amount;
                                                 $employeeDeduction->amount = $amount;
-                                                
+                                                $tempEditedLog['desc'] .= ": Modified Absolute amount from {$tempAmount} into {$amount} : ";
                                             }else{
-                                                //if differential
-                                                //get the isdifferentials 
-                                                $jsonString = $employeeDeduction->isDifferential;
-
-                                                // Deserialize the JSON string into an associative array
-                                                $dataArray = json_decode($jsonString, true);
-                                            
-                                                // Loop through each item and convert the 'from' and 'to' to Carbon (date) objects
-                                                // Loop through each item and remove the ones where 'to' is between the given dates
-                                                foreach ($dataArray as $key => &$item) {
-                                                    // Convert 'from' and 'to' to Carbon date objects
-                                                    $tempfromDate = Carbon::createFromFormat('Y-m-d', $item['from'])->toDateString();
-                                                    $temptoDate = Carbon::createFromFormat('Y-m-d', $item['to'])->toDateString();
-                                                        //      delete the data between this payroll delete it 
-                                                    // Check if 'to' is between the start and end dates
-                                                    if (Carbon::parse($temptoDate)->isSameDay($fromDate) || 
-                                                        Carbon::parse($temptoDate)->isSameDay($toDate) || 
-                                                        Carbon::parse($temptoDate)->betweenIncluded($fromDate, $toDate)) {
-                                                        // Remove the item from the array if 'to' is within the date range
-                                                        unset($dataArray[$key]);
-                                                    }
-                                                }
-
-                                                $dataArray[] = [
-                                                    "amount"=>$amount,
-                                                    "from"=>$fromDate->format('Y-m-d'),
-                                                    "to"=>$toDate->format('Y-m-d')
-                                                ];
-                                                // Return the modified data (with date objects)
-                                                 // Convert the modified array back to a JSON string
-                                                $newJsonString = json_encode($dataArray);
-
-                                                // Save the updated JSON string back to the employeeDeduction's isDifferential field
-                                                $employeeDeduction->isDifferential = $newJsonString;
-                                                
+                                                $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential,$fromDate,$toDate,$amount,true);
+                                                $tempEditedLog['desc'] .= ":Modified differential amount into {$amount} : ";
                                                 //pop it the new differential value
                                             }
 
                                         }
                                 }
-    
+
+                                if($changeToAbs || $changeToDiff){
+                                          
+
+                                    if($changeToAbs){
+                                        //check if changetoabs is true
+                                        
+                                        //delete all the member of the differentials with the date 
+                                        $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential,$fromDate,$toDate,null,false);
+                                        $tempEditedLog['desc'] .= "Modified into Absolute : ";
+                                        
+                                    }
+                                    if($changeToDiff){
+                                        //delete all the member of the differentials with the date 
+                                        //then add the new
+                                        
+                                        $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential,$fromDate,$toDate,$amount,true);
+                                        $tempEditedLog['desc'] .= "Modified into Differential : ";
+                                    }
+                                    
+                                    //-value is between this payroll
+
+                                }
+
                                 //check if willdeductedited is true
                                     //set the willdeducted bool
-                    }
+                                if($willDeductEdited){
+                                    dd("adadwadsdwadas");
+                                    ///logs return
+                                    $tempEditedLog['desc'] .= "Removed from the Deduction : ";
+                                    $employeeDeduction->willDeduct =  $fromDate;
+                                }
                                 
+                            $edited[] = $tempEditedLog;
+                                
+                    }
                         //SAVE
                 }
-               
-
+                
+                
             }
-
+            // dd($edited);
             // dd(->sample);
             // DB::commit();
+            DB::rollBack();
         return response()->json([
             'Message' => 'bulkupdaete updated successfully.',
-            'Data'=>["SavedInfo"=>["failed"=>$failed,"new"=>$edited,"success"=>$successnew]],
+            'Data'=>["SavedInfo"=>["failed"=>$failed,"Edited"=>$edited,"success"=>$successnew]],
             'statusCode' => 200
          // 'responseData' => new EmployeeDeductionResource($newDeduction),
         ], Response::HTTP_OK);
           
         } catch (\Throwable $th) {
+            dd($th);
             DB::rollBack();
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    
+    
     
 
     private function parseDate($dateString)
