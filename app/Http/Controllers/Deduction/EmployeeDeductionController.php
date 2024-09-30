@@ -13,6 +13,7 @@ use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionLog;
 use App\Models\EmployeeList;
 use App\Models\EmployeeSalary;
+use App\Models\Import;
 use App\Models\StoppageLog;
 use DateTime;
 use Illuminate\Http\Response;
@@ -742,18 +743,21 @@ class EmployeeDeductionController extends Controller
         // Decode the JSON string into an array
         $dataArray = json_decode($jsonString, true);
     
-        // Loop through the array and process each item
-        foreach ($dataArray as $key => &$item) {
-            $tempfromDate = Carbon::createFromFormat('Y-m-d', $item['from'])->toDateString();
-            $temptoDate = Carbon::createFromFormat('Y-m-d', $item['to'])->toDateString();
-    
-            // Check if the toDate falls within or is the same as the given range
-            if (Carbon::parse($temptoDate)->isSameDay($fromDate) || 
-                Carbon::parse($temptoDate)->isSameDay($toDate) || 
-                Carbon::parse($temptoDate)->betweenIncluded($fromDate, $toDate)) {
-                unset($dataArray[$key]);
+        if (!empty($dataArray)) {
+            // Loop through the array and process each item
+            foreach ($dataArray as $key => &$item) {
+                $tempfromDate = Carbon::createFromFormat('Y-m-d', $item['from'])->toDateString();
+                $temptoDate = Carbon::createFromFormat('Y-m-d', $item['to'])->toDateString();
+        
+                // Check if the toDate falls within or is the same as the given range
+                if (Carbon::parse($temptoDate)->isSameDay($fromDate) || 
+                    Carbon::parse($temptoDate)->isSameDay($toDate) || 
+                    Carbon::parse($temptoDate)->betweenIncluded($fromDate, $toDate)) {
+                    unset($dataArray[$key]);
+                }
             }
         }
+        
 
         if($newDifferential){
             $dataArray[] = [
@@ -762,9 +766,11 @@ class EmployeeDeductionController extends Controller
                 "to"=>$toDate->format('Y-m-d')
             ];
         }
+        $dataArray = array_values($dataArray);
 
-        // Convert the modified array back to a JSON string
-        return json_encode($dataArray);
+    // Convert the modified array back to a JSON string
+    return json_encode($dataArray);
+
     }
 
     public function bulkimport(Request $request)
@@ -791,6 +797,21 @@ class EmployeeDeductionController extends Controller
             
             $payload = $request->torecord;
             $deductionid = $request->deductionId;
+            $importDet =$request->importdetails;
+            if(isset($importDet["hasimport"])){
+                if($importDet["hasimport"]){
+                    $deduction = Deduction::find($deductionid);
+                    $deduction->getImports()
+                ->whereBetween('payroll_date', [$fromPeriod, $toPeriod])
+                ->delete();
+                }
+                Import::create([
+                    'deduction_id' => $deductionid,
+                    'file_name' => $importDet["path"],
+                    'employment_type' => $importDet["isregular"]?"regular":"joborder",  // Make sure to hash the password
+                    'payroll_date'=>$fromDate //$importDet["payrollisone"]?:,
+                ]);
+            }
             foreach ($payload as $record) {
                 $empId = $record['empid'];
                 $fullname = $record['fullname'];
@@ -841,6 +862,7 @@ class EmployeeDeductionController extends Controller
                             'with_terms'=>"1",
                             'total_term'=>$term,
                             'is_default'=>"0",
+                            'total_paid'=>0,
                             'willDeduct'=>$fromDate,
                         ]);
                         
@@ -879,6 +901,7 @@ class EmployeeDeductionController extends Controller
                                                 //then add the new
                                                 $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential,$fromDate,$toDate,$amount,true);
                                                 $tempEditedLog['desc'] .= "Modified into Differential with the amount of: {$amount}";
+                                                
                                             }
                                             
                                             //-value is between this payroll
@@ -903,7 +926,7 @@ class EmployeeDeductionController extends Controller
                                 }
 
                                 if($changeToAbs || $changeToDiff){
-                                          
+                                    $employeeDeduction->is_default = "0";
 
                                     if($changeToAbs){
                                         //check if changetoabs is true
@@ -928,24 +951,26 @@ class EmployeeDeductionController extends Controller
                                 //check if willdeductedited is true
                                     //set the willdeducted bool
                                 if($willDeductEdited){
-                                    dd("adadwadsdwadas");
                                     ///logs return
-                                    $tempEditedLog['desc'] .= "Removed from the Deduction : ";
-                                    $employeeDeduction->willDeduct =  $fromDate;
+                                    if($willDeduct){
+                                        $tempEditedLog['desc'] .= "Added to the Deduction : ";
+                                        $employeeDeduction->willDeduct =  $fromDate;
+                                    }else{
+
+                                        $tempEditedLog['desc'] .= "Removed from the Deduction : ";
+                                        $employeeDeduction->willDeduct =  null;
+                                    }
                                 }
                                 
                             $edited[] = $tempEditedLog;
-                                
+                            $employeeDeduction->save();
                     }
                         //SAVE
                 }
                 
                 
             }
-            // dd($edited);
-            // dd(->sample);
-            // DB::commit();
-            DB::rollBack();
+            DB::commit();
         return response()->json([
             'Message' => 'bulkupdaete updated successfully.',
             'Data'=>["SavedInfo"=>["failed"=>$failed,"Edited"=>$edited,"success"=>$successnew]],
