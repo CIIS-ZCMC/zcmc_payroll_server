@@ -69,9 +69,7 @@ class EmployeeList extends Model
 
     public function getExclusionDetails()
     {
-        $timeRecord = $this->getTimeRecords;
-        return $this->hasMany(ExcludedEmployee::class, 'employee_list_id', 'id')
-        ;
+        return $this->hasMany(ExcludedEmployee::class, 'employee_list_id', 'id');
     }
 
     public function getListOfTimeRecords()

@@ -36,32 +36,33 @@ class PayrollController extends Controller
     public function index()
     {
         $headers = PayrollHeaders::all();
-        
+
         $responseData = [];
 
   // return PayrollHeaderResources::collection($headers)->response()->getData(true)['data'];
      foreach(PayrollHeaderResources::collection($headers)->response()->getData(true)['data'] as  $row){
-        
+
         $others = array_values(array_filter($row['benefits'][0]['other']));
         $default =$row['benefits'][0]['default'];
-        
+
 
         $listofOther = [];
         $listofDefault = [];
         foreach($row['benefits'] as $subArray){
             foreach($subArray['other'] as $item){
                 $listofOther[$item['receivable_id']] = $item;
-            } 
+            }
             foreach($subArray['default'] as $item){
                 $listofDefault[] = $item;
-            } 
+            }
         }
 
-     
+
         $merged = array_values($listofOther);
-        
-          
+
+
         $responseData[] =[
+            'id'=>$row['id'],
             'month'=>$row['month'],
             'year'=>$row['year'],
             'employment_type'=>$row['employment_type'],
@@ -437,8 +438,9 @@ class PayrollController extends Controller
             ];
                 //COMPUTE PAYROLL
 
-              $validation = $this->GeneratedPayrollHeaders($payroll_ID, $days_of_duty, $isPermanent, $selectedType, $is_special, $genpayrollList);
+             return $validation = $this->GeneratedPayrollHeaders($payroll_ID, $days_of_duty, $isPermanent, $selectedType, $is_special, $genpayrollList);
 
+              
                 if ($validation['result']) {
                     if ($employmentType !== "joborder" && $employmentType !== "Job Order") {
                         $this->ProcessGeneralPayrollPermanent($INpayroll, $payroll_ID, $is_special);
@@ -455,8 +457,6 @@ class PayrollController extends Controller
    if (isset($validation['payroll_ID'])){
     $payroll_ID = $validation['payroll_ID'];
    }
-
-
    $this->savetoGeneralPayrollTrails( $payroll_ID ,null,null);
 
 
@@ -1068,18 +1068,18 @@ class PayrollController extends Controller
         );
 
 
-   
+
     if(isset($benefitsSelected) && count($benefitsSelected)>=1){
         $benefitIDs = array_map(function($row){
             return $row['id'];
         },$benefitsSelected);
-      
+
         $filteredReceivables = array_values(array_filter($receivables, function($item) use($benefitIDs) {
             return $item['receivable_id'] === null ||  in_array($item['receivable_id'], $benefitIDs);
         }));
 
     }else {
-        
+
         $filteredReceivables = array_values(array_filter($receivables, function($item)  {
             return $item['receivable_id'] === null;
         }));
@@ -1096,8 +1096,8 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
     $deductions = array_values(array_filter($deductions, function($item) use($deductionIDs) {
         return $item['deduction_id'] === null ||  in_array($item['deduction_id'], $deductionIDs);
     }));
- }
 
+    
  if(!$isPermanent){
     if (request()->processMonth['JOtoPeriod'] !== "15"){
         $deductions = array_values(array_filter($deductions, function($item) use($deductionIDs) {
@@ -1105,13 +1105,15 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
         }));
     }
  }
+ }
 
-       
+
+
         $otherReceivables = 0.00;
         foreach($filteredReceivables as $row){
             $otherReceivables += $row['amount'];
         }
-     
+
 
         $tempnet = $grossSalary + $otherReceivables;
         $totalDeduction = 0.00;
@@ -1121,7 +1123,18 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
 
             $net = round($tempnet - $totalDeduction,2);
             list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($net); // Replace 100 with any number you want to divide
-    
+
+            if ($isPermanent){
+                if ($net < 5000){
+                    return;
+                }
+            }else {
+                if ($net < 2500){
+                    return;
+                }
+            }
+
+
             // return  [
             //     'payroll_headers_id' => 0,
             //     'employee_list_id' => $ID,
@@ -1137,7 +1150,7 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
             //     'month' => $currentmonth,
             //     'year' => $curryear,
             // ];
-            
+
 
             $INpayroll = [
                 'payroll_headers_id'=> 0,
