@@ -73,23 +73,7 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request) {}
     public function getDeductionsStatusList(Request $request)
     {
         try {
@@ -258,38 +242,11 @@ class EmployeeDeductionController extends Controller
                             : $deduction->deductions->amount)
                         : $deduction->amount;
 
-
-                    // Apply your logic for suspended logs
-                    $suspendedLog = $deduction->stoppageLogs
-                        ->where('status', 'Suspended')
-                        ->sortByDesc('date_from')
-                        ->first();
-
-                    // Check if the log exists and if it's active
-                    if ($suspendedLog && $suspendedLog->is_active) {
-                        $suspended_on = 'N/A';
-                        $suspended_until = 'N/A';
-                        $otherReason = 'N/A';
-                    } else {
-                        $suspended_on = $suspendedLog ? $suspendedLog->date_from : 'N/A';
-                        $suspended_until = $suspendedLog ? $suspendedLog->date_to : 'N/A';
-                        $otherReason = null;
-
-                        foreach ($deduction->stoppageLogs as $log) {
-                            // Validate if the date is in the correct format before using Carbon
-                            if ($log->status == 'Suspended' && $this->isValidDate($log->date_from, 'Y-m-d') && Carbon::createFromFormat('Y-m-d', $log->date_from)->gt(Carbon::today())) {
-                                $otherReason = $log->reason;
-                                break;
-                            }
-                        }
-                    }
-
                     return [
                         'Id' => $deduction->deduction_id,
                         'Deduction' => $deduction->deductions->name ?? 'N/A',
                         'Code' => $deduction->deductions->code ?? 'N/A',
-                        'Amount' => number_format($deductionAmount, 2),
-                        'Updated on' => $deduction->updated_at ?? 'N/A',
+                        'Amount' => $deductionAmount,
                         'Terms paid' => $deduction->with_terms
                             ? ($deduction->total_paid ?? 0) . "/" . ($deduction->total_term ?? 0)
                             : $deduction->total_paid ?? 0,
@@ -298,12 +255,12 @@ class EmployeeDeductionController extends Controller
                         'Status' => $deduction->status,
                         'Percentage' => $deduction->percentage ?? 0,
                         'Reason' => $deduction->reason ?? 'N/A',
-                        'Suspended on' => $suspended_on ?? 'N/A',
-                        'Suspended until' => $suspended_until ?? 'N/A',
-                        'Other Reason' => $otherReason ?? 'N/A',
+                        'Suspended on' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->date_from ?? 'N/A',
+                        'Suspended until' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->date_to ?? 'N/A',
+                        'Other Reason' => optional($deduction->stoppageLogs->where('status', 'Suspended')->last())->reason ?? 'N/A',
                         'is_default' => $deduction->is_default,
-                        'default_amount' => $deductionAmount,
-                        'with_terms' => $deduction->with_terms ?? false,
+                        'with_terms' => $deduction->with_terms,
+                        'Updated on' => $deduction->updated_at ?? 'N/A',
                     ];
                 });
             })->toArray();
