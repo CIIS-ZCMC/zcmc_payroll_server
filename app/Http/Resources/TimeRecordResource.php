@@ -14,7 +14,8 @@ class TimeRecordResource extends JsonResource
      */
     public function toArray($request)
     {
-        if($this->is_active){
+       return parent::toArray($request);
+       
             return [
                 'id' => $this->id,
                 'employee_list_id' => $this->employee_list_id,
@@ -36,7 +37,7 @@ class TimeRecordResource extends JsonResource
                 'minutes' => $this->minutes,
                 'daily' => $this->daily,
                 'hourly' => $this->hourly,
-                'is_active' => $this->is_active,
+                'is_active' => isset($this->is_active)? $this->is_active: 0,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
                 'computed_salary' => [
@@ -47,8 +48,7 @@ class TimeRecordResource extends JsonResource
                     'updated_at' => $this->ComputedSalary['updated_at'],
                 ],
             ];
-        }
-        return [];
-
+    
+        
     }
 }

@@ -26,7 +26,10 @@ class CreateEmployeeDeductionAdjustmentsTable extends Migration
 
             $table->string('month');
             $table->string('year');
-            $table->string('amount');
+            $table->string('amount')->comment("Amount of the employee paid");
+            $table->string('amount_to_pay')->comment("Expected Amount to pay, data is from Employee Deductions [Amount]");
+            $table->string('amount_balance');
+
             $table->string('reason');
 
             $table->text("action_by")->comment("Employee Details is from UMIS");

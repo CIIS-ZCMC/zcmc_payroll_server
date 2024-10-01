@@ -34,7 +34,7 @@ class ImportEmployeeController extends Controller
         $currentMonth = date('m');
 
 
-     
+
 
         if (!$first_half && !$second_half) {
             if ($currentyear == $year && $currentMonth == $month) {
@@ -47,7 +47,7 @@ class ImportEmployeeController extends Controller
 
             if ($currentMonth > $month) {
                 if (($currentMonth - $month) == 1) {
-                    if (floor(date('d', strtotime($year . "-" . $month . "-1"))) <= 11) {
+                    if (floor(date('d', strtotime($year . "-" . $month . "-".date('d')))) <= 11) {
                         return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records for permanent employees", 'statusCode' => 500]);
                     }
                 }

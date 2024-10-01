@@ -20,6 +20,8 @@ class EmployeeDeductionAdjustment extends Model
         'month',
         'year',
         'amount',
+        'amount_to_pay',
+        'amount_balance',
         'reason'
     ];
 

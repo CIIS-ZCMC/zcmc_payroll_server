@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use DateTime;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DeductionStatusListResources extends JsonResource
@@ -14,7 +15,18 @@ class DeductionStatusListResources extends JsonResource
      */
     public function toArray($request)
     {
-        
+        $dateArray = request()->processMonth;
+        $dateToString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOtoPeriod'];
+        $dateFromString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOfromPeriod'];
+        // Create a DateTime object from the generated date string
+        $payrollDateTo = new DateTime($dateToString);
+        $payrollDateFrom = new DateTime($dateFromString);
+       
+        $activeImports = $this->getImports()
+        ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
+        ->orderBy('payroll_date', 'desc') // Optional, if you want to order them
+        ->get();
+
         return [
             'id' => $this->id,
             'deduction_group_id' => $this->deduction_group_id,
@@ -24,9 +36,9 @@ class DeductionStatusListResources extends JsonResource
             'date_from' => $this->date_from,
             'date_to' => $this->date_to,
             'employment_type' => $this->employment_type,
-            'is_mandatory' => $this->is_mandatory,
             'is_active' => $this->is_active,
-            'hasImport'=> count($this->getImports) > 0 ? true:false,
+            'hasImport'=>count($activeImports) <= 0 ? false : true
+            //  count($this->getImports) > 0 ? true:false,
         ];
     }
 }

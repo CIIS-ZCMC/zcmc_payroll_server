@@ -29,11 +29,35 @@ class Helpers
         ];
     }
 
-    public static function DateFormats($date){
+    public static  function mergeAndGetUniqueReceivables(array $data) {
+        // Initialize an empty array to hold merged results
+        $mergedReceivables = [];
+    
+        // Loop through each sub-array in the input data
+        foreach ($data as $subArray) {
+            foreach ($subArray as $item) {
+                // Check if the item has a receivable_id
+                if (isset($item['receivable_id'])) {
+                    // Use the receivable_id as a unique key for uniqueness
+                    $mergedReceivables[$item['receivable_id']] = [
+                        'receivable_id' => $item['receivable_id'],
+                        'receivable' => $item['receivable'],
+                        'amount' => $item['amount'],
+                    ];
+                }
+            }
+        }
+    
+        // Return the unique merged array values
+        return array_values($mergedReceivables);
+    }
+
+    public static function DateFormats($date)
+    {
         $timestamp = strtotime($date); // Convert the date to a timestamp
 
         return [
-            'customFormat'=> date('h:iA F j,Y',$timestamp),
+            'customFormat' => date('h:iA F j,Y', $timestamp),
             'ISO' => date('Y-m-d', $timestamp),                   // 2024-09-20
             'US' => date('m/d/Y', $timestamp),                     // 09/20/2024
             'EU' => date('d/m/Y', $timestamp),                     // 20/09/2024
@@ -166,7 +190,8 @@ class Helpers
         return $all_areas;
     }
 
-    public static function convertToStdObject($genpayrollList){
+    public static function convertToStdObject($genpayrollList)
+    {
 
         if (is_object($genpayrollList)) {
             $genpayrollList = [$genpayrollList];
