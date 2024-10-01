@@ -36,6 +36,7 @@ Route::middleware('auth.token')->group(function () {
     Route::namespace('App\Http\Controllers\Employee')->group(function () {
         Route::get("employee_index", "EmployeeListController@index");
         Route::get("employee_benefits", "EmployeeListController@benefitsList");
+        Route::get("employee_deductions", "EmployeeListController@deductionList");
 
     });
     /**
@@ -58,6 +59,8 @@ Route::middleware('auth.token')->group(function () {
         Route::get("payrollSummary/{PayrollHeaderID}", "PayrollController@PayrollSummary");
         Route::post("Lockpayroll", "PayrollController@LockPayroll");
         Route::post("regenerate/{PayrollHeaderID}", "PayrollController@Regenerate");
+
+        Route::post("autoregenerate", "PayrollController@AutoGeneratePayroll");
     });
 
     /**
@@ -94,7 +97,7 @@ Route::middleware('auth.token')->group(function () {
     });
 
     /**
-     * Settings 
+     * Settings
      *
      */
     //  Deduction Group & Deduction

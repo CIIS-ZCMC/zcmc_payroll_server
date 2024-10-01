@@ -24,6 +24,8 @@ use App\Models\EmployeeDeduction;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
 use App\Models\Receivable;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\TimeRecordResource;
+
 
 class EmployeeListController extends Controller
 {
@@ -36,14 +38,16 @@ class EmployeeListController extends Controller
     public function index(Request $request)
     {
         $Emp = $this->allEmployees();
-
+        
+      
         if (isset($request->with_active_pay)) {
             $Emp = $this->withActivePay();
         }
+   
         if (isset($request->designation)) {
             $Emp = $this->withDesignation();
         }
-
+      
         if (isset($request->generalPayroll) && $request->generalPayroll) {
             $Emp = $this->QualifiedGeneralPayrollList();
         }
@@ -65,6 +69,8 @@ class EmployeeListController extends Controller
         if (isset($request->regenerateList)) {
             $Emp = $request->listofemployee;
         }
+        
+        
         return response()->json([
             'Message' => "List has been retrieved",
             'responseData' => EmployeeInformationResource::collection($Emp),
@@ -75,7 +81,7 @@ class EmployeeListController extends Controller
 
     public function allEmployees()
     {
-        $Emp = EmployeeList::all();
+         $Emp = EmployeeList::all();
         return $Emp;
     }
 
@@ -271,4 +277,15 @@ class EmployeeListController extends Controller
             'statusCode' => 200,
         ], Response::HTTP_OK);
     }
+
+
+    public function deductionList(){
+        return response()->json([
+            'Message' => "List has been retrieved",
+            'responseData' => Deduction::all(),
+            'statusCode' => 200,
+        ], Response::HTTP_OK);
+    }
+
+
 }
