@@ -22,7 +22,8 @@ class CreatePayrollHeadersTable extends Migration
             $table->string('toPeriod')->nullable();
             $table->string("days_of_duty")->nullable();
             $table->text("created_by")->comment("Saved Logged Employee data - Json Format");
-            $table->date("posted_at")->nullable();
+            $table->dateTime("posted_at")->nullable();
+            $table->dateTime("last_generated_at")->nullable();
             $table->boolean("is_special")->default(false);
             $table->boolean("is_locked")->default(false);
             $table->timestamps();

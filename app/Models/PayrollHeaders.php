@@ -20,6 +20,7 @@ class PayrollHeaders extends Model
         'days_of_duty',
         'created_by',
         'posted_at',
+        'last_generated_at',
         'is_special',
         'is_locked',
     ];

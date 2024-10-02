@@ -213,7 +213,9 @@ class PayrollController extends Controller
                 'listofemployee' => $listofemployee->get()
             ]))->original['responseData'];
 
-            $header->touch();
+            $header->update([
+                'last_generated_at'=>now()
+            ]);
             return response()->json([
                 'responseData' => $data,
                 'statusCode' => 200
@@ -929,6 +931,8 @@ class PayrollController extends Controller
                 'Gross' => $totalGrossPay,
                 'totalDeduction' => $totalDeductions,
                 'Net' => $totalNetSal,
+                'posted_at'=>$header->posted_at ? Helpers::DateFormats($header->posted_at)['customFormat']: null,
+                'last_generated_at'=>$header->last_generated_at? Helpers::DateFormats($header->last_generated_at)['customFormat']: null ,
                 'Created_at' => Helpers::DateFormats($header->created_at),
                 'Updated_at' => Helpers::DateFormats($header->updated_at),
                 'Data' => GeneralPayrollResources::collection($header->genPayrolls)
@@ -1252,7 +1256,6 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
                 $totaltermpaid += $empDeductionTrail->total_term_paid;
 
             }
-
             EmployeeDeductionTrail::create([
                 'employee_deduction_id'=>$row['deduction_id'],
                 'total_term'=>$empdeduction->first()->total_term ?? 0,
@@ -1262,13 +1265,14 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
                 'balance'=>0,
                 'is_last_payment'=>0
             ]);
-
-
             $totalPaid = $empdeduction->first()->total_paid;
             $empdeduction->update([
                 'total_paid'=> $totalPaid + 1
             ]);
         }
+        $payHeader->update([
+            'posted_at'=>now()
+        ]);
 
         return response()->json([
             'statusCode'=>200,
