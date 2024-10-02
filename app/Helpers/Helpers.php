@@ -29,6 +29,29 @@ class Helpers
         ];
     }
 
+    public static  function mergeAndGetUniqueReceivables(array $data) {
+        // Initialize an empty array to hold merged results
+        $mergedReceivables = [];
+    
+        // Loop through each sub-array in the input data
+        foreach ($data as $subArray) {
+            foreach ($subArray as $item) {
+                // Check if the item has a receivable_id
+                if (isset($item['receivable_id'])) {
+                    // Use the receivable_id as a unique key for uniqueness
+                    $mergedReceivables[$item['receivable_id']] = [
+                        'receivable_id' => $item['receivable_id'],
+                        'receivable' => $item['receivable'],
+                        'amount' => $item['amount'],
+                    ];
+                }
+            }
+        }
+    
+        // Return the unique merged array values
+        return array_values($mergedReceivables);
+    }
+
     public static function DateFormats($date)
     {
         $timestamp = strtotime($date); // Convert the date to a timestamp

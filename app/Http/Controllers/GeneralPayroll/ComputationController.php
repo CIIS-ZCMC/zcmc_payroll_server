@@ -133,4 +133,93 @@ class ComputationController extends Controller
     {
         return Helpers::customRound(($NetSalarywNightDifferential + $TotalReceivables) - ($TotalDeductions + $TotalTaxex));
     }
+
+    public function CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType) {
+        $pera = 2000;
+    
+        if ($employmentType === "Permanent Part-time") {
+            if ($totalAbsences >= 1) {
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(1000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((1000 - $totalDedForAbsent) * 100) / 100;
+            } else {
+                $pera = floor($totalPresentDays * 1000 / 22 * 100) / 100;
+            }
+        } else {
+            if ($totalAbsences >= 1) {
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(2000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((2000 - $totalDedForAbsent) * 100) / 100;
+            } else {
+                $pera = floor($totalPresentDays * 2000 / 22 * 100) / 100;
+            }
+        }
+    
+        return $pera;
+    }
+    
+    public function CalculateHAZARDPay($salaryGrade, $basicSalary, $absences) {
+        $monthlySalary = number_format($basicSalary, 2); // Formatting if needed
+        $salaryPercentage = 0.0;
+
+        
+        switch (true) {
+            case $salaryGrade <= 19:
+                $salaryPercentage = 0.25;
+                break;
+            case $salaryGrade == 20:
+                $salaryPercentage = 0.15;
+                break;
+            case $salaryGrade == 21:
+                $salaryPercentage = 0.13;
+                break;
+            case $salaryGrade == 22:
+                $salaryPercentage = 0.12;
+                break;
+            case $salaryGrade == 23:
+                $salaryPercentage = 0.11;
+                break;
+            case in_array($salaryGrade, [24, 25]):
+                $salaryPercentage = 0.1;
+                break;
+            case $salaryGrade == 26:
+                $salaryPercentage = 0.09;
+                break;
+            case $salaryGrade == 27:
+                $salaryPercentage = 0.08;
+                break;
+            case $salaryGrade == 28:
+                $salaryPercentage = 0.07;
+                break;
+            case in_array($salaryGrade, [29, 30]):
+                $salaryPercentage = 0.06;
+                break;
+            case $salaryGrade == 31:
+                $salaryPercentage = 0.05;
+                break;
+            default:
+                $salaryPercentage = 0;
+                break;
+        }
+
+      
+
+        if ($absences <= 11) {
+            return (double)($salaryPercentage * $basicSalary);
+        }
+     
+        return 0.00;
+    }
+
+    public function CalculateNightDifferential($totalNightDutyHours, $monthlyRate) {
+        $totalAccumulatedND = 0.00;
+        $nightdiffRate = floor($monthlyRate * 0.005682 * 100) / 100;
+        $nightDifferentialTwentyPercentRate = floor($nightdiffRate * 0.2 * 100) / 100;
+        $totalAccumulatedND = floor($totalNightDutyHours * $nightDifferentialTwentyPercentRate * 100) / 100;
+    
+        return $totalAccumulatedND;
+    }
+    
+
+
 }
