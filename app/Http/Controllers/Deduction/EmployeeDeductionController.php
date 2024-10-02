@@ -831,6 +831,7 @@ class EmployeeDeductionController extends Controller
                         $frequency = false;
                         //Logic Create New
                         $tempDate = clone $fromDate;
+                        $term = $term ?: 0;
                         EmployeeDeduction::create([
                             'employee_list_id' => $isEmployeeExist->id,
                             'deduction_id' => $deductionid,
