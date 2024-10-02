@@ -789,7 +789,10 @@ class EmployeeDeductionController extends Controller
                     'payroll_date'=>$fromDate //$importDet["payrollisone"]?:,
                 ]);
             }
+            $tempid = 0;
+            
             foreach ($payload as $record) {
+                $tempid= $record['empid'];
                 $empId = $record['empid'];
                 $fullname = $record['fullname'];
                 $amount = $record['amount'];
@@ -826,8 +829,8 @@ class EmployeeDeductionController extends Controller
                         //set isdefault = false frequency="monthly"
                         $is_default = false;
                         $frequency = false;
-                        
                         //Logic Create New
+                        $tempDate = clone $fromDate;
                         EmployeeDeduction::create([
                             'employee_list_id' => $isEmployeeExist->id,
                             'deduction_id' => $deductionid,
@@ -835,7 +838,7 @@ class EmployeeDeductionController extends Controller
                             'frequency' => "Monthly",  // Make sure to hash the password
                             'status'=>"Active",
                             'date_from' => $fromDate,
-                            'date_to'=>$fromDate->modify("+$term months"),
+                            'date_to'=>$tempDate->modify("+$term months"),
                             'with_terms'=>"1",
                             'total_term'=>$term,
                             'is_default'=>"0",
@@ -858,6 +861,7 @@ class EmployeeDeductionController extends Controller
                                 $employeeDeduction = $isEmployeeExist->employeeDeductions->firstWhere('deduction_id', $deductionid);
                                 //NOTE:touch the isdafault set to false if this are all true: changetoabs, isedited
                                 //check if edited amount
+                                
                                 if($isEdit){
                                     
                                     //set isdefault to false
@@ -930,8 +934,10 @@ class EmployeeDeductionController extends Controller
                                 if($willDeductEdited){
                                     ///logs return
                                     if($willDeduct){
+                                        
                                         $tempEditedLog['desc'] .= "Added to the Deduction : ";
                                         $employeeDeduction->willDeduct =  $fromDate;
+
                                     }else{
 
                                         $tempEditedLog['desc'] .= "Removed from the Deduction : ";
