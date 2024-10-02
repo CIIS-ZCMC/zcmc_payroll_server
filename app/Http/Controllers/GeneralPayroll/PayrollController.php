@@ -1269,7 +1269,12 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
                 'total_paid'=> $totalPaid + 1
             ]);
         }
-         return $deductions;
+
+        return response()->json([
+            'statusCode'=>200,
+            'message'=>"Posted"
+        ]);
+
         }
 
 
