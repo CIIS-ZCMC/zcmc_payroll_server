@@ -14,6 +14,8 @@ use App\Helpers\GenPayroll;
 use App\Http\Resources\EmployeeSalaryResource;
 use App\Models\GeneralPayroll;
 use App\Models\GeneralPayrollTrails;
+use App\Models\EmployeeDeductionTrail;
+use App\Models\EmployeeDeduction;
 use App\Http\Resources\PayrollHeaderResources;
 use App\Http\Resources\GeneralPayrollResources;
 use App\Http\Resources\TimeRecordResource;
@@ -167,6 +169,7 @@ class PayrollController extends Controller
             'statusCode' => 200,
         ]);
     }
+
 
     public function GeneralPayrollList($HeaderID)
     {
@@ -971,24 +974,24 @@ class PayrollController extends Controller
             $totalNightDutyHours = $timeRecords->total_night_duty_hours;
             $salaryGrade = $salary->salary_grade;
             $PERA = $this->computer->CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType);
-          
+
             $HAZARD = 0.00;
-         
+
             if ($timeRecords->total_leave_with_pay < 11){
-               
+
                $HAZARD = $this->computer->CalculateHAZARDPay($salaryGrade, $baseSalary, $totalAbsences);
             }
-            
-     
+
+
             $nightDiff = $this->computer->CalculateNightDifferential( $totalNightDutyHours, $baseSalary);
 
 
-      
+
             $isPermanent = 0;
             if ($employmentType !== "joborder" && $employmentType !== "Job Order"){
                 $isPermanent = 1;
             }
-         
+
 
             // if ($isPermanent){
             //     if ($computedSalary < 5000){
@@ -1140,7 +1143,7 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
             $net = round($tempnet - $totalDeduction,2);
             list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($net); // Replace 100 with any number you want to divide
 
-          
+
             if ($isPermanent){
                 if ($net <= 5000){
                     return response()->json([
@@ -1213,6 +1216,62 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
                 'message'=>"processed $request->emplistID"
             ]);
         }
+
+        return response()->json([
+            'statusCode'=>406,
+            'message'=>"Not found"
+        ]);
+
+    }
+
+    public function post_deductions(Request $request){
+        $payHeader = PayrollHeaders::find($request->payroll_headers_id);
+        $empID = $request->employee_list_id;
+        if ($payHeader) {
+         $generalpay = GeneralPayrollResources::collection($payHeader->genPayrolls)->response()->getData(true)['data'];
+         $EmployeeData = collect(array_filter($generalpay,function($row) use($empID){
+            return $row['employee_list_id'] == $empID;
+         }))->first();
+
+         $deductions = array_values(array_filter($EmployeeData['employee_deductions'],function($row){
+            return $row['deduction_id'] !== null;
+     }));
+
+
+
+        //
+
+        foreach($deductions as $row){
+            $empdeduction = EmployeeDeduction::where('employee_list_id',$empID)
+            ->where('deduction_id',$row['deduction_id']);
+
+     $empDeductionTrail = EmployeeDeductionTrail::where("employee_deduction_id",$row['deduction_id'])
+                                                ->where("is_last_payment",0)->latest()->first();
+            $totaltermpaid = 1;
+            if ($empDeductionTrail){
+                $totaltermpaid += $empDeductionTrail->total_term_paid;
+
+            }
+
+            EmployeeDeductionTrail::create([
+                'employee_deduction_id'=>$row['deduction_id'],
+                'total_term'=>$empdeduction->first()->total_term ?? 0,
+                'total_term_paid'=> $totaltermpaid,
+                'amount_paid' =>$row['amount'],
+                'date_paid'=>now(),
+                'balance'=>0,
+                'is_last_payment'=>0
+            ]);
+
+
+            $totalPaid = $empdeduction->first()->total_paid;
+            $empdeduction->update([
+                'total_paid'=> $totalPaid + 1
+            ]);
+        }
+         return $deductions;
+        }
+
 
         return response()->json([
             'statusCode'=>406,

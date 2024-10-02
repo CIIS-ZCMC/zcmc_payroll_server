@@ -61,6 +61,7 @@ Route::middleware('auth.token')->group(function () {
         Route::post("regenerate/{PayrollHeaderID}", "PayrollController@Regenerate");
 
         Route::post("autoregenerate", "PayrollController@AutoGeneratePayroll");
+        Route::post("post_deductions","PayrollController@post_deductions");
     });
 
     /**
