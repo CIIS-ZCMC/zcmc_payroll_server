@@ -11,6 +11,7 @@ use App\Http\Controllers\GeneralPayroll\ComputationController;
 use App\Http\Controllers\Employee\EmployeeListController;
 use App\Helpers\Helpers;
 use App\Helpers\GenPayroll;
+use App\Models\ActivePeriod;
 use App\Http\Resources\EmployeeSalaryResource;
 use App\Models\GeneralPayroll;
 use App\Models\GeneralPayrollTrails;
@@ -88,6 +89,47 @@ class PayrollController extends Controller
             'statusCode' => 200
         ]);
     }
+
+    public function setActiveperiod(Request $request){
+        $month = $request->month;
+        $year = $request->year;
+        $fromPeriod = $request->fromPeriod;
+        $toPeriod = $request->toPeriod;
+        $employmentType = $request->employmentType;
+
+        $active = ActivePeriod::where("month",$month)->where("year",$year)
+            ->where("fromPeriod",$fromPeriod)->where("toPeriod",$toPeriod)
+            ->where("employmentType",$employmentType);
+
+        if ($active->exists()){
+            ActivePeriod::where("id","!=",$active->first()->id)->update([
+                'is_active'=>0
+            ]);
+            $active->update([
+                'is_active'=>1
+            ]);
+        }else {
+
+          $active =  ActivePeriod::create([
+            "month"=>$month,
+            "year"=>$year,
+            "fromPeriod"=>$fromPeriod,
+            "toPeriod"=>$toPeriod,
+            "employmentType"=>$employmentType,
+            "is_active" => 1,
+        ]);
+
+        ActivePeriod::where("id","!=",$active->id)->update([
+            'is_active'=>0
+        ]);
+        }
+        return response()->json([
+            'Message' => "active payroll set",
+            'statusCode' => 200
+        ]);
+    }
+
+
     public function validatePayroll($employmenttype)
     {
 
@@ -162,10 +204,28 @@ class PayrollController extends Controller
             ]);
         }
 
+        $activeperiod = ActivePeriod::where("is_active",1)->first();
+
+        $activeRecords = request()->processMonth;
+
+        if($activeperiod){
+
+            $data = [
+                'ActivePeriod'=>[
+                    'month'=>$activeperiod->month,
+                    'year'=>$activeperiod->year,
+                    'fromPeriod'=>$activeperiod->fromPeriod,
+                    'toPeriod'=>$activeperiod->toPeriod,
+                    'employmentType'=>$activeperiod->employmentType
+                ],
+            ];
+            $activeRecords = array_merge($data,$activeRecords);
+        }
+
 
         return response()->json([
             'message' => 'active Record retrieved successfully',
-            'Data' => request()->processMonth,
+            'Data' => $activeRecords,
             'statusCode' => 200,
         ]);
     }
@@ -890,7 +950,8 @@ class PayrollController extends Controller
                     $results[$code] = [
                         'name' => "Receivable( $name )",
                         'code' => $code,
-                        'totalAmount' => 0
+                        'totalAmount' => 0,
+                        'is_deduction'=>false
                     ];
                 }
                 $results[$code]['totalAmount'] += $item->amount;
@@ -903,7 +964,8 @@ class PayrollController extends Controller
                     $results[$code] = [
                         'name' => "Deduction( $name )",
                         'code' => $code,
-                        'totalAmount' => 0
+                        'totalAmount' => 0,
+                        'is_deduction'=>true
                     ];
                 }
                 $results[$code]['totalAmount'] += $item->amount;
@@ -1271,7 +1333,8 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
             ]);
         }
         $payHeader->update([
-            'posted_at'=>now()
+            'posted_at'=>now(),
+            'is_locked'=>1
         ]);
 
         return response()->json([
