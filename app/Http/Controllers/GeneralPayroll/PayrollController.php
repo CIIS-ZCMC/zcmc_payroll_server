@@ -11,9 +11,12 @@ use App\Http\Controllers\GeneralPayroll\ComputationController;
 use App\Http\Controllers\Employee\EmployeeListController;
 use App\Helpers\Helpers;
 use App\Helpers\GenPayroll;
+use App\Models\ActivePeriod;
 use App\Http\Resources\EmployeeSalaryResource;
 use App\Models\GeneralPayroll;
 use App\Models\GeneralPayrollTrails;
+use App\Models\EmployeeDeductionTrail;
+use App\Models\EmployeeDeduction;
 use App\Http\Resources\PayrollHeaderResources;
 use App\Http\Resources\GeneralPayrollResources;
 use App\Http\Resources\TimeRecordResource;
@@ -86,6 +89,47 @@ class PayrollController extends Controller
             'statusCode' => 200
         ]);
     }
+
+    public function setActiveperiod(Request $request){
+        $month = $request->month;
+        $year = $request->year;
+        $fromPeriod = $request->fromPeriod;
+        $toPeriod = $request->toPeriod;
+        $employmentType = $request->employmentType;
+
+        $active = ActivePeriod::where("month",$month)->where("year",$year)
+            ->where("fromPeriod",$fromPeriod)->where("toPeriod",$toPeriod)
+            ->where("employmentType",$employmentType);
+
+        if ($active->exists()){
+            ActivePeriod::where("id","!=",$active->first()->id)->update([
+                'is_active'=>0
+            ]);
+            $active->update([
+                'is_active'=>1
+            ]);
+        }else {
+
+          $active =  ActivePeriod::create([
+            "month"=>$month,
+            "year"=>$year,
+            "fromPeriod"=>$fromPeriod,
+            "toPeriod"=>$toPeriod,
+            "employmentType"=>$employmentType,
+            "is_active" => 1,
+        ]);
+
+        ActivePeriod::where("id","!=",$active->id)->update([
+            'is_active'=>0
+        ]);
+        }
+        return response()->json([
+            'Message' => "active payroll set",
+            'statusCode' => 200
+        ]);
+    }
+
+
     public function validatePayroll($employmenttype)
     {
 
@@ -160,13 +204,32 @@ class PayrollController extends Controller
             ]);
         }
 
+        $activeperiod = ActivePeriod::where("is_active",1)->first();
+
+        $activeRecords = request()->processMonth;
+
+        if($activeperiod){
+
+            $data = [
+                'ActivePeriod'=>[
+                    'month'=>$activeperiod->month,
+                    'year'=>$activeperiod->year,
+                    'fromPeriod'=>$activeperiod->fromPeriod,
+                    'toPeriod'=>$activeperiod->toPeriod,
+                    'employmentType'=>$activeperiod->employmentType
+                ],
+            ];
+            $activeRecords = array_merge($data,$activeRecords);
+        }
+
 
         return response()->json([
             'message' => 'active Record retrieved successfully',
-            'Data' => request()->processMonth,
+            'Data' => $activeRecords,
             'statusCode' => 200,
         ]);
     }
+
 
     public function GeneralPayrollList($HeaderID)
     {
@@ -210,7 +273,9 @@ class PayrollController extends Controller
                 'listofemployee' => $listofemployee->get()
             ]))->original['responseData'];
 
-            $header->touch();
+            $header->update([
+                'last_generated_at'=>now()
+            ]);
             return response()->json([
                 'responseData' => $data,
                 'statusCode' => 200
@@ -885,7 +950,8 @@ class PayrollController extends Controller
                     $results[$code] = [
                         'name' => "Receivable( $name )",
                         'code' => $code,
-                        'totalAmount' => 0
+                        'totalAmount' => 0,
+                        'is_deduction'=>false
                     ];
                 }
                 $results[$code]['totalAmount'] += $item->amount;
@@ -898,7 +964,8 @@ class PayrollController extends Controller
                     $results[$code] = [
                         'name' => "Deduction( $name )",
                         'code' => $code,
-                        'totalAmount' => 0
+                        'totalAmount' => 0,
+                        'is_deduction'=>true
                     ];
                 }
                 $results[$code]['totalAmount'] += $item->amount;
@@ -926,6 +993,8 @@ class PayrollController extends Controller
                 'Gross' => $totalGrossPay,
                 'totalDeduction' => $totalDeductions,
                 'Net' => $totalNetSal,
+                'posted_at'=>$header->posted_at ? Helpers::DateFormats($header->posted_at)['customFormat']: null,
+                'last_generated_at'=>$header->last_generated_at? Helpers::DateFormats($header->last_generated_at)['customFormat']: null ,
                 'Created_at' => Helpers::DateFormats($header->created_at),
                 'Updated_at' => Helpers::DateFormats($header->updated_at),
                 'Data' => GeneralPayrollResources::collection($header->genPayrolls)
@@ -971,24 +1040,24 @@ class PayrollController extends Controller
             $totalNightDutyHours = $timeRecords->total_night_duty_hours;
             $salaryGrade = $salary->salary_grade;
             $PERA = $this->computer->CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType);
-          
+
             $HAZARD = 0.00;
-         
+
             if ($timeRecords->total_leave_with_pay < 11){
-               
+
                $HAZARD = $this->computer->CalculateHAZARDPay($salaryGrade, $baseSalary, $totalAbsences);
             }
-            
-     
+
+
             $nightDiff = $this->computer->CalculateNightDifferential( $totalNightDutyHours, $baseSalary);
 
 
-      
+
             $isPermanent = 0;
             if ($employmentType !== "joborder" && $employmentType !== "Job Order"){
                 $isPermanent = 1;
             }
-         
+
 
             // if ($isPermanent){
             //     if ($computedSalary < 5000){
@@ -1140,7 +1209,7 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
             $net = round($tempnet - $totalDeduction,2);
             list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($net); // Replace 100 with any number you want to divide
 
-          
+
             if ($isPermanent){
                 if ($net <= 5000){
                     return response()->json([
@@ -1213,6 +1282,68 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
                 'message'=>"processed $request->emplistID"
             ]);
         }
+
+        return response()->json([
+            'statusCode'=>406,
+            'message'=>"Not found"
+        ]);
+
+    }
+
+    public function post_deductions(Request $request){
+        $payHeader = PayrollHeaders::find($request->payroll_headers_id);
+        $empID = $request->employee_list_id;
+        if ($payHeader) {
+         $generalpay = GeneralPayrollResources::collection($payHeader->genPayrolls)->response()->getData(true)['data'];
+         $EmployeeData = collect(array_filter($generalpay,function($row) use($empID){
+            return $row['employee_list_id'] == $empID;
+         }))->first();
+
+         $deductions = array_values(array_filter($EmployeeData['employee_deductions'],function($row){
+            return $row['deduction_id'] !== null;
+     }));
+
+
+
+        //
+
+        foreach($deductions as $row){
+            $empdeduction = EmployeeDeduction::where('employee_list_id',$empID)
+            ->where('deduction_id',$row['deduction_id']);
+
+     $empDeductionTrail = EmployeeDeductionTrail::where("employee_deduction_id",$row['deduction_id'])
+                                                ->where("is_last_payment",0)->latest()->first();
+            $totaltermpaid = 1;
+            if ($empDeductionTrail){
+                $totaltermpaid += $empDeductionTrail->total_term_paid;
+
+            }
+            EmployeeDeductionTrail::create([
+                'employee_deduction_id'=>$row['deduction_id'],
+                'total_term'=>$empdeduction->first()->total_term ?? 0,
+                'total_term_paid'=> $totaltermpaid,
+                'amount_paid' =>$row['amount'],
+                'date_paid'=>now(),
+                'balance'=>0,
+                'is_last_payment'=>0
+            ]);
+            $totalPaid = $empdeduction->first()->total_paid;
+            $empdeduction->update([
+                'total_paid'=> $totalPaid + 1
+            ]);
+        }
+        $payHeader->update([
+            'posted_at'=>now(),
+            'is_locked'=>1
+        ]);
+
+        return response()->json([
+            'statusCode'=>200,
+            'message'=>"Posted"
+        ]);
+
+        }
+
 
         return response()->json([
             'statusCode'=>406,
