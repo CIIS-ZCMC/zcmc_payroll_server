@@ -25,7 +25,7 @@ class CreateStoppageLogsTable extends Migration
             $table->string('date_from')->nullable();
             $table->string('stopped_at')->nullable();
             $table->boolean('is_active');
-            $table->string('remarks');
+            $table->string('remarks')->nullable();
             $table->timestamps();
         });
     }
