@@ -37,7 +37,8 @@ class DeductionStatusListResources extends JsonResource
             'date_to' => $this->date_to,
             'employment_type' => $this->employment_type,
             'is_active' => $this->is_active,
-            'hasImport'=>count($activeImports) <= 0 ? false : true
+            'hasImport'=>count($activeImports) <= 0 ? false : true,
+            'isRegularDeduction'=>$this->employment_type === "Job Order" ? false:true
             //  count($this->getImports) > 0 ? true:false,
         ];
     }
