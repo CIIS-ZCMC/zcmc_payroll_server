@@ -15,6 +15,7 @@ use App\Models\StoppageLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Crypt;
 
 class EmployeeReceivableController extends Controller
 {
@@ -33,7 +34,9 @@ class EmployeeReceivableController extends Controller
             $response = [];
 
             foreach ($employees as $employee) {
-                $basic_salary = optional($employee->getSalary)->basic_salary ?? 0;
+                $basic_salary = optional($employee->getSalary)->basic_salary
+                    ? Crypt::decrypt(optional($employee->getSalary)->basic_salary)
+                    : 0;
                 $total_receivables = 0;
                 $receivables_count = 0;
 
@@ -98,7 +101,9 @@ class EmployeeReceivableController extends Controller
             $receivablesData = [];
 
             foreach ($employees as $employee) {
-                $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                $basicSalary = $employee->getSalary->basic_salary
+                    ? Crypt::decrypt($employee->getSalary->basic_salary)
+                    : 0;
 
                 foreach ($employee->employeeReceivables as $receivable) {
                     if ($receivable->status == 'Active') {
@@ -190,7 +195,9 @@ class EmployeeReceivableController extends Controller
 
             // Iterate over employees to get inactive receivables
             foreach ($employees as $employee) {
-                $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                $basicSalary = $employee->getSalary->basic_salary
+                    ? Crypt::decrypt($employee->getSalary->basic_salary)
+                    : 0;
 
                 foreach ($employee->employeeReceivables as $receivable) {
                     // Check for inactive receivable statuses
@@ -252,7 +259,9 @@ class EmployeeReceivableController extends Controller
 
             // Iterate through employees to get suspended receivables
             foreach ($employees as $employee) {
-                $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                $basicSalary = $employee->getSalary->basic_salary
+                    ? Crypt::decrypt($employee->getSalary->basic_salary)
+                    : 0;
 
                 foreach ($employee->employeeReceivables as $receivable) {
                     // Check for suspended status
@@ -324,7 +333,12 @@ class EmployeeReceivableController extends Controller
                     if ($receivable->amount === null) {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $defaultAmount = $basicSalary->basic_salary * ($receivable->percentage / 100);
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $defaultAmount = ($decryptedSalary) * ($receivable->percentage / 100);
+                        } else {
+                            $defaultAmount = 0; // Handle case where no salary is found or is null
+                        }
                     } else {
                         $defaultAmount = $receivable->amount;
                     }
@@ -388,11 +402,16 @@ class EmployeeReceivableController extends Controller
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $percentaheAmount = $basicSalary->basic_salary * ($percentage / 100);
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $percentageAmount = ($decryptedSalary) * ($percentage / 100);
+                        } else {
+                            $percentageAmount = 0; // Handle case where no salary is found or is null
+                        }
                         $newreceivable = EmployeeReceivable::create([
                             'employee_list_id' => $employee_list_id,
                             'receivable_id' => $receivable_id,
-                            'amount' => $percentaheAmount,
+                            'amount' => $percentageAmount,
                             'percentage' => $percentage,
                             'frequency' => $frequency,
                             'is_default' => $is_default,
@@ -449,7 +468,12 @@ class EmployeeReceivableController extends Controller
                     if ($receivable->amount === null) {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $defaultAmount = $basicSalary->basic_salary * ($receivable->percentage / 100);
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $defaultAmount = ($decryptedSalary) * ($receivable->percentage / 100);
+                        } else {
+                            $defaultAmount = 0; // Handle case where no salary is found or is null
+                        }
                     } else {
                         $defaultAmount = $receivable->amount;
                     }
@@ -507,11 +531,16 @@ class EmployeeReceivableController extends Controller
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $percentaheAmount = $basicSalary->basic_salary * ($percentage / 100);
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $percentageAmount = ($decryptedSalary) * ($percentage / 100);
+                        } else {
+                            $percentageAmount = 0; // Handle case where no salary is found or is null
+                        }
                         $employee_receivables->update([
                             'employee_list_id' => $employee_list_id,
                             'receivable_id' => $receivable_id,
-                            'amount' => $percentaheAmount,
+                            'amount' => $percentageAmount,
                             'percentage' => $percentage,
                             'is_default' => $is_default,
                             'reason' => $reason
@@ -565,8 +594,7 @@ class EmployeeReceivableController extends Controller
             if ($employee_receivables) {
 
                 if ($status === 'Stopped') {
-                    $stopped_at = now()->format('Y-m-d');
-                    ;
+                    $stopped_at = now()->format('Y-m-d');;
                 }
 
                 if ($status === 'Suspended') {

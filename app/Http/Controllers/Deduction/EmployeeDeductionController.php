@@ -16,6 +16,7 @@ use App\Models\EmployeeSalary;
 use App\Models\StoppageLog;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
 class EmployeeDeductionController extends Controller
 {
@@ -34,7 +35,11 @@ class EmployeeDeductionController extends Controller
             $response = [];
 
             foreach ($employees as $employee) {
-                $basic_salary = optional($employee->getSalary)->basic_salary ? (optional($employee->getSalary)->basic_salary) : 0;
+
+
+                $basic_salary = optional($employee->getSalary)->basic_salary
+                    ? floatval(Crypt::decrypt(optional($employee->getSalary)->basic_salary))
+                    : 0;
                 $total_deductions = 0;
 
                 foreach ($employee->employeeDeductions as $employeeDeduction) {
@@ -53,6 +58,7 @@ class EmployeeDeductionController extends Controller
                     'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,
                     'Net salary' => $net_salary,
+                    'Employment type' => $employee->getSalary->employment_type,
                 ];
             }
 
@@ -61,6 +67,7 @@ class EmployeeDeductionController extends Controller
                 'message' => 'Retrieve employee details.'
             ]);
         } catch (\Throwable $th) {
+
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -131,7 +138,9 @@ class EmployeeDeductionController extends Controller
                 return $employee->employeeDeductions->filter(function ($deduction) {
                     return in_array($deduction->status, ['Active']);
                 })->map(function ($deduction) use ($employee) {
-                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    $basicSalary = optional($employee->getSalary)->basic_salary
+                        ? floatval(Crypt::decrypt(optional($employee->getSalary)->basic_salary))
+                        : 0;
                     $deductionAmount = $deduction->is_default
                         ? ($deduction->deductions->amount == 0
                             ? ($basicSalary * ($deduction->deductions->percentage / 100))
@@ -183,7 +192,9 @@ class EmployeeDeductionController extends Controller
                         'Suspended until' => $suspended_until ?? 'N/A',
                         'Other Reason' => $otherReason ?? 'N/A',
                         'is_default' => $deduction->is_default,
-                        'default_amount' => $deductionAmount,
+                        'default_amount' => ($deduction->deductions->amount == 0
+                            ? ($basicSalary * ($deduction->deductions->percentage / 100))
+                            : $deduction->deductions->amount),
                         'with_terms' => $deduction->with_terms ?? false,
                     ];
                 });
@@ -223,7 +234,9 @@ class EmployeeDeductionController extends Controller
                 return $employee->employeeDeductions->filter(function ($deduction) {
                     return in_array($deduction->status, ['Suspended']);
                 })->map(function ($deduction) use ($employee) {
-                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    $basicSalary = optional($employee->getSalary)->basic_salary
+                        ? floatval(Crypt::decrypt(optional($employee->getSalary)->basic_salary))
+                        : 0;
                     $deductionAmount = $deduction->is_default
                         ? ($deduction->deductions->amount == 0
                             ? ($basicSalary * ($deduction->deductions->percentage / 100))
@@ -283,7 +296,9 @@ class EmployeeDeductionController extends Controller
                 return $employee->employeeDeductions->filter(function ($deduction) {
                     return in_array($deduction->status, ['Stopped', 'Completed']);
                 })->map(function ($deduction) use ($employee) {
-                    $basicSalary = $employee->getSalary->basic_salary ?? 0;
+                    $basicSalary = optional($employee->getSalary)->basic_salary
+                        ? floatval(Crypt::decrypt(optional($employee->getSalary)->basic_salary))
+                        : 0;
                     $deductionAmount = $deduction->is_default
                         ? ($deduction->deductions->amount == 0
                             ? ($basicSalary * ($deduction->deductions->percentage / 100))
@@ -366,7 +381,13 @@ class EmployeeDeductionController extends Controller
                     if ($deduction->amount === null) {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $defaultAmount = ($basicSalary->basic_salary) * ($deduction->percentage / 100);
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $numericSalary = floatval($decryptedSalary); // Convert to float
+                            $defaultAmount = $numericSalary * ($deduction->percentage / 100); // Calculate default amount
+                        } else {
+                            $defaultAmount = 0; // Handle case where no salary is found or is null
+                        }
                     } else {
                         $defaultAmount = $deduction->amount;
                     }
@@ -441,7 +462,14 @@ class EmployeeDeductionController extends Controller
                     } else {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $percentaheAmount = ($basicSalary->basic_salary) * ($percentage / 100);
+
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $numericSalary = floatval($decryptedSalary); // Convert to float
+                            $percentageAmount = $numericSalary * ($percentage / 100);
+                        } else {
+                            $percentageAmount = 0; // Handle case where no salary is found or is null
+                        }
 
                         if ($with_terms) {
                             $total_term = $request->total_term;
@@ -450,7 +478,7 @@ class EmployeeDeductionController extends Controller
                         $newDeduction = EmployeeDeduction::create([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
-                            'amount' => $percentaheAmount,
+                            'amount' => $percentageAmount,
                             'percentage' => $percentage,
                             'frequency' => $frequency,
                             'total_term' => $total_term,
@@ -511,7 +539,13 @@ class EmployeeDeductionController extends Controller
                     if ($deduction->amount === null) {
 
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $defaultAmount = ($basicSalary->basic_salary) * ($deduction->percentage / 100);
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $numericSalary = floatval($decryptedSalary); // Convert to float
+                            $defaultAmount = $numericSalary * ($deduction->percentage / 100); // Calculate default amount
+                        } else {
+                            $defaultAmount = 0; // Handle case where no salary is found or is null
+                        }
                     } else {
                         $defaultAmount = $deduction->amount;
                     }
@@ -584,11 +618,17 @@ class EmployeeDeductionController extends Controller
                             $total_term = $request->total_term;
                         }
                         $basicSalary = EmployeeSalary::where('employee_list_id', $employee_list_id)->first();
-                        $percentaheAmount = ($basicSalary->basic_salary) * ($percentage / 100);
+                        if ($basicSalary && $basicSalary->basic_salary) {
+                            $decryptedSalary = Crypt::decrypt($basicSalary->basic_salary); // Decrypt the salary
+                            $numericSalary = floatval($decryptedSalary); // Convert to float
+                            $percentageAmount = $numericSalary * ($percentage / 100);
+                        } else {
+                            $percentageAmount = 0; // Handle case where no salary is found or is null
+                        }
                         $employee_deductions->update([
                             'employee_list_id' => $employee_list_id,
                             'deduction_id' => $deduction_id,
-                            'amount' => $percentaheAmount,
+                            'amount' => $percentageAmount,
                             'percentage' => $percentage,
                             'frequency' => $frequency,
                             'total_term' => $total_term,
