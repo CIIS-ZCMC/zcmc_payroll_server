@@ -130,6 +130,12 @@ Route::middleware('auth.token')->group(function () {
         Route::delete('receivable/{id}', 'ReceivableController@destroy');
         Route::put('receivable-stop/{id}', 'ReceivableController@stop');
     });
+
+
+    /**
+     * Imports
+     *
+     */
     Route::namespace('App\Http\Controllers\Deduction')->group(function () {
         Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
         Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
