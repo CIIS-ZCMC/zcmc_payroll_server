@@ -20,22 +20,62 @@ class ComputationController extends Controller
         return Helpers::customRound($tempNetSalary + $Accumulated_Amount_Night_Differential);
     }
 
-    public function computeDeductionAmount($employeeList)
+    public function computeDeductionAmount($deductionSelected,$deductions,$isPermanent,$undertimeRate,$withoutPayAbsencesRate)
     {
-        $perdeductions = $employeeList->getListOfDeductions()->with(['deductions'])->get();
-        $totalDeductions = 0;
-        foreach ($perdeductions as $deduction) {
-            if ($deduction->stopped_at) {
-                $totalDeductions = 0;
-            } else if (!is_null($deduction->date_from) && !is_null($deduction->date_to)) {
-                if (strtotime($deduction->date_from) <= strtotime(date('Y-m-d')) && strtotime($deduction->date_to) >= strtotime(date('Y-m-d'))) {
-                    $totalDeductions += $deduction->amount;
-                }
-            } else {
-                $totalDeductions += $deduction->amount;
-            }
+
+        $restructedDeductions = $deductions->map(function($row){
+            return [
+                "deduction_id"=> $row->deductions->id,
+                "deduction"=>  [
+                     "name"=> $row->deductions->name,
+                    "code"=> $row->deductions->code
+                ],
+                "amount"=> $row->amount,
+            ];
+        });
+
+        if ($isPermanent){
+            $deductions = array_merge(
+                [$withoutPayAbsencesRate],
+               $restructedDeductions->toArray()
+            );
+        }else {
+            $deductions = array_merge(
+                [$undertimeRate, $withoutPayAbsencesRate],
+               $restructedDeductions->toArray()
+            );
         }
-        return Helpers::customRound($totalDeductions);
+
+
+        if( isset($deductionSelected) && count($deductionSelected)>=1){
+            $deductionIDs = array_map(function($row){
+                return $row['id'];
+            },$deductionSelected);
+
+            $deductions = array_values(array_filter($deductions, function($item) use($deductionIDs) {
+                return $item['deduction_id'] === null ||  in_array($item['deduction_id'], $deductionIDs);
+            }));
+
+         if(!$isPermanent){
+            if (request()->processMonth['JOtoPeriod'] !== "15"){
+                $deductions = array_values(array_filter($deductions, function($item) use($deductionIDs) {
+                    return $item['deduction_id'] === null ;
+                }));
+            }
+         }
+         }
+
+         $totalDeduction = 0.00;
+         foreach($deductions as $row){
+             $totalDeduction += $row['amount'];
+         }
+
+
+         return [
+            'totaldeduction'=> $totalDeduction,
+            'deductions'=>$deductions
+         ];
+
     }
 
     public function computeReceivableAmounts($employeeList)
@@ -134,33 +174,34 @@ class ComputationController extends Controller
         return Helpers::customRound(($NetSalarywNightDifferential + $TotalReceivables) - ($TotalDeductions + $TotalTaxex));
     }
 
-
     public function CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType) {
-        $pera = 0;
+        $pera = 2000;
 
         if ($employmentType === "Permanent Part-time") {
             if ($totalAbsences >= 1) {
-                $salaryDedAbsent = (22 - $totalAbsences) / 22 * $baseSalary;
-                $totalDedForAbsent = 1000 / 22 * $totalAbsences;
-                $pera = 1000 - $totalDedForAbsent;
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(1000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((1000 - $totalDedForAbsent) * 100) / 100;
             } else {
-                $pera = $totalPresentDays * 1000 / 22;
+                $pera = floor($totalPresentDays * 1000 / 22 * 100) / 100;
             }
         } else {
             if ($totalAbsences >= 1) {
-                $salaryDedAbsent = (22 - $totalAbsences) / 22 * $baseSalary;
-                $totalDedForAbsent = 2000 / 22 * $totalAbsences;
-                $pera = 2000 - $totalDedForAbsent;
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(2000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((2000 - $totalDedForAbsent) * 100) / 100;
             } else {
-                $pera = $totalPresentDays * 2000 / 22;
+                $pera = floor($totalPresentDays * 2000 / 22 * 100) / 100;
             }
         }
 
         return $pera;
     }
-    public function CalculateHAZARDPay($salaryGrade, $basicSalary, $attendance) {
+
+    public function CalculateHAZARDPay($salaryGrade, $basicSalary, $absences) {
         $monthlySalary = number_format($basicSalary, 2); // Formatting if needed
         $salaryPercentage = 0.0;
+
 
         switch (true) {
             case $salaryGrade <= 19:
@@ -201,8 +242,10 @@ class ComputationController extends Controller
                 break;
         }
 
-        if ($attendance >= 11) {
-            return (float)($salaryPercentage * $basicSalary);
+
+
+        if ($absences <= 11) {
+            return (double)($salaryPercentage * $basicSalary);
         }
 
         return 0.00;
@@ -211,11 +254,12 @@ class ComputationController extends Controller
     public function CalculateNightDifferential($totalNightDutyHours, $monthlyRate) {
         $totalAccumulatedND = 0.00;
         $nightdiffRate = floor($monthlyRate * 0.005682 * 100) / 100;
-        $nightDifferentialTwentyPercentRate = $nightdiffRate * 0.2;
-        $totalAccumulatedND = $totalNightDutyHours * $nightDifferentialTwentyPercentRate;
+        $nightDifferentialTwentyPercentRate = floor($nightdiffRate * 0.2 * 100) / 100;
+        $totalAccumulatedND = floor($totalNightDutyHours * $nightDifferentialTwentyPercentRate * 100) / 100;
 
         return $totalAccumulatedND;
     }
+
 
 
 }

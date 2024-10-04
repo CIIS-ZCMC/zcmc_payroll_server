@@ -20,7 +20,10 @@ class EmployeeDeductionTrail extends Model
         'amount_paid',
         'date_paid',
         'balance',
-        'is_last_payment'
+        'status',
+        'remarks',
+        'is_last_payment',
+        'is_adjustment'
     ];
 
     public $timestamps = true;
