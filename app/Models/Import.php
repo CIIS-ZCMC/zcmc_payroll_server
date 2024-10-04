@@ -14,12 +14,11 @@ class Import extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'module',
-        'module_id',
         'deduction_id',
         'receivables_id',
         'file_name',
         'employment_type',
+        'payroll_date'
     ];
 
     public $timestamps = true;

@@ -11,7 +11,7 @@ use App\Models\EmployeeDeduction;
 use App\Models\EmployeeSalary;
 use Carbon\Carbon;
 use DateTime;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 

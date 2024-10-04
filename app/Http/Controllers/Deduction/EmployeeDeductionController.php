@@ -13,10 +13,15 @@ use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionLog;
 use App\Models\EmployeeList;
 use App\Models\EmployeeSalary;
+use App\Models\Import;
 use App\Models\StoppageLog;
+use DateTime;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Stmt\Foreach_;
+
+use function PHPUnit\Framework\isEmpty;
 
 class EmployeeDeductionController extends Controller
 {
@@ -759,6 +764,266 @@ class EmployeeDeductionController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    private function modifyIsDifferential($jsonString, $fromDate, $toDate, $amount = null, $newDifferential)
+    {
+        // Decode the JSON string into an array
+        $dataArray = json_decode($jsonString, true);
+
+        if (!empty($dataArray)) {
+            // Loop through the array and process each item
+            foreach ($dataArray as $key => &$item) {
+                $tempfromDate = Carbon::createFromFormat('Y-m-d', $item['from'])->toDateString();
+                $temptoDate = Carbon::createFromFormat('Y-m-d', $item['to'])->toDateString();
+
+                // Check if the toDate falls within or is the same as the given range
+                if (
+                    Carbon::parse($temptoDate)->isSameDay($fromDate) ||
+                    Carbon::parse($temptoDate)->isSameDay($toDate) ||
+                    Carbon::parse($temptoDate)->betweenIncluded($fromDate, $toDate)
+                ) {
+                    unset($dataArray[$key]);
+                }
+            }
+        }
+
+
+        if ($newDifferential) {
+            $dataArray[] = [
+                "amount" => $amount,
+                "from" => $fromDate->format('Y-m-d'),
+                "to" => $toDate->format('Y-m-d')
+            ];
+        }
+        $dataArray = array_values($dataArray);
+
+        // Convert the modified array back to a JSON string
+        return json_encode($dataArray);
+
+    }
+
+    public function bulkimport(Request $request)
+    {
+        try {
+            $processMonth = request()->processMonth;
+            // Default values for the periods
+            $fromPeriod = ($processMonth['JOfromPeriod'] == 0) ? 1 : $processMonth['JOfromPeriod'];
+            $toPeriod = ($processMonth['JOtoPeriod'] == 0) ? 29 : $processMonth['JOtoPeriod'];
+
+            // Create a DateTime object for both periods
+            $fromDate = DateTime::createFromFormat('Y-m-d', "{$processMonth['year']}-{$processMonth['month']}-$fromPeriod");
+            $toDate = DateTime::createFromFormat('Y-m-d', "{$processMonth['year']}-{$processMonth['month']}-$toPeriod");
+            $termtemp = "48";
+
+            DB::beginTransaction();
+            ///NOTE:there are three holder for the response info
+            //failed,edited,successnew
+
+            $failed = [];
+            $edited = [];
+            $successnew = [];
+
+
+            $payload = $request->torecord;
+            $deductionid = $request->deductionId;
+            $importDet = $request->importdetails;
+            if (isset($importDet["hasimport"])) {
+                if ($importDet["hasimport"]) {
+                    $deduction = Deduction::find($deductionid);
+                    $deduction->getImports()
+                        ->whereBetween('payroll_date', [$fromPeriod, $toPeriod])
+                        ->delete();
+                }
+                Import::create([
+                    'deduction_id' => $deductionid,
+                    'file_name' => $importDet["path"],
+                    'employment_type' => $importDet["isregular"] ? "regular" : "joborder",  // Make sure to hash the password
+                    'payroll_date' => $fromDate //$importDet["payrollisone"]?:,
+                ]);
+            }
+            $tempid = 0;
+
+            foreach ($payload as $record) {
+                $tempid = $record['empid'];
+                $empId = $record['empid'];
+                $fullname = $record['fullname'];
+                $amount = $record['amount'];
+                $savingType = $record['savingtype'];
+                $changeToAbs = $record['changetoabs'];
+                $changeToDiff = $record['changetodiff'];
+                $isNew = $record['isnew'];
+                $isEdit = $record['isedit'];
+                $willDeductEdited = $record['willdeductedited'];
+                $willDeduct = $record['willdeduct'];
+                $term = $record['term'];
+
+                if (
+                    !$isEdit && !$isNew && !$willDeductEdited && !$changeToAbs && !$changeToDiff
+                ) {
+                    continue;
+                }
+
+                // Process the record (e.g., save to the database or perform other logic)
+
+                //check if it is new
+
+                //identify if the employee exist in this system, if not add to the list of failed
+                $isEmployeeExist = EmployeeList::where('employee_number', $empId)->first();
+                if (!$isEmployeeExist) {
+                    $failed[] = [
+                        "empid" => $empId,
+                        "fullname" => $fullname,
+                        "desc" => "Employee is not registered in payroll employee list",
+                    ];
+                } else {
+                    if ($isNew) {
+                        //Additional props for saving
+                        //set isdefault = false frequency="monthly"
+                        $is_default = false;
+                        $frequency = false;
+                        //Logic Create New
+                        $tempDate = clone $fromDate;
+                        $term = $term ?: 0;
+                        EmployeeDeduction::create([
+                            'employee_list_id' => $isEmployeeExist->id,
+                            'deduction_id' => $deductionid,
+                            'amount' => $amount,
+                            'frequency' => "Monthly",  // Make sure to hash the password
+                            'status' => "Active",
+                            'date_from' => $fromDate,
+                            'date_to' => $tempDate->modify("+$term months"),
+                            'with_terms' => "1",
+                            'total_term' => $term,
+                            'is_default' => "0",
+                            'total_paid' => 0,
+                            'willDeduct' => $fromDate,
+                        ]);
+
+                        $successnew[] = [
+                            "empid" => $empId,
+                            "fullname" => $fullname,
+                            "desc" => "New employee deduction record successfully",
+                        ];
+                    } else {
+                        $tempEditedLog = [
+                            "empid" => $empId,
+                            "fullname" => $fullname,
+                            "desc" => "",
+                        ];
+                        //else if old
+                        $employeeDeduction = $isEmployeeExist->employeeDeductions->firstWhere('deduction_id', $deductionid);
+                        //NOTE:touch the isdafault set to false if this are all true: changetoabs, isedited
+                        //check if edited amount
+
+                        if ($isEdit) {
+
+                            //set isdefault to false
+                            $employeeDeduction->is_default = "0";
+
+                            if ($changeToAbs || $changeToDiff) {
+
+                                if ($changeToAbs) {
+                                    //check if changetoabs is true
+
+                                    //delete all the member of the differentials with the date 
+                                    $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential, $fromDate, $toDate, null, false);
+                                    $employeeDeduction->amount = $amount;
+                                    $tempEditedLog['desc'] .= "Modified into Absolute with the amount of: {$amount}";
+                                }
+                                if ($changeToDiff) {
+                                    //delete all the member of the differentials with the date 
+                                    //then add the new
+                                    $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential, $fromDate, $toDate, $amount, true);
+                                    $tempEditedLog['desc'] .= "Modified into Differential with the amount of: {$amount}";
+
+                                }
+
+                                //-value is between this payroll
+
+                            } else {
+
+                                //check if what type of saving if it is absolute or differential
+                                if ($savingType == "Absolute") {
+
+                                    //if absolute
+                                    //set the new amount in the employeeDeduction
+                                    $tempAmount = $employeeDeduction->amount;
+                                    $employeeDeduction->amount = $amount;
+                                    $tempEditedLog['desc'] .= ": Modified Absolute amount from {$tempAmount} into {$amount} : ";
+                                } else {
+                                    $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential, $fromDate, $toDate, $amount, true);
+                                    $tempEditedLog['desc'] .= ":Modified differential amount into {$amount} : ";
+                                    //pop it the new differential value
+                                }
+
+                            }
+                        }
+
+                        if ($changeToAbs || $changeToDiff) {
+                            $employeeDeduction->is_default = "0";
+
+                            if ($changeToAbs) {
+                                //check if changetoabs is true
+
+                                //delete all the member of the differentials with the date 
+                                $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential, $fromDate, $toDate, null, false);
+                                $tempEditedLog['desc'] .= "Modified into Absolute : ";
+
+                            }
+                            if ($changeToDiff) {
+                                //delete all the member of the differentials with the date 
+                                //then add the new
+
+                                $employeeDeduction->isDifferential = $this->modifyIsDifferential($employeeDeduction->isDifferential, $fromDate, $toDate, $amount, true);
+                                $tempEditedLog['desc'] .= "Modified into Differential : ";
+                            }
+
+                            //-value is between this payroll
+
+                        }
+
+                        //check if willdeductedited is true
+                        //set the willdeducted bool
+                        if ($willDeductEdited) {
+                            ///logs return
+                            if ($willDeduct) {
+
+                                $tempEditedLog['desc'] .= "Added to the Deduction : ";
+                                $employeeDeduction->willDeduct = $fromDate;
+
+                            } else {
+
+                                $tempEditedLog['desc'] .= "Removed from the Deduction : ";
+                                $employeeDeduction->willDeduct = null;
+                            }
+                        }
+
+                        $edited[] = $tempEditedLog;
+                        $employeeDeduction->save();
+                    }
+                    //SAVE
+                }
+
+
+            }
+            DB::commit();
+            return response()->json([
+                'Message' => 'bulkupdaete updated successfully.',
+                'Data' => ["SavedInfo" => ["failed" => $failed, "Edited" => $edited, "success" => $successnew]],
+                'statusCode' => 200
+                // 'responseData' => new EmployeeDeductionResource($newDeduction),
+            ], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+            dd($th);
+            DB::rollBack();
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+
 
     private function parseDate($dateString)
     {

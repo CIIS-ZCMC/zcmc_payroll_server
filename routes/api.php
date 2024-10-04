@@ -61,8 +61,8 @@ Route::middleware('auth.token')->group(function () {
         Route::post("regenerate/{PayrollHeaderID}", "PayrollController@Regenerate");
 
         Route::post("autoregenerate", "PayrollController@AutoGeneratePayroll");
-        Route::post("post_deductions","PayrollController@post_deductions");
-        Route::post("setActiveperiod","PayrollController@setActiveperiod");
+        Route::post("post_deductions", "PayrollController@post_deductions");
+        Route::post("setActiveperiod", "PayrollController@setActiveperiod");
     });
 
     /**
@@ -134,13 +134,11 @@ Route::middleware('auth.token')->group(function () {
     });
 
 
-    /**
-     * Imports
-     *
-     */
     Route::namespace('App\Http\Controllers\Deduction')->group(function () {
         Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
         Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
+        //Bulk EmployeeDeduction
+        Route::post('/importemployeedeductions', 'EmployeeDeductionController@bulkimport');
     });
 
 });
