@@ -259,7 +259,7 @@ class PayrollController extends Controller
         }
     }
 
-    public function Regenerate($PayrollHeaderID)
+public function Regenerate($PayrollHeaderID)
     {
 
         $header = PayrollHeaders::find($PayrollHeaderID);
@@ -267,10 +267,10 @@ class PayrollController extends Controller
             $listofIDs = $header->genPayrolls->map(function ($row) {
                 return $row->employee_list_id;
             });
-            $listofemployee = EmployeeList::whereIn('id', $listofIDs);
+            $listofemployee = EmployeeList::whereIn('id', $listofIDs)->get();
             $data = $this->employee->index(new Request([
                 'regenerateList' => 1,
-                'listofemployee' => $listofemployee->get()
+                'listofemployee' => $listofemployee
             ]))->original['responseData'];
 
             $header->update([
@@ -389,6 +389,7 @@ class PayrollController extends Controller
         "amount"=> $nightDifferential,
     ];
 
+
     $undertimeRate = [
         "deduction_id"=> null,
         "deduction"=>  [
@@ -436,10 +437,19 @@ class PayrollController extends Controller
             [$pera, $hazardPay, $nightDifferential],
             $restructedReceivables->toArray()
         );
-        $deductions = array_merge(
-            [$undertimeRate, $withoutPayAbsencesRate],
-            $restructedDeductions->toArray()
-        );
+
+        if ($isPermanent){
+            $deductions = array_merge(
+                [ $withoutPayAbsencesRate],
+                $restructedDeductions->toArray()
+            );
+        }else {
+            $deductions = array_merge(
+                [$undertimeRate, $withoutPayAbsencesRate],
+                $restructedDeductions->toArray()
+            );
+        }
+      
 
 
         $timeRecords = $this->getNestedValue($entry->row, 'TimeRecord');
@@ -463,6 +473,7 @@ class PayrollController extends Controller
             $filteredReceivables = array_values(array_filter($receivables, function ($item) use ($benefitIDs) {
                 return $item['receivable_id'] === null || in_array($item['receivable_id'], $benefitIDs);
             }));
+
 
             if (count($DeductionSelectectList)>=1){
                 $filteredDeductions = array_values(array_filter($deductions, function ($item) use ($deductionIDs) {
@@ -582,69 +593,8 @@ class PayrollController extends Controller
         ]);
     }
 
-    public function processPayroll($row)
-    {
-        $tempNetSalary = $row->getTimeRecords->ComputedSalary->computed_salary;//decrypt($row->getTimeRecords->ComputedSalary->computed_salary);
-        $monthly_rate = decrypt($row->getSalary->basic_salary);
-        $NetSalarywNightDifferential = $this->computer->computeNightDifferentialAmount($row, $monthly_rate, $tempNetSalary);
-        $TotalDeductions = $this->computer->computeDeductionAmount($row);
-        $TotalReceivables = $this->computer->computeReceivableAmounts($row);
-        $TotalTaxex = $this->computer->computeTaxesAmounts($row);
-        $Total = $this->computer->ComputeNetSalary($NetSalarywNightDifferential, $TotalReceivables, $TotalDeductions, $TotalTaxex);
-        return $Total;
-    }
 
-    public function payrolResource($row, $month, $year, $Total, $is_permanent, $from, $to, $payroll_ID)
-    {
-        $tempNetSalary = $row->getTimeRecords->ComputedSalary->computed_salary;//decrypt($row->getTimeRecords->ComputedSalary->computed_salary);
-        $monthly_rate = decrypt($row->getSalary->basic_salary);
-        list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($Total);
-        $GrossPay = $tempNetSalary + $this->computer->computeReceivableAmounts($row);
 
-        if ($payroll_ID) {
-            $payrollHead = PayrollHeaders::where('id', $payroll_ID)->first();
-            if ($payrollHead) {
-                $from = $payrollHead->fromPeriod;
-                $to = $payrollHead->toPeriod;
-            }
-        }
-
-        if ($row->getSalary->employment_type == "Job Order") {
-            return [
-                'id' => $row->id,
-                'month' => $month,
-                'year' => $year,
-                'time_record' => TimeRecordResource::collection([$row->getTimeRecords])->where('fromPeriod', $from)
-                    ->where("toPeriod", $to)
-                    ->where('month', $month)
-                    ->where('year', $year),
-                'receivables' => $row->getEmployeeReceivables()->with(['receivables'])->get(),
-                'deductions' => $row->getListOfDeductions()->with(['deductions'])->get(),
-                'taxexs' => $row->getTaxes,
-                'gross_pay' => $GrossPay,
-                'net_pay' => $GrossPay - $this->computer->computeDeductionAmount($row),
-                'NETSalary' => $Total,
-                'first_half' => $firstHalf,
-                'second_half' => Helpers::customRound($secondHalf),
-            ];
-        }
-
-        return [
-            'id' => $row->id,
-            'month' => $month,
-            'year' => $year,
-            'time_record' => TimeRecordResource::collection([$row->getTimeRecords])->where('month', Helpers::getPreviousMonthYear($month, $year)['month'])->where('year', Helpers::getPreviousMonthYear($month, $year)['year']),
-            'receivables' => $row->getEmployeeReceivables()->with(['receivables'])->get(),
-            'deductions' => $row->getListOfDeductions()->with(['deductions'])->get(),
-            'taxexs' => $row->getTaxes,
-            'gross_pay' => $GrossPay,
-            'net_pay' => $GrossPay - $this->computer->computeDeductionAmount($row),
-            'NETSalary' => $Total,
-            'first_half' => $firstHalf,
-            'second_half' => Helpers::customRound($secondHalf),
-        ];
-
-    }
 
 
     public function GeneratedPayrollHeaders($payroll_ID,$days_of_duty,$is_permanent,$employment_type,$is_special)
@@ -1043,38 +993,20 @@ class PayrollController extends Controller
 
             $HAZARD = 0.00;
 
-            if ($timeRecords->total_leave_with_pay < 11){
-
-               $HAZARD = $this->computer->CalculateHAZARDPay($salaryGrade, $baseSalary, $totalAbsences);
-            }
-
-
-            $nightDiff = $this->computer->CalculateNightDifferential( $totalNightDutyHours, $baseSalary);
-
-
+       
 
             $isPermanent = 0;
             if ($employmentType !== "joborder" && $employmentType !== "Job Order"){
                 $isPermanent = 1;
             }
 
+        
+            if ($timeRecords->total_leave_with_pay < 11 && $isPermanent){
+               $HAZARD = $this->computer->CalculateHAZARDPay($salaryGrade, $baseSalary, $totalAbsences);
+            }
 
-            // if ($isPermanent){
-            //     if ($computedSalary < 5000){
-            //         return response()->json([
-            //             'statusCode'=>401,
-            //             'message'=>"processed $request->emplistID"
-            //         ]);
-            //     }
-            // }else {
-            //     if ($computedSalary < 2500){
-            //         return response()->json([
-            //             'statusCode'=>401,
-            //             'message'=>"processed $request->emplistID"
-            //         ]);
-            //     }
-            // }
 
+            $nightDiff = $this->computer->CalculateNightDifferential( $totalNightDutyHours, $baseSalary);
 
             $pera = [
                 "receivable_id"=> null,
@@ -1130,28 +1062,8 @@ class PayrollController extends Controller
             ];
         });
 
-
-        $restructedDeductions = $deductions->map(function($row){
-            return [
-                "deduction_id"=> $row->deductions->id,
-                "deduction"=>  [
-                     "name"=> $row->deductions->name,
-                    "code"=> $row->deductions->code
-                ],
-                "amount"=> $row->amount,
-            ];
-        });
-
-        $grossSalary = $timeRecords->computedSalary->computed_salary + $timeRecords->absent_rate + $timeRecords->undertime_rate;
-
-
         $receivables = array_merge(
        [$pera, $hazardPay, $nightDifferential],$restructedReceivables->toArray()
-        );
-
-        $deductions = array_merge(
-            [$undertimeRate, $withoutPayAbsencesRate],
-           $restructedDeductions->toArray()
         );
 
 
@@ -1173,52 +1085,38 @@ class PayrollController extends Controller
 
     }
 
-
-
-if( isset($deductionSelected) && count($deductionSelected)>=1){
-    $deductionIDs = array_map(function($row){
-        return $row['id'];
-    },$deductionSelected);
-
-    $deductions = array_values(array_filter($deductions, function($item) use($deductionIDs) {
-        return $item['deduction_id'] === null ||  in_array($item['deduction_id'], $deductionIDs);
-    }));
-
-
- if(!$isPermanent){
-    if (request()->processMonth['JOtoPeriod'] !== "15"){
-        $deductions = array_values(array_filter($deductions, function($item) use($deductionIDs) {
-            return $item['deduction_id'] === null ;
-        }));
-    }
- }
- }
-
-
+    $deds = $this->computer->computeDeductionAmount($deductionSelected,$deductions,$isPermanent,$undertimeRate,$withoutPayAbsencesRate);
+        $totalDeduction = $deds['totaldeduction'];
 
         $otherReceivables = 0.00;
         foreach($filteredReceivables as $row){
             $otherReceivables += $row['amount'];
         }
-        $tempnet = $grossSalary + $otherReceivables;
-        $totalDeduction = 0.00;
-        foreach($deductions as $row){
-            $totalDeduction += $row['amount'];
+
+        $grossSalary = $timeRecords->computedSalary->computed_salary + $timeRecords->absent_rate;
+
+        if (!$isPermanent){
+            $grossSalary += $timeRecords->undertime_rate;
         }
+
+
+        $tempnet = $grossSalary + $otherReceivables;
+
 
             $net = round($tempnet - $totalDeduction,2);
             list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($net); // Replace 100 with any number you want to divide
 
 
             if ($isPermanent){
-                if ($net <= 5000){
+                if ($net < 5000) {
                     return response()->json([
-                        'statusCode'=>401,
-                        'message'=>"processed $request->emplistID"
+                        'statusCode' => 401,
+                        'message' => "processed $request->emplistID",
+                        'net'=>$net
                     ]);
                 }
             }else {
-                if ($net <= 2500){
+                if ($net < 2500){
                     return response()->json([
                         'statusCode'=>401,
                         'message'=>"processed $request->emplistID"
@@ -1249,7 +1147,7 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
                 'employee_list_id'=>$ID,
                 'time_records'=>json_encode([$timeRecords]),
                 'employee_receivables'=>json_encode($filteredReceivables),
-                'employee_deductions'=>json_encode($deductions),
+                'employee_deductions'=>json_encode($deds['deductions']),
                 'base_salary'=>encrypt($baseSalary),
                 'net_pay'=>encrypt($grossSalary),
                 'gross_pay'=>encrypt($tempnet),
@@ -1285,7 +1183,7 @@ if( isset($deductionSelected) && count($deductionSelected)>=1){
 
         return response()->json([
             'statusCode'=>406,
-            'message'=>"Not found"
+            'message'=>"Not Processed $request->emplistID"
         ]);
 
     }
