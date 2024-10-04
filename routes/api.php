@@ -92,6 +92,10 @@ Route::middleware('auth.token')->group(function () {
      */
     Route::namespace('App\Http\Controllers\Trail')->group(function () {
         Route::get('employee-deduction-trails', 'EmployeeDeductionTrailController@index');
+        Route::get('employee-deduction-trail', 'EmployeeDeductionTrailController@create');
+        Route::post('employee-deduction-trail', 'EmployeeDeductionTrailController@store');
+        Route::get('employee-deduction-trail/{id}', 'EmployeeDeductionTrailController@show');
+        Route::delete('employee-deduction-trail/{id}', 'EmployeeDeductionTrailController@destroy');
     });
 
     /**
@@ -157,7 +161,7 @@ Route::
             Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
             Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
             Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
-            });
+        });
 
 Route::
         namespace('App\Http\Controllers\Receivable')->group(function () {
