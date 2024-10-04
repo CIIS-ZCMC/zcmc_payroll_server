@@ -29,10 +29,12 @@ class EmployeeDeductionController extends Controller
     {
         try {
             // Fetch employee lists with related salary and deductions
-            $employees = EmployeeList::with(['getSalary', 'employeeDeductions.deductions'])
+            $employees = EmployeeList::with(['getSalary', 'employeeDeductions.deductions', 'employeeDeductions.adjustments'])
                 ->get();
 
             $response = [];
+            $currentMonth = now()->format('m'); // Get current month
+            $currentYear = now()->format('Y'); // Get current year
 
             foreach ($employees as $employee) {
 
@@ -45,6 +47,13 @@ class EmployeeDeductionController extends Controller
                 foreach ($employee->employeeDeductions as $employeeDeduction) {
                     $deductionAmount = $employeeDeduction->amount;
                     $total_deductions += $deductionAmount;
+
+                    // Check for additional adjustments in the employee_deduction_adjust table
+                    foreach ($employeeDeduction->adjustments as $adjustment) {
+                        if ($adjustment->month == $currentMonth && $adjustment->year == $currentYear) {
+                            $total_deductions += $adjustment->amount;
+                        }
+                    }
                 }
 
                 $net_salary = $basic_salary - $total_deductions;

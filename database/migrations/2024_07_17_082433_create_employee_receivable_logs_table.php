@@ -19,7 +19,7 @@ class CreateEmployeeReceivableLogsTable extends Migration
             $table->foreign('employee_receivable_id')->references('id')->on('employee_receivables');
             $table->unsignedBigInteger('action_by');
             $table->string('action');
-            $table->string('remarks');
+            $table->string('remarks')->nullable();
             $table->timestamps();
         });
     }
