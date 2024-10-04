@@ -215,7 +215,7 @@ class DeductionController extends Controller
 
             $deduction = Deduction::find($id);
             if (!$deduction) {
-                
+
 
                 return response()->json([
                     'message' => 'Deduction not found'
@@ -225,8 +225,8 @@ class DeductionController extends Controller
                 ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
                 ->delete();
             $deduction->employeeDeductions()->update(['willDeduct' => null]);
-            
-            return response()->json(['Message'=>"Successfuly Cleared all willDeduct list ". $id,'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
+
+            return response()->json(['Message' => "Successfuly Cleared all willDeduct list " . $id, 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
             Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

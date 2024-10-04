@@ -92,6 +92,10 @@ Route::middleware('auth.token')->group(function () {
      */
     Route::namespace('App\Http\Controllers\Trail')->group(function () {
         Route::get('employee-deduction-trails', 'EmployeeDeductionTrailController@index');
+        Route::get('employee-deduction-trail', 'EmployeeDeductionTrailController@create');
+        Route::post('employee-deduction-trail', 'EmployeeDeductionTrailController@store');
+        Route::get('employee-deduction-trail/{id}', 'EmployeeDeductionTrailController@show');
+        Route::delete('employee-deduction-trail/{id}', 'EmployeeDeductionTrailController@destroy');
     });
 
     /**
@@ -128,10 +132,16 @@ Route::middleware('auth.token')->group(function () {
         Route::delete('receivable/{id}', 'ReceivableController@destroy');
         Route::put('receivable-stop/{id}', 'ReceivableController@stop');
     });
+
+
+    /**
+     * Imports
+     *
+     */
     Route::namespace('App\Http\Controllers\Deduction')->group(function () {
-            Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
-            Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
-        });
+        Route::get('/deductionsList', 'EmployeeDeductionController@getDeductionsStatusList');
+        Route::delete('clearEmployeeDeductions/{id}', 'DeductionController@clearEmployeeDeductions');
+    });
 
 });
 
@@ -153,7 +163,7 @@ Route::
             Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
             Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
             Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
-            });
+        });
 
 Route::
         namespace('App\Http\Controllers\Receivable')->group(function () {
