@@ -24,7 +24,7 @@ class Below5kController extends Controller
                 // Assuming computeDeductionAmount returns a value
                 $nightDifferentialAmount = $computeDeduction->computeNightDifferentialAmount($employee, $monthlyRate, $netSalary);
                 $receivableAmount = $computeDeduction->computeReceivableAmounts($employee);
-                $deductionAmount = $computeDeduction->computeDeductionAmount($employee);
+                $deductionAmount = $computeDeduction->computeDeductionAmountBelow5k($employee);
                 $TotalTaxex = $computeDeduction->computeTaxesAmounts($employee);
                 $total_net_salary = $computeDeduction->ComputeNetSalary($nightDifferentialAmount, $receivableAmount, $deductionAmount, $TotalTaxex);
 

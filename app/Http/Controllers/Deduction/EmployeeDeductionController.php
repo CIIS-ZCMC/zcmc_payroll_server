@@ -15,6 +15,7 @@ use App\Models\EmployeeList;
 use App\Models\EmployeeSalary;
 use App\Models\Import;
 use App\Models\StoppageLog;
+use Crypt;
 use DateTime;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
