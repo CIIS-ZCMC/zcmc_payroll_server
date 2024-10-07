@@ -201,16 +201,12 @@ class ComputationController extends Controller
                 $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
                 $totalDedForAbsent = floor(1000 / 22 * $totalAbsences * 100) / 100;
                 $pera = floor((1000 - $totalDedForAbsent) * 100) / 100;
-            } else {
-                $pera = floor($totalPresentDays * 1000 / 22 * 100) / 100;
             }
         } else {
             if ($totalAbsences >= 1) {
                 $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
                 $totalDedForAbsent = floor(2000 / 22 * $totalAbsences * 100) / 100;
                 $pera = floor((2000 - $totalDedForAbsent) * 100) / 100;
-            } else {
-                $pera = floor($totalPresentDays * 2000 / 22 * 100) / 100;
             }
         }
 
