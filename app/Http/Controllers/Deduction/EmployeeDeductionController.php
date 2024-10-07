@@ -15,10 +15,10 @@ use App\Models\EmployeeList;
 use App\Models\EmployeeSalary;
 use App\Models\Import;
 use App\Models\StoppageLog;
-use Crypt;
 use DateTime;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\Foreach_;
 
