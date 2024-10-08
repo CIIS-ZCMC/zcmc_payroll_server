@@ -207,16 +207,29 @@ class DeductionController extends Controller
     {
         try {
             $dateArray = request()->processMonth;
+
+            // Construct the date strings from the array
             $dateToString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOtoPeriod'];
             $dateFromString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOfromPeriod'];
-            // Create a DateTime object from the generated date string
+    
+            // Create DateTime objects from the generated date strings
             $payrollDateTo = new DateTime($dateToString);
             $payrollDateFrom = new DateTime($dateFromString);
+    
+            // Check if JOtoPeriod is zero
+            if ($dateArray['JOtoPeriod'] === 0) {
+                // Set payrollDateTo to the last day of the month
+                $payrollDateTo = (new DateTime("$dateArray[year]-$dateArray[month]-01"))->modify('last day of this month');
+            }
+    
+            // Check if JOfromPeriod is zero
+            if ($dateArray['JOfromPeriod'] === 0) {
+                // Set payrollDateFrom to the first day of the month
+                $payrollDateFrom = (new DateTime("$dateArray[year]-$dateArray[month]-01"));
+            }
 
             $deduction = Deduction::find($id);
             if (!$deduction) {
-
-
                 return response()->json([
                     'message' => 'Deduction not found'
                 ], Response::HTTP_NOT_FOUND);
@@ -224,7 +237,8 @@ class DeductionController extends Controller
             $deduction->getImports()
                 ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
                 ->delete();
-            $deduction->employeeDeductions()->update(['willDeduct' => null]);
+            // $deduction->employeeDeductions()->update(['willDeduct' => null]);
+            $deduction->employeeDeductions()->delete();
 
             return response()->json(['Message' => "Successfuly Cleared all willDeduct list " . $id, 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
