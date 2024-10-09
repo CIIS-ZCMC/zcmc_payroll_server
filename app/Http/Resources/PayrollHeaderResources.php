@@ -31,7 +31,7 @@ class PayrollHeaderResources extends JsonResource
             'included'=>$this->genPayrolls,
             'benefits'=>withBenefitsResource::collection($this->genPayrolls),
             'is_special'=>$this->is_special,
-            'is_locked'=>$this->is_locked,
+            'locked_at'=>$this->locked_at,
             'created_at'=>$this->created_at,
             'updated_at'=>$this->updated_at
         ];

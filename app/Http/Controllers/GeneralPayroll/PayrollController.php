@@ -47,8 +47,8 @@ class PayrollController extends Controller
   // return PayrollHeaderResources::collection($headers)->response()->getData(true)['data'];
      foreach(PayrollHeaderResources::collection($headers)->response()->getData(true)['data'] as  $row){
 
-        $others = array_values(array_filter($row['benefits'][0]['other']));
-        $default =$row['benefits'][0]['default'];
+       // $others = array_values(array_filter($row['benefits'][0]['other']));
+        //$default =$row['benefits'][0]['default'];
 
 
         $listofOther = [];
@@ -80,7 +80,7 @@ class PayrollController extends Controller
             'benefits'=>$merged,
             'nohazardpay'=>$listofDefault,
             'is_special'=>$row['is_special'],
-            'is_locked'=>$row['is_locked'],
+            'is_locked'=>$row['locked_at']? 1 : 0,
             'created_at'=>$row['created_at'],
             'updated_at'=>$row['updated_at']
         ];
@@ -314,9 +314,20 @@ public function Regenerate($PayrollHeaderID)
 
         $regenerate = $request->regenerate;
         $genpayrollList = Helpers::convertToStdObject($genpayrollList);
-        $filteredGenPayrollList = array_values(array_filter($genpayrollList, function ($item) use ($excludedIds) {
-            return !in_array($item->ID, $excludedIds);
+        $includedIDs = [];
+        foreach($genpayrollList as $in){
+            $includedIDs[] = $in->ID;
+        }
+
+        $filteredGenPayrollList = array_values(array_filter($genpayrollList, function ($item) use ($includedIDs) {
+            return in_array($item->ID, $includedIDs);
         }));
+
+
+        // return [
+        //     'responseData'=> $filteredGenPayrollList,
+        //     'statusCode'=>500
+        // ];
 
 
         $selectedIDs = [];
@@ -331,6 +342,8 @@ public function Regenerate($PayrollHeaderID)
         $filteredGenPayrollList = array_values(array_filter($filteredGenPayrollList, function ($item) use ($selectedIDs) {
             return in_array($item->ID, $selectedIDs);
         }));
+
+
         }
         $processedID = [];
        foreach ($filteredGenPayrollList as $entry) {
@@ -451,7 +464,7 @@ public function Regenerate($PayrollHeaderID)
                 $restructedDeductions->toArray()
             );
         }
-      
+
 
 
         $timeRecords = $this->getNestedValue($entry->row, 'TimeRecord');
@@ -689,7 +702,7 @@ public function Regenerate($PayrollHeaderID)
             }
         }
 
-        if ($payrollHead->exists() && $payrollHead->first()->is_locked) {
+        if ($payrollHead->exists() && $payrollHead->first()->locked_at) {
             return [
                 'message' => 'Payroll is locked',
                 'result' => false
@@ -730,7 +743,8 @@ public function Regenerate($PayrollHeaderID)
                 'days_of_duty' => $days_of_duty,
                 'created_by' => encrypt(request()->user),
                 "is_special" => $isSpecial,
-                'is_locked' => 0,
+                'locked_at' => null,
+                'deleted_at' => null,
             ]);
 
 
@@ -761,7 +775,7 @@ public function Regenerate($PayrollHeaderID)
         } else {
             $payrollHead = PayrollHeaders::where("month", $In_payroll['month'])
                 ->where("year", $In_payroll['year'])
-                ->where('is_locked', 0)
+                ->where('locked_at', null)
                 ->where('fromPeriod', $from)
                 ->where('toPeriod', $to)
                 ->where('is_special', $is_special)
@@ -843,7 +857,7 @@ public function Regenerate($PayrollHeaderID)
     public function PayrollSummary($PayrollHeaderID)
     {
 
-        $header = PayrollHeaders::find($PayrollHeaderID);
+        $header = PayrollHeaders::where("id",$PayrollHeaderID)->where("deleted_at",null)->first();
         if (!$header) {
 
             return response()->json([
@@ -937,7 +951,7 @@ public function Regenerate($PayrollHeaderID)
                 'from' => $header->fromPeriod,
                 'to' => $header->toPeriod,
                 'employmentType' => $employmentType,
-                'status' => $header->is_locked,// 1 if locked
+                'status' => $header->locked_at ? 1 : 0,// 1 if locked
                 'special' => $header->is_special,
                 'others' => $newothers,
                 'HazardPay' => $totalHazardPay,
@@ -958,7 +972,7 @@ public function Regenerate($PayrollHeaderID)
     public function LockPayroll(Request $request)
     {
         PayrollHeaders::find($request->PayrollHeaderID)->update([
-            'is_locked' => 1
+            'locked_at' => now()
         ]);
 
         return [
@@ -968,7 +982,7 @@ public function Regenerate($PayrollHeaderID)
     }
 
 //     public function AutoGeneratePayroll(Request $request){
-    
+
 //         $requestData = [
 //             'emplistID' => $request->emplistID,
 //             'days_of_duty' => $request->days_of_duty,
@@ -984,7 +998,7 @@ public function Regenerate($PayrollHeaderID)
 //         'statusCode'=>200,
 //         'message'=>"processed"
 //     ]);
-  
+
 //  }
 
     public function AutoGeneratePayroll(Request $request){
@@ -1029,7 +1043,7 @@ public function Regenerate($PayrollHeaderID)
         if ($payHeader) {
          $generalpay = GeneralPayrollResources::collection($payHeader->genPayrolls)->response()->getData(true)['data'];
 
-         
+
          foreach($generalpay as $gp){
          $deductions = array_values(array_filter($gp['employee_deductions'],function($row){
             return $row['deduction_id'] !== null;
@@ -1062,13 +1076,13 @@ public function Regenerate($PayrollHeaderID)
             }
 
          }
-      
+
 
 
 
         $payHeader->update([
             'posted_at'=>now(),
-            'is_locked'=>1
+            'locked_at'=>now()
         ]);
 
         return response()->json([
@@ -1092,12 +1106,57 @@ public function Regenerate($PayrollHeaderID)
         ->where('fromPeriod', 1)
         ->whereBetween('toPeriod', [26, 31])
         ->get();
-    
+
 
     return response()->json([
         'statusCode'=>200,
         'responseData'=>$timeRecords
     ]);
+
+    }
+
+    public function ChangeMonth(Request $request){
+        $month = $request->month;
+        $year = $request->year;
+       TimeRecord::where(function($query) use ($month, $year) {
+            $query->where("month", "!=", $month)
+                  ->orWhere("year", "!=", $year);
+        })
+        ->where("fromPeriod", 1)
+        ->where("toPeriod", ">=", 25)->update([
+                'is_active'=>0
+            ]);;
+       TimeRecord::where("month",$month)
+        ->where("year",$year)
+        ->where("fromPeriod",1)
+        ->where("toPeriod",">=",25)
+        ->update([
+            'is_active'=>1
+        ]);
+
+        ActivePeriod::where(function($query) use ($month, $year) {
+            $query->where("month", "!=", $month)
+                  ->orWhere("year", "!=", $year);
+        })
+        ->where("fromPeriod", 1)
+        ->where("toPeriod", ">=", 25)->update([
+                'is_active'=>0
+            ]);
+
+            ActivePeriod::where("month",$month)
+            ->where("year",$year)
+            ->where("fromPeriod",1)
+            ->where("toPeriod",">=",25)
+            ->update([
+                'is_active'=>1
+            ]);
+
+        return [
+            'message'=>"Active period successfully changed",
+            'statusCode'=>200
+        ];
+
+
 
     }
 }
