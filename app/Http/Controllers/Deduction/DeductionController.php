@@ -14,6 +14,7 @@ use DateTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 
 class DeductionController extends Controller
 {
@@ -238,7 +239,9 @@ class DeductionController extends Controller
                 ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
                 ->delete();
             // $deduction->employeeDeductions()->update(['willDeduct' => null]);
-            $deduction->employeeDeductions()->delete();
+            $deduction->employeeDeductions()
+    ->whereDate('created_at', Carbon::today())
+    ->delete();
 
             return response()->json(['Message' => "Successfuly Cleared all willDeduct list " . $id, 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
