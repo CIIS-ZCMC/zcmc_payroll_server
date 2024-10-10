@@ -26,6 +26,8 @@ class CreatePayrollHeadersTable extends Migration
             $table->dateTime("last_generated_at")->nullable();
             $table->boolean("is_special")->default(false);
             $table->dateTime("locked_at")->nullable();
+            $table->dateTime("first_payroll_locked_at")->nullable();
+            $table->dateTime("second_payroll_locked_at")->nullable();
             $table->dateTime("deleted_at")->nullable();
             $table->timestamps();
         });

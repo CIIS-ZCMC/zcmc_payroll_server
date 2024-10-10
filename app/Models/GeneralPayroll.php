@@ -40,6 +40,13 @@ class GeneralPayroll extends Model
     {
         return $this->belongsTo(EmployeeList::class);
     }
+    public function firstHalf(){
+        return $this->hasOne(FirstPayroll::class,'general_payrolls_id');
+    }
+
+    public function secondHalf(){
+        return $this->hasOne(SecondPayroll::class,'general_payrolls_id');
+    }
 
     public function GenTrails(){
         return $this->hasMany(GeneralPayrollTrails::class,'general_payrolls_id');

@@ -127,6 +127,7 @@ class AutoGeneratePayroll implements ShouldQueue
                     "amount"=> $timeRecords->absent_rate,
                 ];
 
+            
         $restructedReceivables = $receivables->map(function($row){
             return [
                 "receivable_id"=> $row->receivables->id,

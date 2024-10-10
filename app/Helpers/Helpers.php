@@ -29,10 +29,35 @@ class Helpers
         ];
     }
 
+    public static function decryptSensitiveData($data, $fieldsToDecrypt = [])
+    {
+
+        if (is_array($data)) {
+            $data = (object) $data;
+        }
+        foreach ($fieldsToDecrypt as $field) {
+            if (property_exists($data, $field)) {
+
+                try {
+
+                    $data->$field = decrypt($data->$field);
+                } catch (Exception $e) {
+
+                    $data->$field = 'Unable to decrypt';
+                }
+            }
+
+        }
+
+
+        return (array) $data;
+    }
+
+
     public static  function mergeAndGetUniqueReceivables(array $data) {
         // Initialize an empty array to hold merged results
         $mergedReceivables = [];
-    
+
         // Loop through each sub-array in the input data
         foreach ($data as $subArray) {
             foreach ($subArray as $item) {
@@ -47,7 +72,7 @@ class Helpers
                 }
             }
         }
-    
+
         // Return the unique merged array values
         return array_values($mergedReceivables);
     }

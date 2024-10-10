@@ -24,7 +24,8 @@ use App\Models\TimeRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use App\Jobs\AutoGeneratePayroll;
-
+use App\Models\FirstPayroll;
+use App\Models\SecondPayroll;
 
 
 
@@ -85,6 +86,8 @@ class PayrollController extends Controller
             'updated_at'=>$row['updated_at']
         ];
         }
+
+
         return response()->json([
             'Message' => "List retrieved successfully",
             'responseData' =>$responseData,
@@ -500,7 +503,8 @@ public function Regenerate($PayrollHeaderID)
             }
 
 
-
+            //ADD LOGIC CHECKING FOR EXISTING PAYROLL FIRST PAYROLL 
+            //IF LOCKED THEN EXCLUDE IT AND ONLY MODIFY THE SECONDHALF modifying THE NETTOTAL SALARY
 
             $INpayroll = [
                 'payroll_headers_id' => null,
@@ -517,6 +521,8 @@ public function Regenerate($PayrollHeaderID)
                 'month' => $currentmonth,
                 'year' => $curryear,
             ];
+
+
                 //COMPUTE PAYROLL
 
               $validation = $this->GeneratedPayrollHeaders($payroll_ID, $days_of_duty, $isPermanent, $selectedType, $is_special, $genpayrollList);
@@ -786,7 +792,7 @@ public function Regenerate($PayrollHeaderID)
 
         if ($payrollHead->exists()) {
             $In_payroll['payroll_headers_id'] = $payrollHead->first()->id;
-
+            $genpayID = 0;
             $general_payroll = GeneralPayroll::where("month", $In_payroll['month'])
                 ->where("year", $In_payroll['year'])
                 ->where("employee_list_id", $In_payroll['employee_list_id']);
@@ -796,10 +802,33 @@ public function Regenerate($PayrollHeaderID)
                 $updatedCount += 1;
                 unset($In_payroll['payroll_headers_id']);
                 $general_payroll->update($In_payroll);
+                $genpayID = $general_payroll->first()->id;
             } else {
                 $generatedCount += 1;
-                GeneralPayroll::create($In_payroll);
+                $genpay = GeneralPayroll::create($In_payroll);
+
+                $genpayID  = $genpay->id;
             }
+
+                // FirstPayroll
+                // SecondPayroll
+                FirstPayroll::create([
+                    'general_payrolls_id'=>$genpayID,
+                    'employee_list_id'=>$In_payroll['employee_list_id'],
+                    'net_total_salary'=>$In_payroll['net_salary_first_half'],
+                    'locked_at'=>null,
+                ]);
+
+                SecondPayroll::create([
+                    'general_payrolls_id'=>$genpayID,
+                    'employee_list_id'=>$In_payroll['employee_list_id'],
+                    'net_total_salary'=>$In_payroll['net_salary_second_half'],
+                    'locked_at'=>null,
+                ]);
+
+
+
+
 
         }
 
@@ -952,6 +981,8 @@ public function Regenerate($PayrollHeaderID)
                 'to' => $header->toPeriod,
                 'employmentType' => $employmentType,
                 'status' => $header->locked_at ? 1 : 0,// 1 if locked
+                'firsthalf_locked'=>$header->first_payroll_locked_at ? 1 :0,
+                'secondhalf_locked'=>$header->second_payroll_locked_at ? 1 :0,
                 'special' => $header->is_special,
                 'others' => $newothers,
                 'HazardPay' => $totalHazardPay,
@@ -971,9 +1002,36 @@ public function Regenerate($PayrollHeaderID)
 
     public function LockPayroll(Request $request)
     {
-        PayrollHeaders::find($request->PayrollHeaderID)->update([
-            'locked_at' => now()
-        ]);
+        $firstHalf = $request->firstHalf;
+        $secondHalf = $request->secondHalf;
+        $payHeaderID = $request->PayrollHeaderID;
+        if($firstHalf){
+        FirstPayroll::whereIn('general_payrolls_id', function ($query) use($payHeaderID) {
+                $query->select('id') // The primary key of general_payrolls (assuming it's id)
+                      ->from('general_payrolls')
+                      ->where('payroll_headers_id', $payHeaderID);
+            })->update([
+                'locked_at'=>now()
+            ]);
+            PayrollHeaders::find($request->PayrollHeaderID)->update([
+                    'first_payroll_locked_at' => now()
+                ]);
+
+        }
+
+        if ($secondHalf){
+           SecondPayroll::whereIn('general_payrolls_id', function ($query) use($payHeaderID) {
+                $query->select('id') // The primary key of general_payrolls (assuming it's id)
+                      ->from('general_payrolls')
+                      ->where('payroll_headers_id', $payHeaderID);
+            })->update([
+                'locked_at'=>now()
+            ]);
+            PayrollHeaders::find($request->PayrollHeaderID)->update([
+                    'second_payroll_locked_at' => now()
+                ]);
+        }
+
 
         return [
             'message' => 'Payroll Locked',

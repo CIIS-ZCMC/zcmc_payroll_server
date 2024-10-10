@@ -23,6 +23,8 @@ class PayrollHeaders extends Model
         'last_generated_at',
         'is_special',
         'locked_at',
+        'first_payroll_locked_at',
+        'second_payroll_locked_at',
         'deleted_at'
     ];
 
