@@ -503,7 +503,7 @@ public function Regenerate($PayrollHeaderID)
             }
 
 
-            //ADD LOGIC CHECKING FOR EXISTING PAYROLL FIRST PAYROLL 
+            //ADD LOGIC CHECKING FOR EXISTING PAYROLL FIRST PAYROLL
             //IF LOCKED THEN EXCLUDE IT AND ONLY MODIFY THE SECONDHALF modifying THE NETTOTAL SALARY
 
             $INpayroll = [
@@ -803,15 +803,56 @@ public function Regenerate($PayrollHeaderID)
                 unset($In_payroll['payroll_headers_id']);
                 $general_payroll->update($In_payroll);
                 $genpayID = $general_payroll->first()->id;
+                //UFGU
+
+                $firstpay = FirstPayroll::where("general_payrolls_id", $genpayID)
+                ->where("employee_list_id", $In_payroll['employee_list_id'])
+                ->whereNull("locked_at");
+
+
+               if($firstpay->exists()){
+                $firstpay->update([
+                    'net_total_salary'=>$In_payroll['net_salary_first_half'],
+                ]);
+               }
+
+
+
+                if(!$firstpay->exists()){
+
+                    $netSalFirsthalf = FirstPayroll::where("general_payrolls_id", $genpayID)
+                    ->where("employee_list_id", $In_payroll['employee_list_id'])
+                    ->whereNotNull("locked_at")->first()->net_total_salary;
+
+                     $firstpayVal = $netSalFirsthalf ;
+                    $In_payroll['net_salary_first_half'] =  $firstpayVal;
+                    $netSalary =  $In_payroll['net_total_salary'];
+                    $newSalaryonHalf = $netSalary - $firstpayVal;
+                    $In_payroll['net_salary_second_half'] = $newSalaryonHalf;
+
+                    //net_salary_second_half
+                    //net_total_salary
+
+                }
+
+
+                $secondpay = SecondPayroll::where("general_payrolls_id", $genpayID)
+                ->where("employee_list_id", $In_payroll['employee_list_id'])
+                ->whereNull("locked_at");
+
+                if($secondpay->exists()){
+                    $secondpay->update([
+                        'net_total_salary'=>$In_payroll['net_salary_first_half'],
+                    ]);
+                   }
+
+
             } else {
                 $generatedCount += 1;
                 $genpay = GeneralPayroll::create($In_payroll);
 
                 $genpayID  = $genpay->id;
-            }
 
-                // FirstPayroll
-                // SecondPayroll
                 FirstPayroll::create([
                     'general_payrolls_id'=>$genpayID,
                     'employee_list_id'=>$In_payroll['employee_list_id'],
@@ -826,6 +867,11 @@ public function Regenerate($PayrollHeaderID)
                     'locked_at'=>null,
                 ]);
 
+
+            }
+
+                // FirstPayroll
+                // SecondPayroll
 
 
 
