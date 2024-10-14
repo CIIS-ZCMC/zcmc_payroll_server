@@ -47,7 +47,14 @@ class DeductionController extends Controller
     public function store(DeductionRequest $request)
     {
         try {
-            $data = Deduction::create($request->all());
+
+            if ($request->designation === 'All Designation') {
+                $data = Deduction::create($request->all());
+            } else {
+                foreach ($request->designation as $key => $designation) {
+                    $data = Deduction::create($request->all());
+                }
+            }
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);

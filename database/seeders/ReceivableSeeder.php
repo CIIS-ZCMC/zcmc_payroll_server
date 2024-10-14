@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Receivable;
 use Illuminate\Database\Seeder;
 
 class ReceivableSeeder extends Seeder
@@ -13,6 +14,24 @@ class ReceivableSeeder extends Seeder
      */
     public function run()
     {
-        //
+        Receivable::firstOrCreate([
+            'name' => 'PERA',
+            'code' => 'PERA',
+            'employment_type' => 'All Employment Type',
+            'amount' => 0,
+            'billing_cycle' => 'Monthly',
+            'status' => 'Active',
+            'is_mandatory' => true
+        ]);
+
+        Receivable::firstOrCreate([
+            'name' => 'Hazard',
+            'code' => 'HAZARD',
+            'employment_type' => 'All Employment Type',
+            'amount' => 0,
+            'billing_cycle' => 'Monthly',
+            'status' => 'Active',
+            'is_mandatory' => true
+        ]);
     }
 }

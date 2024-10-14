@@ -20,6 +20,7 @@ class Deduction extends Model
         'employment_type',
         'designation',
         'assigned_area',
+        'condition',
         'amount',
         'percentage',
         'billing_cycle',
@@ -48,8 +49,9 @@ class Deduction extends Model
             ->withTimestamps();
     }
 
-    public function getImports(){
-        return $this->hasMany(Import::class,'deduction_id');
+    public function getImports()
+    {
+        return $this->hasMany(Import::class, 'deduction_id');
     }
 
     public function employeeDeductions()
