@@ -28,7 +28,7 @@ class DeductionResource extends JsonResource
             'employment_type' => $this->employment_type,
             'designation' => $this->designation,
             'assigned_area' => $this->assigned_area,
-            'charge_basis' => $this->percentage === null ? "Fixed Amount" : "Percentage Of Salary",
+          //  'charge_basis' => $this->percentage === null ? "Fixed Amount" : "Percentage Of Salary",
             'amount' => $this->percentage !== null ? $this->percentage : $this->amount,
             'billing_cycle' => $this->billing_cycle,
             'terms_to_pay' => $this->terms_to_pay,
