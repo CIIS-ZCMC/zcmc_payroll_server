@@ -362,7 +362,7 @@ public function Regenerate($PayrollHeaderID)
         $perDayRate = GenPayroll::extractNumericValue($entry->{"Per Day Rate"});
         $pera = GenPayroll::extractNumericValue($entry->PERA);
         $hazardPay = GenPayroll::extractNumericValue($entry->{"HAZARD PAY"});
-        $nightDifferential = GenPayroll::extractNumericValue($entry->{"Night Differential"});
+        //$nightDifferential = GenPayroll::extractNumericValue($entry->{"Night Differential"});
         $otherReceivables = GenPayroll::extractNumericValue($entry->{"OTHER RECEIVABLES"});
         $grossSalary = GenPayroll::extractNumericValue($entry->{"GROSS SALARY"});
         $undertimeRate = GenPayroll::extractNumericValue($entry->{"Undertime Rate"});
@@ -370,7 +370,7 @@ public function Regenerate($PayrollHeaderID)
         $otherDeductions = GenPayroll::extractNumericValue($entry->{"OTHER DEDUCTIONS"});
         $netSalary = GenPayroll::extractNumericValue($entry->{"NET SALARY"});
 
-        $tempnet = $grossSalary - ( $otherReceivables + $nightDifferential + $hazardPay + $pera);
+        $tempnet = $grossSalary - ( $otherReceivables + $hazardPay + $pera);
 
         $processedID[] = $ID;
 
@@ -398,14 +398,14 @@ public function Regenerate($PayrollHeaderID)
         ];
 
 
-    $nightDifferential = [
-        "receivable_id"=> null,
-        "receivable"=>  [
-             "name"=> "Night differential",
-            "code"=> "NightDiff"
-        ],
-        "amount"=> $nightDifferential,
-    ];
+    // $nightDifferential = [
+    //     "receivable_id"=> null,
+    //     "receivable"=>  [
+    //          "name"=> "Night differential",
+    //         "code"=> "NightDiff"
+    //     ],
+    //     "amount"=> $nightDifferential,
+    // ];
 
 
     $undertimeRate = [
@@ -452,7 +452,7 @@ public function Regenerate($PayrollHeaderID)
 
 
         $receivables = array_merge(
-            [$pera, $hazardPay, $nightDifferential],
+            [$pera, $hazardPay],
             $restructedReceivables->toArray()
         );
 
@@ -805,34 +805,35 @@ public function Regenerate($PayrollHeaderID)
                 $genpayID = $general_payroll->first()->id;
                 //UFGU
 
-                $firstpay = FirstPayroll::where("general_payrolls_id", $genpayID)
+                $firstpaynotlock = FirstPayroll::where("general_payrolls_id", $genpayID)
                 ->where("employee_list_id", $In_payroll['employee_list_id'])
                 ->whereNull("locked_at");
 
 
-               if($firstpay->exists()){
-                $firstpay->update([
+               if($firstpaynotlock->exists()){
+                $firstpaynotlock->update([
                     'net_total_salary'=>$In_payroll['net_salary_first_half'],
                 ]);
                }
 
+               $secondhalf_ = $In_payroll['net_salary_second_half'];
 
+                if(!$firstpaynotlock->exists()){
 
-                if(!$firstpay->exists()){
+                     $netSalFirsthalf = FirstPayroll::where("general_payrolls_id", $genpayID)
+                     ->where("employee_list_id", $In_payroll['employee_list_id'])
+                     ->whereNotNull("locked_at")->first()->net_total_salary;
 
-                    $netSalFirsthalf = FirstPayroll::where("general_payrolls_id", $genpayID)
-                    ->where("employee_list_id", $In_payroll['employee_list_id'])
-                    ->whereNotNull("locked_at")->first()->net_total_salary;
+                    // $firstpayVal = $netSalFirsthalf ;
+                    // $In_payroll['net_salary_first_half'] =  $firstpayVal;
+                    // $netSalary =  $In_payroll['net_total_salary'];
+                    // $newSalaryonHalf =  $netSalary - $firstpayVal;
+                    // $In_payroll['net_salary_second_half'] = $newSalaryonHalf;
 
-                     $firstpayVal = $netSalFirsthalf ;
-                    $In_payroll['net_salary_first_half'] =  $firstpayVal;
-                    $netSalary =  $In_payroll['net_total_salary'];
-                    $newSalaryonHalf = $netSalary - $firstpayVal;
-                    $In_payroll['net_salary_second_half'] = $newSalaryonHalf;
-
-                    //net_salary_second_half
-                    //net_total_salary
-
+                    $netSal = decrypt($In_payroll['net_total_salary']); 
+                    $netFirsthalf_ = decrypt($netSalFirsthalf);
+                    $secondhalf_ = (float)$netSal - (float)$netFirsthalf_;
+                    $secondhalf_ = encrypt($secondhalf_);
                 }
 
 
@@ -842,7 +843,7 @@ public function Regenerate($PayrollHeaderID)
 
                 if($secondpay->exists()){
                     $secondpay->update([
-                        'net_total_salary'=>$In_payroll['net_salary_first_half'],
+                        'net_total_salary'=>$secondhalf_,
                     ]);
                    }
 

@@ -44,7 +44,7 @@ class AutoGeneratePayroll implements ShouldQueue
     {
 
         $request = $this->requestData;
-       
+
        $days_of_duty = $request['days_of_duty'];
        $selectedType =  $request['selectedType'];
        $benefitsSelected = $request['benefitsSelected'];
@@ -69,20 +69,20 @@ class AutoGeneratePayroll implements ShouldQueue
 
             $HAZARD = 0.00;
 
-       
+
 
             $isPermanent = 0;
             if ($employmentType !== "joborder" && $employmentType !== "Job Order"){
                 $isPermanent = 1;
             }
 
-        
+
             if ($timeRecords->total_leave_with_pay < 11 && $isPermanent){
                $HAZARD = $this->computer->CalculateHAZARDPay($salaryGrade, $baseSalary, $totalAbsences);
             }
 
 
-            $nightDiff = $this->computer->CalculateNightDifferential( $totalNightDutyHours, $baseSalary);
+        //    $nightDiff = $this->computer->CalculateNightDifferential( $totalNightDutyHours, $baseSalary);
 
             $pera = [
                 "receivable_id"=> null,
@@ -101,14 +101,14 @@ class AutoGeneratePayroll implements ShouldQueue
             "amount"=> $isPermanent? $HAZARD : 0,
         ];
 
-            $nightDifferential = [
-                "receivable_id"=> null,
-                "receivable"=>  [
-                    "name"=> "Night differential",
-                    "code"=> "NightDiff"
-                ],
-                "amount"=> $nightDiff,
-            ] ;
+            // $nightDifferential = [
+            //     "receivable_id"=> null,
+            //     "receivable"=>  [
+            //         "name"=> "Night differential",
+            //         "code"=> "NightDiff"
+            //     ],
+            //     "amount"=> $nightDiff,
+            // ] ;
                 $undertimeRate = [
                     "deduction_id"=> null,
                     "deduction"=>  [
@@ -127,7 +127,7 @@ class AutoGeneratePayroll implements ShouldQueue
                     "amount"=> $timeRecords->absent_rate,
                 ];
 
-            
+
         $restructedReceivables = $receivables->map(function($row){
             return [
                 "receivable_id"=> $row->receivables->id,
@@ -140,7 +140,7 @@ class AutoGeneratePayroll implements ShouldQueue
         });
 
         $receivables = array_merge(
-       [$pera, $hazardPay, $nightDifferential],$restructedReceivables->toArray()
+       [$pera, $hazardPay],$restructedReceivables->toArray()
         );
 
 
