@@ -17,14 +17,14 @@ class EmployeeInformationResource extends JsonResource
     public function toArray($request)
     {
 
-       
+
         $excludedDetails = $this->getExclusionDetails()->where("month", $request->processMonth['month'])
             ->where('year', $request->processMonth['year'])
             ->first();
         if ($excludedDetails) {
             $reasons = json_decode($excludedDetails->reason);
         }
-       
+
             return [
                 'id' => $this->id,
                 'employee_number' => $this->employee_number,
@@ -40,6 +40,7 @@ class EmployeeInformationResource extends JsonResource
                 'TimeRecord' => TimeRecordResource::collection($this->getTimeRecords()->with('ComputedSalary')->get()),
                 'Deduction' => EmployeeDeductionResource::collection($this->employeeDeductions),
                 'Receivables' => EmployeeReceivableResource::collection($this->employeeReceivables),
+                'GeneralPayroll'=>$this->getActiveGeneralPayroll ? GeneralPayrollResources::collection([$this->getActiveGeneralPayroll]) : null,
                 'isExcluded' => [
                     'Details' => $excludedDetails,
                     'Reason' => $reasons->reason ?? null,
@@ -47,7 +48,7 @@ class EmployeeInformationResource extends JsonResource
                     'Amount' => $reasons->Amount ?? null
                 ]
             ];
-        
-       
+
+
     }
 }

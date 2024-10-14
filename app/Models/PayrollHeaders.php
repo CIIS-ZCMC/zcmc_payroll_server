@@ -22,7 +22,10 @@ class PayrollHeaders extends Model
         'posted_at',
         'last_generated_at',
         'is_special',
-        'is_locked',
+        'locked_at',
+        'first_payroll_locked_at',
+        'second_payroll_locked_at',
+        'deleted_at'
     ];
 
 

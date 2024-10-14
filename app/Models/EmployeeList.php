@@ -96,4 +96,9 @@ class EmployeeList extends Model
         return $this->hasMany(GeneralPayroll::class, 'employee_list_id');
     }
 
+
+    public function getActiveGeneralPayroll()
+    {
+        return $this->hasOne(GeneralPayroll::class, 'employee_list_id')->latest();
+    }
 }

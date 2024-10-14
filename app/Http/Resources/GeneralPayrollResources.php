@@ -17,7 +17,7 @@ class GeneralPayrollResources extends JsonResource
      */
     public function toArray($request)
     {
-        //return parent::toArray($request);
+      //  return parent::toArray($request);
         return [
             'id' => $this->id,
             'payroll_headers_id' => $this->payroll_headers_id,
@@ -35,6 +35,8 @@ class GeneralPayrollResources extends JsonResource
             'net_total_salary' => decrypt($this->net_total_salary),
             'month' => $this->month,
             'year' => $this->year,
+            'firstHalf'=>firstPayrollResource::collection([$this->firstHalf])->first(),
+            'secondHalf'=>secondPayrollResource::collection([$this->secondHalf])->first(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

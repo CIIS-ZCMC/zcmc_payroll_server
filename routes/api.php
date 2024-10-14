@@ -63,6 +63,8 @@ Route::middleware('auth.token')->group(function () {
         Route::post("autoregenerate", "PayrollController@AutoGeneratePayroll");
         Route::post("post_deductions", "PayrollController@post_deductions");
         Route::post("setActiveperiod", "PayrollController@setActiveperiod");
+        Route::get("PeriodLists","PayrollController@PeriodLists");
+        Route::post("ChangeMonth","PayrollController@ChangeMonth");
     });
 
     /**
