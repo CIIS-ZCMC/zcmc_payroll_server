@@ -22,13 +22,15 @@ class ImportEmployeeController extends Controller
         ini_set('max_execution_time', 86400);
         $client = new Client();
         $month = $request->month;
-        $year = $request->year;
+        $year =$request->year;
         $first_half = $request->first_half ?? 0;
         $second_half = $request->second_half ?? 0;
 
+
         $defaultmonthCount = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
         $from = "1";
-        $to = (string) $defaultmonthCount;
+        $to = $defaultmonthCount;
 
         $currentyear = date('Y');
         $currentMonth = date('m');
@@ -131,7 +133,7 @@ class ImportEmployeeController extends Controller
 
 
                 $empInfodata = [
-                    'employee_profile_id' => $empinfo['id'],
+                    'employee_profile_id' => $row['Employee']['profile_id'],
                     'employee_number' => $employee['employee_id'],
                     'first_name' => $empinfo['first_name'],
                     'last_name' => $empinfo['last_name'],

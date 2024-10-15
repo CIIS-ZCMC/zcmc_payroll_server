@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\EmployeeReceivable;
+use Illuminate\Database\Eloquent\Builder;
 
 class EmployeeList extends Model
 {
@@ -23,11 +24,18 @@ class EmployeeList extends Model
         'ext_name',
         'designation',
         'assigned_area',
-        'status',
+        'status', 
         'is_newly_hired',
         'is_excluded'
     ];
     public $timestamps = true;
+
+    protected static function booted()
+    {
+        static::addGlobalScope('alphabetical', function (Builder $builder) {
+            $builder->orderBy('last_name', 'asc');
+        });
+    }
 
     public function getEmployeeReceivables()
     {

@@ -359,7 +359,7 @@ public function Regenerate($PayrollHeaderID)
         $attendance = $entry->Attendance;
         $withoutPay = $entry->{"W/o Pay"};
         $monthlySalary = GenPayroll::extractNumericValue($entry->{"Monthly Salary"});
-        $perDayRate = GenPayroll::extractNumericValue($entry->{"Per Day Rate"});
+        //$perDayRate = GenPayroll::extractNumericValue($entry->{"Per Day Rate"});
         $pera = GenPayroll::extractNumericValue($entry->PERA);
         $hazardPay = GenPayroll::extractNumericValue($entry->{"HAZARD PAY"});
         //$nightDifferential = GenPayroll::extractNumericValue($entry->{"Night Differential"});
@@ -537,7 +537,7 @@ public function Regenerate($PayrollHeaderID)
    if (isset($validation['payroll_ID'])){
     $payroll_ID = $validation['payroll_ID'];
    }
-  $this->savetoGeneralPayrollTrails( $payroll_ID ,null,null);
+ $this->savetoGeneralPayrollTrails( $payroll_ID ,null,null);
 
 
 
