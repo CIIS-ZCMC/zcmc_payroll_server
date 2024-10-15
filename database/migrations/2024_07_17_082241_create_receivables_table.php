@@ -22,12 +22,12 @@ class CreateReceivablesTable extends Migration
             $table->double('percentage')->nullable();
             $table->string('billing_cycle');
             $table->integer('terms_to_pay')->nullable();
-            $table->boolean('is_applied_to_all');
+            $table->boolean('is_applied_to_all')->default(false);
             $table->string('apply_salarygrade_from')->nullable();
             $table->string('apply_salarygrade_to')->nullable();
             $table->boolean('is_mandatory');
             $table->string('status')->default("Active");
-            $table->string('reason');
+            $table->string('reason')->nullable();
             $table->timestamp('stopped_at')->nullable();
             $table->timestamps();
         });

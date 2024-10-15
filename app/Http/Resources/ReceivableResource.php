@@ -21,7 +21,7 @@ class ReceivableResource extends JsonResource
             'code' => $this->code,
             'employment_type' => $this->employment_type,
             'charge_basis' => $this->amount ? "Fixed Amount" : "Percentage Of Salary",
-            'charge_value' => $this->amount ? $this->amount : $this->percentage,
+            'amount' => (string) ($this->percentage !== null ? $this->percentage : $this->amount),
             'billing_cycle' => $this->billing_cycle,
             'terms_to_pay' => $this->terms_to_pay,
             'is_applied_to_all' => $this->is_applied_to_all,
@@ -29,7 +29,7 @@ class ReceivableResource extends JsonResource
             'apply_salarygrade_to' => $this->apply_salarygrade_to,
             'is_mandatory' => $this->is_mandatory ? "Yes" : "No",
             'status' => $this->status,
-            'reason' => $this->reason,
+            'reason' => $this->reason ?? "",
             'created_at' => Carbon::parse($this->created_at)->format('M d, Y'),
             'updated_at' => Carbon::parse($this->updated_at)->format('M d, Y'),
             'stopped_at' => $this->stopped_at ? Carbon::parse($this->stopped_at)->format('M d, Y') : "N/A"

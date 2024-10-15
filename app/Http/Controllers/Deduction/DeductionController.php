@@ -48,15 +48,32 @@ class DeductionController extends Controller
     public function store(DeductionRequest $request)
     {
         try {
+            // // Decode the JSON string into a PHP array
+            // $decoded_condition = json_decode($request->condition, true); // true to get an associative array
 
-            if ($request->designation === 'All Designation') {
+            // // Check if decoding was successful and count the conditions
+            // if ($decoded_condition !== null && is_array($decoded_condition)) {
+            //     $count_condition = count($decoded_condition);
+            // } else {
+            //     $count_condition = 0; // Handle the case where JSON is invalid or decoding failed
+            // }
+
+            // return $count_condition;
+
+            if (in_array('All Designation', $request->designation)) {
+                // If "All Designation" is selected, store the deduction as is
                 $data = Deduction::create($request->all());
             } else {
-                foreach ($request->designation as $key => $designation) {
-                    $data = Deduction::create($request->all());
+                // Loop through each specific designation and create a separate deduction entry for each
+                foreach ($request->designation as $designation) {
+                    // Clone the request data and set the specific designation for each entry
+                    $deductionData = $request->all();
+                    $deductionData['designation'] = $designation;
+
+                    // Save the deduction entry
+                    $data = Deduction::create($deductionData);
                 }
             }
-
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
