@@ -22,7 +22,7 @@ class ImportEmployeeController extends Controller
         ini_set('max_execution_time', 86400);
         $client = new Client();
         $month = $request->month;
-        $year =$request->year;
+        $year = $request->year;
         $first_half = $request->first_half ?? 0;
         $second_half = $request->second_half ?? 0;
 
@@ -49,12 +49,11 @@ class ImportEmployeeController extends Controller
 
             if ($currentMonth > $month) {
                 if (($currentMonth - $month) == 1) {
-                    if (floor(date('d', strtotime($year . "-" . $month . "-".date('d')))) <= 11) {
+                    if (floor(date('d', strtotime($year . "-" . $month . "-" . date('d')))) <= 11) {
                         return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records for permanent employees", 'statusCode' => 500]);
                     }
                 }
             }
-
         }
         if ($second_half) {
             //Auto Lock Payroll 1-15..
@@ -69,10 +68,10 @@ class ImportEmployeeController extends Controller
         }
 
         try {
+
             $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year . '&first_half=' . $first_half . '&second_half=' . $second_half);
             $generatedcount = 0;
             $updatedData = 0;
-
 
             foreach ($data as $row) {
                 $employee = $row['Employee'];
@@ -118,9 +117,8 @@ class ImportEmployeeController extends Controller
                 $employeeList = EmployeeList::where("first_name", $empinfo['first_name'])
                     ->where("last_name", $empinfo['last_name'])
                     ->where("middle_name", $empinfo['middle_name'] ?? "")
-                    ->where("employee_profile_id", $empinfo['id'])
-                    ->where("employee_number", $employee['employee_id'])
-                ;
+                    ->where("employee_profile_id", $employee['profile_id'])
+                    ->where("employee_number", $employee['employee_id']);
 
 
 
@@ -205,11 +203,9 @@ class ImportEmployeeController extends Controller
                         if ($validateSalary->count()) {
 
                             $validateSalary->update($arr_emp);
-
                         } else {
                             EmployeeSalary::create($arr_emp);
                         }
-
                     }
                     if ($empType['name'] === "Job Order") {
                         if ($first_half) {
@@ -248,11 +244,10 @@ class ImportEmployeeController extends Controller
 
                     if ($empType['name'] == "Job Order") {
 
-                        $timeRecords = TimeRecord::where("is_active", 1)
-                            ->where("employee_list_id", $Employee->id)
-                            ->where('fromPeriod', $from)
-                            ->where('toPeriod', $to)
-                        ;
+                        // $timeRecords = TimeRecord::where("is_active", 1)
+                        //     ->where("employee_list_id", $Employee->id)
+                        //     ->where('fromPeriod', $from)
+                        //     ->where('toPeriod', $to);
 
                         $timeRecords = DB::table('time_records')
                             ->where('is_active', 1)
@@ -266,8 +261,6 @@ class ImportEmployeeController extends Controller
                                     ->where('employment_type', '=', 'Job Order')
                                     ->where('employee_list_id', $Employee->id);
                             });
-
-
                     } else {
 
 
@@ -282,8 +275,6 @@ class ImportEmployeeController extends Controller
                                     ->where('employment_type', '!=', 'Job Order')
                                     ->where('employee_list_id', $Employee->id);
                             });
-
-
                     }
 
 
@@ -325,8 +316,7 @@ class ImportEmployeeController extends Controller
                                 ->where('fromPeriod', $timeRecordsData['fromPeriod'])
                                 ->where('toPeriod', $timeRecordsData['toPeriod'])
                                 ->where('is_active', 0)
-                                ->where('employee_list_id', $Employee->id)
-                            ;
+                                ->where('employee_list_id', $Employee->id);
                             if ($trueThatTimeRecord->exists()) {
 
                                 EmployeeComputedSalary::where('time_record_id', $trueThatTimeRecord->first()->id)->update([
@@ -345,7 +335,6 @@ class ImportEmployeeController extends Controller
                                     'computed_salary' => $netSalary //encrypt($netSalary)
                                 ]);
                             }
-
                         } else {
 
 
@@ -386,8 +375,7 @@ class ImportEmployeeController extends Controller
                                 ->where('month', $month)
                                 ->where('year', $year)
                                 ->where('is_active', 0)
-                                ->where('employee_list_id', $Employee->id)
-                            ;
+                                ->where('employee_list_id', $Employee->id);
 
 
                             if ($trueThatTimeRecord->exists()) {
@@ -407,11 +395,7 @@ class ImportEmployeeController extends Controller
                                     'computed_salary' => $netSalary //encrypt($netSalary)
                                 ]);
                             }
-
-
                         }
-
-
                     }
                     //   $this->ChangedPreviousMonthStatusForPermanent($month,$empID,$empType['name'],$year);
                     $this->ChangedPreviousMonthStatusForJO($Employee->id, Helpers::getPreviousMonthYear($month, $year), $month);
@@ -443,9 +427,7 @@ class ImportEmployeeController extends Controller
                                 ->update([
                                     'computed_salary' => $netSalary //encrypt($netSalary)
                                 ]);
-
                         }
-
                     }
 
                     // $timeRecord = TimeRecord::where('is_active',1)->latest()->first();
@@ -478,12 +460,11 @@ class ImportEmployeeController extends Controller
 
 
                 }
-
-
             }
             return response()->json(['Message' => "Successfully Fetched.", "GeneratedCount" => $generatedcount, 'UpdatedCount' => $updatedData, 'statusCode' => 200], 200);
         } catch (\Exception $e) {
             // Handle the exception
+            return $e;
             return response()->json(['error' => 'API request failed', 'message' => $e->getMessage()], 500);
         }
     }
@@ -521,7 +502,6 @@ class ImportEmployeeController extends Controller
                 'is_active' => 0
             ]);
         }
-
     }
 
     public function ChangedPreviousMonthStatusForPermanent($month, $EmpID, $empType, $year)
@@ -544,8 +524,6 @@ class ImportEmployeeController extends Controller
                     'is_active' => 0
                 ]);
             }
-
-
         }
     }
 
@@ -705,8 +683,6 @@ class ImportEmployeeController extends Controller
                     'current_value' => null,
                     'coming_value' => $value
                 ];
-
-
             }
         }
 
@@ -752,7 +728,6 @@ class ImportEmployeeController extends Controller
                     'month' => $month,
                     'is_removed' => 0
                 ]);
-
             } else if ($empStudyLeave) {
                 ExcludedEmployee::create([
                     'employee_list_id' => $Employee->id,
@@ -786,7 +761,6 @@ class ImportEmployeeController extends Controller
                                 ]),
                             ]);
                         }
-
                     } else {
                         //eeeee
 
@@ -805,7 +779,6 @@ class ImportEmployeeController extends Controller
                                     'is_removed' => 0
                                 ]);
                             }
-
                         } else {
                             ExcludedEmployee::create([
                                 'employee_list_id' => $Employee->id,
@@ -819,23 +792,10 @@ class ImportEmployeeController extends Controller
                                 'month' => $month,
                                 'is_removed' => 0
                             ]);
-
                         }
-
-
-
                     }
-
-
                 }
             }
-
-
         }
-
-
-
     }
-
-
 }
