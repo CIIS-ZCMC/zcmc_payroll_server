@@ -24,7 +24,7 @@ class EmployeeList extends Model
         'ext_name',
         'designation',
         'assigned_area',
-        'status', 
+        'status',
         'is_newly_hired',
         'is_excluded'
     ];
@@ -44,7 +44,7 @@ class EmployeeList extends Model
 
     public function getSalary()
     {
-        return $this->hasOne(EmployeeSalary::class, 'employee_list_id')->latest();
+        return $this->hasOne(EmployeeSalary::class, 'employee_list_id')->where('is_active', 1);
     }
 
     public function getSalaries()
