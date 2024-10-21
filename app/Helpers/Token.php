@@ -1,9 +1,12 @@
 <?php
+
 namespace App\Helpers;
+
 use Illuminate\Support\Facades\Log;
 use App\Models\PersonalAccessToken;
 use Illuminate\Support\Str;
- class Token
+
+class Token
 {
 
     public static function generateToken()
@@ -15,9 +18,10 @@ use Illuminate\Support\Str;
     //     return json_decode(request()->cookie(env("COOKIE_NAME")))->token ?? request()->bearerToken();
     // }
 
-    public static function myToken(){
+    public static function myToken()
+    {
         $cookieValue = request()->cookie(env("COOKIE_NAME"));
-        
+
         // Ensure $cookieValue is a string
         if (is_string($cookieValue)) {
             $decodedValue = json_decode($cookieValue);
@@ -26,13 +30,15 @@ use Illuminate\Support\Str;
         return request()->bearerToken();
     }
 
-     public static function UserInfo(){
-     $token = self::myToken();
-       if ($token) {
-        $accessToken = PersonalAccessToken::where('token',$token)->first();
-        return decrypt($accessToken->abilities);
-      }
+    public static function UserInfo()
+    {
+        $token = self::myToken();
+        if ($token) {
+            $accessToken = PersonalAccessToken::where('token', $token)->first();
+            if ($accessToken) {
+                return decrypt($accessToken->abilities);
+            }
+        }
         return null;
     }
-
 }

@@ -1,6 +1,6 @@
 APP_NAME=Laravel
 APP_ENV=local
-APP_KEY=base64:+ir55DvQcIdih+nyBvERtSQWAzAlnUQheg02TaLDwWA=
+APP_KEY=base64YvT5fW5s07eR+3WppbQazDmL8EFJ3DF5maVDjR0L2No=
 APP_DEBUG=true
 APP_URL=http://localhost
 UMIS=http://http://127.0.0.1:8000/api

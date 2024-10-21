@@ -29,7 +29,6 @@ class LoginController extends Controller
                         'statusCode' => 307
                     ]);
                 }
-
             }
 
             $GetInformation = Helpers::umisPOSTrequest("getUserInformations", [
@@ -39,6 +38,7 @@ class LoginController extends Controller
             $AccessToken = PersonalAccessToken::where('employee_id', $data['employee_id'])
                 ->where("name", $data['name']);
             $generatedToken = Token::generateToken();
+
 
 
             /**
@@ -77,8 +77,6 @@ class LoginController extends Controller
                         'last_used_at' => now(),
                     ]);
                 }
-
-
             } else {
                 //No cookie detected
                 PersonalAccessToken::create([
@@ -107,8 +105,6 @@ class LoginController extends Controller
                 'Token' => $generatedToken,
                 'statusCode' => 200
             ])->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY"), '/', env("SESSION_DOMAIN"), false);
-
-
         } catch (\Throwable $th) {
 
             Logging::RecordTransaction([
@@ -126,5 +122,13 @@ class LoginController extends Controller
                 'Response' => $th->getMessage()
             ], 401);
         }
+    }
+
+    public function ReAuthenticate()
+    {
+        return response()->json([
+            'statusCode' => 200,
+            'Data' => Token::UserInfo()
+        ]);
     }
 }
