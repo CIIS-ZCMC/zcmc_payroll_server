@@ -38,16 +38,16 @@ class EmployeeListController extends Controller
     public function index(Request $request)
     {
         $Emp = $this->allEmployees();
-        
-      
+
+
         if (isset($request->with_active_pay)) {
             $Emp = $this->withActivePay();
         }
-   
+
         if (isset($request->designation)) {
             $Emp = $this->withDesignation();
         }
-      
+
         if (isset($request->generalPayroll) && $request->generalPayroll) {
             $Emp = $this->QualifiedGeneralPayrollList();
         }
@@ -69,8 +69,8 @@ class EmployeeListController extends Controller
         if (isset($request->regenerateList)) {
             $Emp = $request->listofemployee;
         }
-        
-        
+
+
         return response()->json([
             'Message' => "List has been retrieved",
             'responseData' => EmployeeInformationResource::collection($Emp),
@@ -81,7 +81,7 @@ class EmployeeListController extends Controller
 
     public function allEmployees()
     {
-         $Emp = EmployeeList::all();
+        $Emp = EmployeeList::all();
         return $Emp;
     }
 
@@ -279,7 +279,8 @@ class EmployeeListController extends Controller
     }
 
 
-    public function deductionList(){
+    public function deductionList()
+    {
         return response()->json([
             'Message' => "List has been retrieved",
             'responseData' => Deduction::all(),

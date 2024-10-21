@@ -18,27 +18,21 @@ class Below5kController extends Controller
             $computeDeduction = new ComputationController();
 
             foreach ($employees as $employee) {
-                $monthlyRate = decrypt($employee->getSalary->basic_salary);
-                $netSalary = $employee->getTimeRecords->ComputedSalary->computed_salary;
+                $netSalary = $employee->getTimeRecords->ComputedSalary->computed_salary ?? 0;
 
                 // Assuming computeDeductionAmount returns a value
-                $nightDifferentialAmount = $computeDeduction->computeNightDifferentialAmount($employee, $monthlyRate, $netSalary);
-                $receivableAmount = $computeDeduction->computeReceivableAmounts($employee);
-                $deductionAmount = $computeDeduction->computeDeductionAmountBelow5k($employee);
-                $TotalTaxex = $computeDeduction->computeTaxesAmounts($employee);
-                $total_net_salary = $computeDeduction->ComputeNetSalary($nightDifferentialAmount, $receivableAmount, $deductionAmount, $TotalTaxex);
+                $receivable_amount = $computeDeduction->computeReceivableAmounts($employee);
+                $deduction_amount = $computeDeduction->computeDeductionAmountBelow5k($employee);
+                $total_net_salary = $computeDeduction->ComputeNetSalary($employee, $netSalary, $receivable_amount, $deduction_amount);
 
                 if ($total_net_salary < 5000) {
                     $data[] = [
-                        // how to indicate the , like 1,200
                         'employee_id' => $employee->id,
                         'employee_number' => $employee->employee_number,
                         'employee_name' => $employee->last_name . ', ' . $employee->first_name,
-                        'night_differentail' => number_format($nightDifferentialAmount, 2),
-                        'receivable_amount' => number_format($receivableAmount, 2),
-                        'deduction_amount' => number_format($deductionAmount, 2),
-                        'total_tax' => number_format($TotalTaxex, 2),
-                        'total_net_salary' => number_format($total_net_salary, 2),
+                        'receivable_amount' => $receivable_amount,
+                        'deduction_amount' => $deduction_amount,
+                        'total_net_salary' => $total_net_salary,
                     ];
                 }
             }

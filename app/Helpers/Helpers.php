@@ -54,7 +54,8 @@ class Helpers
     }
 
 
-    public static  function mergeAndGetUniqueReceivables(array $data) {
+    public static function mergeAndGetUniqueReceivables(array $data)
+    {
         // Initialize an empty array to hold merged results
         $mergedReceivables = [];
 

@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\GeneralPayroll;
 
 use App\Http\Controllers\Controller;
+use App\Models\Deduction;
+use App\Models\EmployeeDeduction;
+use App\Models\Receivable;
+use App\Models\TimeRecord;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Helpers\Helpers;
 use App\Models\ExcludedEmployee;
@@ -13,7 +18,7 @@ class ComputationController extends Controller
 {
     public function computeNightDifferentialAmount($employeeList, $monthly_rate, $tempNetSalary)
     {
-        $nightHours = $employeeList->getTimeRecords->total_night_duty_hours;
+        $nightHours = $employeeList->getTimeRecords->total_night_duty_hours ?? 0;
         $nd_Rate = floor($monthly_rate * 0.005682 * 100) / 100;
         $nd_Twenty_Percent = number_format($nd_Rate * 0.2, 2, '.', '');
         $Accumulated_Amount_Night_Differential = number_format($nightHours * $nd_Twenty_Percent, 2, '.', '');
@@ -78,40 +83,56 @@ class ComputationController extends Controller
 
     }
 
-    public function computeDeductionAmountBelow5k($employeeList)
+    public function computeDeductionAmountBelow5k($employee_list)
     {
-        $perdeductions = $employeeList->getListOfDeductions()->with(['deductions'])->get();
-        $totalDeductions = 0;
-        foreach ($perdeductions as $deduction) {
-            if ($deduction->stopped_at) {
-                $totalDeductions = 0;
-            } else if (!is_null($deduction->date_from) && !is_null($deduction->date_to)) {
-                if (strtotime($deduction->date_from) <= strtotime(date('Y-m-d')) && strtotime($deduction->date_to) >= strtotime(date('Y-m-d'))) {
-                    $totalDeductions += $deduction->amount;
+        $deductions = EmployeeDeduction::where('employee_list_id', $employee_list->id)->where('status', 'Active')->get();
+        $total_deduction = 0; // Initialize total deduction
+
+        foreach ($deductions as $key => $deduction) {
+            // Calculate deduction amount based on logic (example using amount)
+            if ($deduction->willDeduct) { // Check if this deduction should be applied
+                $deduction_amount = $deduction->amount;
+
+                // If deduction is based on percentage
+                if ($deduction->percentage) {
+                    $deduction_amount = ($deduction->amount * $deduction->percentage) / 100;
                 }
-            } else {
-                $totalDeductions += $deduction->amount;
+
+                // Add the deduction amount to the total
+                $total_deduction += $deduction_amount;
             }
         }
-        return Helpers::customRound($totalDeductions);
+
+        return Helpers::customRound($total_deduction);
     }
 
     public function computeReceivableAmounts($employeeList)
     {
         $perReceivables = $employeeList->getEmployeeReceivables()->with(['receivables'])->get();
-        $totalReceivalbles = 0;
+        $totalReceivables = 0;
+
         foreach ($perReceivables as $receivable) {
+            // Skip if stopped_at is set
             if ($receivable->stopped_at) {
-                $totalReceivalbles = 0;
-            } else if (!is_null($receivable->date_from) && !is_null($receivable->date_to)) {
-                if (strtotime($receivable->date_from) <= strtotime(date('Y-m-d')) && strtotime($receivable->date_to) >= strtotime(date('Y-m-d'))) {
-                    $totalReceivalbles += $receivable->amount;
+                continue; // Skip this receivable, but do not reset total
+            }
+
+            // Check if there is a valid date range (both date_from and date_to are set)
+            if (!is_null($receivable->date_from) && !is_null($receivable->date_to)) {
+                $dateFrom = Carbon::parse($receivable->date_from);
+                $dateTo = Carbon::parse($receivable->date_to);
+                $today = Carbon::today();
+
+                // Check if today's date is within the range
+                if ($today->between($dateFrom, $dateTo)) {
+                    $totalReceivables += $receivable->amount;
                 }
             } else {
-                $totalReceivalbles += $receivable->amount;
+                // If no date range is provided, simply add the amount
+                $totalReceivables += $receivable->amount;
             }
         }
-        return Helpers::customRound($totalReceivalbles);
+        return Helpers::customRound($totalReceivables);
     }
 
     public function computeTaxesAmounts($employeeList)
@@ -187,9 +208,31 @@ class ComputationController extends Controller
         return [Helpers::customRound($firstHalf), Helpers::customRound($secondHalf)];
     }
 
-    public function ComputeNetSalary($NetSalarywNightDifferential, $TotalReceivables, $TotalDeductions, $TotalTaxex)
+    public function ComputeNetSalary($EmployeeList, $NetSalary, $ReceivableAmount, $DeductionAmount)
     {
-        return Helpers::customRound(($NetSalarywNightDifferential + $TotalReceivables) - ($TotalDeductions + $TotalTaxex));
+        $TimeRecords = $EmployeeList->getTimeRecords;
+        $SalaryInfo = $EmployeeList->getSalary;
+
+        // Ensure default values if records are null
+        $TotalPresentDays = $TimeRecords->total_present_days ?? 0;
+        $TotalAbsences = $TimeRecords->total_absences ?? 0;
+
+        // Decrypt base salary
+        $BaseSalary = decrypt($SalaryInfo->basic_salary);
+
+        // Get other salary details
+        $EmploymentType = $SalaryInfo->employment_type;
+        $SalaryGrade = $SalaryInfo->salary_grade;
+
+        // Calculate PERA and HAZARD pay
+        $PERA = $this->CalculatePERA($TotalPresentDays, $TotalAbsences, $BaseSalary, $EmploymentType);
+        $HAZARD = $this->CalculateHAZARDPay($SalaryGrade, $BaseSalary, $TotalAbsences);
+
+        $TotalReceivables = $PERA + $HAZARD + $ReceivableAmount;
+        $TotalGrossSalary = $NetSalary + $TotalReceivables;
+        $TotalNetSalary = $TotalGrossSalary - $DeductionAmount;
+
+        return Helpers::customRound($TotalNetSalary);
     }
 
     public function CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType)

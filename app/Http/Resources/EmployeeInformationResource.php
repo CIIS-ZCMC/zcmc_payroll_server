@@ -25,29 +25,29 @@ class EmployeeInformationResource extends JsonResource
             $reasons = json_decode($excludedDetails->reason);
         }
 
-            return [
-                'id' => $this->id,
-                'employee_number' => $this->employee_number,
-                'first_name' => $this->first_name,
-                'last_name' => $this->last_name,
-                'middle_name' => $this->middle_name,
-                'designation' => $this->designation,
-                'created' => $this->created_at,
-                'assigned_area' => json_decode($this->assigned_area),
-                'status' => $this->status,
-                'is_newly_hired' => $this->is_newly_hired,
-                'Salary' =>  EmployeeSalaryResource::collection([$this->getSalary]),
-                'TimeRecord' => TimeRecordResource::collection($this->getTimeRecords()->with('ComputedSalary')->get()),
-                'Deduction' => EmployeeDeductionResource::collection($this->employeeDeductions),
-                'Receivables' => EmployeeReceivableResource::collection($this->employeeReceivables),
-                'GeneralPayroll'=>$this->getActiveGeneralPayroll ? GeneralPayrollResources::collection([$this->getActiveGeneralPayroll]) : null,
-                'isExcluded' => [
-                    'Details' => $excludedDetails,
-                    'Reason' => $reasons->reason ?? null,
-                    'Remarks' => $reasons->remarks ?? null,
-                    'Amount' => $reasons->Amount ?? null
-                ]
-            ];
+        return [
+            'id' => $this->id,
+            'employee_number' => $this->employee_number,
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'middle_name' => $this->middle_name,
+            'designation' => $this->designation,
+            'created' => $this->created_at,
+            'assigned_area' => json_decode($this->assigned_area),
+            'status' => $this->status,
+            'is_newly_hired' => $this->is_newly_hired,
+            'Salary' => EmployeeSalaryResource::collection([$this->getSalary]),
+            'TimeRecord' => TimeRecordResource::collection($this->getTimeRecords()->with('ComputedSalary')->get()),
+            'Deduction' => EmployeeDeductionResource::collection($this->employeeDeductions),
+            'Receivables' => EmployeeReceivableResource::collection($this->employeeReceivables),
+            'GeneralPayroll' => $this->getActiveGeneralPayroll ? GeneralPayrollResources::collection([$this->getActiveGeneralPayroll]) : null,
+            'isExcluded' => [
+                'Details' => $excludedDetails,
+                'Reason' => $reasons->reason ?? null,
+                'Remarks' => $reasons->remarks ?? null,
+                'Amount' => $reasons->Amount ?? null
+            ]
+        ];
 
 
     }
