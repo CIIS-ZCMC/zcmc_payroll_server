@@ -324,8 +324,12 @@ class PayrollController extends Controller
         $genpayrollList = Helpers::convertToStdObject($genpayrollList);
         $includedIDs = [];
         foreach ($genpayrollList as $in) {
-            $includedIDs[] = $in->ID;
+            if (!in_array($in->ID, $excludedIds)) {
+                $includedIDs[] = $in->ID;
+            }
         }
+
+
 
         $filteredGenPayrollList = array_values(array_filter($genpayrollList, function ($item) use ($includedIDs) {
             return in_array($item->ID, $includedIDs);
