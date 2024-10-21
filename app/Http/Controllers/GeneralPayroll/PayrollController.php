@@ -318,6 +318,8 @@ class PayrollController extends Controller
         $benefitSelected = $request->benefitSelected;
         $DeductionSelectectList = $request->DeductionSelectectList;
         $receivable = [];
+        $currentmonth = request()->processMonth['month'];
+        $curryear = request()->processMonth['year'];
 
 
         $regenerate = $request->regenerate;
@@ -326,6 +328,16 @@ class PayrollController extends Controller
         foreach ($genpayrollList as $in) {
             if (!in_array($in->ID, $excludedIds)) {
                 $includedIDs[] = $in->ID;
+            } else {
+                $outID = $in->ID;
+                $generalpay = GeneralPayroll::where("employee_list_id", $outID)
+                    ->where("month", $currentmonth)
+                    ->where("year", $curryear);
+
+                // Check if the record exists before deleting
+                if ($generalpay->exists()) {
+                    $generalpay->delete();
+                }
             }
         }
 
@@ -481,8 +493,6 @@ class PayrollController extends Controller
 
 
             list($firstHalf, $secondHalf) = $this->computer->divideintoTwo($netSalary);
-            $currentmonth = request()->processMonth['month'];
-            $curryear = request()->processMonth['year'];
 
             $benefitIDs = array_map(function ($row) {
                 return $row['id'];
