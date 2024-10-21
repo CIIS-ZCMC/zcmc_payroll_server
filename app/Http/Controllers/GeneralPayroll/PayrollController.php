@@ -322,9 +322,13 @@ class PayrollController extends Controller
         $curryear = request()->processMonth['year'];
 
 
+
         $regenerate = $request->regenerate;
         $genpayrollList = Helpers::convertToStdObject($genpayrollList);
         $includedIDs = [];
+
+
+
         foreach ($genpayrollList as $in) {
             if (!in_array($in->ID, $excludedIds)) {
                 $includedIDs[] = $in->ID;
@@ -336,6 +340,9 @@ class PayrollController extends Controller
 
                 // Check if the record exists before deleting
                 if ($generalpay->exists()) {
+                    FirstPayroll::where("general_payrolls_id", $generalpay->first()->id)->delete();
+                    SecondPayroll::where("general_payrolls_id", $generalpay->first()->id)->delete();
+                    GeneralPayrollTrails::where("general_payrolls_id", $generalpay->first()->id)->delete();
                     $generalpay->delete();
                 }
             }
@@ -357,9 +364,25 @@ class PayrollController extends Controller
         $selectedIDs = [];
 
         if ($payroll_ID >= 1) {
+
             $pay = PayrollHeaders::find($payroll_ID);
             foreach ($pay->genPayrolls as $row) {
-                $selectedIDs[] = $row->employee_list_id;
+                if (!in_array($row->employee_list_id, $excludedIds)) {
+                    $selectedIDs[] = $row->employee_list_id;
+                } else {
+                    $outID_ = $row->employee_list_id;
+                    $generalpay = GeneralPayroll::where("employee_list_id", $outID_)
+                        ->where("month", $currentmonth)
+                        ->where("year", $curryear);
+
+                    // Check if the record exists before deleting
+                    if ($generalpay->exists()) {
+                        FirstPayroll::where("general_payrolls_id", $generalpay->first()->id)->delete();
+                        SecondPayroll::where("general_payrolls_id", $generalpay->first()->id)->delete();
+                        GeneralPayrollTrails::where("general_payrolls_id", $generalpay->first()->id)->delete();
+                        $generalpay->delete();
+                    }
+                }
             }
 
 
