@@ -150,7 +150,7 @@ class AuthenticateToken
                 'last_used_at' => now(),
             ]);
 
-            $request->merge(['user' => Token::UserInfo(), 'processMonth' => $tr]);
+            $request->merge(['user' => Token::UserInfo(), 'processMonth' => $tr, 'umis' => env("UMIS")]);
             return $next($request);
         } catch (\Throwable $th) {
             Log::channel('code')->error($th);

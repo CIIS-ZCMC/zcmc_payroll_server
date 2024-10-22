@@ -68,6 +68,8 @@ Route::middleware('auth.token')->group(function () {
         Route::post("setActiveperiod", "PayrollController@setActiveperiod");
         Route::get("PeriodLists", "PayrollController@PeriodLists");
         Route::post("ChangeMonth", "PayrollController@ChangeMonth");
+
+        Route::get("fetchNightDifferential", "PayrollController@fetchNightDifferential");
     });
 
     /**
@@ -149,30 +151,30 @@ Route::middleware('auth.token')->group(function () {
 
 
 Route::namespace('App\Http\Controllers\Employee')->group(function () {
-        Route::get('/employee-salaries', 'EmployeeSalaryController@index');
-        Route::post('/exclude-employee', 'EmployeeSalaryController@excludeEmployee');
-    });
+    Route::get('/employee-salaries', 'EmployeeSalaryController@index');
+    Route::post('/exclude-employee', 'EmployeeSalaryController@excludeEmployee');
+});
 
 Route::namespace('App\Http\Controllers\Deduction')->group(function () {
-        Route::get('/employee-deductions', 'EmployeeDeductionController@index');
-        Route::post('/exclude-employee', 'EmployeeDeductionController@excludeEmployee');
-        Route::get('/get-deductions', 'EmployeeDeductionController@getDeductions');
-        Route::get('/get-employee-deductions/{id}', 'EmployeeDeductionController@getEmployeeDeductions');
-        Route::get('/get-inactive-employee-deductions/{id}', 'EmployeeDeductionController@getInactiveEmployeeDeductions');
-        Route::get('/get-suspended-employee-deductions/{id}', 'EmployeeDeductionController@getSuspendedEmployeeDeductions');
-        Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
-        Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
-        Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
-    });
+    Route::get('/employee-deductions', 'EmployeeDeductionController@index');
+    Route::post('/exclude-employee', 'EmployeeDeductionController@excludeEmployee');
+    Route::get('/get-deductions', 'EmployeeDeductionController@getDeductions');
+    Route::get('/get-employee-deductions/{id}', 'EmployeeDeductionController@getEmployeeDeductions');
+    Route::get('/get-inactive-employee-deductions/{id}', 'EmployeeDeductionController@getInactiveEmployeeDeductions');
+    Route::get('/get-suspended-employee-deductions/{id}', 'EmployeeDeductionController@getSuspendedEmployeeDeductions');
+    Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
+    Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
+    Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
+});
 
 Route::namespace('App\Http\Controllers\Receivable')->group(function () {
-        Route::get('/employee-receivables', 'EmployeeReceivableController@index');
-        Route::post('/exclude-employee', 'EmployeeReceivableController@excludeEmployee');
-        Route::get('/get-receivables', 'EmployeeReceivableController@getReceivables');
-        Route::get('/get-employee-receivables/{id}', 'EmployeeReceivableController@getEmployeeReceivables');
-        Route::get('/get-inactive-employee-receivables/{id}', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
-        Route::get('/get-suspended-employee-receivables/{id}', 'EmployeeReceivableController@getSuspendedEmployeeReceivables');
-        Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivable');
-        Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
-        Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
-    });
+    Route::get('/employee-receivables', 'EmployeeReceivableController@index');
+    Route::post('/exclude-employee', 'EmployeeReceivableController@excludeEmployee');
+    Route::get('/get-receivables', 'EmployeeReceivableController@getReceivables');
+    Route::get('/get-employee-receivables/{id}', 'EmployeeReceivableController@getEmployeeReceivables');
+    Route::get('/get-inactive-employee-receivables/{id}', 'EmployeeReceivableController@getInactiveEmployeeReceivables');
+    Route::get('/get-suspended-employee-receivables/{id}', 'EmployeeReceivableController@getSuspendedEmployeeReceivables');
+    Route::post('/update-employee-receivables', 'EmployeeReceivableController@updateReceivable');
+    Route::post('/update-receivable-status', 'EmployeeReceivableController@updateStatus');
+    Route::post('/add-employee-receivables', 'EmployeeReceivableController@storeReceivable');
+});
