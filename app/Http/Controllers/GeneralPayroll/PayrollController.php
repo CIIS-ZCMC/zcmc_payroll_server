@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use App\Jobs\AutoGeneratePayroll;
 use App\Models\FirstPayroll;
+use App\Models\NightDifferential;
 use App\Models\SecondPayroll;
 
 
@@ -1282,6 +1283,64 @@ class PayrollController extends Controller
 
         return [
             'message' => "Active period successfully changed",
+            'statusCode' => 200
+        ];
+    }
+
+    public function fetchNightDifferential(Request $request)
+    {
+        ini_set('max_execution_time', 86400);
+        $nightDiffs = Helpers::umisGETrequest("getUserNightDifferentials?month_of=" . $request->month_of . "&year_of=" . $request->year_of);
+
+
+        foreach ($nightDiffs as $row) {
+
+            $emplist = EmployeeList::where("employee_profile_id", $row['employeeProfileID'])->first();
+
+            if (!$emplist) {
+                continue;
+            }
+            $total_hours = 0;
+            foreach ($row['NightDifferentials'] as $nightdiff) {
+                $total_hours += $nightdiff['total_hours'];
+            }
+            $monthlySalary = 0;
+            if (isset($emplist->getSalary->basic_salary)) {
+                $monthlySalary = decrypt($emplist->getSalary->basic_salary);
+            }
+
+
+            $ExistingNightDiff =  NightDifferential::where("employee_list_id", $emplist->id)
+                ->where("month", $row['Month'])
+                ->where("year", $row['Year'])
+                ->where("fromPeriod", $row['From'])
+                ->where("toPeriod", $row['To']);
+
+            if ($ExistingNightDiff->exists()) {
+                //Update
+                $ExistingNightDiff->update([
+                    'accumulated_hours' => $total_hours,
+                    'computed_pay' => $this->computer->CalculateNightDifferential($total_hours, $monthlySalary),
+                ]);
+            } else {
+                //Add
+
+
+                NightDifferential::create([
+                    'employee_list_id' => $emplist->id,
+                    'month' => $row['Month'],
+                    'year' => $row['Year'],
+                    'accumulated_hours' => $total_hours,
+                    'computed_pay' => $this->computer->CalculateNightDifferential($total_hours, $monthlySalary),
+                    'fromPeriod' => $row['From'],
+                    'toPeriod' => $row['To'],
+                ]);
+            }
+        }
+
+
+        return [
+            'message' => "Night differentials fetched successfully!",
             'statusCode' => 200
         ];
     }

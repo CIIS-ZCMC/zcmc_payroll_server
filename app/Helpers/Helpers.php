@@ -46,7 +46,6 @@ class Helpers
                     $data->$field = 'Unable to decrypt';
                 }
             }
-
         }
 
 
@@ -54,7 +53,8 @@ class Helpers
     }
 
 
-    public static  function mergeAndGetUniqueReceivables(array $data) {
+    public static  function mergeAndGetUniqueReceivables(array $data)
+    {
         // Initialize an empty array to hold merged results
         $mergedReceivables = [];
 
@@ -104,7 +104,7 @@ class Helpers
 
     public static function customRound($numericValue)
     {
-        return (double) number_format($numericValue, 2, '.', '');
+        return (float) number_format($numericValue, 2, '.', '');
     }
 
 
@@ -126,6 +126,8 @@ class Helpers
     public static function umisGETrequest($api)
     {
         $client = new Client();
+
+
         $response = $client->request('GET', request()->umis . '/' . $api);
         return json_decode($response->getBody(), true);
     }
@@ -230,5 +232,4 @@ class Helpers
 
         return $genpayrollList;
     }
-
 }
