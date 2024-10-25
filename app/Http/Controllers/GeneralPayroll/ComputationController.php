@@ -83,7 +83,7 @@ class ComputationController extends Controller
 
     }
 
-    public function computeDeductionAmountBelow5k($employee_list)
+    public function computeTotalDeductionAmount($employee_list)
     {
         $deductions = EmployeeDeduction::where('employee_list_id', $employee_list->id)->where('status', 'Active')->get();
         $total_deduction = 0; // Initialize total deduction

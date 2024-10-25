@@ -22,7 +22,7 @@ class Below5kController extends Controller
 
                 // Assuming computeDeductionAmount returns a value
                 $receivable_amount = $computeDeduction->computeReceivableAmounts($employee);
-                $deduction_amount = $computeDeduction->computeDeductionAmountBelow5k($employee);
+                $deduction_amount = $computeDeduction->computeTotalDeductionAmount($employee);
                 $total_net_salary = $computeDeduction->ComputeNetSalary($employee, $netSalary, $receivable_amount, $deduction_amount);
 
                 if ($total_net_salary < 5000) {

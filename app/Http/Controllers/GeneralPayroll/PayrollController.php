@@ -47,7 +47,7 @@ class PayrollController extends Controller
         $responseData = [];
 
         // return PayrollHeaderResources::collection($headers)->response()->getData(true)['data'];
-        foreach (PayrollHeaderResources::collection($headers)->response()->getData(true)['data'] as  $row) {
+        foreach (PayrollHeaderResources::collection($headers)->response()->getData(true)['data'] as $row) {
 
             // $others = array_values(array_filter($row['benefits'][0]['other']));
             //$default =$row['benefits'][0]['default'];
@@ -117,7 +117,7 @@ class PayrollController extends Controller
             ]);
         } else {
 
-            $active =  ActivePeriod::create([
+            $active = ActivePeriod::create([
                 "month" => $month,
                 "year" => $year,
                 "fromPeriod" => $fromPeriod,
@@ -425,7 +425,7 @@ class PayrollController extends Controller
 
             $pera = [
                 "receivable_id" => null,
-                "receivable" =>  [
+                "receivable" => [
                     "name" => "Personnel Economic Relief Allowance",
                     "code" => "PERA"
                 ],
@@ -433,7 +433,7 @@ class PayrollController extends Controller
             ];
             $hazardPay = [
                 "receivable_id" => null,
-                "receivable" =>  [
+                "receivable" => [
                     "name" => "Hazard duty pay",
                     "code" => "HAZARD"
                 ],
@@ -453,7 +453,7 @@ class PayrollController extends Controller
 
             $undertimeRate = [
                 "deduction_id" => null,
-                "deduction" =>  [
+                "deduction" => [
                     "name" => "Undertime Rate",
                     "code" => "Undertime"
                 ],
@@ -462,7 +462,7 @@ class PayrollController extends Controller
 
             $withoutPayAbsencesRate = [
                 "deduction_id" => null,
-                "deduction" =>  [
+                "deduction" => [
                     "name" => "Absent Rate",
                     "code" => "Absent"
                 ],
@@ -655,8 +655,6 @@ class PayrollController extends Controller
 
 
     public function GeneratedPayrollHeaders($payroll_ID, $days_of_duty, $is_permanent, $employment_type, $is_special)
-
-
     {
 
         $month = request()->processMonth['month'];
@@ -864,7 +862,7 @@ class PayrollController extends Controller
 
                     $netSal = decrypt($In_payroll['net_total_salary']);
                     $netFirsthalf_ = decrypt($netSalFirsthalf);
-                    $secondhalf_ = (float)$netSal - (float)$netFirsthalf_;
+                    $secondhalf_ = (float) $netSal - (float) $netFirsthalf_;
                     $secondhalf_ = encrypt($secondhalf_);
                 }
 
@@ -882,7 +880,7 @@ class PayrollController extends Controller
                 $generatedCount += 1;
                 $genpay = GeneralPayroll::create($In_payroll);
 
-                $genpayID  = $genpay->id;
+                $genpayID = $genpay->id;
 
                 FirstPayroll::create([
                     'general_payrolls_id' => $genpayID,
@@ -1085,8 +1083,8 @@ class PayrollController extends Controller
                     ->from('general_payrolls')
                     ->where('payroll_headers_id', $payHeaderID);
             })->update([
-                'locked_at' => now()
-            ]);
+                        'locked_at' => now()
+                    ]);
             PayrollHeaders::find($request->PayrollHeaderID)->update([
                 'first_payroll_locked_at' => now()
             ]);
@@ -1098,8 +1096,8 @@ class PayrollController extends Controller
                     ->from('general_payrolls')
                     ->where('payroll_headers_id', $payHeaderID);
             })->update([
-                'locked_at' => now()
-            ]);
+                        'locked_at' => now()
+                    ]);
             PayrollHeaders::find($request->PayrollHeaderID)->update([
                 'second_payroll_locked_at' => now()
             ]);
@@ -1254,8 +1252,9 @@ class PayrollController extends Controller
         })
             ->where("fromPeriod", 1)
             ->where("toPeriod", ">=", 25)->update([
-                'is_active' => 0
-            ]);;
+                    'is_active' => 0
+                ]);
+        ;
         TimeRecord::where("month", $month)
             ->where("year", $year)
             ->where("fromPeriod", 1)
@@ -1270,8 +1269,8 @@ class PayrollController extends Controller
         })
             ->where("fromPeriod", 1)
             ->where("toPeriod", ">=", 25)->update([
-                'is_active' => 0
-            ]);
+                    'is_active' => 0
+                ]);
 
         ActivePeriod::where("month", $month)
             ->where("year", $year)
@@ -1310,7 +1309,7 @@ class PayrollController extends Controller
             }
 
 
-            $ExistingNightDiff =  NightDifferential::where("employee_list_id", $emplist->id)
+            $ExistingNightDiff = NightDifferential::where("employee_list_id", $emplist->id)
                 ->where("month", $row['Month'])
                 ->where("year", $row['Year'])
                 ->where("fromPeriod", $row['From'])
