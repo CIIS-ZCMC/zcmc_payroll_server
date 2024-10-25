@@ -8,6 +8,7 @@ use App\Http\Controllers\GeneralPayroll\PayrollController;
 use App\Http\Resources\GeneralPayrollResources;
 use App\Models\PayrollHeaders;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ReportsController extends Controller
 {
