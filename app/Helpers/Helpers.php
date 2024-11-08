@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\EmployeeDeductionLog;
 use App\Models\TimeRecord;
 use DB;
 use Illuminate\Support\Facades\Log;
@@ -231,5 +232,16 @@ class Helpers
         }
 
         return $genpayrollList;
+    }
+
+    public static function EmployeeDeductionLogs($employeeDeductionID, $user, $action, $remarks, $details)
+    {
+        EmployeeDeductionLog::create([
+            'employee_deduction_id' => $employeeDeductionID,
+            'action_by' => $user,
+            'action' => $action,
+            'remarks' => $remarks,
+            'details' => $details
+        ]);
     }
 }

@@ -67,8 +67,8 @@ class EmployeeDeduction extends Model
         return $this->hasMany(EmployeeDeductionAdjustment::class, 'employee_deduction_id');
     }
 
-    public function totalDeduction()
+    public function employeeDeductionTrails()
     {
-
+        return $this->hasMany(EmployeeDeductionTrail::class, 'employee_deduction_id');
     }
 }

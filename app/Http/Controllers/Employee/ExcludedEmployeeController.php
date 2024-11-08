@@ -6,6 +6,7 @@ use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeInformationResource;
 use App\Http\Resources\ExcludedEmployeeResource;
+use App\Models\EmployeeList;
 use Illuminate\Http\Request;
 use App\Models\ExcludedEmployee;
 use Illuminate\Http\Response;
@@ -43,6 +44,8 @@ class ExcludedEmployeeController extends Controller
             $data->month = $request->processMonth['month'];
             $data->is_removed = $request->is_removed;
             $data->save();
+
+            EmployeeList::where('id', $data->employee_list_id)->update(['is_excluded' => true]);
 
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json([

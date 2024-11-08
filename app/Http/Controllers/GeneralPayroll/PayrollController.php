@@ -1174,39 +1174,71 @@ class PayrollController extends Controller
         if ($payHeader) {
             $generalpay = GeneralPayrollResources::collection($payHeader->genPayrolls)->response()->getData(true)['data'];
 
+            // Extract employee_list_id values from the generalpay array
+            $employeeListIds = array_column($generalpay, 'employee_list_id');
 
-            foreach ($generalpay as $gp) {
-                $deductions = array_values(array_filter($gp['employee_deductions'], function ($row) {
-                    return $row['deduction_id'] !== null;
-                }));
+            // Query EmployeeDeduction using the extracted IDs
+            $employeeDeduction = EmployeeDeduction::whereIn('employee_list_id', $employeeListIds)->get();
 
-                foreach ($deductions as $row) {
-                    $empdeduction = EmployeeDeduction::where('employee_list_id', $gp['id'])
-                        ->where('deduction_id', $row['deduction_id']);
+            foreach ($employeeDeduction as $trail) {
+                // Get the latest EmployeeDeductionTrail record for this deduction
+                $empDeductionTrail = EmployeeDeductionTrail::where("employee_deduction_id", $trail['id'])
+                    ->where("is_last_payment", 0)
+                    ->latest()
+                    ->first();
 
-                    $empDeductionTrail = EmployeeDeductionTrail::where("employee_deduction_id", $row['deduction_id'])
-                        ->where("is_last_payment", 0)->latest()->first();
-                    $totaltermpaid = 1;
-                    if ($empDeductionTrail) {
-                        $totaltermpaid += $empDeductionTrail->total_term_paid;
-                    }
-                    EmployeeDeductionTrail::create([
-                        'employee_deduction_id' => $row['deduction_id'],
-                        'total_term' => $empdeduction->first()->total_term ?? 0,
-                        'total_term_paid' => $totaltermpaid,
-                        'amount_paid' => $row['amount'],
-                        'date_paid' => now(),
-                        'balance' => 0,
-                        'is_last_payment' => 0
-                    ]);
-                    $totalPaid = $empdeduction->first()->total_paid;
-                    $empdeduction->update([
-                        'total_paid' => $totalPaid + 1
-                    ]);
-                }
+                // Calculate total terms paid
+                $totaltermpaid = $empDeductionTrail ? $empDeductionTrail->total_term_paid + 1 : 1;
+
+                // Create a new EmployeeDeductionTrail entry
+                EmployeeDeductionTrail::create([
+                    'employee_deduction_id' => $trail['id'],
+                    'total_term' => $empdeduction->total_term ?? 0,
+                    'total_term_paid' => $totaltermpaid,
+                    'amount_paid' => $trail['amount'],
+                    'date_paid' => now(),
+                    'balance' => 0,
+                    'is_last_payment' => 0,
+                    'is_adjustment' => 0,
+                    'status' => 'Paid'
+                ]);
+
+                // Update total_paid in EmployeeDeduction
+                $trail->update([
+                    'total_paid' => $trail->total_paid + $trail['amount']
+                ]);
             }
 
+            // foreach ($generalpay as $gp) {
+            //     $deductions = array_values(array_filter($gp['employee_deductions'], function ($row) {
+            //         return $row['deduction_id'] !== null;
+            //     }));
 
+            //     foreach ($deductions as $row) {
+            //         $empdeduction = EmployeeDeduction::where('employee_list_id', $gp['id'])
+            //             ->where('deduction_id', $row['deduction_id']);
+
+            //         $empDeductionTrail = EmployeeDeductionTrail::where("employee_deduction_id", $row['deduction_id'])
+            //             ->where("is_last_payment", 0)->latest()->first();
+            //         $totaltermpaid = 1;
+            //         if ($empDeductionTrail) {
+            //             $totaltermpaid += $empDeductionTrail->total_term_paid;
+            //         }
+            //         EmployeeDeductionTrail::create([
+            //             'employee_deduction_id' => $row['deduction_id'],
+            //             'total_term' => $empdeduction->first()->total_term ?? 0,
+            //             'total_term_paid' => $totaltermpaid,
+            //             'amount_paid' => $row['amount'],
+            //             'date_paid' => now(),
+            //             'balance' => 0,
+            //             'is_last_payment' => 0
+            //         ]);
+            //         $totalPaid = $empdeduction->first()->total_paid;
+            //         $empdeduction->update([
+            //             'total_paid' => $totalPaid + 1
+            //         ]);
+            //     }
+            // }
 
 
             $payHeader->update([

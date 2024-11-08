@@ -81,11 +81,11 @@ Route::middleware('auth.token')->group(function () {
     });
 
     /**
-     * Adjustments/Below 5k
+     * Adjustments
      *
      */
     Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
-        Route::get('adjustment-below5k', 'Below5kController@index');
+        Route::get('adjustments', 'AdjustmentController@index');
 
         Route::get('adjustment-employee-deductions', 'EmployeeDeductionAdjustmentController@index');
         Route::get('adjustment-employee-deduction', 'EmployeeDeductionAdjustmentController@create');

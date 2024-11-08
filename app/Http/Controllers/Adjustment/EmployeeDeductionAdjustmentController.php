@@ -32,7 +32,6 @@ class EmployeeDeductionAdjustmentController extends Controller
     //List of Deduction of the Employee that have been update/store on Employee Deduction Adjustment Table
     public function create(Request $request)
     {
-
         try {
             $data = EmployeeDeductionAdjustment::where([
                 ['employee_list_id', '=', $request->employee_list_id],
@@ -91,7 +90,6 @@ class EmployeeDeductionAdjustmentController extends Controller
     // List of all deduction/adjustment made per selected employee
     public function show(Request $request, $id)
     {
-
         try {
 
             $data = EmployeeDeductionAdjustment::where('employee_list_id', $id)->orderBy('created_at', 'DESC')->get();

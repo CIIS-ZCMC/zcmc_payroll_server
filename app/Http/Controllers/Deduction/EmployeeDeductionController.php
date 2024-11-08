@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Deduction;
 
+use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DeductionResource;
 use App\Http\Resources\DeductionStatusListResources;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Http\Resources\EmployeeListResource;
+use App\Http\Resources\GeneralPayrollResources;
 use App\Models\Deduction;
+use App\Models\EmployeeDeductionTrail;
+use App\Models\PayrollHeaders;
 use Carbon\Carbon;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionLog;
@@ -806,6 +810,7 @@ class EmployeeDeductionController extends Controller
     public function bulkimport(Request $request)
     {
         try {
+            $user_id = $request->user['employee_profile_id'];
             $processMonth = request()->processMonth;
             // Default values for the periods
             $fromPeriod = ($processMonth['JOfromPeriod'] == 0) ? 1 : $processMonth['JOfromPeriod'];
@@ -823,6 +828,11 @@ class EmployeeDeductionController extends Controller
             $failed = [];
             $edited = [];
             $successnew = [];
+
+            // Field for logs
+            $employee_deduction_id = null;
+            $remarks = null;
+            $details = null;
 
 
             $payload = $request->torecord;
@@ -858,9 +868,8 @@ class EmployeeDeductionController extends Controller
                 $willDeduct = $record['willdeduct'];
                 $term = $record['term'];
 
-                if (
-                    !$isEdit && !$isNew && !$willDeductEdited && !$changeToAbs && !$changeToDiff
-                ) {
+
+                if (!$isEdit && !$isNew && !$willDeductEdited && !$changeToAbs && !$changeToDiff) {
                     continue;
                 }
 
@@ -885,7 +894,7 @@ class EmployeeDeductionController extends Controller
                         //Logic Create New
                         $tempDate = clone $fromDate;
                         $term = $term ?: 0;
-                        EmployeeDeduction::create([
+                        $data = EmployeeDeduction::create([
                             'employee_list_id' => $isEmployeeExist->id,
                             'deduction_id' => $deductionid,
                             'amount' => $amount,
@@ -905,6 +914,13 @@ class EmployeeDeductionController extends Controller
                             "fullname" => $fullname,
                             "desc" => "New employee deduction record successfully",
                         ];
+
+                        // STORING LOGS if NEW
+                        $employee_deduction_id = $data->id;
+                        $remarks = "New deduction record created for employee {$data->employeeList->employee_number} with amount: {$amount}";
+                        $details = json_encode($data->toArray());
+                        Helpers::EmployeeDeductionLogs($employee_deduction_id, $user_id, "store", $remarks, $details);
+
                     } else {
                         $tempEditedLog = [
                             "empid" => $empId,
@@ -958,6 +974,8 @@ class EmployeeDeductionController extends Controller
                                 }
 
                             }
+
+
                         }
 
                         if ($changeToAbs || $changeToDiff) {
@@ -1001,12 +1019,18 @@ class EmployeeDeductionController extends Controller
 
                         $edited[] = $tempEditedLog;
                         $employeeDeduction->save();
+
+                        // STORE LOGS if UPDATE
+                        $employee_deduction_id = $employeeDeduction->id;
+                        $remarks = "Employee deduction record updated for employee {$employeeDeduction->employeeList->employee_number} with new amount: {$employeeDeduction->amount}";
+                        $details = json_encode($employeeDeduction->toArray());
+                        Helpers::EmployeeDeductionLogs($employee_deduction_id, $user_id, "update", $remarks, $details);
+
                     }
                     //SAVE
                 }
-
-
             }
+
             DB::commit();
             return response()->json([
                 'Message' => 'bulkupdaete updated successfully.',

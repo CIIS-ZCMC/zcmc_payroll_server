@@ -20,6 +20,7 @@ class CreateEmployeeDeductionLogsTable extends Migration
             $table->unsignedBigInteger('action_by');
             $table->string('action');
             $table->string('remarks')->nullable();
+            $table->text('details')->nullable();
             $table->timestamps();
         });
     }

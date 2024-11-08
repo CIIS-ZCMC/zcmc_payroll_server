@@ -16,7 +16,9 @@ class EmployeeDeductionLog extends Model
     protected $fillable = [
         'employee_deduction_id',
         'action_by',
-        'action'
+        'action',
+        'remarks',
+        'details'
     ];
 
     public $timestamps = true;

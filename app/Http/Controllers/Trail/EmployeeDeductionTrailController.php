@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeDeductionTrailResource;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionTrail;
+use App\Models\EmployeeList;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -22,11 +23,30 @@ class EmployeeDeductionTrailController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $sql = EmployeeList::with('employeeDeductions')->where('id', $request->employee_list_id)->get();
 
-            return response()->json(['responseData' => EmployeeDeductionTrailResource::collection(EmployeeDeductionTrail::all())], Response::HTTP_OK);
+            $data = $sql->first()->employeeDeductions->map(function ($deduction) {
+                return [
+                    'id' => $deduction->deduction_id, //DEDUCTION ID
+                    'name' => $deduction->deductions->name,
+                    'code' => $deduction->deductions->code,
+                    'amount' => $deduction->amount,
+                    'updated_on' => $deduction->updated_at->format('Y-m-d'),
+                    'term_paid' => $deduction->employeeDeductionTrails->count(),
+                    'total_term' => $deduction->total_term,
+                    'total_paid' => $deduction->total_paid,
+                    'billing_cycle' => $deduction->frequency,
+                    'status' => $deduction->status,
+                ];
+            });
+
+            return response()->json([
+                'responseData' => $data,
+                'statusCode' => Response::HTTP_OK
+            ]);
         } catch (\Throwable $th) {
 
             Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
@@ -69,9 +89,31 @@ class EmployeeDeductionTrailController extends Controller
     {
         try {
 
-            $data = EmployeeDeductionTrail::create($request->all());
-            return response()->json(['data' => new EmployeeDeductionTrailResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
+            // ERROR
+            $employee_deduction = EmployeeDeduction::where('employee_list_id', $request->employee_id)
+                ->where('deduction_id', $request->deduction_id)
+                ->where('status', 'Active')
+                ->first();
 
+            $total_term = $employee_deduction->total_term;
+            $total_term_paid = $employee_deduction->total_paid + 1; // Increment total_paid by 1
+
+            $data = new EmployeeDeductionTrail;
+            $data->employee_deduction_id = $employee_deduction->id;
+            $data->total_term = $total_term;
+            $data->total_term_paid = $total_term_paid;
+            $data->amount_paid = $request->amount_paid;
+            $data->date_paid = $request->date_paid;
+            $data->remarks = $request->remarks;
+            $data->is_last_payment = 0;
+            $data->is_adjustment = 1;
+            $data->status = "Paid";
+            $data->save();
+
+            $employee_deduction->total_paid = $total_term_paid;
+            $employee_deduction->save();
+
+            return response()->json(['data' => new EmployeeDeductionTrailResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK]);
         } catch (\Throwable $th) {
 
             Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
