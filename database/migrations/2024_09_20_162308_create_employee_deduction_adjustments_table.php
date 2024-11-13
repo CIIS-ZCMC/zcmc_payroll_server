@@ -31,6 +31,7 @@ class CreateEmployeeDeductionAdjustmentsTable extends Migration
             $table->string('amount_balance');
 
             $table->string('reason');
+            $table->boolean('will_deduct')->default(false);
 
             $table->text("action_by")->comment("Employee Details is from UMIS");
             $table->timestamps();

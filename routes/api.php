@@ -86,6 +86,8 @@ Route::middleware('auth.token')->group(function () {
      */
     Route::namespace('App\Http\Controllers\Adjustment')->group(function () {
         Route::get('adjustments', 'AdjustmentController@index');
+        Route::get('adjustment/{id}', 'AdjustmentController@show');
+
 
         Route::get('adjustment-employee-deductions', 'EmployeeDeductionAdjustmentController@index');
         Route::get('adjustment-employee-deduction', 'EmployeeDeductionAdjustmentController@create');

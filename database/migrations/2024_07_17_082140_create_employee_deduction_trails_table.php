@@ -21,7 +21,7 @@ class CreateEmployeeDeductionTrailsTable extends Migration
             $table->integer('total_term_paid');
             $table->double('amount_paid');
             $table->date('date_paid');
-            $table->double('balance');
+            $table->double('balance')->default(0);
             $table->string('status');
             $table->string('remarks')->nullable();
             $table->boolean('is_last_payment');

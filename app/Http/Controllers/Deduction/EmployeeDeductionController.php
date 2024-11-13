@@ -40,6 +40,7 @@ class EmployeeDeductionController extends Controller
         try {
             // Fetch employee lists with related salary and deductions
             $employees = EmployeeList::with(['getSalary', 'employeeDeductions.deductions', 'employeeDeductions.adjustments'])
+                ->orderBy('last_name', 'ASC')
                 ->get();
 
             $response = [];
@@ -72,7 +73,7 @@ class EmployeeDeductionController extends Controller
                 $response[] = [
 
                     'Id' => $employee->id,
-                    'Employee' => $employee->first_name . ' ' . $employee->last_name,
+                    'Employee' => $employee->last_name . ', ' . $employee->first_name . ' ' . $employee->middle_name,
                     'Designation' => $employee->designation,
                     'Gross salary' => $basic_salary,
                     'Total deductions' => $total_deductions,

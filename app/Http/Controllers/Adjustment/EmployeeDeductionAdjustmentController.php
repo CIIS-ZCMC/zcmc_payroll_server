@@ -63,6 +63,7 @@ class EmployeeDeductionAdjustmentController extends Controller
             $data->deduction_id = $request->deduction_id;
             $data->amount = $request->amount;
             $data->reason = $request->reason;
+            $data->will_deduct = true;
 
             $data->amount_to_pay = $employeeDeduction->amount;
             $data->amount_balance = $data->amount_to_pay - $data->amount;
@@ -77,6 +78,9 @@ class EmployeeDeductionAdjustmentController extends Controller
                 'area_assigned' => $request->user['area_assigned'],
             ]);
             $data->save();
+
+            $employeeDeduction->willDeduct = null;
+            $employeeDeduction->save();
 
             // return Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new EmployeeDeductionAdjustmentResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);

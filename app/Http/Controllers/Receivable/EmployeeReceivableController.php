@@ -29,6 +29,7 @@ class EmployeeReceivableController extends Controller
         try {
 
             $employees = EmployeeList::with(['getSalary', 'employeeReceivables.receivables'])
+                ->orderBy('last_name', 'ASC')
                 ->get();
 
             $response = [];
@@ -51,7 +52,7 @@ class EmployeeReceivableController extends Controller
                 // Add employee data to the response
                 $response[] = [
                     'Id' => $employee->id,
-                    'Employee' => $employee->first_name . ' ' . $employee->middle_name . ' ' . $employee->last_name,
+                    'Employee' => $employee->last_name . ', ' . $employee->first_name . ' ' . $employee->middle_name,
                     'Designation' => $employee->designation,
                     'Gross salary' => $basic_salary,
                     'Total receivables' => $total_receivables,
@@ -594,7 +595,8 @@ class EmployeeReceivableController extends Controller
             if ($employee_receivables) {
 
                 if ($status === 'Stopped') {
-                    $stopped_at = now()->format('Y-m-d');;
+                    $stopped_at = now()->format('Y-m-d');
+                    ;
                 }
 
                 if ($status === 'Suspended') {

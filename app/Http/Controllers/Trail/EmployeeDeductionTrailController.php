@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Trail;
 
 use App\Helpers\Helpers;
+use App\Http\Controllers\Adjustment\EmployeeDeductionAdjustmentController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeDeductionTrailResource;
 use App\Models\EmployeeDeduction;
@@ -89,11 +90,14 @@ class EmployeeDeductionTrailController extends Controller
     {
         try {
 
-            // ERROR
             $employee_deduction = EmployeeDeduction::where('employee_list_id', $request->employee_id)
                 ->where('deduction_id', $request->deduction_id)
                 ->where('status', 'Active')
                 ->first();
+
+            if (!$employee_deduction) {
+                return response()->json(['message' => 'Employee deduction not found.'], Response::HTTP_NOT_FOUND);
+            }
 
             $total_term = $employee_deduction->total_term;
             $total_term_paid = $employee_deduction->total_paid + 1; // Increment total_paid by 1
@@ -105,9 +109,9 @@ class EmployeeDeductionTrailController extends Controller
             $data->amount_paid = $request->amount_paid;
             $data->date_paid = $request->date_paid;
             $data->remarks = $request->remarks;
-            $data->is_last_payment = 0;
-            $data->is_adjustment = 1;
             $data->status = "Paid";
+            $data->is_last_payment = false;
+            $data->is_adjustment = $request->is_adjustment;
             $data->save();
 
             $employee_deduction->total_paid = $total_term_paid;

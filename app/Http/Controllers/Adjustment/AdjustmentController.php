@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Adjustment;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GeneralPayroll\ComputationController;
+use App\Http\Resources\EmployeeDeductionResource;
 use App\Http\Resources\EmployeeInformationResource;
+use App\Http\Resources\EmployeeReceivableResource;
+use App\Models\EmployeeDeduction;
 use App\Models\EmployeeList;
+use App\Models\EmployeeReceivable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -20,6 +25,33 @@ class AdjustmentController extends Controller
 
         if ($request->payment_module === "1") {
             return $this->getAllEmployee();
+        }
+    }
+
+    // Show all Employee Deduction/Receivable Adjustments
+    public function show(Request $request, $id)
+    {
+        try {
+            $collection = null;
+
+            if ($request->is_deduction === "True") {
+                // Get all Deductions for the specified Employee ID
+                $data = EmployeeDeduction::where('employee_list_id', $id)->get();
+                $collection = EmployeeDeductionResource::collection($data);
+
+            } elseif ($request->is_deduction === "False") {
+                // Get all Receivables for the specified Employee ID
+                $data = EmployeeReceivable::where('employee_list_id', $id)->get();
+                $collection = EmployeeReceivableResource::collection($data);
+
+            }
+
+
+            return response()->json(['responseData' => $collection, 'statusCode' => Response::HTTP_OK]);
+        } catch (\Throwable $th) {
+
+            // Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
