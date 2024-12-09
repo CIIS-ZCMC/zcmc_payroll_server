@@ -42,7 +42,7 @@ class PayrollController extends Controller
     }
     public function index()
     {
-        $headers = PayrollHeaders::all();
+        $headers = PayrollHeaders::orderBy('id', 'desc')->get();
 
         $responseData = [];
 
