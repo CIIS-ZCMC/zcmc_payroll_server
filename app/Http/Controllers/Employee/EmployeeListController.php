@@ -70,6 +70,7 @@ class EmployeeListController extends Controller
         if (isset($request->withDeduction)) {
 
         }
+
         if (isset($request->regenerateList)) {
             $Emp = $request->listofemployee;
         }
@@ -249,7 +250,7 @@ class EmployeeListController extends Controller
 
     public function isIncluded()
     {
-        $Emp = EmployeeList::where('is_excluded', 0)->get();
+        $Emp = EmployeeList::with('getTimeRecords')->get();
         return $Emp;
     }
 
