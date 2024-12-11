@@ -34,7 +34,7 @@ class AuthenticateToken
                 return response()->json(['message' => 'Un-Authorized', 'response' => 'Please relogin'], Response::HTTP_UNAUTHORIZED);
             }
 
-            $expiry = strtotime(date('Y-m-d H:i:s', strtotime($accessToken->first()->last_used_at . ' +' . env("TOKEN_EXPIRY") . " minutes")));
+            $expiry = strtotime(date('Y-m-d H:i:s', strtotime($accessToken->first()->last_used_at . ' +' . env("TOKEN_EXPIRY_PAYROLL") . " minutes")));
             $current = strtotime(date('Y-m-d H:i:s'));
 
             if ($expiry < $current) {

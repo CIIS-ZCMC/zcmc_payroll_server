@@ -20,7 +20,7 @@ class Token
 
     public static function myToken()
     {
-        $cookieValue = request()->cookie(env("COOKIE_NAME"));
+        $cookieValue = request()->cookie(env("COOKIE_NAME_PAYROLL"));
 
         // Ensure $cookieValue is a string
         if (is_string($cookieValue)) {

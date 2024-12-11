@@ -10,6 +10,8 @@ class PersonalAccessToken extends Model
     use HasFactory;
     protected $table = "personal_access_tokens";
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'employee_id',
         'name',

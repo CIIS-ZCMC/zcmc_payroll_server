@@ -52,7 +52,8 @@ class LoginController extends Controller
             if ($AccessToken->count() >= 1) {
                 if ($AccessToken->first()->token == Token::myToken()) {
                     //check expiry
-                    $expiry = strtotime(date('Y-m-d H:i:s', strtotime($AccessToken->first()->last_used_at . ' +' . env("TOKEN_EXPIRY") . " minutes")));
+                    $expiry = strtotime(date('Y-m-d H:i:s', strtotime($AccessToken->first()->last_used_at . ' +' . env("TOKEN_EXPIRY_PAYROLL") . " minutes")));
+                    // $expiry = strtotime(date('Y-m-d H:i:s', strtotime($AccessToken->first()->last_used_at . ' +' . env("TOKEN_EXPIRY_PAYROLL") . " minutes")));
                     $current = strtotime(date('Y-m-d H:i:s'));
                     if ($expiry <= $current) {
                         //EXPIRED
@@ -104,7 +105,9 @@ class LoginController extends Controller
                 'responseData' => [],
                 'Token' => $generatedToken,
                 'statusCode' => 200
-            ])->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY"), '/', env("SESSION_DOMAIN"), false);
+            ])->cookie(env("COOKIE_NAME_PAYROLL"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY_PAYROLL"), '/', env("SESSION_DOMAIN_PAYROLL"), false);
+            // ])->cookie(env("COOKIE_NAME_PAYROLL"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY_PAYROLL"), '/', env("SESSION_DOMAIN_PAYROLL"), false);
+
         } catch (\Throwable $th) {
 
             Logging::RecordTransaction([
