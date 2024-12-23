@@ -20,17 +20,28 @@ class ExcludedEmployeeController extends Controller
 
     public function index()
     {
+        try {
+            //return request()->processMonth['month'];
+            $employee = ExcludedEmployee::with([
+                'EmployeeList' => function ($query) {
+                    $query->where('is_excluded', 1);
+                }
+            ])->where('month', request()->processMonth['month'])
+                ->where('year', request()->processMonth['year'])
+                ->where('is_removed', 0)
+                ->get();
 
-        //return request()->processMonth['month'];
-        $employeeList = ExcludedEmployee::with(['EmployeeList'])->where('month', request()->processMonth['month'])
-            ->where('year', request()->processMonth['year'])
-            ->where('is_removed', 0)
-            ->get();
-        return response()->json([
-            'message' => "List retrieved successfully",
-            'responseData' => $employeeList,
-            'statusCode' => 200
-        ]);
+
+            return response()->json([
+                'message' => "List retrieved successfully",
+                'responseData' => $employee,
+                'statusCode' => 200
+            ]);
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function store(Request $request)

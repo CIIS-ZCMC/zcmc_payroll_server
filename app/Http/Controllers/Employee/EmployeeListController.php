@@ -242,6 +242,9 @@ class EmployeeListController extends Controller
             return $row['employee_list_id'];
         }, $excluded);
 
+
+        // $ids = collect($excluded)->pluck('employee_list_id')->toArray();
+
         return [
             'ids' => $ids,
             'Emplist' => EmployeeList::whereIn('id', $ids)->get()

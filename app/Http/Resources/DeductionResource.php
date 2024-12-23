@@ -28,7 +28,8 @@ class DeductionResource extends JsonResource
             'employment_type' => $this->employment_type,
             'designation' => $this->designation,
             'assigned_area' => $this->assigned_area,
-          //  'charge_basis' => $this->percentage === null ? "Fixed Amount" : "Percentage Of Salary",
+            'condition' => $this->condition === null ? null : $this->transformCondition(json_decode($this->condition, true)),
+            //  'charge_basis' => $this->percentage === null ? "Fixed Amount" : "Percentage Of Salary",
             'amount' => $this->percentage !== null ? $this->percentage : $this->amount,
             'billing_cycle' => $this->billing_cycle,
             'terms_to_pay' => $this->terms_to_pay,
@@ -41,6 +42,26 @@ class DeductionResource extends JsonResource
             'created_at' => Carbon::parse($this->created_at)->format('M d, Y'),
             'updated_at' => Carbon::parse($this->updated_at)->format('M d, Y'),
             'stopped_at' => $this->stopped_at ? Carbon::parse($this->stopped_at)->format('M d, Y') : "N/A"
+        ];
+    }
+
+    private function transformCondition($conditions)
+    {
+        return [
+            'condition_1' => [
+                'is_applied_to_all' => $conditions['condition1']['is_applied_to_all'],
+                'sg_from' => $conditions['condition1']['sg_from'],
+                'sg_to' => $conditions['condition1']['sg_to'],
+                'charge_basis' => $conditions['condition1']['charge_basis'],
+                'charge_value' => $conditions['condition1']['charge_value'],
+            ],
+            'condition_2' => [
+                'is_applied_to_all' => $conditions['condition2']['is_applied_to_all'],
+                'sg_from' => $conditions['condition2']['sg_from'],
+                'sg_to' => $conditions['condition2']['sg_to'],
+                'charge_basis' => $conditions['condition2']['charge_basis'],
+                'charge_value' => $conditions['condition2']['charge_value'],
+            ]
         ];
     }
 }

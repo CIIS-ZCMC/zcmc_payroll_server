@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class ImportEmployeeController extends Controller
 {
-
+    //fetching employees
     public function FetchList(Request $request)
     {
         ini_set('max_execution_time', 86400);
@@ -34,7 +34,6 @@ class ImportEmployeeController extends Controller
 
         $currentyear = date('Y');
         $currentMonth = date('m');
-
 
 
 
@@ -68,7 +67,6 @@ class ImportEmployeeController extends Controller
         }
 
         try {
-
             $data = Helpers::umisGETrequest('testgenerate?month_of=' . $month . '&year_of=' . $year . '&first_half=' . $first_half . '&second_half=' . $second_half);
             $generatedcount = 0;
             $updatedData = 0;
@@ -128,8 +126,6 @@ class ImportEmployeeController extends Controller
                 }
 
 
-
-
                 $empInfodata = [
                     'employee_profile_id' => $row['Employee']['profile_id'],
                     'employee_number' => $employee['employee_id'],
@@ -154,9 +150,7 @@ class ImportEmployeeController extends Controller
                     'is_active' => 1
                 ];
 
-                if (
-                    $employeeList->count() == 0
-                ) {
+                if ($employeeList->count() == 0) {
                     $generatedcount += 1;
                     $New_Employee = EmployeeList::create($empInfodata);
 
@@ -733,8 +727,8 @@ class ImportEmployeeController extends Controller
                     'employee_list_id' => $Employee->id,
                     'payroll_headers_id' => null,
                     'reason' => json_encode([
-                        'reason' => $empStudyLeave['name'],
-                        'remarks' => $empStudyLeave['date_from'] . " " . $empStudyLeave['date_to'],
+                        // 'reason' => $empStudyLeave['name'],
+                        'remarks' => $empStudyLeave['from'] . " " . $empStudyLeave['to'],
                         'Amount' => null,
                     ]),
                     'year' => $year,

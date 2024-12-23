@@ -98,7 +98,7 @@ class DeductionController extends Controller
             // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['data' => new DeductionResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
-            return $th;
+
             Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -134,16 +134,49 @@ class DeductionController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $data = Deduction::findOrFail($id);
 
-            if (!$data) {
+            $amount = null;
+            $percentage = null;
+            $deductionData = $request->all();
+
+            // Retrieve the deduction record
+            $deduction = Deduction::findOrFail($id);
+
+            if (!$deduction) {
                 return response()->json(['message' => 'No record found.', 'statusCode' => Response::HTTP_NOT_FOUND]);
             }
 
-            $data->update($request->all());
+            // Encode the 'designation' array to JSON if it's provided
+            if (isset($deductionData['designation']) && is_array($deductionData['designation'])) {
+                $deductionData['designation'] = json_encode($deductionData['designation']);
+            }
+
+            // Decode the 'condition' JSON string into a PHP array
+            $decoded_condition = json_decode($request->condition, true); // true for associative array
+
+            // Check if decoding was successful and count the conditions
+            if ($decoded_condition !== null && is_array($decoded_condition)) {
+                $count_condition = count($decoded_condition);
+            } else {
+                $count_condition = 0; // Handle invalid JSON
+            }
+
+            if ($count_condition === 1) {
+                if ($decoded_condition['condition1']['charge_basis'] === 'percentage') {
+                    $percentage = $decoded_condition['condition1']['charge_value'];
+                } elseif ($decoded_condition['condition1']['charge_basis'] === 'amount') {
+                    $amount = $decoded_condition['condition1']['charge_value'];
+                }
+                // Merge the amounts into $deductionData to update the record
+                $deductionData = array_merge($deductionData, ['amount' => $amount, 'percentage' => $percentage]);
+            }
+
+            // Update the deduction record with new data
+            $deduction->update($deductionData);
+
 
             // Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionResource($data), 'message' => "Data Successfully update", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
+            return response()->json(['data' => new DeductionResource($deduction), 'message' => "Data Successfully update", 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -290,7 +323,7 @@ class DeductionController extends Controller
 
             return response()->json(['Message' => "Successfuly Cleared all willDeduct list " . $id, 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
         } catch (\Throwable $th) {
-            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
+            Helpers::errorLog($this->CONTROLLER_NAME, 'clearEmployeeDeductions', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
