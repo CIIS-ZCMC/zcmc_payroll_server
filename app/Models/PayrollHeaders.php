@@ -11,6 +11,9 @@ class PayrollHeaders extends Model
 {
     use HasFactory;
     protected $table = "payroll_headers";
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'month',
         'year',
@@ -29,11 +32,13 @@ class PayrollHeaders extends Model
     ];
 
 
-    public function genPayrolls(){
-        return $this->hasMany(GeneralPayroll::class,'payroll_headers_id');
+    public function genPayrolls()
+    {
+        return $this->hasMany(GeneralPayroll::class, 'payroll_headers_id');
     }
 
-    public function genPayrollTrails(){
-        return $this->hasMany(GeneralPayrollTrails::class,'payroll_headers_id');
+    public function genPayrollTrails()
+    {
+        return $this->hasMany(GeneralPayrollTrails::class, 'payroll_headers_id');
     }
 }

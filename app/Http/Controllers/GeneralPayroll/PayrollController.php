@@ -27,6 +27,7 @@ use App\Jobs\AutoGeneratePayroll;
 use App\Models\FirstPayroll;
 use App\Models\NightDifferential;
 use App\Models\SecondPayroll;
+use Log;
 
 
 

@@ -30,6 +30,11 @@ Route::middleware('umis_server')->group(function () {
     });
 });
 
+Route::
+        namespace('App\Http\Controllers\UMIS')->group(function () {
+            Route::get('employee-profiles', 'EmployeeProfileController@index');
+        });
+
 
 Route::middleware('auth.token')->group(function () {
 
@@ -70,6 +75,13 @@ Route::middleware('auth.token')->group(function () {
         Route::post("ChangeMonth", "PayrollController@ChangeMonth");
 
         Route::get("fetchNightDifferential", "PayrollController@fetchNightDifferential");
+
+        Route::post("generate_payroll_step_1", "GeneratePayrollController@PayrollStep1");
+        Route::post("generate_payroll_step_2", "GeneratePayrollController@PayrollStep2");
+        Route::post("generate_payroll_step_3", "GeneratePayrollController@PayrollStep3");
+        Route::post("generate_payroll_step_4", "GeneratePayrollController@PayrollStep4");
+        Route::post("generate_payroll_permanent", "GeneratePayrollController@GeneratePermanentEmployeePayroll");
+        Route::post("generate_payroll_job_order", "GeneratePayrollController@GenerateJobOrderEmployeePayroll");
     });
 
     /**

@@ -244,4 +244,17 @@ class Helpers
             'details' => $details
         ]);
     }
+
+    public function getDateIntervals($from, $to)
+    {
+        $dates_Interval = [];
+        $from = strtotime($from);
+        $to = strtotime($to);
+        while ($from <= $to) {
+            $dates_Interval[] = date('Y-m-d', $from);
+            $from = strtotime('+1 day', $from);
+        }
+
+        return $dates_Interval;
+    }
 }
