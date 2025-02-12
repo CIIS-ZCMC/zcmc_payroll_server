@@ -566,7 +566,7 @@ class PayrollController extends Controller
 
             //COMPUTE PAYROLL
 
-            $validation = $this->GeneratedPayrollHeaders($payroll_ID, $days_of_duty, $isPermanent, $selectedType, $is_special, $genpayrollList);
+            $validation = $this->GeneratedPayrollHeaders($payroll_ID, $days_of_duty, $isPermanent, $selectedType, $is_special);
             if ($validation['result']) {
                 if ($employmentType !== "joborder" && $employmentType !== "Job Order") {
                     $this->ProcessGeneralPayrollPermanent($INpayroll, $payroll_ID, $is_special);

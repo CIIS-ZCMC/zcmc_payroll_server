@@ -139,11 +139,12 @@ class EmployeeReceivableController extends Controller
                             'Id' => $receivable->receivable_id,
                             'Receivable' => $receivable->receivables->name ?? 'N/A',
                             'Code' => $receivable->receivables->code ?? 'N/A',
-                            'Amount' => $receivable->is_default
-                                ? ($receivable->receivables->amount == 0
-                                    ? ($basicSalary * ($receivable->receivables->percentage / 100))
-                                    : $receivable->receivables->amount)
-                                : $receivable->amount,
+                            // 'Amount' => $receivable->is_default
+                            //     ? ($receivable->receivables->amount = 0
+                            //         ? ($basicSalary * ($receivable->receivables->percentage / 100))
+                            //         : $receivable->receivables->amount)
+                            //     : $receivable->amount,
+                            'Amount' => $receivable->amount === null ? ($basicSalary * ($receivable->percentage / 100)) : $receivable->amount,
                             'Updated on' => $receivable->updated_at,
                             'Terms received' => $receivable->total_paid,
                             'Billing cycle' => $receivable->frequency ?? 'N/A',

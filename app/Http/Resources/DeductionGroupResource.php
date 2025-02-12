@@ -14,10 +14,20 @@ class DeductionGroupResource extends JsonResource
      */
     public function toArray($request)
     {
+        $deductions = [];
+        foreach ($this->deductions as $deduction) {
+            $deductions[] = [
+                "id" => $deduction->id,
+                "name" => $deduction->name,
+                "code" => $deduction->code,
+            ];
+        }
+
         return [
             "id" => $this->id,
             "name" => $this->name,
-            "code" => $this->code
+            "code" => $this->code,
+            "deduction_type" => $deductions ?? []
         ];
     }
 }

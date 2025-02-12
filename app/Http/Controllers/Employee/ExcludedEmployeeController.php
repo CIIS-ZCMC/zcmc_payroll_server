@@ -44,6 +44,7 @@ class ExcludedEmployeeController extends Controller
         }
     }
 
+    // store excluded employee
     public function store(Request $request)
     {
         try {
@@ -72,4 +73,35 @@ class ExcludedEmployeeController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    // change status to include (employee lists table) and remove employee from excluded list (excluded employees table)
+    public function update(Request $request)
+    {
+        try {
+            $id = $request->employee_list_id;
+
+            // Retrieve the deduction record
+            $data = ExcludedEmployee::where('employee_list_id', $id)->first();
+
+            if (!$data) {
+                return response()->json(['message' => 'No record found.', 'statusCode' => Response::HTTP_NOT_FOUND]);
+            }
+
+            $data->delete();
+            EmployeeList::where('id', $id)->update(['is_excluded' => false]);
+
+            // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
+            return response()->json([
+                'message' => "Data Successfully updated",
+                'statusCode' => Response::HTTP_OK
+            ], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+
+            Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }

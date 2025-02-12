@@ -51,7 +51,7 @@ class DeductionSeeder extends Seeder
         ]);
 
         Deduction::firstOrCreate([
-            'deduction_group_id' => $PhilHealth,
+            'deduction_group_id' => $PagIbig,
             'name' => 'Pag-Ibig Premium',
             'code' => 'PPS',
             'employment_type' => 'All Employment Type',

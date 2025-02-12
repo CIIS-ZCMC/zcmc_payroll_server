@@ -108,14 +108,6 @@ class GeneratePayrollController extends Controller
                 ->all();
 
             if ($payroll_ID >= 1) {
-                // $pay = PayrollHeaders::with('genPayrolls')->find($payroll_ID);
-                // $selectedIDs = $pay->genPayrolls->whereNotIn('employee_list_id', $excludedIds)->pluck('employee_list_id')->all();
-
-                // $employee_data = collect($employee_data)
-                //     ->whereIn('ID', $selectedIDs)
-                //     ->values()
-                //     ->all();
-
                 $pay = PayrollHeaders::with('genPayrolls')->find($payroll_ID);
                 $selectedIDs = $pay->genPayrolls
                     ->whereNotIn('employee_list_id', $excludedIds)

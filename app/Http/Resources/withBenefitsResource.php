@@ -16,13 +16,13 @@ class withBenefitsResource extends JsonResource
     {
 
         return [
-            'empID'=>$this->employee_list_id ,  
-            'default'=>$receivables = array_filter(json_decode($this->employee_receivables), function ($row) {
-                        return $row->receivable_id == null && $row->receivable->code == "HAZARD"  && $row->amount <=0;
-                    }),
-             'other'=>$receivables = array_filter(json_decode($this->employee_receivables), function ($row) {
-                        return isset($row->receivable_id) && $row->receivable_id !== null;
-                    }) 
+            'empID' => $this->employee_list_id,
+            'default' => $receivables = array_filter(json_decode($this->employee_receivables), function ($row) {
+                return $row->receivable_id == null && $row->receivable->code == "HAZARD" && $row->amount <= 0;
+            }),
+            'other' => $receivables = array_filter(json_decode($this->employee_receivables), function ($row) {
+                return isset($row->receivable_id) && $row->receivable_id !== null;
+            })
         ];
         // return [
         //     'default'=>$receivables = array_filter(json_decode($this->employee_receivables), function ($row) {
@@ -32,7 +32,5 @@ class withBenefitsResource extends JsonResource
         //         return isset($row->receivable_id) && $row->receivable_id !== null;
         //     })
         // ];
-     
-        
     }
 }

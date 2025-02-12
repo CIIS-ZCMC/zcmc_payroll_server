@@ -90,6 +90,7 @@ Route::middleware('auth.token')->group(function () {
      */
     Route::namespace('App\Http\Controllers\Employee')->group(function () {
         Route::post('excluded-employee', 'ExcludedEmployeeController@store');
+        Route::post('included-employee', 'ExcludedEmployeeController@update');
     });
 
     /**
