@@ -5,6 +5,7 @@ namespace App\Http\Controllers\GeneralPayroll;
 use App\Helpers\GenPayroll;
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
+use App\Models\EmployeeDeduction;
 use App\Models\FirstPayroll;
 use App\Models\GeneralPayroll;
 use App\Models\GeneralPayrollTrails;
@@ -274,7 +275,9 @@ class GeneratePayrollController extends Controller
             $in_payroll = $request->in_payroll;
             $is_special = $request->is_special;
 
-            DB::transaction(function () use ($payroll_id, $in_payroll, $month, $year, $from, $to, $is_special, &$generatedCount, &$updatedCount) {
+            $second_half = null;
+
+            DB::transaction(function () use ($payroll_id, $in_payroll, $month, $year, $from, $to, $is_special, &$generatedCount, &$updatedCount, &$second_half) {
                 foreach ($in_payroll as $key => $data) {
                     $PayrollHeader = $payroll_id
                         ? PayrollHeaders::find($payroll_id)
@@ -294,23 +297,60 @@ class GeneratePayrollController extends Controller
 
                     $GeneralPayroll = GeneralPayroll::where('employee_list_id', $data['employee_list_id'])
                         ->where('month', $month)
-                        ->where('year', $year);
+                        ->where('year', $year)
+                        ->first();
 
-                    if ($GeneralPayroll->exists()) {
+                    if ($GeneralPayroll) {
                         $updatedCount++;
                         unset($data['payroll_headers_id']);
                         $GeneralPayroll->update($data);
-                        $general_payroll_id = $GeneralPayroll->first()->id;
+                        $general_payroll_id = $GeneralPayroll->id;
 
-                        FirstPayroll::updateOrCreate(
-                            ['general_payrolls_id' => $general_payroll_id, 'employee_list_id' => $data['employee_list_id']],
-                            ['net_total_salary' => $data['net_salary_first_half'], 'locked_at' => null]
-                        );
+                        $FirstPayroll = FirstPayroll::where("general_payrolls_id", $general_payroll_id)
+                            ->where("employee_list_id", $data['employee_list_id'])
+                            ->whereNull("locked_at");
 
-                        SecondPayroll::updateOrCreate(
-                            ['general_payrolls_id' => $general_payroll_id, 'employee_list_id' => $data['employee_list_id']],
-                            ['net_total_salary' => $data['net_salary_second_half'], 'locked_at' => null]
-                        );
+                        //If FirstPayroll is not locked, update the net_total_salary
+                        if ($FirstPayroll->exists()) {
+                            $FirstPayroll->update(['net_total_salary' => $data['net_salary_first_half']]);
+                        }
+
+                        $second_half = decrypt($data['net_salary_second_half']);
+
+                        //if FirstPayroll is locked, update the SecondPayroll
+                        if (!$FirstPayroll->exists()) {
+                            $first_payroll = FirstPayroll::where("general_payrolls_id", $general_payroll_id)
+                                ->where("employee_list_id", $data['employee_list_id'])
+                                ->whereNotNull("locked_at")->first();
+
+                            $FirstHalf_NetSalary = $first_payroll->net_total_salary;
+                            $net_salary = decrypt($data['net_total_salary']);
+                            $net_first_half = decrypt($FirstHalf_NetSalary);
+                            $second_half = (float) $net_salary - (float) $net_first_half;
+                            $second_half = encrypt($second_half);
+                        }
+
+                        //update second half
+                        $SecondPay = SecondPayroll::where("general_payrolls_id", $general_payroll_id)
+                            ->where("employee_list_id", $data['employee_list_id'])
+                            ->whereNull("locked_at");
+
+                        if ($SecondPay->exists()) {
+                            $SecondPay->update([
+                                'net_total_salary' => $second_half,
+                            ]);
+                        }
+
+                        // FirstPayroll::updateOrCreate(
+                        //     ['general_payrolls_id' => $general_payroll_id, 'employee_list_id' => $data['employee_list_id']],
+                        //     ['net_total_salary' => $data['net_salary_first_half'], 'locked_at' => null]
+                        // );
+
+                        // SecondPayroll::updateOrCreate(
+                        //     ['general_payrolls_id' => $general_payroll_id, 'employee_list_id' => $data['employee_list_id']],
+                        //     ['net_total_salary' => $data['net_salary_second_half'], 'locked_at' => null]
+                        // );
+
                     } else {
                         $GeneralPayroll = GeneralPayroll::create($data);
                         $generatedCount++;

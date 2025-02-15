@@ -37,11 +37,11 @@ class DeductionStatusListResources extends JsonResource
             // Set payrollDateFrom to the first day of the month
             $payrollDateFrom = (new DateTime("$dateArray[year]-$dateArray[month]-01"));
         }
-            
+
         $activeImports = $this->getImports()
-        ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
-        ->orderBy('payroll_date', 'desc') // Optional, if you want to order them
-        ->get();
+            ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
+            ->orderBy('payroll_date', 'desc') // Optional, if you want to order them
+            ->get();
         return [
             'id' => $this->id,
             'deduction_group_id' => $this->deduction_group_id,
@@ -52,8 +52,8 @@ class DeductionStatusListResources extends JsonResource
             'date_to' => $this->date_to,
             'employment_type' => $this->employment_type,
             'is_active' => $this->is_active,
-            'hasImport'=>count($activeImports) <= 0 ? false : true,
-            'isRegularDeduction'=>$this->employment_type === "Job Order" ? false:true
+            'hasImport' => count($activeImports) <= 0 ? false : true,
+            'isRegularDeduction' => $this->employment_type === "Job Order" ? false : true
             //  count($this->getImports) > 0 ? true:false,
         ];
     }

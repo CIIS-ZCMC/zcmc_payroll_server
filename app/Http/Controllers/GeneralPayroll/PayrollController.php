@@ -279,7 +279,9 @@ class PayrollController extends Controller
             $listofIDs = $header->genPayrolls->map(function ($row) {
                 return $row->employee_list_id;
             });
+
             $listofemployee = EmployeeList::whereIn('id', $listofIDs)->get();
+
             $data = $this->employee->index(new Request([
                 'regenerateList' => 1,
                 'listofemployee' => $listofemployee
@@ -288,6 +290,7 @@ class PayrollController extends Controller
             $header->update([
                 'last_generated_at' => now()
             ]);
+
             return response()->json([
                 'responseData' => $data,
                 'statusCode' => 200
@@ -834,13 +837,13 @@ class PayrollController extends Controller
                 unset($In_payroll['payroll_headers_id']);
                 $general_payroll->update($In_payroll);
                 $genpayID = $general_payroll->first()->id;
-                //UFGU
 
+                //Query for FirstPayroll not null
                 $firstpaynotlock = FirstPayroll::where("general_payrolls_id", $genpayID)
                     ->where("employee_list_id", $In_payroll['employee_list_id'])
                     ->whereNull("locked_at");
 
-
+                //First half not locked
                 if ($firstpaynotlock->exists()) {
                     $firstpaynotlock->update([
                         'net_total_salary' => $In_payroll['net_salary_first_half'],
@@ -849,17 +852,12 @@ class PayrollController extends Controller
 
                 $secondhalf_ = $In_payroll['net_salary_second_half'];
 
+                //First half locked
                 if (!$firstpaynotlock->exists()) {
 
                     $netSalFirsthalf = FirstPayroll::where("general_payrolls_id", $genpayID)
                         ->where("employee_list_id", $In_payroll['employee_list_id'])
                         ->whereNotNull("locked_at")->first()->net_total_salary;
-
-                    // $firstpayVal = $netSalFirsthalf ;
-                    // $In_payroll['net_salary_first_half'] =  $firstpayVal;
-                    // $netSalary =  $In_payroll['net_total_salary'];
-                    // $newSalaryonHalf =  $netSalary - $firstpayVal;
-                    // $In_payroll['net_salary_second_half'] = $newSalaryonHalf;
 
                     $netSal = decrypt($In_payroll['net_total_salary']);
                     $netFirsthalf_ = decrypt($netSalFirsthalf);
@@ -867,7 +865,7 @@ class PayrollController extends Controller
                     $secondhalf_ = encrypt($secondhalf_);
                 }
 
-
+                //update second half
                 $secondpay = SecondPayroll::where("general_payrolls_id", $genpayID)
                     ->where("employee_list_id", $In_payroll['employee_list_id'])
                     ->whereNull("locked_at");
@@ -1083,9 +1081,8 @@ class PayrollController extends Controller
                 $query->select('id') // The primary key of general_payrolls (assuming it's id)
                     ->from('general_payrolls')
                     ->where('payroll_headers_id', $payHeaderID);
-            })->update([
-                        'locked_at' => now()
-                    ]);
+            })->update(['locked_at' => now()]);
+
             PayrollHeaders::find($request->PayrollHeaderID)->update([
                 'first_payroll_locked_at' => now()
             ]);

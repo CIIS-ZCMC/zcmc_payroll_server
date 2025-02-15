@@ -109,4 +109,11 @@ class EmployeeList extends Model
     {
         return $this->hasOne(GeneralPayroll::class, 'employee_list_id')->latest();
     }
+
+    //get all null stopped_at employee deductions
+    public function getEmployeeDeductions()
+    {
+        return $this->hasMany(EmployeeDeduction::class, 'employee_list_id')->whereNull('stopped_at');
+    }
+
 }
