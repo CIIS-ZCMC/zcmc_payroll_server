@@ -113,7 +113,17 @@ class EmployeeList extends Model
     //get all null stopped_at employee deductions
     public function getEmployeeDeductions()
     {
-        return $this->hasMany(EmployeeDeduction::class, 'employee_list_id')->whereNull('stopped_at');
+        return $this->hasMany(EmployeeDeduction::class, 'employee_list_id')
+            ->where('status', 'active')
+            ->whereNull('stopped_at');
+    }
+
+    //get all null stopped_at employee receivables
+    public function getEmployeeReceivable()
+    {
+        return $this->hasMany(EmployeeReceivable::class, 'employee_list_id')
+            ->where('status', 'active')
+            ->whereNull('stopped_at');
     }
 
 }
