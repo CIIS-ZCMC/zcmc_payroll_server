@@ -80,11 +80,12 @@ class ReportsController extends Controller
                     return $getDeductionsByGroup($groupId)->map(function ($deduction) {
                         return [
                             'employee_deduction_id' => $deduction->id,
+                            'employee_list_id' => $deduction->employee_list_id,
                             'deduction_id' => $deduction->deduction_id,
                             'deduction_group_id' => optional($deduction->deductions)->deduction_group_id,
                             'deduction_name' => optional($deduction->deductions)->name,
                             'code' => optional($deduction->deductions)->code,
-                            'amount' => $deduction->amount,
+                            'amount' => $deduction->amount ?? 0,
                         ];
                     })->values();
                 };
@@ -118,34 +119,34 @@ class ReportsController extends Controller
                     'basic_salary' => decrypt($employee->EmployeeList->getSalary->basic_salary),
 
                     // Salary details
-                    'net_pay' => decrypt($employee->net_pay),
-                    'gross_pay' => decrypt($employee->gross_pay),
-                    'net_total_salary' => decrypt($employee->net_total_salary),
-                    'net_salary_first_half' => decrypt($employee->net_salary_first_half),
-                    'net_salary_second_half' => decrypt($employee->net_salary_second_half),
+                    'net_pay' => decrypt($employee->net_pay) ?? 0,
+                    'gross_pay' => decrypt($employee->gross_pay) ?? 0,
+                    'net_total_salary' => decrypt($employee->net_total_salary) ?? 0,
+                    'net_salary_first_half' => decrypt($employee->net_salary_first_half) ?? 0,
+                    'net_salary_second_half' => decrypt($employee->net_salary_second_half) ?? 0,
 
                     // Computed Deductions
-                    'pera' => $receivables->where('code', 'PERA')->pluck('amount')->first(),
-                    'hazard' => $receivables->where('code', 'HAZARD')->pluck('amount')->first(),
-                    'absent_rate' => $deductions->where('deductions.code', 'Absent')->pluck('amount')->first(),
+                    'pera' => $receivables->where('code', 'PERA')->pluck('amount')->first() ?? 0,
+                    'hazard' => $receivables->where('code', 'HAZARD')->pluck('amount')->first() ?? 0,
+                    'absent_rate' => $deductions->where('deductions.code', 'Absent')->pluck('amount')->first() ?? 0,
 
                     // Withholding Tax
-                    'wtax' => $sumDeductions(1),
+                    'wtax' => $sumDeductions(1) ?? 0,
 
                     // Philhealth Deductions
-                    'philhealth_deductions' => $sumDeductions(5),
+                    'philhealth_deductions' => $sumDeductions(5) ?? 0,
 
                     // GSIS Deductions
-                    'gsis_deductions' => $mapDeductions(2),
-                    'total_gsis_deduction' => $sumDeductions(2),
+                    'gsis_deductions' => $mapDeductions(2) ?? 0,
+                    'total_gsis_deduction' => $sumDeductions(2) ?? 0,
 
                     // Pagibig Deductions
-                    'pagibig_deductions' => $mapDeductions(4),
-                    'total_pagibig_deduction' => $sumDeductions(4),
+                    'pagibig_deductions' => $mapDeductions(4) ?? 0,
+                    'total_pagibig_deduction' => $sumDeductions(4) ?? 0,
 
                     // Other Deductions
-                    'other_deductions' => $mapDeductions(8),
-                    'total_other_deduction' => $sumDeductions(8),
+                    'other_deductions' => $mapDeductions(8) ?? 0,
+                    'total_other_deduction' => $sumDeductions(8) ?? 0,
 
                     // All Deductions
                     'employee_deductions' => $mapDeductions(null), // null returns all
