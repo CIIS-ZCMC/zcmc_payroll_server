@@ -150,9 +150,11 @@ class ReportsController extends Controller
 
                     // All Deductions
                     'employee_deductions' => $mapDeductions(null), // null returns all
+                    'total_employee_deductions' => $deductions->sum('amount') ?? 0,
 
                     // Employee Receivables
                     'employee_receivables' => $receivables,
+                    'total_employee_receivable' => $receivables->sum('amount') ?? 0,
 
                     // Date
                     'month' => $employee->month,

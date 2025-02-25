@@ -21,14 +21,14 @@ class EmployeeReceivableResource extends JsonResource
                 'code' => $this->receivables->code ?? 'N/A',
             ],
             'amount' => $this->amount,
-            'percentage' => $this->percentage ,
+            'percentage' => $this->percentage,
             'frequency' => $this->frequency,
             'total_term' => $this->total_term,
             'is_default' => $this->is_default,
-            'status' =>  $this->status,
-            'date_from' =>  $this->date_from,
-            'date_to' =>  $this->date_to,
-            'stopped_at' =>  $this->stopped_at,
+            'status' => $this->status,
+            'date_from' => $this->date_from,
+            'date_to' => $this->date_to,
+            'stopped_at' => $this->stopped_at,
         ];
     }
 }

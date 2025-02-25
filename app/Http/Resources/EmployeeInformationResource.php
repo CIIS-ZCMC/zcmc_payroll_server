@@ -39,7 +39,7 @@ class EmployeeInformationResource extends JsonResource
             'Salary' => EmployeeSalaryResource::collection([$this->getSalary]),
             'TimeRecord' => TimeRecordResource::collection($this->getTimeRecords()->with('ComputedSalary')->get()),
             'Deduction' => EmployeeDeductionResource::collection($this->getEmployeeDeductions),
-            'Receivables' => EmployeeReceivableResource::collection($this->employeeReceivables),
+            'Receivables' => EmployeeReceivableResource::collection($this->getEmployeeReceivable),
             'GeneralPayroll' => $this->getActiveGeneralPayroll ? GeneralPayrollResources::collection([$this->getActiveGeneralPayroll]) : null,
             'isExcluded' => [
                 'Details' => $excludedDetails,

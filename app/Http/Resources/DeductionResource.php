@@ -49,18 +49,18 @@ class DeductionResource extends JsonResource
     {
         return [
             'condition_1' => [
-                'is_applied_to_all' => $conditions['condition1']['is_applied_to_all'],
-                'sg_from' => $conditions['condition1']['sg_from'],
-                'sg_to' => $conditions['condition1']['sg_to'],
-                'charge_basis' => $conditions['condition1']['charge_basis'],
-                'charge_value' => $conditions['condition1']['charge_value'],
+                'is_applied_to_all' => isset($conditions['condition1']['is_applied_to_all']) ? $conditions['condition1']['is_applied_to_all'] : null,
+                'sg_from' => isset($conditions['condition1']['sg_from']) ? $conditions['condition1']['sg_from'] : null,
+                'sg_to' => isset($conditions['condition1']['sg_to']) ? $conditions['condition1']['sg_to'] : null,
+                'charge_basis' => isset($conditions['condition1']['charge_basis']) ? $conditions['condition1']['charge_basis'] : null,
+                'charge_value' => isset($conditions['condition1']['charge_value']) ? $conditions['condition1']['charge_value'] : null,
             ],
             'condition_2' => [
-                'is_applied_to_all' => $conditions['condition2']['is_applied_to_all'],
-                'sg_from' => $conditions['condition2']['sg_from'],
-                'sg_to' => $conditions['condition2']['sg_to'],
-                'charge_basis' => $conditions['condition2']['charge_basis'],
-                'charge_value' => $conditions['condition2']['charge_value'],
+                'is_applied_to_all' => isset($conditions['condition2']['is_applied_to_all']) ? $conditions['condition2']['is_applied_to_all'] : null,
+                'sg_from' => isset($conditions['condition2']['sg_from']) ? $conditions['condition2']['sg_from'] : null,
+                'sg_to' => isset($conditions['condition2']['sg_to']) ? $conditions['condition2']['sg_to'] : null,
+                'charge_basis' => isset($conditions['condition2']['charge_basis']) ? $conditions['condition2']['charge_basis'] : null,
+                'charge_value' => isset($conditions['condition2']['charge_value']) ? $conditions['condition2']['charge_value'] : null,
             ]
         ];
     }
