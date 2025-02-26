@@ -112,7 +112,7 @@ class ReportsController extends Controller
                     'payroll_headers_id' => $employee->payroll_headers_id,
                     'employee_list_id' => $employee->employee_list_id,
                     'employee_number' => $employee->employeeList->employee_number,
-                    'employee_name' => "{$employee->employeeList->first_name}, {$employee->employeeList->last_name} {$employee->employeeList->middle_name}",
+                    'employee_name' => "{$employee->employeeList->last_name}, {$employee->employeeList->first_name} {$employee->employeeList->middle_name}",
                     'designation' => $employee->employeeList->designation,
                     'salary_grade' => $employee->EmployeeList->getSalary->salary_grade,
                     'salary_step' => $employee->EmployeeList->getSalary->salary_step,
@@ -155,7 +155,7 @@ class ReportsController extends Controller
                     // Employee Receivables
                     'employee_receivables' => $receivables,
                     'total_employee_receivable' => $receivables->sum('amount') ?? 0,
-
+                    'remarks' => null,
                     // Date
                     'month' => $employee->month,
                     'year' => $employee->year,
@@ -166,11 +166,6 @@ class ReportsController extends Controller
             }
 
             return response()->json(['responseData' => $data], Response::HTTP_OK);
-
-            // $PayrollHeader = $find->first();
-            // $PayrollController = new PayrollController();
-            // return $PayrollController->GeneralPayrollList($PayrollHeader->id);
-
         } catch (\Throwable $th) {
 
             Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());

@@ -19,8 +19,6 @@ class DeductionSeeder extends Seeder
         $GSIS = DeductionGroup::where('code', 'GSIS')->first()->id;
         $PagIbig = DeductionGroup::where('code', 'Pag-Ibig')->first()->id;
         $PhilHealth = DeductionGroup::where('code', 'PhilHealth')->first()->id;
-        $DBP = DeductionGroup::where('code', 'DBP')->first()->id;
-        $COOP = DeductionGroup::where('code', 'COOP')->first()->id;
         $Others = DeductionGroup::where('code', 'Others')->first()->id;
 
         // Mandatory Deduction/Contribution
@@ -334,54 +332,30 @@ class DeductionSeeder extends Seeder
             'amount' => 0
         ]);
 
-
-        // DBP
+        // Zcmc
         Deduction::firstOrCreate([
-            'deduction_group_id' => $DBP,
-            'name' => 'DBP Loan',
-            'code' => 'DBP',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $DBP,
-            'name' => 'DBP Loan 1',
-            'code' => 'DBPL1',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $DBP,
-            'name' => 'DBP Loan 2',
-            'code' => 'DBPL2',
-            'amount' => 0
-        ]);
-
-
-        // COOP
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $COOP,
+            'deduction_group_id' => $Others,
             'name' => 'Coop 1 Money Loan',
             'code' => 'COOP1',
             'amount' => 0
         ]);
 
         Deduction::firstOrCreate([
-            'deduction_group_id' => $COOP,
+            'deduction_group_id' => $Others,
             'name' => 'Coop 3 Food/Groceries Loan',
             'code' => 'COOP3',
             'amount' => 0
         ]);
 
         Deduction::firstOrCreate([
-            'deduction_group_id' => $COOP,
+            'deduction_group_id' => $Others,
             'name' => 'Coop 4 Loan 1',
             'code' => 'COOPL1',
             'amount' => 0
         ]);
 
         Deduction::firstOrCreate([
-            'deduction_group_id' => $COOP,
+            'deduction_group_id' => $Others,
             'name' => 'Coop 5 Loan 2',
             'code' => 'COOPL2',
             'amount' => 0
@@ -441,6 +415,28 @@ class DeductionSeeder extends Seeder
             'deduction_group_id' => $Others,
             'name' => 'Chapel Voluntary Contribution',
             'code' => 'CHAPEL',
+            'amount' => 0
+        ]);
+
+        // Others
+        Deduction::firstOrCreate([
+            'deduction_group_id' => $Others,
+            'name' => 'DBP Loan',
+            'code' => 'DBP',
+            'amount' => 0
+        ]);
+
+        Deduction::firstOrCreate([
+            'deduction_group_id' => $Others,
+            'name' => 'DBP Loan 1',
+            'code' => 'DBPL1',
+            'amount' => 0
+        ]);
+
+        Deduction::firstOrCreate([
+            'deduction_group_id' => $Others,
+            'name' => 'DBP Loan 2',
+            'code' => 'DBPL2',
             'amount' => 0
         ]);
     }
