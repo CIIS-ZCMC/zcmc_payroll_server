@@ -154,8 +154,9 @@ class ReportsController extends Controller
 
                     // Employee Receivables
                     'employee_receivables' => $receivables,
-                    'total_employee_receivable' => $receivables->sum('amount') ?? 0,
+                    'total_employee_receivables' => $receivables->sum('amount') ?? 0,
                     'remarks' => null,
+
                     // Date
                     'month' => $employee->month,
                     'year' => $employee->year,
