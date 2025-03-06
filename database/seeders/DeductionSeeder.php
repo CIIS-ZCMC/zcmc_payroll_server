@@ -25,7 +25,7 @@ class DeductionSeeder extends Seeder
         Deduction::firstOrCreate([
             'deduction_group_id' => $TAX,
             'name' => 'Withholding Tax',
-            'code' => 'WHTAX',
+            'code' => 'TAX',
             'employment_type' => 'All Employment Type',
             'amount' => 0,
             'is_mandatory' => true
@@ -33,8 +33,8 @@ class DeductionSeeder extends Seeder
 
         Deduction::firstOrCreate([
             'deduction_group_id' => $PhilHealth,
-            'name' => 'PHIC Premium',
-            'code' => 'PHICPS',
+            'name' => 'PHILHEALTH Premium',
+            'code' => 'PHIC',
             'employment_type' => 'All Employment Type',
             'amount' => 0,
             'is_mandatory' => true
@@ -43,7 +43,7 @@ class DeductionSeeder extends Seeder
         Deduction::firstOrCreate([
             'deduction_group_id' => $GSIS,
             'name' => 'GSIS Premium',
-            'code' => 'GPS',
+            'code' => 'GSIS L & R',
             'amount' => 0,
             'is_mandatory' => true
         ]);
@@ -51,7 +51,7 @@ class DeductionSeeder extends Seeder
         Deduction::firstOrCreate([
             'deduction_group_id' => $PagIbig,
             'name' => 'Pag-Ibig Premium',
-            'code' => 'PPS',
+            'code' => ' PPREM.',
             'employment_type' => 'All Employment Type',
             'amount' => 200,
             'is_mandatory' => true
@@ -60,15 +60,8 @@ class DeductionSeeder extends Seeder
         // GSIS
         Deduction::firstOrCreate([
             'deduction_group_id' => $GSIS,
-            'name' => 'GSIS Goverment Share',
-            'code' => 'GGS',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
             'name' => 'GSIS Consolidated Loan',
-            'code' => 'GConso',
+            'code' => 'GCONSO',
             'amount' => 0
         ]);
 
@@ -103,7 +96,7 @@ class DeductionSeeder extends Seeder
         Deduction::firstOrCreate([
             'deduction_group_id' => $GSIS,
             'name' => 'GSIS Computer Loan',
-            'code' => 'GCPL',
+            'code' => 'GCOM',
             'amount' => 0
         ]);
 
@@ -151,13 +144,6 @@ class DeductionSeeder extends Seeder
 
         Deduction::firstOrCreate([
             'deduction_group_id' => $GSIS,
-            'name' => 'GSIS ECARDPLUS',
-            'code' => 'GECARDPLUS',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
             'name' => 'GSIS Salary Loan',
             'code' => 'GSAL',
             'amount' => 0
@@ -172,57 +158,8 @@ class DeductionSeeder extends Seeder
 
         Deduction::firstOrCreate([
             'deduction_group_id' => $GSIS,
-            'name' => 'GSIS ELA',
-            'code' => 'GELA',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS SOS',
-            'code' => 'GSOS',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS PLREG',
-            'code' => 'GPLREG',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS PLOPT',
-            'code' => 'GPLOPT',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS REL',
-            'code' => 'GREL',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS LCH DCS',
-            'code' => 'GLCHDCS',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
             'name' => 'GSIS STOCK PURCHASE',
             'code' => 'GSPUR',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS OPT LIFE',
-            'code' => 'GOPTL',
             'amount' => 0
         ]);
 
@@ -237,48 +174,6 @@ class DeductionSeeder extends Seeder
             'deduction_group_id' => $GSIS,
             'name' => 'GSIS EDU CHILD',
             'code' => 'GEDUCH',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS GENESIS',
-            'code' => 'GGEN',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS GENPLUS',
-            'code' => 'GGENPLUS',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS GENFLEXI',
-            'code' => 'GGENFLEX',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS GENSPCL',
-            'code' => 'GGENSPCL',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS HELP',
-            'code' => 'GHELP',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $GSIS,
-            'name' => 'GSIS GENPLUS',
-            'code' => 'GGENPLUS',
             'amount' => 0
         ]);
 
@@ -335,15 +230,15 @@ class DeductionSeeder extends Seeder
         // Zcmc
         Deduction::firstOrCreate([
             'deduction_group_id' => $Others,
-            'name' => 'Coop 1 Money Loan',
-            'code' => 'COOP1',
+            'name' => 'Canteen Money Loan',
+            'code' => 'CML',
             'amount' => 0
         ]);
 
         Deduction::firstOrCreate([
             'deduction_group_id' => $Others,
-            'name' => 'Coop 3 Food/Groceries Loan',
-            'code' => 'COOP3',
+            'name' => 'Canteen Food/Groceries Loan',
+            'code' => 'CFL',
             'amount' => 0
         ]);
 
@@ -364,17 +259,25 @@ class DeductionSeeder extends Seeder
         // Others
         Deduction::firstOrCreate([
             'deduction_group_id' => $Others,
-            'name' => 'Employees Deduction 1',
-            'code' => 'ED1',
+            'name' => 'Association Dues',
+            'code' => 'ADUES',
             'amount' => 0
         ]);
 
         Deduction::firstOrCreate([
             'deduction_group_id' => $Others,
-            'name' => 'Employees Deduction 2',
-            'code' => 'ED2',
+            'name' => 'Death Benefit Contribution',
+            'code' => 'DEATH',
             'amount' => 0
         ]);
+
+        Deduction::firstOrCreate([
+            'deduction_group_id' => $Others,
+            'name' => 'Chapel Voluntary Contribution',
+            'code' => 'CHAPEL',
+            'amount' => 0
+        ]);
+
 
         Deduction::firstOrCreate([
             'deduction_group_id' => $Others,
@@ -401,20 +304,6 @@ class DeductionSeeder extends Seeder
             'deduction_group_id' => $Others,
             'name' => 'Nursing Loan 2',
             'code' => 'NLOAN2',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $Others,
-            'name' => 'Death Benefit Contribution',
-            'code' => 'DEATH',
-            'amount' => 0
-        ]);
-
-        Deduction::firstOrCreate([
-            'deduction_group_id' => $Others,
-            'name' => 'Chapel Voluntary Contribution',
-            'code' => 'CHAPEL',
             'amount' => 0
         ]);
 

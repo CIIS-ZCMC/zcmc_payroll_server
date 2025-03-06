@@ -169,6 +169,7 @@ Route::middleware('auth.token')->group(function () {
      */
     Route::namespace('App\Http\Controllers\Reports')->group(function () {
         Route::get('reports', 'ReportsController@request');
+        Route::get('reports-total-deductions', 'ReportsController@requestDeductions');
     });
 });
 
