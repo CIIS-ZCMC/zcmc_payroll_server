@@ -30,11 +30,6 @@ Route::middleware('umis_server')->group(function () {
     });
 });
 
-Route::
-        namespace('App\Http\Controllers\UMIS')->group(function () {
-            Route::get('employee-profiles', 'EmployeeProfileController@index');
-        });
-
 
 Route::middleware('auth.token')->group(function () {
 
@@ -170,6 +165,13 @@ Route::middleware('auth.token')->group(function () {
     Route::namespace('App\Http\Controllers\Reports')->group(function () {
         Route::get('reports', 'ReportsController@request');
         Route::get('reports-total-deductions', 'ReportsController@requestDeductions');
+    });
+
+    /** 
+     * Fetch Data From UMIS
+     */
+    Route::namespace('App\Http\Controllers\UMIS')->group(function () {
+        Route::get('fetch_dtr', 'EmployeeProfileController@index');
     });
 });
 

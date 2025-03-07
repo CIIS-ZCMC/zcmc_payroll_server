@@ -16,8 +16,8 @@ class EmployeeProfileController extends Controller
 {
     public function index(Request $request)
     {
-        $year_of = 2024;
-        $month_of = 7;
+        $year_of = $request->year;
+        $month_of = $request->month;
 
         $totalDaysInMonth = Carbon::createFromDate($year_of, $month_of, 1)->daysInMonth;
         $expectedMinutesPerDay = 480;
@@ -82,7 +82,7 @@ class EmployeeProfileController extends Controller
                     ->whereMonth('dtr_date', $month_of);
             }
         ])
-            ->where('biometric_id', 139)
+            ->where('biometric_id', 613)
             ->get();
 
         $holiday = DB::connection('mysql2')->table('holidays')->whereRaw("LEFT(month_day, 2) = ?", [str_pad($month_of, 2, '0', STR_PAD_LEFT)])->get();
@@ -240,7 +240,7 @@ class EmployeeProfileController extends Controller
                     'profile_id' => $employee->id,
                     'employee_id' => $employee->employee_id,
                     'Information' => $employee->personalInformation,
-                    // 'Designation' => $employee->findDesignation(),
+                    'Designation' => $employee->findDesignation(),
                     'Hired' => $employee->date_hired,
                     'EmploymentType' => $employee->employmentType,
                     'Excluded' => InActiveEmployee::where('employee_id', $employee->employee_id)->first(),
@@ -254,7 +254,6 @@ class EmployeeProfileController extends Controller
                         'dates_covered' => $helper->getDateIntervals($employee->leaveApplications->first()->date_from ?? null, $employee->leaveApplications->first()->date_to ?? null),
                     ] : [],
                     'employeeLeaveCredits' => $employee->employeeLeaveCredits
-
                 ],
                 'Assigned_area' => $employee->assignedArea->findDetails(),
                 'SalaryData' => [

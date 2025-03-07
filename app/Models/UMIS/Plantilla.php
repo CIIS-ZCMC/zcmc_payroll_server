@@ -11,7 +11,7 @@ class Plantilla extends Model
 
     protected $connection = 'mysql2'; // This is the connection name located in config/database.php
 
-    protected $table = 'plantilla';
+    protected $table = 'plantillas';
 
     protected $primaryKey = 'id';
 
