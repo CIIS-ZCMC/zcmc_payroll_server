@@ -4,21 +4,68 @@ namespace App\Http\Controllers\UMIS;
 
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\GeneralPayroll\ComputationController;
+use App\Models\EmployeeComputedSalary;
 use App\Models\EmployeeList;
+use App\Models\EmployeeReceivable;
+use App\Models\EmployeeSalary;
+use App\Models\ExcludedEmployee;
+use App\Models\PayrollHeaders;
+use App\Models\TimeRecord;
 use App\Models\UMIS\EmployeeProfile;
 use App\Models\UMIS\InActiveEmployee;
 use App\Models\UMIS\LeaveType;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\Response;
+use function PHPUnit\Framework\isEmpty;
+
 
 class EmployeeProfileController extends Controller
 {
+    // Fetch Employee Profile from UMIS (step 1)
     public function index(Request $request)
     {
         $year_of = $request->year;
         $month_of = $request->month;
 
+        $first_half = $request->first_half ?? 0;
+        $second_half = $request->second_half ?? 0;
+
+        $currentyear = date('Y');
+        $currentMonth = date('m');
+
+        //Payroll Headers Validation
+        if (!$first_half && !$second_half) {
+            if ($currentyear == $year_of && $currentMonth == $month_of) {
+                return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records", 'statusCode' => 500]);
+            }
+
+            if ($currentyear == $year_of && $currentMonth < $month_of) {
+                return response()->json(['error' => 'Generation failed', 'message' => "Could not generate future months", 'statusCode' => 500]);
+            }
+
+            if ($currentMonth > $month_of) {
+                if (($currentMonth - $month_of) == 1) {
+                    if (floor(date('d', strtotime($year_of . "-" . $month_of . "-" . date('d')))) <= 11) {
+                        return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records", 'statusCode' => 500]);
+                    }
+                }
+            }
+        }
+
+        if ($second_half) {
+            PayrollHeaders::where("fromPeriod", 1)
+                ->where("toPeriod", 15)
+                ->where("month", $request->month)
+                ->where("year", $request->year)
+                ->update([
+                    'is_locked' => 1
+                ]);
+        }
+
+        //Employee Fetching Function Start Here
         $totalDaysInMonth = Carbon::createFromDate($year_of, $month_of, 1)->daysInMonth;
         $expectedMinutesPerDay = 480;
 
@@ -82,7 +129,7 @@ class EmployeeProfileController extends Controller
                     ->whereMonth('dtr_date', $month_of);
             }
         ])
-            ->where('biometric_id', 613)
+            ->where('biometric_id', 132)
             ->get();
 
         $holiday = DB::connection('mysql2')->table('holidays')->whereRaw("LEFT(month_day, 2) = ?", [str_pad($month_of, 2, '0', STR_PAD_LEFT)])->get();
@@ -119,7 +166,7 @@ class EmployeeProfileController extends Controller
             $totalOvertimeMinutes = $employee->dailyTimeRecords->first()->total_overtime_minutes ?? 0;
             $totalUnderTimeMinutes = $employee->dailyTimeRecords->first()->total_undertime_minutes ?? 0;
 
-            $totalMinutes = $totalWorkingMinutes + $totalOBMinutes + $totalOTMinutes + $totalLeaveMinutes;
+            $totalMinutes = $totalWorkingMinutes; // + $totalOBMinutes + $totalOTMinutes + $totalLeaveMinutes;
             $totalWorkingHours = $totalMinutes / 60;
             $noOfPresentDays = round($totalMinutes / $expectedMinutesPerDay, 1);
 
@@ -174,7 +221,7 @@ class EmployeeProfileController extends Controller
             }
 
             // Salary computations (SALARY VALUES GROUP)
-            $computed = new ComputationController();
+            $computed = new UmisComputationController();
             $basicSalary = $computed->BasicSalary($salary_grade, $salary_step, $scheduleCount)['GrandTotal'];
             $rates = $computed->Rates($basicSalary, $scheduleCount);
             $grossSalary = $computed->GrossSalary($noOfPresentDays, $basicSalary, $noOfAbsences);
@@ -191,80 +238,382 @@ class EmployeeProfileController extends Controller
             // Overall Net Salary (Net Salary + Holiday Pay)
             $overallNetSalary = $netSalary + $holidayPayRate;
 
-            // //This function Return True or False
+            // This function Return True or False
             $OutOfPayroll = $computed->OutofPayroll($netSalary, $employee->employmentType, $totalMinutes);
 
             $first_in = $employee->nigthDuties->first()->first_in ?? null;
             $first_out = $employee->nigthDuties->first()->first_out ?? null;
             $nightDifferentials[] = $this->getNightDifferentialHours($first_in, $first_out, $biometric_id, [], $employee->schedule);
 
+            //Get Night Diff base on ID
             $nightDiff = array_values(array_filter($nightDifferentials, function ($row) use ($biometric_id) {
                 return $row['biometric_id'] ?? null === $biometric_id;
             }));
 
             return [
-                'Biometric_id' => $biometric_id,
+                'biometric_id' => $biometric_id,
                 'employee_id' => $employee->employee_id,
-                'Payroll' => "{$payrollPeriodStart} - {$payrollPeriodEnd}",
-                'From' => $payrollPeriodStart,
-                'To' => $payrollPeriodEnd,
-                'Month' => $month_of,
-                'Year' => $year_of,
-                'Is_out' => $OutOfPayroll,
-                "NightDifferentials" => $nightDiff,
+                'payroll_date' => "{$payrollPeriodStart} - {$payrollPeriodEnd}",
+                'from' => $payrollPeriodStart,
+                'to' => $payrollPeriodEnd,
+                'month' => $month_of,
+                'year' => $year_of,
+                'is_out' => $OutOfPayroll,
+                "night_differentials" => $nightDiff,
 
                 // Calculated values
-                'TotalWorkingMinutes' => $totalMinutes,
-                'TotalWorkingHours' => $totalWorkingHours,
-                'TotalOvertimeMinutes' => $totalOvertimeMinutes,
-                'TotalUndertimeMinutes' => $totalUnderTimeMinutes,
-                'NoofPresentDays' => $noOfPresentDays,
-                'NoofLeaveWoPay' => $noOfLeaveWoPay,
-                'NoofLeaveWPay' => $noOfLeaveWPay,
-                'NoofAbsences' => $noOfAbsences,
-                "NoofInvalidEntry" => $NoOfInvalidEntry,
-                'NoofDayOff' => $noOfDayOff,
+                'total_working_minutes' => $totalMinutes,
+                'total_working_hours' => $totalWorkingHours,
+                'total_overtime_minutes' => $totalOvertimeMinutes,
+                'total_undertime_minutes' => $totalUnderTimeMinutes,
+                'total_official_business_minutes' => $totalOBMinutes,
+                'total_official_time_minutes' => $totalOTMinutes,
+                'total_leave_minutes' => $totalLeaveMinutes,
+                'no_of_present_days' => $noOfPresentDays,
+                'no_of_leave_wo_pay' => $noOfLeaveWoPay,
+                'no_of_leave_w_pay' => $noOfLeaveWPay,
+                'no_of_absences' => $noOfAbsences,
+                'no_of_invalid_entry' => $NoOfInvalidEntry,
+                'no_of_day_off' => $noOfDayOff,
                 'schedule' => $scheduleCount,
 
                 // Salary values
-                'GrandBasicSalary' => $basicSalary,
-                'Rates' => $rates,
-                'GrossSalary' => $grossSalary,
-                'TimeDeductions' => [
-                    'AbsentRate' => $absentRate,
-                    'UndertimeRate' => $undertimeRate,
+                'grand_basic_salary' => $basicSalary,
+                'rates' => $rates,
+                'gross_salary' => $grossSalary,
+                'time_deductions' => [
+                    'absent_rate' => $absentRate,
+                    'undertime_rate' => $undertimeRate,
                 ],
-                'NetSalary' => $netSalary,
-                'OverallNetSalary' => $overallNetSalary,
-                'Employee' => [
+                'net_salary' => $netSalary,
+                'overall_net_salary' => $overallNetSalary,
+                'employee' => [
                     'profile_id' => $employee->id,
                     'employee_id' => $employee->employee_id,
-                    'Information' => $employee->personalInformation,
-                    'Designation' => $employee->findDesignation(),
-                    'Hired' => $employee->date_hired,
-                    'EmploymentType' => $employee->employmentType,
-                    'Excluded' => InActiveEmployee::where('employee_id', $employee->employee_id)->first(),
-                    'leaveApplications' => $employee->leaveApplications->isNotEmpty() ? [
+                    'information' => $employee->personalInformation,
+                    'designation' => $employee->findDesignation(),
+                    'hired' => $employee->date_hired,
+                    'employment_type' => $employee->employmentType,
+                    'excluded' => InActiveEmployee::where('employee_id', $employee->employee_id)->first(),
+                    'leave_applications' => $employee->leaveApplications->isNotEmpty() ? [
                         'country' => $employee->leaveApplications->first()->country ?? null,
                         'city' => $employee->leaveApplications->first()->city ?? null,
                         'from' => $employee->leaveApplications->first()->date_from ?? null,
                         'to' => $employee->leaveApplications->first()->date_to ?? null,
-                        'leavetype' => LeaveType::find($employee->leaveApplications->first()->leave_type_id ?? null)->name ?? "",
+                        'leave_type' => LeaveType::find($employee->leaveApplications->first()->leave_type_id ?? null)->name ?? "",
                         'without_pay' => $employee->leaveApplications->first()->without_pay ?? null,
                         'dates_covered' => $helper->getDateIntervals($employee->leaveApplications->first()->date_from ?? null, $employee->leaveApplications->first()->date_to ?? null),
                     ] : [],
-                    'employeeLeaveCredits' => $employee->employeeLeaveCredits
+                    'employee_leave_credits' => $employee->employeeLeaveCredits
                 ],
-                'Assigned_area' => $employee->assignedArea->findDetails(),
-                'SalaryData' => [
+                'assigned_area' => $employee->assignedArea->findDetails(),
+                'salary_data' => [
                     'step' => $employee->assignedArea->salary_grade_step,
-                    'salaryGroup' => $employee->assignedArea->salaryGrade,
+                    'salary_group' => $employee->assignedArea->salaryGrade,
                 ],
             ];
-
         });
 
-        return response()->json($data->filter());
+        $result[] = $data;
+        return response()->json([
+            'message' => "Successfully Fetched.",
+            'responseData' => $result,
+            'statusCode' => 200
+        ], 200);
+    }
+
+    public function fetchStep2(Request $request)
+    {
+        /**
+         * Store Data in PayrollDatabase.EmployeeList & ExcludedEmployee
+         */
+        $employees = $request->employees;
+        $employee_list = null; // Initialize the variable
+        $employee = [];
+        foreach ($employees as $data) {
+            $employee_list = EmployeeList::firstOrCreate(
+                ['employee_number' => $data['employee_id']],
+                [
+                    'employee_profile_id' => $data['employee']['profile_id'],
+                    'first_name' => $data['employee']['information']['first_name'],
+                    'last_name' => $data['employee']['information']['last_name'],
+                    'middle_name' => $data['employee']['information']['middle_name'],
+                    'ext_name' => $data['employee']['information']['name_extension'],
+                    'designation' => $data['employee']['designation']['name'],
+                    // 'assigned_area' => $data['assigned_area'],
+                    'status' => 1,
+                    'is_newly_hired' => 1,
+                    'is_excluded' => $data['is_out']
+                ]
+            );
+
+            // Update EmployeeList Data
+            $employee_list->update([
+                'first_name' => $data['employee']['information']['first_name'],
+                'last_name' => $data['employee']['information']['last_name'],
+                'middle_name' => $data['employee']['information']['middle_name'],
+                'ext_name' => $data['employee']['information']['name_extension'],
+                'designation' => $data['employee']['designation']['name'],
+                'assigned_area' => $data['assigned_area'],
+                'status' => 1,
+                'is_newly_hired' => 0,
+                'is_excluded' => $data['is_out']
+            ]);
+
+            // Handle ExcludedEmployee if out of payroll
+            if ($data['is_out']) {
+                ExcludedEmployee::firstOrCreate(
+                    [
+                        'employee_list_id' => $employee_list->id,
+                        'month' => $request->month_of,
+                        'year' => $request->year_of
+                    ],
+                    [
+                        'reason' => json_encode([
+                            'reason' => $this->getExclusionReason($data),
+                            'remarks' => $this->getExclusionRemarks($data),
+                            'amount' => $data['overall_net_salary']
+                        ]),
+                        'is_removed' => 0
+                    ]
+                );
+            }
+
+            $find_employee = EmployeeSalary::where('employee_list_id', $employee_list->id)
+                ->where('month', $request->month_of)
+                ->where('year', $request->year_of)
+                ->first();
+
+            if ($find_employee === null) {
+                // Create new EmployeeSalary
+                $find_employee = EmployeeSalary::create(
+                    [
+                        'employee_list_id' => $employee_list->id,
+                        'employment_type' => $data['employee']['employment_type']['name'],
+                        'basic_salary' => $data['grand_basic_salary'],
+                        'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
+                        'salary_step' => $data['salary_data']['step'],
+                        'month' => $request->month_of,
+                        'year' => $request->year_of,
+                        'is_active' => 1
+                    ]
+                );
+            } else {
+                // Update existing EmployeeSalary
+                $find_employee->update([
+                    'employment_type' => $data['employee']['employment_type']['name'],
+                    'basic_salary' => $data['grand_basic_salary'],
+                    'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
+                    'salary_step' => $data['salary_data']['step'],
+                    'is_active' => 1
+                ]);
+            }
+
+            // Update other employee salaries to is_active = 0
+            EmployeeSalary::where('employee_list_id', $employee_list->id)
+                ->where('id', '!=', $find_employee->id)
+                ->update(['is_active' => 0]);
+
+            $employee[] = array_merge($employee_list->toArray(), $data);
+        }
+
+        return response()->json([
+            'Message' => "Data Successfully saved (Step 2)",
+            'responseData' => $employee,
+            'statusCode' => 200,
+        ], Response::HTTP_OK);
+    }
+
+    public function fetchStep3(Request $request)
+    {
+        try {
+            $defaultMonthCount = cal_days_in_month(CAL_GREGORIAN, $request->month_of, $request->year_of);
+            $from = 1;
+            $to = $defaultMonthCount;
+
+            foreach ($request->employees as $data) {
+                $employmentType = $data['employee']['employment_type']['name'];
+
+                // Adjust period for Job Order employees
+                if ($employmentType === "Job Order") {
+                    if ($request->first_half) {
+                        $from = 1;
+                        $to = 15;
+                    } elseif ($request->second_half) {
+                        $from = 16;
+                        $to = $defaultMonthCount;
+                    }
+                }
+
+                $data['night_differentials'] = array_sum(array_column($data['night_differentials'], 'total_hours'));
+
+                $timeRecordData = [
+                    'employee_list_id' => $data['id'],
+                    'total_working_hours' => $data['total_working_hours'],
+                    'total_working_minutes' => $data['total_working_minutes'],
+                    'total_leave_with_pay' => $data['no_of_leave_w_pay'],
+                    'total_leave_without_pay' => $data['no_of_leave_wo_pay'],
+                    'total_without_pay_days' => $data['no_of_leave_wo_pay'],
+                    'total_present_days' => $data['no_of_present_days'],
+                    'total_night_duty_hours' => $data['night_differentials'],
+                    'total_absences' => $data['no_of_absences'],
+                    'undertime_minutes' => $data['total_undertime_minutes'],
+                    'absent_rate' => $data['time_deductions']['absent_rate'],
+                    'undertime_rate' => $data['time_deductions']['undertime_rate'],
+                    'month' => $request->month_of,
+                    'year' => $request->year_of,
+                    'fromPeriod' => $from,
+                    'toPeriod' => $to,
+                    'minutes' => $data['rates']['Minutes'],
+                    'daily' => $data['rates']['Daily'],
+                    'hourly' => $data['rates']['Hourly'],
+                    'is_active' => 1
+                ];
+
+                // Check if time record exists
+                $findTimeRecord = TimeRecord::where('month', $request->month_of)
+                    ->where('year', $request->year_of);
+
+                if ($employmentType === "Job Order") {
+                    $findTimeRecord->where('fromPeriod', $from)
+                        ->where('toPeriod', $to);
+                }
+
+                $findTimeRecord->whereIn('employee_list_id', function ($query) use ($employmentType, $data) {
+                    $query->select('employee_list_id')
+                        ->from('employee_salaries')
+                        ->where('employee_list_id', $data['id']);
+
+                    if ($employmentType === "Job Order") {
+                        $query->where('employment_type', '=', 'Job Order');
+                    } else {
+                        $query->where('employment_type', '!=', 'Job Order');
+                    }
+                });
+
+                $result = $findTimeRecord->first();
+
+                if ($result === null) {
+                    // Create new Time Record
+                    $result = TimeRecord::create($timeRecordData);
+                } else {
+                    // Update existing Time Record
+                    $result->update($timeRecordData);
+                }
+
+                // Create or update Employee Computed Salary
+                EmployeeComputedSalary::updateOrCreate(
+                    ['time_record_id' => $result->id],
+                    ['computed_salary' => $data['net_salary']]
+                );
+
+                // Deactivate other time records
+                TimeRecord::where('id', '!=', $result->id)
+                    ->whereIn('employee_list_id', function ($query) use ($employmentType) {
+                        $query->select('employee_list_id')
+                            ->from('employee_salaries');
+
+                        if ($employmentType === "Job Order") {
+                            $query->where('employment_type', '=', 'Job Order');
+                        } else {
+                            $query->where('employment_type', '!=', 'Job Order');
+                        }
+                    })->update(['is_active' => 0]);
+            }
+
+
+            return response()->json([
+                'Message' => "Data Successfully saved (Step 3)",
+                'statusCode' => 200,
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function fetchStep4(Request $request)
+    {
+        try {
+            $computation = new ComputationController();
+
+            foreach ($request->employees as $data) {
+                $employmentType = $data['employee']['employment_type']['name'];
+
+                if ($employmentType !== "Job Order") {
+                    $PERA = $computation->CalculatePERA($data['total_working_hours'] / 1440, $data['no_of_absences'], $data['grand_basic_salary'], $employmentType);
+                    $HAZARD = $computation->CalculateHAZARDPay($data['salary_data']['salary_group']['salary_grade_number'], $data['grand_basic_salary'], $data['no_of_absences']);
+
+                    $EmployeePERA = EmployeeReceivable::updateOrCreate(
+                        [
+                            'employee_list_id' => $data['id'],
+                            'receivable_id' => 1
+                        ],
+                        [
+                            'amount' => $PERA > 0 ? $PERA : 0,
+                            'status' => "Active",
+                            'total_paid' => 0,
+                            'reason' => "PERA",
+                            'frequency' => "Monthly",
+                            'is_default' => 1
+                        ]
+                    );
+
+                    $EmployeeHazard = EmployeeReceivable::updateOrCreate(
+                        [
+                            'employee_list_id' => $data['id'],
+                            'receivable_id' => 2
+                        ],
+                        [
+                            'amount' => $HAZARD > 0 ? $HAZARD : 0,
+                            'status' => "Active",
+                            'total_paid' => 0,
+                            'reason' => "HAZARD",
+                            'frequency' => "Monthly",
+                            'is_default' => 1
+                        ]
+                    );
+                }
+            }
+
+            return response()->json([
+                'message' => "Data Successfully saved (step 4)",
+                'statusCode' => 200
+            ], Response::HTTP_OK);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+    }
+
+    public function fetchStep5(Request $request)
+    {
+        try {
+            // Step 1: Fetch employee data
+            $step1Response = $this->index($request);
+            $step1Data = json_decode($step1Response->getContent(), true)['responseData'][0]; // Extract data
+
+            // Simulate a request for Step 2
+            $step2Request = new Request();
+            $step2Request->replace(['employees' => $step1Data, 'month_of' => $request->month, 'year_of' => $request->year]);
+            $step2Response = $this->fetchStep2($step2Request);
+            $step2Data = json_decode($step2Response->getContent(), true)['responseData'];
+
+            // Simulate a request for Step 3
+            $step3Request = new Request();
+            $step3Request->replace(['employees' => $step2Data, 'month_of' => $request->month, 'year_of' => $request->year, 'first_half' => $request->first_half, 'second_half' => $request->second_half]);
+            $this->fetchStep3($step3Request);
+
+            // Simulate a request for Step 4
+            $step4Request = new Request();
+            $step4Request->replace(['employees' => $step2Data]);
+            $step4Response = $this->fetchStep4($step4Request);
+
+            return $step4Response; // Return the final response
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
     }
 
     public function getNightDifferentialHours($startTime, $endTime, $biometric_id, $wBreak, $DaySchedule)
@@ -354,6 +703,30 @@ class EmployeeProfileController extends Controller
         }
 
         return null; // Return null if the conditions are not met
+    }
+
+    /**
+     * Helper function to determine exclusion reason
+     */
+    private function getExclusionReason($details)
+    {
+        if ($details['leaveApplications']['leavetype'] === 'Study Leave') {
+            return 'Study Leave';
+        } elseif ($details['OverallNetSalary'] < 5000) {
+            return 'SALARY BELOW 5000 ' . $details['EmploymentType']['name'];
+        }
+        return $details['Excluded']['status'];
+    }
+
+    /**
+     * Helper function to determine exclusion remarks
+     */
+    private function getExclusionRemarks($details)
+    {
+        if ($details['leaveApplications']['leavetype'] !== 'Study Leave') {
+            return $details['Excluded']['remarks'] ?? null;
+        }
+        return $details['leaveApplications']['from'] . "-" . $details['leaveApplications']['to'];
     }
 
 }

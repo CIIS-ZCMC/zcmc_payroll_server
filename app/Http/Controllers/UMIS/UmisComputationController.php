@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use DB;
 use Illuminate\Http\Request;
 
-class ComputationController extends Controller
+class UmisComputationController extends Controller
 {
     protected $helper;
     protected $Working_Days;

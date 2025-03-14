@@ -451,45 +451,6 @@ class ImportEmployeeController extends Controller
                     // })
                     // ->limit(1)
                     // ->first();
-
-
-                    // return $timeRecord;
-                    // if ($empType['name'] !== "Job Order") {
-                    //     $PERA = $computation->CalculatePERA($totalworkingminutes / 1440, $noofAbsences, $grandBasicSalary, $empType['name']);
-                    //     $HAZARD = $computation->CalculateHAZARDPay($salary['salaryGroup']['salary_grade_number'], $grandBasicSalary, $noofAbsences);
-
-                    //     $EmployeeReceivable = EmployeeReceivable::updateOrCreate(
-                    //         [
-                    //             'employee_list_id' => $Employee->id,
-                    //             'receivable_id' => 1
-                    //         ],
-                    //         [
-                    //             'amount' => $PERA > 0 ? $PERA : 0,
-                    //             'status' => "Active",
-                    //             'total_paid' => 0,
-                    //             'reason' => "PERA",
-                    //             'frequency' => "Monthly",
-                    //             'is_default' => 1
-                    //         ]
-                    //     );
-
-                    //     $EmployeeHazards = EmployeeReceivable::updateOrCreate(
-                    //         [
-                    //             'employee_list_id' => $Employee->id,
-                    //             'receivable_id' => 2
-                    //         ],
-                    //         [
-                    //             'amount' => $HAZARD > 0 ? $HAZARD : 0,
-                    //             'status' => "Active",
-                    //             'total_paid' => 0,
-                    //             'reason' => "HAZARD",
-                    //             'frequency' => "Monthly",
-                    //             'is_default' => 1
-                    //         ]
-                    //     );
-
-                    // }
-
                 }
             }
             return response()->json(['Message' => "Successfully Fetched.", 'data' => $data, "GeneratedCount" => $generatedcount, 'UpdatedCount' => $updatedData, 'statusCode' => 200], 200);
