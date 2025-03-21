@@ -31,6 +31,11 @@ class EmployeeSalaryController extends Controller
         }
     }
 
+    public function store()
+    {
+
+    }
+
     public function excludeEmployee(Request $request)
     {
         try {
