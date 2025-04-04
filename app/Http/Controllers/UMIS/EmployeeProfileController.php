@@ -5,8 +5,11 @@ namespace App\Http\Controllers\UMIS;
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employee\EmployeeListController;
+use App\Http\Controllers\Employee\EmployeeSalaryController;
+use App\Http\Controllers\Employee\ExcludedEmployeeController;
 use App\Http\Controllers\GeneralPayroll\ComputationController;
 use App\Http\Requests\EmployeeListRequest;
+use App\Http\Requests\EmployeeSalaryRequest;
 use App\Models\EmployeeComputedSalary;
 use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
@@ -31,8 +34,8 @@ class EmployeeProfileController extends Controller
     private $PLURAL_MODULE_NAME = 'employee_profiles';
     private $SINGULAR_MODULE_NAME = 'employee_profile';
 
-    // Fetch Employee Profile from UMIS (step 1)
-    public function index(Request $request)
+    // Step 1
+    public function fetchStep1(Request $request)
     {
         try {
 
@@ -337,223 +340,208 @@ class EmployeeProfileController extends Controller
         }
     }
 
-
+    // Step 2
     public function fetchStep2(Request $request)
     {
-        try {
+        $employee_list_controller = new EmployeeListController();
+        $excluded_employee_controller = new ExcludedEmployeeController();
+        $employee_salary_controller = new EmployeeSalaryController();
+
+        $employees = $request->employees;
+        $employee = [];
+
+        foreach ($employees as $data) {
+            if (is_array($data)) {
+                $employee_list = EmployeeList::where('employee_number', $data['employee_id'])->first();
+
+                $response = $employee_list !== null
+                    ? $employee_list_controller->update(new EmployeeListRequest($data), $employee_list)
+                    : $employee_list_controller->store(new EmployeeListRequest($data));
+
+                $responseData = $response->getData(true);
+
+                if (isset($responseData['data']['id'])) {
+                    $employee_list_id = $responseData['data']['id'];
+                }
+
+                $array_excluded_employees = [
+                    'employee_list_id' => $employee_list_id,
+                    'month' => $request->month_of,
+                    'year' => $request->year_of,
+                    'reason' => json_encode([
+                        'reason' => $this->getExclusionReason($data),
+                        'remarks' => $this->getExclusionRemarks($data),
+                        'amount' => $data['overall_net_salary']
+                    ]),
+                    'is_removed' => 0,
+                ];
+
+                $array_employee_salary = [
+                    'employee_list_id' => $employee_list_id,
+                    'employment_type' => $data['employee']['employment_type']['name'],
+                    'basic_salary' => $data['grand_basic_salary'],
+                    'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
+                    'salary_step' => $data['salary_data']['step'],
+                    'month' => $request->month_of,
+                    'year' => $request->year_of,
+                    'is_active' => 1
+                ];
 
 
-            $employee_list_controller = new EmployeeListController();
-
-            /**
-             * Store Data in PayrollDatabase.EmployeeList & ExcludedEmployee
-             */
-            $employees = $request->employees;
-            $employee_list = null; // Initialize the variable
-            $employee = [];
-            foreach ($employees as $data) {
-                if (is_array($data)) {
-                    $employee_list = EmployeeList::where('employee_number', $data['employee_id'])->first();
-
-                    $employee_list = $employee_list !== null
-                        ? $employee_list_controller->update(new EmployeeListRequest($data))
-                        : $employee_list_controller->store(new EmployeeListRequest($data));
-
-                    $responseData = json_decode($employee_list->getContent(), true);
-                    if (isset($responseData['data']['id'])) {
-                        $employee_list_id = $responseData['data']['id'];
-                    }
-
-                    // Handle ExcludedEmployee if out of payroll
-                    if ($data['is_out'] === 0) {
-                        ExcludedEmployee::firstOrCreate(
-                            [
-                                'employee_list_id' => $employee_list_id,
-                                'month' => $request->month_of,
-                                'year' => $request->year_of
-                            ],
-                            [
-                                'reason' => json_encode([
-                                    'reason' => $this->getExclusionReason($data),
-                                    'remarks' => $this->getExclusionRemarks($data),
-                                    'amount' => $data['overall_net_salary']
-                                ]),
-                                'is_removed' => 0
-                            ]
-                        );
-                    }
-
-                    $find_employee = EmployeeSalary::where('employee_list_id', $employee_list_id)
+                // Handle ExcludedEmployee if out of payroll
+                if ($data['is_out'] === 1) {
+                    $excluded_employee = ExcludedEmployee::where('employee_list_id', $employee_list_id)
                         ->where('month', $request->month_of)
                         ->where('year', $request->year_of)
                         ->first();
 
-                    if ($find_employee === null) {
-                        // Create new EmployeeSalary
-                        $find_employee = EmployeeSalary::create(
-                            [
-                                'employee_list_id' => $employee_list_id,
-                                'employment_type' => $data['employee']['employment_type']['name'],
-                                'basic_salary' => $data['grand_basic_salary'],
-                                'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
-                                'salary_step' => $data['salary_data']['step'],
-                                'month' => $request->month_of,
-                                'year' => $request->year_of,
-                                'is_active' => 1
-                            ]
-                        );
-                    } else {
-                        // Update existing EmployeeSalary
-                        $find_employee->update([
-                            'employment_type' => $data['employee']['employment_type']['name'],
-                            'basic_salary' => $data['grand_basic_salary'],
-                            'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
-                            'salary_step' => $data['salary_data']['step'],
-                            'is_active' => 1
-                        ]);
-                    }
+                    $excludedEmployee === null
+                        ? $excluded_employee_controller->store(new Request($array_excluded_employees))
+                        : $excluded_employee_controller->update(new Request($array_excluded_employees), $excluded_employee);
+                }
 
-                    // Update other employee salaries to is_active = 0
-                    EmployeeSalary::where('employee_list_id', $employee_list_id)
-                        ->where('id', '!=', $find_employee->id)
-                        ->update(['is_active' => 0]);
+                // Handle EmployeeSalary
+                $employee_salary = EmployeeSalary::where('employee_list_id', $employee_list_id)
+                    ->where('month', $request->month_of)
+                    ->where('year', $request->year_of)
+                    ->first();
 
-                    $employee[] = array_merge($employee_list, $data);
+                $employee_salary === null
+                    ? $employee_salary_controller->store(new EmployeeSalaryRequest($array_employee_salary))
+                    : $employee_salary_controller->update(new EmployeeSalaryRequest($array_employee_salary), $employee_salary);
+
+                // Update other employee salaries to is_active = 0
+                EmployeeSalary::where('employee_list_id', $employee_list_id)
+                    ->where('id', '!=', $employee_salary->id)
+                    ->update(['is_active' => 0]);
+
+                $employee[] = array_merge($responseData['data'], $data);
+            }
+        }
+
+        return response()->json([
+            'message' => "Data Successfully saved (Step 2)",
+            'responseData' => $employee,
+            'statusCode' => 200
+        ], Response::HTTP_CREATED);
+    }
+
+    // Step 3
+    public function fetchStep3(Request $request)
+    {
+        $time_record = [];
+
+        $defaultMonthCount = cal_days_in_month(CAL_GREGORIAN, $request->month_of, $request->year_of);
+        $from = 1;
+        $to = $defaultMonthCount;
+
+        foreach ($request->employees as $data) {
+            $employmentType = $data['employee']['employment_type']['name'];
+
+            // Adjust period for Job Order employees
+            if ($employmentType === "Job Order") {
+                if ($request->first_half) {
+                    $from = 1;
+                    $to = 15;
+                } elseif ($request->second_half) {
+                    $from = 16;
+                    $to = $defaultMonthCount;
                 }
             }
 
-            return response()->json([
-                'message' => "Data Successfully saved (Step 2)",
-                'responseData' => $employee,
-                'statusCode' => 200
-            ], 200);
+            $data['night_differentials'] = array_sum(array_column($data['night_differentials'], 'total_hours'));
 
-        } catch (\Throwable $th) {
-            return $th;
-            Helpers::errorLog($this->CONTROLLER_NAME, 'fetchStep2', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
+            $timeRecordData = [
+                'employee_list_id' => $data['id'],
+                'total_working_hours' => $data['total_working_hours'],
+                'total_working_minutes' => $data['total_working_minutes'],
+                'total_leave_with_pay' => $data['no_of_leave_w_pay'],
+                'total_leave_without_pay' => $data['no_of_leave_wo_pay'],
+                'total_without_pay_days' => $data['no_of_leave_wo_pay'],
+                'total_present_days' => $data['no_of_present_days'],
+                'total_night_duty_hours' => $data['night_differentials'],
+                'total_absences' => $data['no_of_absences'],
+                'undertime_minutes' => $data['total_undertime_minutes'],
+                'absent_rate' => $data['time_deductions']['absent_rate'],
+                'undertime_rate' => $data['time_deductions']['undertime_rate'],
+                'month' => $request->month_of,
+                'year' => $request->year_of,
+                'fromPeriod' => $from,
+                'toPeriod' => $to,
+                'minutes' => $data['rates']['Minutes'],
+                'daily' => $data['rates']['Daily'],
+                'hourly' => $data['rates']['Hourly'],
+                'is_active' => 1
+            ];
 
-    public function fetchStep3(Request $request)
-    {
-        try {
-            $time_record = [];
+            // Check if time record exists
+            $findTimeRecord = TimeRecord::where('month', $request->month_of)
+                ->where('year', $request->year_of);
 
-            $defaultMonthCount = cal_days_in_month(CAL_GREGORIAN, $request->month_of, $request->year_of);
-            $from = 1;
-            $to = $defaultMonthCount;
+            if ($employmentType === "Job Order") {
+                $findTimeRecord->where('fromPeriod', $from)
+                    ->where('toPeriod', $to);
+            }
 
-            foreach ($request->employees as $data) {
-                $employmentType = $data['employee']['employment_type']['name'];
-
-                // Adjust period for Job Order employees
-                if ($employmentType === "Job Order") {
-                    if ($request->first_half) {
-                        $from = 1;
-                        $to = 15;
-                    } elseif ($request->second_half) {
-                        $from = 16;
-                        $to = $defaultMonthCount;
-                    }
-                }
-
-                $data['night_differentials'] = array_sum(array_column($data['night_differentials'], 'total_hours'));
-
-                $timeRecordData = [
-                    'employee_list_id' => $data['id'],
-                    'total_working_hours' => $data['total_working_hours'],
-                    'total_working_minutes' => $data['total_working_minutes'],
-                    'total_leave_with_pay' => $data['no_of_leave_w_pay'],
-                    'total_leave_without_pay' => $data['no_of_leave_wo_pay'],
-                    'total_without_pay_days' => $data['no_of_leave_wo_pay'],
-                    'total_present_days' => $data['no_of_present_days'],
-                    'total_night_duty_hours' => $data['night_differentials'],
-                    'total_absences' => $data['no_of_absences'],
-                    'undertime_minutes' => $data['total_undertime_minutes'],
-                    'absent_rate' => $data['time_deductions']['absent_rate'],
-                    'undertime_rate' => $data['time_deductions']['undertime_rate'],
-                    'month' => $request->month_of,
-                    'year' => $request->year_of,
-                    'fromPeriod' => $from,
-                    'toPeriod' => $to,
-                    'minutes' => $data['rates']['Minutes'],
-                    'daily' => $data['rates']['Daily'],
-                    'hourly' => $data['rates']['Hourly'],
-                    'is_active' => 1
-                ];
-
-                // Check if time record exists
-                $findTimeRecord = TimeRecord::where('month', $request->month_of)
-                    ->where('year', $request->year_of);
+            $findTimeRecord->whereIn('employee_list_id', function ($query) use ($employmentType, $data) {
+                $query->select('employee_list_id')
+                    ->from('employee_salaries')
+                    ->where('employee_list_id', $data['id']);
 
                 if ($employmentType === "Job Order") {
-                    $findTimeRecord->where('fromPeriod', $from)
-                        ->where('toPeriod', $to);
+                    $query->where('employment_type', '=', 'Job Order');
+                } else {
+                    $query->where('employment_type', '!=', 'Job Order');
                 }
+            });
 
-                $findTimeRecord->whereIn('employee_list_id', function ($query) use ($employmentType, $data) {
+            $result = $findTimeRecord->first();
+
+            if ($result === null) {
+                // Create new Time Record
+                $result = TimeRecord::create($timeRecordData);
+            } else {
+                // Update existing Time Record
+                $result->update($timeRecordData);
+            }
+
+            // Create or update Employee Computed Salary
+            $salary = EmployeeComputedSalary::updateOrCreate(
+                ['time_record_id' => $result->id],
+                ['computed_salary' => $data['net_salary']]
+            );
+
+            // Deactivate other time records
+            TimeRecord::where('id', '!=', $result->id)
+                ->whereIn('employee_list_id', function ($query) use ($employmentType) {
                     $query->select('employee_list_id')
-                        ->from('employee_salaries')
-                        ->where('employee_list_id', $data['id']);
+                        ->from('employee_salaries');
 
                     if ($employmentType === "Job Order") {
                         $query->where('employment_type', '=', 'Job Order');
                     } else {
                         $query->where('employment_type', '!=', 'Job Order');
                     }
-                });
+                })->update(['is_active' => 0]);
 
-                $result = $findTimeRecord->first();
-
-                if ($result === null) {
-                    // Create new Time Record
-                    $result = TimeRecord::create($timeRecordData);
-                } else {
-                    // Update existing Time Record
-                    $result->update($timeRecordData);
-                }
-
-                // Create or update Employee Computed Salary
-                $salary = EmployeeComputedSalary::updateOrCreate(
-                    ['time_record_id' => $result->id],
-                    ['computed_salary' => $data['net_salary']]
-                );
-
-                // Deactivate other time records
-                TimeRecord::where('id', '!=', $result->id)
-                    ->whereIn('employee_list_id', function ($query) use ($employmentType) {
-                        $query->select('employee_list_id')
-                            ->from('employee_salaries');
-
-                        if ($employmentType === "Job Order") {
-                            $query->where('employment_type', '=', 'Job Order');
-                        } else {
-                            $query->where('employment_type', '!=', 'Job Order');
-                        }
-                    })->update(['is_active' => 0]);
-
-                $time_record[] = array_merge($result->toArray(), $salary->toArray());
-            }
-
-
-            return response()->json([
-                'Message' => "Data Successfully saved (Step 3)",
-                'responseData' => $time_record,
-                'statusCode' => 200,
-            ], Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            Helpers::errorLog($this->CONTROLLER_NAME, 'fetchStep3', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            $time_record[] = array_merge($result->toArray(), $salary->toArray());
         }
+
+
+        return response()->json([
+            'Message' => "Data Successfully saved (Step 3)",
+            'responseData' => $time_record,
+            'statusCode' => 200,
+        ], Response::HTTP_CREATED);
     }
 
+    // Step 4
     public function fetchStep4(Request $request)
     {
-        try {
-            $computation = new ComputationController();
+        $computation = new ComputationController();
 
-            foreach ($request->employees as $data) {
+        foreach ($request->employees as $data) {
+            if (is_array($data)) {
                 $employmentType = $data['employee']['employment_type']['name'];
 
                 if ($employmentType !== "Job Order") {
@@ -591,17 +579,15 @@ class EmployeeProfileController extends Controller
                     );
                 }
             }
-
-            return response()->json([
-                'message' => "Data Successfully saved (step 4)",
-                'statusCode' => 200
-            ], Response::HTTP_OK);
-
-        } catch (\Throwable $th) {
-            Helpers::errorLog($this->CONTROLLER_NAME, 'fetchStep4', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        return response()->json([
+            'Message' => "Successfully Fetched.",
+            'data' => $request->employees,
+            // "GeneratedCount" => $generatedcount,
+            // 'UpdatedCount' => $updatedData,
+            'statusCode' => 200
+        ], Response::HTTP_CREATED);
     }
 
     public function getNightDifferentialHours($startTime, $endTime, $biometric_id, $wBreak, $DaySchedule)

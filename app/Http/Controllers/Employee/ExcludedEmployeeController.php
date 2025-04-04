@@ -9,7 +9,7 @@ use App\Http\Resources\ExcludedEmployeeResource;
 use App\Models\EmployeeList;
 use Illuminate\Http\Request;
 use App\Models\ExcludedEmployee;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class ExcludedEmployeeController extends Controller
@@ -47,61 +47,70 @@ class ExcludedEmployeeController extends Controller
     // store excluded employee
     public function store(Request $request)
     {
-        try {
-            $data = new ExcludedEmployee();
-            $data->employee_list_id = $request->employee_list_id;
-            $data->payroll_headers_id = $request->payroll_headers_id ? $request->payroll_headers_id : null;
-            $data->reason = json_encode($request->reason);
-            $data->year = $request->processMonth['year'];
-            $data->month = $request->processMonth['month'];
-            $data->is_removed = $request->is_removed;
-            $data->save();
+        $data = new ExcludedEmployee();
+        $data->employee_list_id = $request->employee_list_id;
+        $data->payroll_headers_id = $request->payroll_headers_id ?? null;
+        $data->reason = json_encode($request->reason);
+        $data->year = $request->year ?? $request->processMonth['year'];
+        $data->month = $request->month ?? $request->processMonth['month'];
+        $data->is_removed = $request->is_removed;
+        $data->save();
 
-            EmployeeList::where('id', $data->employee_list_id)->update(['is_excluded' => true]);
+        EmployeeList::where('id', $data->employee_list_id)->update(['is_excluded' => true]);
 
-            // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json([
-                // 'data' => new ExcludedEmployeeResource($data),
-                'message' => "Data Successfully saved",
-                'statusCode' => Response::HTTP_OK
-            ], Response::HTTP_OK);
+        // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
+        return response()->json([
+            'data' => new ExcludedEmployeeResource($data),
+            'message' => "Data Successfully saved",
+            'statusCode' => Response::HTTP_CREATED
+        ], Response::HTTP_CREATED);
 
-
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
     }
 
     // change status to include (employee lists table) and remove employee from excluded list (excluded employees table)
-    public function update(Request $request)
+    public function update(Request $request, ExcludedEmployee $excludedEmployee)
     {
-        try {
-            $id = $request->employee_list_id;
+        $excludedEmployee->update([
+            'employee_list_id' => $request->employee_list_id,
+            'month' => $request->month,
+            'year' => $request->year,
+            'reason' => json_encode($request->reason),
+            'is_removed' => $request->is_removed,
+        ]);
 
-            // Retrieve the deduction record
-            $data = ExcludedEmployee::where('employee_list_id', $id)->first();
+        // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
+        return response()->json([
+            'data' => new ExcludedEmployeeResource($excludedEmployee),
+            'message' => "Data Successfully updated",
+            'statusCode' => Response::HTTP_OK
+        ], Response::HTTP_OK);
+    }
 
-            if (!$data) {
-                return response()->json(['message' => 'No record found.', 'statusCode' => Response::HTTP_NOT_FOUND]);
+    /**
+     * Helper function to determine exclusion reason
+     */
+    private function getExclusionReason($details)
+    {
+        if ($details['employee']['leave_applications'] !== null) {
+            if ($details['employee']['leave_applications']['leave_type'] === 'Study Leave') {
+                return 'Study Leave';
+            } elseif ($details['overall_net_salary'] < 5000) {
+                return 'SALARY BELOW 5000 ' . $details['employee']['employment_type']['name'];
             }
-
-            $data->delete();
-            EmployeeList::where('id', $id)->update(['is_excluded' => false]);
-
-            // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json([
-                'message' => "Data Successfully updated",
-                'statusCode' => Response::HTTP_OK
-            ], Response::HTTP_OK);
-
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'update', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $details['employee']['excluded']['status'];
         }
     }
 
-
+    /**
+     * Helper function to determine exclusion remarks
+     */
+    private function getExclusionRemarks($details)
+    {
+        if ($details['employee']['leave_applications'] !== null) {
+            if ($details['employee']['leave_applications']['leave_type'] !== 'Study Leave') {
+                return $details['employee']['excluded']['remarks'] ?? null;
+            }
+            return $details['leave_applications']['from'] . "-" . $details['leave_applications']['to'];
+        }
+    }
 }

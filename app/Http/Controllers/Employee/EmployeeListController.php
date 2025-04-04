@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeListResource;
 use App\Models\EmployeeList;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use \App\Helpers\Logging;
 use App\Models\EmployeeReceivable;
 use App\Models\payroll_header;
@@ -102,14 +102,15 @@ class EmployeeListController extends Controller
         ]);
 
         return response()->json([
+            'data' => new EmployeeListResource($data),
             'message' => "Employee has been added",
-            'data' => $data
+            'statusCode' => Response::HTTP_CREATED
         ], Response::HTTP_CREATED);
     }
 
-    public function update(EmployeeListRequest $request)
+    public function update(EmployeeListRequest $request, EmployeeList $employeeList)
     {
-        $data = EmployeeList::update([
+        $employeeList->update([
             'first_name' => $request['employee']['information']['first_name'],
             'last_name' => $request['employee']['information']['last_name'],
             'middle_name' => $request['employee']['information']['middle_name'],
@@ -122,8 +123,9 @@ class EmployeeListController extends Controller
         ]);
 
         return response()->json([
+            'data' => new EmployeeListResource($employeeList),
             'message' => "Employee has been updated",
-            'data' => $data
+            'statusCode' => Response::HTTP_OK,
         ], Response::HTTP_OK);
     }
 

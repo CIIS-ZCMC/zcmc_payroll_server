@@ -171,10 +171,10 @@ Route::middleware('auth.token')->group(function () {
      * Fetch Data From UMIS
      */
     Route::namespace('App\Http\Controllers\UMIS')->group(function () {
-        Route::get('fetch_dtr_step_1', 'EmployeeProfileController@index');
-        Route::post('fetch_dtr_step_2', 'EmployeeProfileController@fetchStep2');
-        Route::post('fetch_dtr_step_3', 'EmployeeProfileController@fetchStep3');
-        Route::post('fetch_dtr_step_4', 'EmployeeProfileController@fetchStep4');
+        Route::get('fetch_record_step_1', 'EmployeeProfileController@fetchStep1');
+        Route::post('fetch_record_step_2', 'EmployeeProfileController@fetchStep2');
+        Route::post('fetch_record_step_3', 'EmployeeProfileController@fetchStep3');
+        Route::post('fetch_record_step_4', 'EmployeeProfileController@fetchStep4');
     });
 });
 
