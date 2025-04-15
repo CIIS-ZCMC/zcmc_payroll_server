@@ -246,8 +246,6 @@ class ReportsController extends Controller
             }
 
             $totals = [
-                'month' => null,
-                'year' => null,
                 'pera' => 0,
                 'hazard' => 0,
                 'representation' => 0,
@@ -262,9 +260,6 @@ class ReportsController extends Controller
             ];
 
             foreach ($payrolls as $payroll) {
-                $totals['month'] = date('F', mktime(0, 0, 0, $payroll->month, 10));
-                $totals['year'] = $payroll->year;
-
                 foreach ($payroll->genPayrolls as $genPayroll) {
                     // Decode employee_receivables JSON
                     $receivables = json_decode($genPayroll['employee_receivables'], true);
