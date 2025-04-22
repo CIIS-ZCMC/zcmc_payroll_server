@@ -299,6 +299,8 @@ class EmployeeProfileController extends Controller
                     ],
                     'net_salary' => $netSalary,
                     'overall_net_salary' => $overallNetSalary,
+
+                    //Employee Details
                     'employee' => [
                         'profile_id' => $employee->id,
                         'employee_id' => $employee->employee_id,
@@ -312,7 +314,7 @@ class EmployeeProfileController extends Controller
                             'city' => $employee->leaveApplications->first()->city ?? null,
                             'from' => $employee->leaveApplications->first()->date_from ?? null,
                             'to' => $employee->leaveApplications->first()->date_to ?? null,
-                            'leave_type' => LeaveType::find($employee->leaveApplications->first()->leave_type_id ?? null)->name ?? "",
+                            'leave_type' => LeaveType::find($employee->leaveApplications->first()->leave_type_id ?? null)->name ?? null,
                             'without_pay' => $employee->leaveApplications->first()->without_pay ?? null,
                             'dates_covered' => $helper->getDateIntervals($employee->leaveApplications->first()->date_from ?? null, $employee->leaveApplications->first()->date_to ?? null),
                         ] : [],
@@ -379,7 +381,7 @@ class EmployeeProfileController extends Controller
                 $array_employee_salary = [
                     'employee_list_id' => $employee_list_id,
                     'employment_type' => $data['employee']['employment_type']['name'],
-                    'basic_salary' => $data['grand_basic_salary'],
+                    'basic_salary' => encrypt($data['grand_basic_salary']),
                     'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
                     'salary_step' => $data['salary_data']['step'],
                     'month' => $request->month_of,
@@ -406,13 +408,19 @@ class EmployeeProfileController extends Controller
                     ->where('year', $request->year_of)
                     ->first();
 
-                $employee_salary === null
+                $employee_salary_response = $employee_salary === null
                     ? $employee_salary_controller->store(new EmployeeSalaryRequest($array_employee_salary))
                     : $employee_salary_controller->update(new EmployeeSalaryRequest($array_employee_salary), $employee_salary);
 
+                $responseDataEmployeeSalary = $employee_salary_response->getData(true);
+
+                if (isset($responseDataEmployeeSalary['data']['id'])) {
+                    $employee_salary_id = $responseDataEmployeeSalary['data']['id'];
+                }
+
                 // Update other employee salaries to is_active = 0
                 EmployeeSalary::where('employee_list_id', $employee_list_id)
-                    ->where('id', '!=', $employee_salary->id)
+                    ->where('id', '!=', $employee_salary_id)
                     ->update(['is_active' => 0]);
 
                 $employee[] = array_merge($responseData['data'], $data);
@@ -684,13 +692,13 @@ class EmployeeProfileController extends Controller
      */
     private function getExclusionReason($details)
     {
-        if ($details['employee']['leave_applications'] !== null) {
-            if ($details['employee']['leave_applications']['leave_type'] === 'Study Leave') {
+        if (isset($details['employee']['leave_applications'])) {
+            if (isset($details['employee']['leave_applications']['leave_type']) === 'Study Leave') {
                 return 'Study Leave';
             } elseif ($details['overall_net_salary'] < 5000) {
                 return 'SALARY BELOW 5000 ' . $details['employee']['employment_type']['name'];
             }
-            return $details['employee']['excluded']['status'];
+            return isset($details['employee']['excluded']['status']);
         }
     }
 
@@ -700,7 +708,7 @@ class EmployeeProfileController extends Controller
     private function getExclusionRemarks($details)
     {
         if ($details['employee']['leave_applications'] !== null) {
-            if ($details['employee']['leave_applications']['leave_type'] !== 'Study Leave') {
+            if (isset($details['employee']['leave_applications']['leave_type']) !== 'Study Leave') {
                 return $details['employee']['excluded']['remarks'] ?? null;
             }
             return $details['leave_applications']['from'] . "-" . $details['leave_applications']['to'];
