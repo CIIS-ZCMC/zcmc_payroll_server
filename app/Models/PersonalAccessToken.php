@@ -14,9 +14,11 @@ class PersonalAccessToken extends Model
 
     protected $fillable = [
         'employee_id',
+        'email',
         'name',
         'token',
-        'abilities',
+        'permissions',
         'last_used_at',
+        'expire_at'
     ];
 }
