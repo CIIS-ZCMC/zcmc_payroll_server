@@ -19,7 +19,7 @@ class CreateEmployeeListsTable extends Migration
             $table->string('employee_number');
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('middle_name');
+            $table->string('middle_name')->nullable();
             $table->string('ext_name')->nullable();
             $table->string('designation');
             $table->text('assigned_area')->nullable();

@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Employee;
+use App\Http\Requests\EmployeeListRequest;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeListResource;
 use App\Models\EmployeeList;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use \App\Helpers\Logging;
 use App\Models\EmployeeReceivable;
 use App\Models\payroll_header;
@@ -82,6 +83,50 @@ class EmployeeListController extends Controller
             'statusCode' => 200,
         ], Response::HTTP_OK);
 
+    }
+
+    public function store(EmployeeListRequest $request)
+    {
+        $data = EmployeeList::Create([
+            'employee_number' => $request['employee_id'],
+            'employee_profile_id' => $request['employee']['profile_id'],
+            'first_name' => $request['employee']['information']['first_name'],
+            'last_name' => $request['employee']['information']['last_name'],
+            'middle_name' => $request['employee']['information']['middle_name'],
+            'ext_name' => $request['employee']['information']['name_extension'],
+            'designation' => $request['employee']['designation']['name'],
+            'assigned_area' => json_encode($request['assigned_area']),
+            'status' => 1,
+            'is_newly_hired' => 1,
+            'is_excluded' => $request['is_out']
+        ]);
+
+        return response()->json([
+            'data' => new EmployeeListResource($data),
+            'message' => "Employee has been added",
+            'statusCode' => Response::HTTP_CREATED
+        ], Response::HTTP_CREATED);
+    }
+
+    public function update(EmployeeListRequest $request, EmployeeList $employeeList)
+    {
+        $employeeList->update([
+            'first_name' => $request['employee']['information']['first_name'],
+            'last_name' => $request['employee']['information']['last_name'],
+            'middle_name' => $request['employee']['information']['middle_name'],
+            'ext_name' => $request['employee']['information']['name_extension'],
+            'designation' => $request['employee']['designation']['name'],
+            'assigned_area' => json_encode($request['assigned_area']),
+            'status' => 1,
+            'is_newly_hired' => 0,
+            'is_excluded' => $request['is_out']
+        ]);
+
+        return response()->json([
+            'data' => new EmployeeListResource($employeeList),
+            'message' => "Employee has been updated",
+            'statusCode' => Response::HTTP_OK,
+        ], Response::HTTP_OK);
     }
 
     public function allEmployees()

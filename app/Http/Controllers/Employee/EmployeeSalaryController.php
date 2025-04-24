@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeListResource;
 use App\Http\Resources\EmployeeSalaryResource;
 use App\Models\EmployeeSalary;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeSalaryController extends Controller
 {
@@ -29,6 +29,44 @@ class EmployeeSalaryController extends Controller
 
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function store(Request $request)
+    {
+        $data = new EmployeeSalary();
+        $data->employee_list_id = $request->employee_list_id;
+        $data->employment_type = $request->employment_type;
+        $data->basic_salary = $request->basic_salary;
+        $data->salary_grade = $request->salary_grade;
+        $data->salary_step = $request->salary_step;
+        $data->is_active = $request->is_active;
+        $data->month = $request->month;
+        $data->year = $request->year;
+        $data->save();
+
+        return response()->json([
+            'data' => new EmployeeSalaryResource($data),
+            'message' => 'Employee salary created.',
+            'statusCode' => Response::HTTP_CREATED
+        ], Response::HTTP_CREATED);
+    }
+
+    public function update(Request $request, EmployeeSalary $employeeSalary)
+    {
+        $employeeSalary->update([
+            'employment_type' => $request->employment_type,
+            'basic_salary' => $request->basic_salary,
+            'salary_grade' => $request->salary_grade,
+            'salary_step' => $request->salary_step,
+            'is_active' => $request->is_active,
+        ]);
+
+        return response()->json([
+            'data' => new EmployeeSalaryResource($employeeSalary),
+            'message' => 'Employee salary updated.',
+            'statusCode' => Response::HTTP_OK
+        ], Response::HTTP_OK);
+
     }
 
     public function excludeEmployee(Request $request)

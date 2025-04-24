@@ -15,6 +15,7 @@ class EmployeeListResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'employee_profile_id' => $this->employee_profile_id,
             'employee_number' => $this->employee_number,
             'first_name' => $this->first_name,
