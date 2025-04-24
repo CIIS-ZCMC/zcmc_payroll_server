@@ -41,6 +41,7 @@ class AuthenticateToken
                 //EXPIRED
                 return response()->json(['message' => 'Un-Authorized', 'response' => 'Expired Token'], Response::HTTP_UNAUTHORIZED);
             }
+
             $timeRecord = TimeRecord::where('is_active', 1)->latest()->first();
             $tr = [];
             if ($timeRecord) {
@@ -49,7 +50,6 @@ class AuthenticateToken
                     'year' => $timeRecord->year
                 ];
             }
-
 
             $record = DB::table('time_records')
                 ->select([
