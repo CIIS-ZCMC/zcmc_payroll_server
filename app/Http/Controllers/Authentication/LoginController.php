@@ -9,9 +9,7 @@ use \App\Helpers\Helpers;
 use \App\Helpers\Token;
 use \App\Helpers\Logging;
 use \App\Models\PersonalAccessToken;
-use PHPUnit\Framework\Constraint\ObjectHasProperty;
 use Symfony\Component\HttpFoundation\Response;
-
 
 class LoginController extends Controller
 {
@@ -22,7 +20,7 @@ class LoginController extends Controller
 
     public function store(Request $request)
     {
-        $result = UmisHttpRequestHelper::post("auth-with-crential", [
+        $result = UmisHttpRequestHelper::post("auth-with-api-key-credential", [
             'employee_id' => $request->employee_id,
             'password' => $request->password,
         ]);
@@ -33,36 +31,49 @@ class LoginController extends Controller
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-
         $generatedToken = Token::generateToken();
-        $data = $result['data']['data'];
+        $data = $result['data'];    
+        $user_details = $data['user_details'];
+        $employee_details = $user_details['employee_details'];
+        $contact = $employee_details['contact'];
 
-        self::__destroySession($data['employee_id']);
+        $session = $data['session'];
+
+        $employee_id = $user_details['employee_id'];
+        $employee_email = $contact['email_address'];
+        $employee_name = $data['user_details']['name'];
+        $token = $session['token'];
+        $permissions = json_encode($data['permissions']);
+        $last_used_at = now();
+        $expire_at = $session['token_exp'];
+
+        self::__destroySession($employee_id);
 
         $user = [
-            'employee_id' => $data['employee_id'],
-            'email' => $data['email'],
-            'name' => $data['name'],
-            'token' => $generatedToken,
-            'permissions' => $data['permissions'],
-            'expire_at' => $data['expire_at']
+            'employee_id' => $employee_id,
+            'email' => $employee_email,
+            'name' => $employee_name,
+            'token' => $token,
+            'permissions' => $permissions,
+            'last_used_at' => $last_used_at,
+            'expire_at' => $expire_at
         ];
 
         PersonalAccessToken::create($user);
 
         return response()->json([
             'data' => [
-                'name' => $data['name'],
-                'email' => $data['email']
+                'name' => $employee_name,
+                'email' => $employee_email
             ],
             'message' => 'Successfully authenticate user.'
         ], Response::HTTP_OK)
             ->cookie(
-                env("COOKIE_NAME_PAYROLL"), 
-                json_encode(['token' => $generatedToken]), 
-                env("COOKIE_EXPIRY_PAYROLL"), 
+                env("COOKIE_NAME"), 
+                json_encode(['token' => $token]), 
+                env("COOKIE_EXPIRY"), 
                 '/', 
-                env("SESSION_DOMAIN_PAYROLL"), 
+                env("SESSION_DOMAIN"), 
                 false);
     }
 
@@ -137,8 +148,6 @@ class LoginController extends Controller
                 ]);
             }
 
-
-
             Logging::RecordTransaction([
                 'module' => "UMIS/Authentication",
                 'action' => "Signin Success",
@@ -153,8 +162,8 @@ class LoginController extends Controller
                 'responseData' => [],
                 'Token' => $generatedToken,
                 'statusCode' => 200
-            ])->cookie(env("COOKIE_NAME_PAYROLL"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY_PAYROLL"), '/', env("SESSION_DOMAIN_PAYROLL"), false);
-            // ])->cookie(env("COOKIE_NAME_PAYROLL"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY_PAYROLL"), '/', env("SESSION_DOMAIN_PAYROLL"), false);
+            ])->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY"), '/', env("SESSION_DOMAIN"), false);
+            // ])->cookie(env("COOKIE_NAME"), json_encode(['token' => $generatedToken]), env("COOKIE_EXPIRY_PAYROLL"), '/', env("SESSION_DOMAIN"), false);
 
         } catch (\Throwable $th) {
 
@@ -194,6 +203,6 @@ class LoginController extends Controller
 
         return response()->json([
             'message' => "Successfully signout."
-        ],Response::HTTP_NO_CONTENT);
+        ],Response::HTTP_NO_CONTENT)->cookie(env("COOKIE_NAME"), '', -1);;
     }
 }
