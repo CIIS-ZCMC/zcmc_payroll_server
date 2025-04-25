@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use App\Helpers\Token;
@@ -23,21 +24,26 @@ class AuthenticateToken
      */
     public function handle(Request $request, Closure $next)
     {
-
         try {
-            $token = Token::myToken();
+            $authorization_header = $request->header('Authorization');
+            $session_token = explode(" ", $authorization_header)[1];
 
+            // return response()->json(['message' => $session_token], \Symfony\Component\HttpFoundation\Response::HTTP_OK);
 
-            $accessToken = PersonalAccessToken::where("token", $token);
+            // $token = Token::myToken();
 
-            if (!$accessToken->count()) {
+            $accessToken = PersonalAccessToken::where("token", $session_token)->first();
+
+            if (!$accessToken) {
                 return response()->json(['message' => 'Un-Authorized', 'response' => 'Please relogin'], Response::HTTP_UNAUTHORIZED);
             }
 
-            $expiry = strtotime(date('Y-m-d H:i:s', strtotime($accessToken->first()->last_used_at . ' +' . env("TOKEN_EXPIRY_PAYROLL") . " minutes")));
-            $current = strtotime(date('Y-m-d H:i:s'));
+            $is_expired = Carbon::now()->greaterThan(Carbon::parse($accessToken->last_used_at));
 
-            if ($expiry < $current) {
+            // $expiry = strtotime(date('Y-m-d H:i:s', strtotime($accessToken->first()->last_used_at . ' +' . env("TOKEN_EXPIRY") . " minutes")));
+            // $current = strtotime(date('Y-m-d H:i:s'));
+
+            if ($is_expired) {
                 //EXPIRED
                 return response()->json(['message' => 'Un-Authorized', 'response' => 'Expired Token'], Response::HTTP_UNAUTHORIZED);
             }
@@ -150,7 +156,7 @@ class AuthenticateToken
                 'last_used_at' => now(),
             ]);
 
-            $request->merge(['user' => Token::UserInfo(), 'processMonth' => $tr, 'umis' => env("UMIS")]);
+            $request->merge(['user' => json_decode($accessToken->permissions), 'processMonth' => $tr, 'umis' => env("UMIS")]);
             return $next($request);
         } catch (\Throwable $th) {
             Log::channel('code')->error($th);

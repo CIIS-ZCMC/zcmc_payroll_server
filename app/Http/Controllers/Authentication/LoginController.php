@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Authentication;
 
 use App\Helpers\UmisHttpRequestHelper;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use \App\Helpers\Helpers;
 use \App\Helpers\Token;
@@ -40,11 +41,12 @@ class LoginController extends Controller
         $session = $data['session'];
 
         $employee_id = $user_details['employee_id'];
+        $employee_designation = $user_details['designation'];
         $employee_email = $contact['email_address'];
         $employee_name = $data['user_details']['name'];
         $token = $session['token'];
         $permissions = json_encode($data['permissions']);
-        $last_used_at = now();
+        $last_used_at = Carbon::now()->addMinutes(120);
         $expire_at = $session['token_exp'];
 
         self::__destroySession($employee_id);
@@ -59,13 +61,18 @@ class LoginController extends Controller
             'expire_at' => $expire_at
         ];
 
-        PersonalAccessToken::create($user);
+        $access_token = PersonalAccessToken::create($user);
 
         return response()->json([
             'data' => [
+                'access_token' => $access_token,
                 'name' => $employee_name,
-                'email' => $employee_email
+                'email' => $employee_email,
+                'designation' => $employee_designation,
+                'permissions' => json_decode($permissions)
             ],
+            'Token' => $token,
+            'statusCode' => 200,
             'message' => 'Successfully authenticate user.'
         ], Response::HTTP_OK)
             ->cookie(

@@ -209,7 +209,7 @@ class PayrollController extends Controller
         $activeperiod = ActivePeriod::where("is_active", 1)->first();
 
         $activeRecords = request()->processMonth;
-
+        
         $generalpayroll = PayrollHeaders::where("month", $activeRecords['month'])->where("year", $activeRecords['year'])
             ->where("employment_type", $activeperiod->employmentType)->first();
 

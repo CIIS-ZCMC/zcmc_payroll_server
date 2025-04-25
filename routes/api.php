@@ -27,12 +27,20 @@ Route::middleware('umis_server')->group(function () {
 });
 
 Route::namespace('App\Http\Controllers')->group(function(){
+    Route::namespace('Authentication')->group(function(){
+        Route::post('sign-in', 'LoginController@store');
+    });
+
     // Secure End Points
     Route::middleware('auth.token')->group(function () {
 
+        Route::get('test', function(){
+            return 'test';
+        });
+
         Route::namespace('Authentication')->group(function(){
             Route::get('revalidate-session', 'LoginController@validateSession');
-            Route::delete('sign-in', 'LoginController@destroy');
+            Route::delete('sign-out', 'LoginController@destroy');
 
             Route::get("ReAuthenticate", "LoginController@ReAuthenticate");
         });
