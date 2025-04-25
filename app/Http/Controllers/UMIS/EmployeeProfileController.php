@@ -630,6 +630,8 @@ class EmployeeProfileController extends Controller
             }
         }
 
+        Cache::forget($request->uuid);
+
         return response()->json([
             'Message' => "Successfully Fetched.",
             'data' => $employees,
