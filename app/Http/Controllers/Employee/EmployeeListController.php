@@ -129,6 +129,7 @@ class EmployeeListController extends Controller
         ], Response::HTTP_OK);
     }
 
+
     public function allEmployees()
     {
         $Emp = EmployeeList::all();

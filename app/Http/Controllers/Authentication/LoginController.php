@@ -46,8 +46,8 @@ class LoginController extends Controller
         $employee_name = $data['user_details']['name'];
         $token = $session['token'];
         $permissions = json_encode($data['permissions']);
-        $last_used_at = Carbon::now()->addMinutes(120);
-        $expire_at = $session['token_exp'];
+        $last_used_at = Carbon::now();
+        $expire_at = Carbon::now()->addMinutes(30);
 
         self::__destroySession($employee_id);
 

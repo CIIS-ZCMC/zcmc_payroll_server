@@ -29,8 +29,6 @@ use App\Models\NightDifferential;
 use App\Models\SecondPayroll;
 use Log;
 
-
-
 class PayrollController extends Controller
 {
 
@@ -196,6 +194,7 @@ class PayrollController extends Controller
             'statusCode' => 200
         ]);
     }
+
     public function ActiveTimeRecord()
     {
         $tr = TimeRecord::where("is_active", 1);
@@ -209,7 +208,7 @@ class PayrollController extends Controller
         $activeperiod = ActivePeriod::where("is_active", 1)->first();
 
         $activeRecords = request()->processMonth;
-        
+
         $generalpayroll = PayrollHeaders::where("month", $activeRecords['month'])->where("year", $activeRecords['year'])
             ->where("employment_type", $activeperiod->employmentType)->first();
 
@@ -241,7 +240,6 @@ class PayrollController extends Controller
             'statusCode' => 200,
         ]);
     }
-
 
     public function GeneralPayrollList($HeaderID)
     {

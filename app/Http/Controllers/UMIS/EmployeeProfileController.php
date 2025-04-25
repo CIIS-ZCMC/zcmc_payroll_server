@@ -24,6 +24,8 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Str;
 use function PHPUnit\Framework\isEmpty;
 
 
@@ -38,9 +40,8 @@ class EmployeeProfileController extends Controller
     public function fetchStep1(Request $request)
     {
         try {
-
-            $year_of = $request->year;
-            $month_of = $request->month;
+            $year_of = $request->year_of;
+            $month_of = $request->month_of;
 
             $first_half = $request->first_half ?? 0;
             $second_half = $request->second_half ?? 0;
@@ -328,10 +329,21 @@ class EmployeeProfileController extends Controller
                 ];
             });
 
-            $result = $data;
+            $response_data = [
+                "month_of" => $month_of,
+                "year_of" => $year_of,
+                "first_half" => $first_half,
+                "second_half" => $second_half,
+                "employees" => $data 
+            ];
+
+            $uuid = Str::uuid();
+
+            Cache::put($uuid, json_encode($response_data));
+
             return response()->json([
                 'message' => "Successfully Fetched.",
-                'responseData' => $result,
+                'responseData' => $uuid,
                 'statusCode' => 200
             ], );
 
@@ -345,11 +357,18 @@ class EmployeeProfileController extends Controller
     // Step 2
     public function fetchStep2(Request $request)
     {
+        $cache_data = json_decode(Cache::get($request->uuid), true);
+
         $employee_list_controller = new EmployeeListController();
         $excluded_employee_controller = new ExcludedEmployeeController();
         $employee_salary_controller = new EmployeeSalaryController();
 
-        $employees = $request->employees;
+        $employees = $cache_data['employees'];
+        $month_of = $cache_data['month_of'];
+        $year_of = $cache_data['year_of'];
+        // $first_half = $cache_data['first_half'];
+        // $second_half = $cache_data['second_half'];
+
         $employee = [];
 
         foreach ($employees as $data) {
@@ -368,8 +387,8 @@ class EmployeeProfileController extends Controller
 
                 $array_excluded_employees = [
                     'employee_list_id' => $employee_list_id,
-                    'month' => $request->month_of,
-                    'year' => $request->year_of,
+                    'month' => $month_of,
+                    'year' => $year_of,
                     'reason' => json_encode([
                         'reason' => $this->getExclusionReason($data),
                         'remarks' => $this->getExclusionRemarks($data),
@@ -384,8 +403,8 @@ class EmployeeProfileController extends Controller
                     'basic_salary' => encrypt($data['grand_basic_salary']),
                     'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
                     'salary_step' => $data['salary_data']['step'],
-                    'month' => $request->month_of,
-                    'year' => $request->year_of,
+                    'month' => $month_of,
+                    'year' => $year_of,
                     'is_active' => 1
                 ];
 
@@ -393,8 +412,8 @@ class EmployeeProfileController extends Controller
                 // Handle ExcludedEmployee if out of payroll
                 if ($data['is_out'] === 1) {
                     $excluded_employee = ExcludedEmployee::where('employee_list_id', $employee_list_id)
-                        ->where('month', $request->month_of)
-                        ->where('year', $request->year_of)
+                        ->where('month', $month_of)
+                        ->where('year', $year_of)
                         ->first();
 
                     $excludedEmployee === null
@@ -404,8 +423,8 @@ class EmployeeProfileController extends Controller
 
                 // Handle EmployeeSalary
                 $employee_salary = EmployeeSalary::where('employee_list_id', $employee_list_id)
-                    ->where('month', $request->month_of)
-                    ->where('year', $request->year_of)
+                    ->where('month', $month_of)
+                    ->where('year', $year_of)
                     ->first();
 
                 $employee_salary_response = $employee_salary === null
@@ -427,9 +446,24 @@ class EmployeeProfileController extends Controller
             }
         }
 
+
+        $response_data = [
+            'month_of' => $cache_data['month_of'],
+            'year_of' => $cache_data['year_of'],
+            'first_half' => $cache_data['first_half'],
+            'second_half' => $cache_data['second_half'],
+            'employees' => $employee
+        ];
+
+        // Cache::forget($request->uuid);
+
+        $uuid = Str::uuid();
+
+        Cache::put($uuid, json_encode($response_data));
+
         return response()->json([
             'message' => "Data Successfully saved (Step 2)",
-            'responseData' => $employee,
+            'responseData' => $uuid,
             'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
@@ -437,21 +471,27 @@ class EmployeeProfileController extends Controller
     // Step 3
     public function fetchStep3(Request $request)
     {
+        $cache_data = json_decode(Cache::get($request->uuid), true);
         $time_record = [];
+        $employees = $cache_data['employees'];
+        $month_of = $cache_data['month_of'];
+        $year_of = $cache_data['year_of'];
+        $first_half = $cache_data['first_half'];
+        $second_half = $cache_data['second_half'];
 
-        $defaultMonthCount = cal_days_in_month(CAL_GREGORIAN, $request->month_of, $request->year_of);
+        $defaultMonthCount = cal_days_in_month(CAL_GREGORIAN, $month_of, $year_of);
         $from = 1;
         $to = $defaultMonthCount;
 
-        foreach ($request->employees as $data) {
+        foreach ($employees as $data) {
             $employmentType = $data['employee']['employment_type']['name'];
 
             // Adjust period for Job Order employees
             if ($employmentType === "Job Order") {
-                if ($request->first_half) {
+                if ($first_half) {
                     $from = 1;
                     $to = 15;
-                } elseif ($request->second_half) {
+                } elseif ($second_half) {
                     $from = 16;
                     $to = $defaultMonthCount;
                 }
@@ -472,8 +512,8 @@ class EmployeeProfileController extends Controller
                 'undertime_minutes' => $data['total_undertime_minutes'],
                 'absent_rate' => $data['time_deductions']['absent_rate'],
                 'undertime_rate' => $data['time_deductions']['undertime_rate'],
-                'month' => $request->month_of,
-                'year' => $request->year_of,
+                'month' => $month_of,
+                'year' => $year_of,
                 'fromPeriod' => $from,
                 'toPeriod' => $to,
                 'minutes' => $data['rates']['Minutes'],
@@ -483,8 +523,8 @@ class EmployeeProfileController extends Controller
             ];
 
             // Check if time record exists
-            $findTimeRecord = TimeRecord::where('month', $request->month_of)
-                ->where('year', $request->year_of);
+            $findTimeRecord = TimeRecord::where('month', $month_of)
+                ->where('year', $year_of);
 
             if ($employmentType === "Job Order") {
                 $findTimeRecord->where('fromPeriod', $from)
@@ -535,7 +575,6 @@ class EmployeeProfileController extends Controller
             $time_record[] = array_merge($result->toArray(), $salary->toArray());
         }
 
-
         return response()->json([
             'Message' => "Data Successfully saved (Step 3)",
             'responseData' => $time_record,
@@ -546,9 +585,11 @@ class EmployeeProfileController extends Controller
     // Step 4
     public function fetchStep4(Request $request)
     {
+        $cache_data = json_decode(Cache::get($request->uuid), true);
+        $employees = $cache_data['employees'];
         $computation = new ComputationController();
 
-        foreach ($request->employees as $data) {
+        foreach ($employees as $data) {
             if (is_array($data)) {
                 $employmentType = $data['employee']['employment_type']['name'];
 
@@ -591,11 +632,11 @@ class EmployeeProfileController extends Controller
 
         return response()->json([
             'Message' => "Successfully Fetched.",
-            'data' => $request->employees,
+            'data' => $employees,
             // "GeneratedCount" => $generatedcount,
             // 'UpdatedCount' => $updatedData,
             'statusCode' => 200
-        ], Response::HTTP_CREATED);
+        ], \Symfony\Component\HttpFoundation\Response::HTTP_CREATED);
     }
 
     public function getNightDifferentialHours($startTime, $endTime, $biometric_id, $wBreak, $DaySchedule)
@@ -605,7 +646,6 @@ class EmployeeProfileController extends Controller
             // Convert start and end times to DateTime objects
             $startTime = new \DateTime($startTime);
             $endTime = new \DateTime($endTime);
-
 
             // Ensure that the end time is after the start time
             if ($endTime <= $startTime) {
@@ -656,7 +696,6 @@ class EmployeeProfileController extends Controller
                     $minutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
                     $hours = $interval->h + ($interval->i / 60);
 
-
                     $details[] = [
                         'minutes' => $minutes,
                         'hours' => round($hours, 0),
@@ -672,7 +711,6 @@ class EmployeeProfileController extends Controller
                 // Move to the next day
                 $current->modify('+1 day')->setTime(0, 0, 0);
             }
-
 
             if ($totalMinutes && $totalHours) {
                 return [
@@ -714,5 +752,4 @@ class EmployeeProfileController extends Controller
             return $details['leave_applications']['from'] . "-" . $details['leave_applications']['to'];
         }
     }
-
 }
