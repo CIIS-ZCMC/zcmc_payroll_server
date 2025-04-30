@@ -121,8 +121,7 @@ class ImportEmployeeController extends Controller
                     ->where("middle_name", $empinfo['middle_name'] ?? "")
                     ->where("employee_profile_id", $employee['profile_id'])
                     ->where("employee_number", $employee['employee_id']);
-
-
+                $absentDates = $row['Absences'];
 
                 $nighttotalHours = 0;
                 foreach ($nightdifferential as $value) {
@@ -236,6 +235,7 @@ class ImportEmployeeController extends Controller
                         'minutes' => $minutesRate,
                         'daily' => $dailyRate,
                         'hourly' => $hourlyRate,
+                        'absent_dates' => json_encode($absentDates),
                     ];
 
 

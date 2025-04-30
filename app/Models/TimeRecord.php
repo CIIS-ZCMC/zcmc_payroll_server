@@ -33,6 +33,7 @@ class TimeRecord extends Model
         'minutes',
         'daily',
         'hourly',
+        'absent_dates',
         'is_active'
     ];
 
