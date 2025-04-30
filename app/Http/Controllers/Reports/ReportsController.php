@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\GeneralPayroll\ComputationController;
 use App\Http\Controllers\GeneralPayroll\PayrollController;
 use App\Http\Resources\GeneralPayrollResources;
 use App\Models\DeductionGroup;
@@ -13,6 +14,7 @@ use App\Models\EmployeeReceivable;
 use App\Models\EmployeeSalary;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollHeaders;
+use App\Models\Receivable;
 use App\Models\UMIS\EmployeeProfile;
 use App\Models\UMIS\EmploymentType;
 use Illuminate\Http\Request;
@@ -70,6 +72,19 @@ class ReportsController extends Controller
 
             $data = [];
             foreach ($general_payroll as $employee) {
+                //Decode json employee time record
+                $json_time_record = json_decode($employee->time_records, true);
+
+                //Filter working days
+                $totalPresentDays = $json_time_record[0]['total_present_days'] ?? 0;
+
+                //Decode json employee receivable
+                $json_receivable = json_decode($employee->employee_receivables, true);
+
+                // Filter the hazard and pera item 
+                $hazard = collect($json_receivable)->firstWhere('receivable.code', 'HAZARD');
+                $pera = collect($json_receivable)->firstWhere('receivable.code', 'PERA');
+
                 // Get employee deductions once
                 $deductions = $employee->EmployeeList->getEmployeeDeductions;
 
@@ -100,7 +115,7 @@ class ReportsController extends Controller
                     return $getDeductionsByGroup($groupId)->sum('amount');
                 };
 
-                // Get Receivables
+                // Get Receivables (Other Receivables)
                 $receivables = $employee->EmployeeList->getEmployeeReceivable->map(function ($receivable) {
                     return [
                         'employee_receivable_id' => $receivable->id,
@@ -110,6 +125,44 @@ class ReportsController extends Controller
                         'amount' => $receivable->amount,
                     ];
                 });
+
+                // // Map and filter PERA and HAZARD from JSON receivables
+                // $mapReceivables = collect($json_receivable)
+                //     ->filter(function ($receivable) {
+                //         $code = $receivable['receivable']['code'] ?? null;
+                //         return in_array($code, ['PERA', 'HAZARD']);
+                //     })
+                //     ->map(function ($receivable) {
+                //         return [
+                //             'receivable_name' => $receivable['receivable']['name'] ?? null,
+                //             'code' => $receivable['receivable']['code'] ?? null,
+                //             'amount' => $receivable['amount'] ?? 0,
+                //         ];
+                //     });
+
+                $mapReceivables = collect($json_receivable)->map(function ($receivable) use ($employee) {
+                    $receivable_data = Receivable::where('code', $receivable['receivable']['code'])->first();
+                    if ($receivable_data) {
+                        return [
+                            'employee_list_id' => $employee->employee_list_id,
+                            'receivable_name' => $receivable['receivable']['name'] ?? null,
+                            'receivable_code' => $receivable['receivable']['code'] ?? null,
+                            'amount' => $receivable['amount'] ?? 0,
+                            'receivable_id' => $receivable_data->id,
+                        ];
+                    }
+
+                });
+
+                //validate employment type 
+                $employment_type = EmployeeSalary::where('employee_list_id', $employee->employee_list_id)->first();
+                $salary_grade = $employee->EmployeeList->getSalary->salary_grade;
+                $basic_salary = decrypt($employee->EmployeeList->getSalary->basic_salary);
+
+                //calculate pera and hazard
+                $computation_controller = new ComputationController();
+                $default_pera = $employment_type === 'Permanent Part-time' ? 1000 : 2000;
+                $default_hazard = $computation_controller->hazardPayComputation($salary_grade, $basic_salary, 22);
 
                 // Construct employee details
                 $employee_details = [
@@ -130,9 +183,9 @@ class ReportsController extends Controller
                     'net_salary_first_half' => decrypt($employee->net_salary_first_half) ?? 0,
                     'net_salary_second_half' => decrypt($employee->net_salary_second_half) ?? 0,
 
-                    // Computed Deductions
-                    'pera' => $receivables->where('code', 'PERA')->pluck('amount')->first() ?? 0,
-                    'hazard' => $receivables->where('code', 'HAZARD')->pluck('amount')->first() ?? 0,
+                    // Computed Deductions,
+                    'pera' => $default_pera ?? 0,
+                    'hazard' => $default_hazard ?? 0,
                     'absent_rate' => $deductions->where('deductions.code', 'Absent')->pluck('amount')->first() ?? 0,
 
                     // Withholding Tax
@@ -158,7 +211,7 @@ class ReportsController extends Controller
                     'total_employee_deductions' => $sumDeductions(1) + $sumDeductions(2) + $sumDeductions(4) + $sumDeductions(5) + $sumDeductions(8) ?? 0,
 
                     // Employee Receivables
-                    'employee_receivables' => $receivables,
+                    'employee_receivables' => $mapReceivables,
                     'total_employee_receivables' => $receivables->sum('amount') ?? 0,
                     'remarks' => null,
 

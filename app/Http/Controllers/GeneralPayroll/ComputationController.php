@@ -261,53 +261,74 @@ class ComputationController extends Controller
         $monthlySalary = number_format($basicSalary, 2); // Formatting if needed
         $salaryPercentage = 0.0;
 
-
-        switch (true) {
-            case $salaryGrade <= 19:
-                $salaryPercentage = 0.25;
-                break;
-            case $salaryGrade == 20:
-                $salaryPercentage = 0.15;
-                break;
-            case $salaryGrade == 21:
-                $salaryPercentage = 0.13;
-                break;
-            case $salaryGrade == 22:
-                $salaryPercentage = 0.12;
-                break;
-            case $salaryGrade == 23:
-                $salaryPercentage = 0.11;
-                break;
-            case in_array($salaryGrade, [24, 25]):
-                $salaryPercentage = 0.1;
-                break;
-            case $salaryGrade == 26:
-                $salaryPercentage = 0.09;
-                break;
-            case $salaryGrade == 27:
-                $salaryPercentage = 0.08;
-                break;
-            case $salaryGrade == 28:
-                $salaryPercentage = 0.07;
-                break;
-            case in_array($salaryGrade, [29, 30]):
-                $salaryPercentage = 0.06;
-                break;
-            case $salaryGrade == 31:
-                $salaryPercentage = 0.05;
-                break;
-            default:
-                $salaryPercentage = 0;
-                break;
+        if ($salaryGrade <= 19) {
+            $salaryPercentage = 0.25;
+        } elseif ($salaryGrade == 20) {
+            $salaryPercentage = 0.15;
+        } elseif ($salaryGrade == 21) {
+            $salaryPercentage = 0.13;
+        } elseif ($salaryGrade == 22) {
+            $salaryPercentage = 0.12;
+        } elseif ($salaryGrade == 23) {
+            $salaryPercentage = 0.11;
+        } elseif (in_array($salaryGrade, [24, 25])) {
+            $salaryPercentage = 0.10;
+        } elseif ($salaryGrade == 26) {
+            $salaryPercentage = 0.09;
+        } elseif ($salaryGrade == 27) {
+            $salaryPercentage = 0.08;
+        } elseif ($salaryGrade == 28) {
+            $salaryPercentage = 0.07;
+        } elseif (in_array($salaryGrade, [29, 30])) {
+            $salaryPercentage = 0.06;
+        } elseif ($salaryGrade == 31) {
+            $salaryPercentage = 0.05;
         }
 
-
-
         if ($absences <= 11) {
-            return (double) ($salaryPercentage * $basicSalary);
+            return (double) ($basicSalary * $salaryPercentage);
         }
 
         return 0.00;
+    }
+
+    public function hazardPayComputation($salaryGrade, $basicSalary, $workingDays)
+    {
+        $salaryPercentage = 0.0;
+
+        if ($salaryGrade <= 19) {
+            $salaryPercentage = 0.25;
+        } elseif ($salaryGrade == 20) {
+            $salaryPercentage = 0.15;
+        } elseif ($salaryGrade == 21) {
+            $salaryPercentage = 0.13;
+        } elseif ($salaryGrade == 22) {
+            $salaryPercentage = 0.12;
+        } elseif ($salaryGrade == 23) {
+            $salaryPercentage = 0.11;
+        } elseif (in_array($salaryGrade, [24, 25])) {
+            $salaryPercentage = 0.10;
+        } elseif ($salaryGrade == 26) {
+            $salaryPercentage = 0.09;
+        } elseif ($salaryGrade == 27) {
+            $salaryPercentage = 0.08;
+        } elseif ($salaryGrade == 28) {
+            $salaryPercentage = 0.07;
+        } elseif (in_array($salaryGrade, [29, 30])) {
+            $salaryPercentage = 0.06;
+        } elseif ($salaryGrade == 31) {
+            $salaryPercentage = 0.05;
+        }
+
+        if ($workingDays >= 12) {
+            return (double) ($basicSalary * $salaryPercentage);
+        } else if ($workingDays <= 11) {
+            return (double) ($basicSalary * 0.14);
+        } else if ($workingDays <= 6) {
+            return (double) ($basicSalary * 0.8);
+        } else {
+            return 0.00;
+        }
     }
 
     public function CalculateNightDifferential($totalNightDutyHours, $monthlyRate)
