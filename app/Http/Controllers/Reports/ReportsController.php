@@ -53,6 +53,7 @@ class ReportsController extends Controller
             $general_payroll = GeneralPayroll::with([
                 'EmployeeList' => function ($query) {
                     $query->with([
+                        'getTimeRecords',
                         'getSalary',
                         'getEmployeeDeductions' => function ($query) {
                             $query->with([
@@ -72,18 +73,12 @@ class ReportsController extends Controller
 
             $data = [];
             foreach ($general_payroll as $employee) {
-                //Decode json employee time record
-                $json_time_record = json_decode($employee->time_records, true);
 
-                //Filter working days
-                $totalPresentDays = $json_time_record[0]['total_present_days'] ?? 0;
+                //Decode json employee time record
+                $json_absent_dates = json_decode($employee->EmployeeList->getTimeRecords->absent_dates, true);
 
                 //Decode json employee receivable
                 $json_receivable = json_decode($employee->employee_receivables, true);
-
-                // Filter the hazard and pera item 
-                $hazard = collect($json_receivable)->firstWhere('receivable.code', 'HAZARD');
-                $pera = collect($json_receivable)->firstWhere('receivable.code', 'PERA');
 
                 // Get employee deductions once
                 $deductions = $employee->EmployeeList->getEmployeeDeductions;
@@ -126,20 +121,6 @@ class ReportsController extends Controller
                     ];
                 });
 
-                // // Map and filter PERA and HAZARD from JSON receivables
-                // $mapReceivables = collect($json_receivable)
-                //     ->filter(function ($receivable) {
-                //         $code = $receivable['receivable']['code'] ?? null;
-                //         return in_array($code, ['PERA', 'HAZARD']);
-                //     })
-                //     ->map(function ($receivable) {
-                //         return [
-                //             'receivable_name' => $receivable['receivable']['name'] ?? null,
-                //             'code' => $receivable['receivable']['code'] ?? null,
-                //             'amount' => $receivable['amount'] ?? 0,
-                //         ];
-                //     });
-
                 $mapReceivables = collect($json_receivable)->map(function ($receivable) use ($employee) {
                     $receivable_data = Receivable::where('code', $receivable['receivable']['code'])->first();
                     if ($receivable_data) {
@@ -151,7 +132,12 @@ class ReportsController extends Controller
                             'receivable_id' => $receivable_data->id,
                         ];
                     }
+                });
 
+                $mapAbsentDates = collect($json_absent_dates)->map(function ($absent_date) use ($employee) {
+                    return [
+                        'absent_date' => $absent_date['dateRecord'] ?? null,
+                    ];
                 });
 
                 //validate employment type 
@@ -213,7 +199,7 @@ class ReportsController extends Controller
                     // Employee Receivables
                     'employee_receivables' => $mapReceivables,
                     'total_employee_receivables' => $receivables->sum('amount') ?? 0,
-                    'remarks' => null,
+                    'remarks' => $mapAbsentDates,
 
                     // Date
                     'month' => $employee->month,
