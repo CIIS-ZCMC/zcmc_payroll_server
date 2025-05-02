@@ -121,6 +121,7 @@ class ReportsController extends Controller
                     ];
                 });
 
+                //Employee receivables data
                 $mapReceivables = collect($json_receivable)->map(function ($receivable) use ($employee) {
                     $receivable_data = Receivable::where('code', $receivable['receivable']['code'])->first();
                     if ($receivable_data) {
@@ -134,11 +135,29 @@ class ReportsController extends Controller
                     }
                 });
 
+
+                //Remarks data 
+                $absent_dates = null;
                 $mapAbsentDates = collect($json_absent_dates)->map(function ($absent_date) use ($employee) {
                     return [
                         'absent_date' => $absent_date['dateRecord'] ?? null,
                     ];
                 });
+
+                // Extract and map absent dates
+                $absentDates = collect($json_absent_dates)
+                    ->pluck('dateRecord') // or 'dateRecord' if that’s the actual key
+                    ->filter() // remove nulls
+                    ->values();
+
+                if ($absentDates->isNotEmpty()) {
+                    $month = \Carbon\Carbon::parse($absentDates->first())->format('M'); // e.g., Jan
+                    $days = $absentDates->map(function ($date) {
+                        return \Carbon\Carbon::parse($date)->format('d');
+                    })->implode(', ');
+
+                    $absent_dates = "{$month} {$days}";
+                }
 
                 //validate employment type 
                 $employment_type = EmployeeSalary::where('employee_list_id', $employee->employee_list_id)->first();
@@ -199,7 +218,7 @@ class ReportsController extends Controller
                     // Employee Receivables
                     'employee_receivables' => $mapReceivables,
                     'total_employee_receivables' => $receivables->sum('amount') ?? 0,
-                    'remarks' => $mapAbsentDates,
+                    'remarks' => $absent_dates ?? null,
 
                     // Date
                     'month' => $employee->month,
