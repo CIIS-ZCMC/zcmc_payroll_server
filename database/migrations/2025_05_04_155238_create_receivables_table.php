@@ -15,20 +15,17 @@ class CreateReceivablesTable extends Migration
     {
         Schema::create('receivables', function (Blueprint $table) {
             $table->id();
+            $table->uuid('receivable_uuid')->unique();
             $table->string('name');
             $table->string('code');
-            $table->string('employment_type');
-            $table->double('amount');
-            $table->double('percentage')->nullable();
-            $table->string('billing_cycle');
-            $table->integer('terms_to_pay')->nullable();
-            $table->boolean('is_applied_to_all')->default(false);
-            $table->string('apply_salarygrade_from')->nullable();
-            $table->string('apply_salarygrade_to')->nullable();
-            $table->boolean('is_mandatory');
+            $table->string('type');
+            $table->string('condition_operator')->nullable();
+            $table->double('condition_value')->nullable();
+            $table->double('percent_value')->nullable();
+            $table->double('fixed_amount')->nullable();
+            $table->string('billing_cycle')->default('Monthly');
             $table->string('status')->default("Active");
-            $table->string('reason')->nullable();
-            $table->timestamp('stopped_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

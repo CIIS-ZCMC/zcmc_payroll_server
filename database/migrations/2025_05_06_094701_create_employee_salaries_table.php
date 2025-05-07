@@ -15,15 +15,16 @@ class CreateEmployeeSalariesTable extends Migration
     {
         Schema::create('employee_salaries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_list_id');
-            $table->foreign('employee_list_id')->references('id')->on('employee_lists');
+            $table->unsignedBigInteger('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees');
             $table->string('employment_type');
-            $table->text('basic_salary');
+            $table->text('base_salary');
             $table->integer('salary_grade');
             $table->integer('salary_step');
             $table->string('month');
             $table->string('year');
             $table->boolean('is_active');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

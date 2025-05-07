@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEmployeeComputedSalariesTable extends Migration
+class CreateEmployeeComputedSalaries extends Migration
 {
     /**
      * Run the migrations.
@@ -15,9 +15,12 @@ class CreateEmployeeComputedSalariesTable extends Migration
     {
         Schema::create('employee_computed_salaries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('time_record_id');
-            $table->foreign('time_record_id')->references('id')->on('time_records');
+            $table->unsignedBigInteger('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees');
+            $table->unsignedBigInteger('employee_time_record_id');
+            $table->foreign('employee_time_record_id')->references('id')->on('employee_time_records');
             $table->text('computed_salary')->comment("Without night differential computation and deductions");
+            $table->softDeletes();
             $table->timestamps();
         });
     }

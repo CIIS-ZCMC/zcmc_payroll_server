@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDeductionLogsTable extends Migration
+class CreateEmployeeReceivableLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,14 @@ class CreateDeductionLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('deduction_logs', function (Blueprint $table) {
+        Schema::create('employee_receivable_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('deduction_id');
-            $table->foreign('deduction_id')->references('id')->on('deductions');
+            $table->unsignedBigInteger('employee_receivable_id');
+            $table->foreign('employee_receivable_id')->references('id')->on('employee_receivables');
             $table->unsignedBigInteger('action_by');
             $table->string('action');
-            $table->string('remarks');
+            $table->string('remarks')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ class CreateDeductionLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('deduction_logs');
+        Schema::dropIfExists('employee_receivable_logs');
     }
 }

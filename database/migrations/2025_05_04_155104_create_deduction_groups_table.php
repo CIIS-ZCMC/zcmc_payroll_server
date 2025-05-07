@@ -15,8 +15,10 @@ class CreateDeductionGroupsTable extends Migration
     {
         Schema::create('deduction_groups', function (Blueprint $table) {
             $table->id();
+            $table->uuid('deduction_group_uuid')->unique();
             $table->string('name');
             $table->string('code');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

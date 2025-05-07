@@ -15,8 +15,8 @@ class CreateEmployeeReceivablesTable extends Migration
     {
         Schema::create('employee_receivables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_list_id');
-            $table->foreign('employee_list_id')->references('id')->on('employee_lists');
+            $table->unsignedBigInteger('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees');
             $table->unsignedBigInteger('receivable_id');
             $table->foreign('receivable_id')->references('id')->on('receivables');
             $table->double('amount')->nullable();
@@ -30,6 +30,7 @@ class CreateEmployeeReceivablesTable extends Migration
             $table->string('reason')->nullable();
             $table->string('frequency');
             $table->boolean('is_default');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

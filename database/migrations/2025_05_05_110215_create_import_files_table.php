@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReceivableTrailsTable extends Migration
+class CreateImportFilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ class CreateReceivableTrailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('receivable_trails', function (Blueprint $table) {
+        Schema::create('import_files', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('receivable_id');
+            $table->unsignedBigInteger('deduction_id')->nullable();
+            $table->foreign('deduction_id')->references('id')->on('deductions');
+            $table->unsignedBigInteger('receivable_id')->nullable();
             $table->foreign('receivable_id')->references('id')->on('receivables');
-            $table->string("status");
-            $table->date("from");
-            $table->date("to");
-            $table->string("reason");
+            $table->string('file_name');
+            $table->string('path');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -32,6 +33,6 @@ class CreateReceivableTrailsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('receivable_trails');
+        Schema::dropIfExists('import_files');
     }
 }

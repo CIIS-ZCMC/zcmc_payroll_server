@@ -15,14 +15,17 @@ class CreateExcludedEmployeesTable extends Migration
     {
         Schema::create('excluded_employees', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_list_id');
-            $table->foreign('employee_list_id')->references('id')->on('employee_lists');
-             $table->unsignedBigInteger('payroll_headers_id')->nullable();
-             $table->foreign('payroll_headers_id')->references('id')->on('payroll_headers');
-            $table->string('reason');
-            $table->string("year");
+            $table->unsignedBigInteger('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees');
+            $table->unsignedBigInteger('payroll_period_id')->nullable();
+            $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
             $table->string("month");
+            $table->string("year");
+            $table->string('period_start');
+            $table->string('period_end');
+            $table->string('reason');
             $table->boolean("is_removed")->comment("true if it is removed from list. for the genpayrol month and year")->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
