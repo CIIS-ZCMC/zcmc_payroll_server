@@ -25,6 +25,7 @@ class DeductionGroupResource extends JsonResource
 
         return [
             "id" => $this->id,
+            "uuid" => $this->deduction_group_uuid,
             "name" => $this->name,
             "code" => $this->code,
             "deduction_type" => $deductions ?? []
