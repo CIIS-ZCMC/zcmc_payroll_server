@@ -175,7 +175,7 @@ class ReportsController extends Controller
                     'payroll_headers_id' => $employee->payroll_headers_id,
                     'employee_list_id' => $employee->employee_list_id,
                     'employee_number' => $employee->employeeList->employee_number,
-                    'employee_name' => "{$employee->employeeList->last_name}, {$employee->employeeList->first_name} {$employee->employeeList->middle_name}",
+                    'employee_name' => "{$employee->employeeList->last_name}, {$employee->employeeList->first_name} " . substr($employee->employeeList->middle_name, 0, 1) . '.',
                     'designation' => $employee->employeeList->designation,
                     'salary_grade' => $employee->EmployeeList->getSalary->salary_grade,
                     'salary_step' => $employee->EmployeeList->getSalary->salary_step,
@@ -221,7 +221,7 @@ class ReportsController extends Controller
                     'remarks' => $absent_dates ?? null,
 
                     // Date
-                    'month' => $employee->month,
+                    'month' => \Carbon\Carbon::create()->month($employee->month)->format('F'),
                     'year' => $employee->year,
                     'created_at' => $employee->created_at,
                 ];
