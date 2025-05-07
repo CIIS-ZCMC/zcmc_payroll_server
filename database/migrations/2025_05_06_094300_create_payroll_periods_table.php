@@ -15,10 +15,10 @@ class CreatePayrollPeriodsTable extends Migration
     {
         Schema::create('payroll_periods', function (Blueprint $table) {
             $table->id();
-            $table->string("period_type")->comment("first_half(1-15) || second_half(16-31)");
             $table->string("month");
             $table->string("year");
             $table->string("employment_type");
+            $table->string("period_type")->comment("first_half, second_half");
             $table->string('period_start');
             $table->string('period_end');
             $table->integer("days_of_duty");
@@ -26,8 +26,6 @@ class CreatePayrollPeriodsTable extends Migration
             $table->dateTime("posted_at")->nullable();
             $table->dateTime("last_generated_at")->nullable();
             $table->dateTime("locked_at")->nullable();
-            $table->dateTime("first_payroll_locked_at")->nullable();
-            $table->dateTime("second_payroll_locked_at")->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
