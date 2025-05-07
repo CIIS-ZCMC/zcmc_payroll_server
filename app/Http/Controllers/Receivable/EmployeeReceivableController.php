@@ -14,7 +14,7 @@ use App\Models\Receivable;
 use App\Models\StoppageLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Crypt;
 
 class EmployeeReceivableController extends Controller

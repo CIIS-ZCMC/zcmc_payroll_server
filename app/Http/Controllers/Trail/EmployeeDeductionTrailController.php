@@ -10,7 +10,7 @@ use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionTrail;
 use App\Models\EmployeeList;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeDeductionTrailController extends Controller
 {

@@ -8,7 +8,7 @@ use App\Http\Requests\DeductionTrailRequest;
 use App\Http\Resources\DeductionTrailResource;
 use App\Models\DeductionTrail;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class DeductionTrailController extends Controller
 {

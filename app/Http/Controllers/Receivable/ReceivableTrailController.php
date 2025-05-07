@@ -7,7 +7,7 @@ use App\Http\Requests\ReceivableTrailRequest;
 use App\Http\Resources\ReceivableTrailResource;
 use App\Models\ReceivableTrail;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class ReceivableTrailController extends Controller
 {

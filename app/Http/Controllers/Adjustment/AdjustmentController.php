@@ -11,7 +11,7 @@ use App\Models\EmployeeDeduction;
 use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 
 class AdjustmentController extends Controller

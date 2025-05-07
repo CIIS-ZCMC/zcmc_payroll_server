@@ -7,16 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DeductionGroupRequest;
 use App\Http\Resources\DeductionGroupResource;
 use App\Models\DeductionGroup;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class DeductionGroupController extends Controller
 {
-    private $CONTROLLER_NAME = 'Deduction Group';
-    private $PLURAL_MODULE_NAME = 'deduction groups';
-    private $SINGULAR_MODULE_NAME = 'deduction group';
-
     /**
      * Display a listing of the resource.
      *
@@ -24,14 +20,10 @@ class DeductionGroupController extends Controller
      */
     public function index()
     {
-        try {
-            return response()->json(['responseData' => DeductionGroupResource::collection(DeductionGroup::all())], Response::HTTP_OK);
-
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return response()->json([
+            'data' => DeductionGroupResource::collection(DeductionGroup::all()),
+            'message' => "Data Successfully retrieved"
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -42,17 +34,12 @@ class DeductionGroupController extends Controller
      */
     public function store(DeductionGroupRequest $request)
     {
-        try {
-            $data = DeductionGroup::create($request->all());
+        $data = DeductionGroup::create($request->all());
 
-            // Helpers::registerSystemLogs($request, $data->id, true, 'Success in creating ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['data' => new DeductionGroupResource($data), 'message' => "Data Successfully saved", 'statusCode' => Response::HTTP_OK]);
-
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return response()->json([
+            'data' => new DeductionGroupResource($data),
+            'message' => "Data Successfully saved"
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -63,15 +50,18 @@ class DeductionGroupController extends Controller
      */
     public function show($id)
     {
-        try {
-            $data = DeductionGroup::findOrFail($id);
-            return response()->json(['data' => new DeductionGroupResource($data)], Response::HTTP_OK);
+        $data = DeductionGroup::findOrFail($id);
 
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'show', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if (!$data) {
+            return response()->json([
+                'message' => 'No record found.'
+            ], Response::HTTP_NOT_FOUND);
         }
+
+        return response()->json([
+            'data' => new DeductionGroupResource($data),
+            'message' => "Data Successfully retrieved"
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -83,30 +73,20 @@ class DeductionGroupController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
-            $data = DeductionGroup::findOrFail($id);
+        $data = DeductionGroup::findOrFail($id);
 
-            if (!$data) {
-                return response()->json([
-                    'message' => 'No record found.',
-                    'statusCode' => Response::HTTP_NOT_FOUND
-                ]);
-            }
-
-            $data->update($request->all());
-
-            // Helpers::registerSystemLogs($request, $id, true, 'Success in updating ' . $this->SINGULAR_MODULE_NAME . '.');
+        if (!$data) {
             return response()->json([
-                'data' => new DeductionGroupResource($data),
-                'message' => "Successfully update",
-                'statusCode' => Response::HTTP_OK
-            ]);
-
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'update', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => 'No record found.'
+            ], Response::HTTP_NOT_FOUND);
         }
+
+        $data->update($request->all());
+
+        return response()->json([
+            'data' => new DeductionGroupResource($data),
+            'message' => "Successfully update",
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -117,17 +97,16 @@ class DeductionGroupController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        try {
-            $data = DeductionGroup::findOrFail($id);
-            $data->delete();
+        $data = DeductionGroup::findOrFail($id);
 
-            // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
-            return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
-
-        } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
-            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if (!$data) {
+            return response()->json([
+                'message' => 'No record found.'
+            ], Response::HTTP_NOT_FOUND);
         }
+
+        $data->delete();
+
+        return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
     }
 }

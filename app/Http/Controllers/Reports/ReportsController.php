@@ -16,7 +16,7 @@ use App\Models\PayrollHeaders;
 use App\Models\UMIS\EmployeeProfile;
 use App\Models\UMIS\EmploymentType;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Crypt;
 
 class ReportsController extends Controller

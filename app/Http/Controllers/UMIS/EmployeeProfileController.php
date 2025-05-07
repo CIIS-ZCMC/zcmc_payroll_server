@@ -23,7 +23,7 @@ use App\Models\UMIS\LeaveType;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cache;
 use Str;
 use function PHPUnit\Framework\isEmpty;
@@ -334,7 +334,7 @@ class EmployeeProfileController extends Controller
                 "year_of" => $year_of,
                 "first_half" => $first_half,
                 "second_half" => $second_half,
-                "employees" => $data 
+                "employees" => $data
             ];
 
             $uuid = Str::uuid();

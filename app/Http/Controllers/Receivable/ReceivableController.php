@@ -8,7 +8,7 @@ use App\Http\Requests\ReceivableRequest;
 use App\Http\Resources\ReceivableResource;
 use App\Models\Receivable;
 use Carbon\Carbon;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 
 class ReceivableController extends Controller

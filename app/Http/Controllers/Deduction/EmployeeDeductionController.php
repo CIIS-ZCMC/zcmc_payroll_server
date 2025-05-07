@@ -20,7 +20,7 @@ use App\Models\EmployeeSalary;
 use App\Models\Import;
 use App\Models\StoppageLog;
 use DateTime;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;

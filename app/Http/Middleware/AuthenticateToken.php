@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use App\Helpers\Token;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\PersonalAccessToken;
 use Illuminate\Support\Facades\Log;
 use App\Models\TimeRecord;

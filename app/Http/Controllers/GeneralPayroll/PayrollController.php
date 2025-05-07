@@ -22,7 +22,7 @@ use App\Http\Resources\GeneralPayrollResources;
 use App\Http\Resources\TimeRecordResource;
 use App\Models\TimeRecord;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use App\Jobs\AutoGeneratePayroll;
 use App\Models\FirstPayroll;
 use App\Models\NightDifferential;

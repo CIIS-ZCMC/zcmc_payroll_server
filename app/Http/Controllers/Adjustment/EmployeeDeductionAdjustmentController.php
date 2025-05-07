@@ -8,7 +8,7 @@ use App\Http\Resources\EmployeeDeductionAdjustmentResource;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionAdjustment;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeDeductionAdjustmentController extends Controller
 {
