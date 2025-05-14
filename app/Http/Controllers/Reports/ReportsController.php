@@ -53,7 +53,9 @@ class ReportsController extends Controller
             $general_payroll = GeneralPayroll::with([
                 'EmployeeList' => function ($query) {
                     $query->with([
-                        'getTimeRecords',
+                        'getTimeRecords' => function ($query) {
+                            $query->with(['ComputedSalary']);
+                        },
                         'getSalary',
                         'getEmployeeDeductions' => function ($query) {
                             $query->with([
@@ -129,7 +131,7 @@ class ReportsController extends Controller
                             'employee_list_id' => $employee->employee_list_id,
                             'receivable_name' => $receivable['receivable']['name'] ?? null,
                             'receivable_code' => $receivable['receivable']['code'] ?? null,
-                            'amount' => $receivable['amount'] ?? 0,
+                            'amount' => number_format((float) ($receivable['amount'] ?? 0), 2, '.', ''),
                             'receivable_id' => $receivable_data->id,
                         ];
                     }
@@ -166,8 +168,20 @@ class ReportsController extends Controller
 
                 //calculate pera and hazard
                 $computation_controller = new ComputationController();
-                $default_pera = $employment_type === 'Permanent Part-time' ? 1000 : 2000;
+                $default_pera = $employment_type === 'Permanent Part-time' ? round(1000, 2) : round(2000, 2);
                 $default_hazard = $computation_controller->hazardPayComputation($salary_grade, $basic_salary, 22);
+
+                // Calculate important data
+                $total_receivable = $mapReceivables->sum('amount'); // Total receivables
+                $total_deduction = $sumDeductions(1) + $sumDeductions(2) + $sumDeductions(4) + $sumDeductions(5) + $sumDeductions(8); // Total deductions
+
+                $net_pay = $computation_controller->calculateLeaveWithoutPay(22, count($absentDates), decrypt($employee->base_salary)); // Computed net pay with absences and leave without pay
+                $gross_salary = $net_pay + $total_receivable; // Computed gross salary
+                $total_net_pay = $gross_salary - $total_deduction; // Total net pay
+
+                // Split the total net pay into 1st half and 2nd half
+                $net_salary_first_half = round($total_net_pay / 2, 2); // Round to 2 decimal places
+                $net_salary_second_half = $total_net_pay - $net_salary_first_half; // Ensure the total matches
 
                 // Construct employee details
                 $employee_details = [
@@ -182,11 +196,11 @@ class ReportsController extends Controller
                     'basic_salary' => decrypt($employee->EmployeeList->getSalary->basic_salary),
 
                     // Salary details
-                    'net_pay' => decrypt($employee->net_pay) ?? 0,
-                    'gross_pay' => decrypt($employee->gross_pay) ?? 0,
-                    'net_total_salary' => decrypt($employee->net_total_salary) ?? 0,
-                    'net_salary_first_half' => decrypt($employee->net_salary_first_half) ?? 0,
-                    'net_salary_second_half' => decrypt($employee->net_salary_second_half) ?? 0,
+                    'net_pay' => $net_pay ?? 0,
+                    'gross_pay' => $gross_salary ?? 0,
+                    'net_total_salary' => $total_net_pay ?? 0,
+                    'net_salary_first_half' => $net_salary_first_half ?? 0,
+                    'net_salary_second_half' => $net_salary_second_half ?? 0,
 
                     // Computed Deductions,
                     'pera' => $default_pera ?? 0,
@@ -213,11 +227,11 @@ class ReportsController extends Controller
 
                     // All Deductions
                     'employee_deductions' => $mapDeductions(null), // null returns all
-                    'total_employee_deductions' => $sumDeductions(1) + $sumDeductions(2) + $sumDeductions(4) + $sumDeductions(5) + $sumDeductions(8) ?? 0,
+                    'total_employee_deductions' => $total_deduction ?? 0,
 
                     // Employee Receivables
                     'employee_receivables' => $mapReceivables,
-                    'total_employee_receivables' => $receivables->sum('amount') ?? 0,
+                    'total_employee_receivables' => $total_receivable ?? 0,
                     'remarks' => $absent_dates ?? null,
 
                     // Date

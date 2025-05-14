@@ -341,6 +341,8 @@ class ComputationController extends Controller
         return $totalAccumulatedND;
     }
 
-
-
+    public function calculateLeaveWithoutPay($requiredDaysOfDuty, $numberOfAbsent, $basicSalary)
+    {
+        return (($requiredDaysOfDuty - $numberOfAbsent) / $requiredDaysOfDuty) * $basicSalary;
+    }
 }
