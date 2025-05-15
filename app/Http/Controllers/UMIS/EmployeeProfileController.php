@@ -4,12 +4,14 @@ namespace App\Http\Controllers\UMIS;
 
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Employee\EmployeeListController;
 use App\Http\Controllers\Employee\EmployeeSalaryController;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
 use App\Http\Controllers\GeneralPayroll\ComputationController;
 use App\Http\Requests\EmployeeListRequest;
 use App\Http\Requests\EmployeeSalaryRequest;
+use App\Models\Employee;
 use App\Models\EmployeeComputedSalary;
 use App\Models\EmployeeList;
 use App\Models\EmployeeReceivable;
@@ -142,7 +144,7 @@ class EmployeeProfileController extends Controller
                         ->whereMonth('dtr_date', $month_of);
                 }
             ])
-                // ->where('biometric_id', 132)
+                ->where('biometric_id', 141)
                 ->get();
 
             $holiday = DB::connection('mysql2')->table('holidays')->whereRaw("LEFT(month_day, 2) = ?", [str_pad($month_of, 2, '0', STR_PAD_LEFT)])->get();
@@ -263,6 +265,69 @@ class EmployeeProfileController extends Controller
                     return $row['biometric_id'] ?? null === $biometric_id;
                 }));
 
+                // Absent dates
+                // Prepare holiday dates (Y-m-d strings) as keys for fast lookup
+                $holidayDates = $holiday->mapWithKeys(function ($h) use ($year_of) {
+                    $date = Carbon::createFromFormat('Y-m-d', $year_of . '-' . $h->month_day)->toDateString();
+                    return [$date => true];
+                });
+
+                // Scheduled dates (Y-m-d strings) as keys
+                $scheduleDates = $employee->schedule
+                    ->mapWithKeys(function ($schedule) {
+                        $date = Carbon::parse($schedule->date)->toDateString();
+                        return [$date => true];
+                    });
+
+                // Actual DTR dates (Y-m-d strings) as keys
+                $dtrDates = $employee->employeeDtr
+                    ->mapWithKeys(function ($dtr) {
+                        $date = Carbon::parse($dtr->dtr_date)->toDateString();
+                        return [$date => true];
+                    });
+
+                // Leave dates expanded and as keys
+                $leaveDates = $employee->receivedLeave
+                    ->flatMap(function ($leave) use ($helper) {
+                        return $helper->getDateIntervals($leave->date_from, $leave->date_to);
+                    })
+                    ->mapWithKeys(function ($date) {
+                        $d = Carbon::parse($date)->toDateString();
+                        return [$d => true];
+                    });
+
+                // OB dates expanded and as keys
+                $obDates = $employee->approvedOB
+                    ->flatMap(function ($ob) use ($helper) {
+                        return $helper->getDateIntervals($ob->date_from, $ob->date_to);
+                    })
+                    ->mapWithKeys(function ($date) {
+                        $d = Carbon::parse($date)->toDateString();
+                        return [$d => true];
+                    });
+
+                // OT dates expanded and as keys
+                $otDates = $employee->approvedOT
+                    ->flatMap(function ($ot) use ($helper) {
+                        return $helper->getDateIntervals($ot->date_from, $ot->date_to);
+                    })
+                    ->mapWithKeys(function ($date) {
+                        $d = Carbon::parse($date)->toDateString();
+                        return [$d => true];
+                    });
+
+                // Calculate absence dates (scheduled but not holiday, dtr, leave, ob, ot)
+                $absenceDates = collect(array_keys($scheduleDates->toArray()))
+                    ->filter(function ($date) use ($holidayDates, $dtrDates, $leaveDates, $obDates, $otDates) {
+                        return !isset($holidayDates[$date])
+                            && !isset($dtrDates[$date])
+                            && !isset($leaveDates[$date])
+                            && !isset($obDates[$date])
+                            && !isset($otDates[$date]);
+                    })
+                    ->values()
+                    ->all();
+
                 return [
                     'biometric_id' => $biometric_id,
                     'employee_id' => $employee->employee_id,
@@ -288,6 +353,7 @@ class EmployeeProfileController extends Controller
                     'no_of_absences' => $noOfAbsences,
                     'no_of_invalid_entry' => $NoOfInvalidEntry,
                     'no_of_day_off' => $noOfDayOff,
+                    'absent_dates' => $absenceDates,
                     'schedule' => $scheduleCount,
 
                     // Salary values
@@ -359,7 +425,7 @@ class EmployeeProfileController extends Controller
     {
         $cache_data = json_decode(Cache::get($request->uuid), true);
 
-        $employee_list_controller = new EmployeeListController();
+        $employee_controller = new EmployeeController();
         $excluded_employee_controller = new ExcludedEmployeeController();
         $employee_salary_controller = new EmployeeSalaryController();
 
@@ -373,20 +439,20 @@ class EmployeeProfileController extends Controller
 
         foreach ($employees as $data) {
             if (is_array($data)) {
-                $employee_list = EmployeeList::where('employee_number', $data['employee_id'])->first();
+                $employee = Employee::where('employee_number', $data['employee_id'])->first();
 
-                $response = $employee_list !== null
-                    ? $employee_list_controller->update(new EmployeeListRequest($data), $employee_list)
-                    : $employee_list_controller->store(new EmployeeListRequest($data));
+                $response = $employee !== null
+                    ? $employee_controller->update(new EmployeeListRequest($data), $employee)
+                    : $employee_controller->store(new EmployeeListRequest($data));
 
                 $responseData = $response->getData(true);
 
                 if (isset($responseData['data']['id'])) {
-                    $employee_list_id = $responseData['data']['id'];
+                    $employee_id = $responseData['data']['id'];
                 }
 
                 $array_excluded_employees = [
-                    'employee_list_id' => $employee_list_id,
+                    'employee_id' => $employee_id,
                     'month' => $month_of,
                     'year' => $year_of,
                     'reason' => json_encode([
@@ -398,7 +464,7 @@ class EmployeeProfileController extends Controller
                 ];
 
                 $array_employee_salary = [
-                    'employee_list_id' => $employee_list_id,
+                    'employee_id' => $employee_id,
                     'employment_type' => $data['employee']['employment_type']['name'],
                     'basic_salary' => encrypt($data['grand_basic_salary']),
                     'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
@@ -411,7 +477,7 @@ class EmployeeProfileController extends Controller
 
                 // Handle ExcludedEmployee if out of payroll
                 if ($data['is_out'] === 1) {
-                    $excluded_employee = ExcludedEmployee::where('employee_list_id', $employee_list_id)
+                    $excluded_employee = ExcludedEmployee::where('employee_id', $employee_id)
                         ->where('month', $month_of)
                         ->where('year', $year_of)
                         ->first();
@@ -422,7 +488,7 @@ class EmployeeProfileController extends Controller
                 }
 
                 // Handle EmployeeSalary
-                $employee_salary = EmployeeSalary::where('employee_list_id', $employee_list_id)
+                $employee_salary = EmployeeSalary::where('employee_id', $employee_id)
                     ->where('month', $month_of)
                     ->where('year', $year_of)
                     ->first();
@@ -438,7 +504,7 @@ class EmployeeProfileController extends Controller
                 }
 
                 // Update other employee salaries to is_active = 0
-                EmployeeSalary::where('employee_list_id', $employee_list_id)
+                EmployeeSalary::where('employee_id', $employee_id)
                     ->where('id', '!=', $employee_salary_id)
                     ->update(['is_active' => 0]);
 
@@ -638,7 +704,7 @@ class EmployeeProfileController extends Controller
             // "GeneratedCount" => $generatedcount,
             // 'UpdatedCount' => $updatedData,
             'statusCode' => 200
-        ], \Symfony\Component\HttpFoundation\Response::HTTP_CREATED);
+        ], Response::HTTP_CREATED);
     }
 
     public function getNightDifferentialHours($startTime, $endTime, $biometric_id, $wBreak, $DaySchedule)

@@ -26,14 +26,14 @@ class LoginController extends Controller
             'password' => $request->password,
         ]);
 
-        if($result['is_failed']){
+        if ($result['is_failed']) {
             return response()->json([
                 'message' => $result['message']
             ], Response::HTTP_UNAUTHORIZED);
         }
 
         $generatedToken = Token::generateToken();
-        $data = $result['data'];    
+        $data = $result['data'];
         $user_details = $data['user_details'];
         $employee_details = $user_details['employee_details'];
         $contact = $employee_details['contact'];
@@ -76,12 +76,13 @@ class LoginController extends Controller
             'message' => 'Successfully authenticate user.'
         ], Response::HTTP_OK)
             ->cookie(
-                env("COOKIE_NAME"), 
-                json_encode(['token' => $token]), 
-                env("COOKIE_EXPIRY"), 
-                '/', 
-                env("SESSION_DOMAIN"), 
-                false);
+                env("COOKIE_NAME"),
+                json_encode(['token' => $token]),
+                env("COOKIE_EXPIRY"),
+                '/',
+                env("SESSION_DOMAIN"),
+                false
+            );
     }
 
     public function Signin(Request $request)
@@ -202,7 +203,7 @@ class LoginController extends Controller
     {
         return response()->json([
             'message' => "Successfully validate session."
-        ],Response::HTTP_NO_CONTENT);   
+        ], Response::HTTP_NO_CONTENT);
     }
 
     public function destroy(Request $request)
@@ -210,6 +211,7 @@ class LoginController extends Controller
 
         return response()->json([
             'message' => "Successfully signout."
-        ],Response::HTTP_NO_CONTENT)->cookie(env("COOKIE_NAME"), '', -1);;
+        ], Response::HTTP_NO_CONTENT)->cookie(env("COOKIE_NAME"), '', -1);
+        ;
     }
 }

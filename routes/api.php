@@ -197,4 +197,12 @@ Route::
                 Route::apiResource('deduction-rules', 'DeductionRuleController');
                 Route::apiResource('receivables', 'ReceivableController');
             });
+
+            // UMIS
+            Route::namespace('UMIS')->group(function () {
+                Route::get('fetch_record_step_1', 'EmployeeProfileController@fetchStep1');
+                Route::post('fetch_record_step_2', 'EmployeeProfileController@fetchStep2');
+                Route::post('fetch_record_step_3', 'EmployeeProfileController@fetchStep3');
+                Route::post('fetch_record_step_4', 'EmployeeProfileController@fetchStep4');
+            });
         });
