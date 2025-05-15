@@ -22,7 +22,7 @@ class DeductionGroup extends Model
 
     public $timestamps = true;
 
-    public function deductions()
+    public function deduction()
     {
         return $this->hasMany(Deduction::class);
     }

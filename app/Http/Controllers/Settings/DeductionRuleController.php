@@ -1,17 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Deduction;
+namespace App\Http\Controllers\Settings;
 
-use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DeductionGroupRequest;
-use App\Http\Resources\DeductionGroupResource;
-use App\Models\DeductionGroup;
+use App\Http\Resources\DeductionRuleResource;
+use App\Models\DeductionRule;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-
-class DeductionGroupController extends Controller
+class DeductionRuleController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,7 +18,7 @@ class DeductionGroupController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => DeductionGroupResource::collection(DeductionGroup::all()),
+            'data' => DeductionRuleResource::collection(DeductionRule::all()),
             'message' => "Data Successfully retrieved"
         ], Response::HTTP_OK);
     }
@@ -32,12 +29,12 @@ class DeductionGroupController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(DeductionGroupRequest $request)
+    public function store(Request $request)
     {
-        $data = DeductionGroup::create($request->all());
+        $data = DeductionRule::create($request->all());
 
         return response()->json([
-            'data' => new DeductionGroupResource($data),
+            'data' => new DeductionRuleResource($data),
             'message' => "Data Successfully saved"
         ], Response::HTTP_CREATED);
     }
@@ -50,16 +47,16 @@ class DeductionGroupController extends Controller
      */
     public function show($id)
     {
-        $data = DeductionGroup::findOrFail($id);
+        $data = DeductionRule::findOrFail($id);
 
         if (!$data) {
             return response()->json([
-                'message' => 'No record found.'
+                'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
-            'data' => new DeductionGroupResource($data),
+            'data' => new DeductionRuleResource($data),
             'message' => "Data Successfully retrieved"
         ], Response::HTTP_OK);
     }
@@ -73,19 +70,19 @@ class DeductionGroupController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = DeductionGroup::findOrFail($id);
+        $data = DeductionRule::findOrFail($id);
 
         if (!$data) {
             return response()->json([
-                'message' => 'No record found.'
+                'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
         }
 
         $data->update($request->all());
 
         return response()->json([
-            'data' => new DeductionGroupResource($data),
-            'message' => "Successfully update",
+            'data' => new DeductionRuleResource($data),
+            'message' => "Data Successfully updated"
         ], Response::HTTP_OK);
     }
 
@@ -95,18 +92,20 @@ class DeductionGroupController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function destroy($id)
     {
-        $data = DeductionGroup::findOrFail($id);
+        $data = DeductionRule::findOrFail($id);
 
         if (!$data) {
             return response()->json([
-                'message' => 'No record found.'
+                'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
         }
 
         $data->delete();
 
-        return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
+        return response()->json([
+            'message' => "Data Successfully deleted"
+        ], Response::HTTP_OK);
     }
 }
