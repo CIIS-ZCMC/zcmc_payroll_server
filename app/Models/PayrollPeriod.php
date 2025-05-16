@@ -8,4 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class PayrollPeriod extends Model
 {
     use HasFactory;
+    protected $table = "payroll_periods";
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'month',
+        'year',
+        'employment_type',
+        'period_type',
+        'period_start',
+        'period_end',
+        'days_of_duty',
+        'is_special',
+        'posted_at',
+        'last_generated_at',
+        'locked_at'
+    ];
 }

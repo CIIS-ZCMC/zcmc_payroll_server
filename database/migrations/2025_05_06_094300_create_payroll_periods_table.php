@@ -18,7 +18,7 @@ class CreatePayrollPeriodsTable extends Migration
             $table->string("month");
             $table->string("year");
             $table->string("employment_type");
-            $table->string("period_type")->comment("first_half, second_half");
+            $table->string("period_type")->comment("first_half, second_half, full_month");
             $table->string('period_start');
             $table->string('period_end');
             $table->integer("days_of_duty");

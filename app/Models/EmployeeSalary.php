@@ -14,9 +14,9 @@ class EmployeeSalary extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'employee_list_id',
+        'employee_id',
         'employment_type',
-        'basic_salary',
+        'base_salary',
         'salary_grade',
         'salary_step',
         'month',
@@ -26,8 +26,8 @@ class EmployeeSalary extends Model
 
     public $timestamps = true;
 
-    public function employeeList()
+    public function employee()
     {
-        return $this->belongsTo(EmployeeList::class);
+        return $this->belongsTo(Employee::class);
     }
 }

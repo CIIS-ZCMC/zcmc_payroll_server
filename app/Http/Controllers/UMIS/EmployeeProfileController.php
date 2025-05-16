@@ -18,10 +18,13 @@ use App\Models\EmployeeReceivable;
 use App\Models\EmployeeSalary;
 use App\Models\ExcludedEmployee;
 use App\Models\PayrollHeaders;
+use App\Models\PayrollPeriod;
 use App\Models\TimeRecord;
 use App\Models\UMIS\EmployeeProfile;
 use App\Models\UMIS\InActiveEmployee;
 use App\Models\UMIS\LeaveType;
+use App\Services\EmployeeService;
+use App\Services\ExcludeEmployeeService;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -38,6 +41,15 @@ class EmployeeProfileController extends Controller
     private $PLURAL_MODULE_NAME = 'employee_profiles';
     private $SINGULAR_MODULE_NAME = 'employee_profile';
 
+    protected $employeeService;
+    protected $excludedEmployeeService;
+
+    public function __construct(EmployeeService $employeeService, ExcludeEmployeeService $excludedEmployeeService)
+    {
+        $this->employeeService = $employeeService;
+        $this->excludedEmployeeService = $excludedEmployeeService;
+    }
+
     // Step 1
     public function fetchStep1(Request $request)
     {
@@ -47,6 +59,8 @@ class EmployeeProfileController extends Controller
 
             $first_half = $request->first_half ?? 0;
             $second_half = $request->second_half ?? 0;
+
+            $employment_type = $request->employment_type ?? null;
 
             $currentyear = date('Y');
             $currentMonth = date('m');
@@ -70,15 +84,15 @@ class EmployeeProfileController extends Controller
                 }
             }
 
-            if ($second_half) {
-                PayrollHeaders::where("fromPeriod", 1)
-                    ->where("toPeriod", 15)
-                    ->where("month", $request->month)
-                    ->where("year", $request->year)
-                    ->update([
-                        'is_locked' => 1
-                    ]);
-            }
+            // if ($second_half) {
+            //     PayrollHeaders::where("fromPeriod", 1)
+            //         ->where("toPeriod", 15)
+            //         ->where("month", $request->month)
+            //         ->where("year", $request->year)
+            //         ->update([
+            //             'is_locked' => 1
+            //         ]);
+            // }
 
             //Employee Fetching Function Start Here
             $totalDaysInMonth = Carbon::createFromDate($year_of, $month_of, 1)->daysInMonth;
@@ -86,7 +100,7 @@ class EmployeeProfileController extends Controller
 
             $helper = new Helpers();
 
-            $employee_data = EmployeeProfile::with([
+            return $employee_data = EmployeeProfile::with([
                 'dailyTimeRecords' => function ($query) use ($year_of, $month_of) {
                     $query->whereYear('dtr_date', $year_of)
                         ->whereMonth('dtr_date', $month_of)
@@ -357,7 +371,7 @@ class EmployeeProfileController extends Controller
                     'schedule' => $scheduleCount,
 
                     // Salary values
-                    'grand_basic_salary' => $basicSalary,
+                    'base_salary' => $basicSalary,
                     'rates' => $rates,
                     'gross_salary' => $grossSalary,
                     'time_deductions' => [
@@ -394,12 +408,26 @@ class EmployeeProfileController extends Controller
                     ],
                 ];
             });
+            $payroll_period = PayrollPeriod::firstOrCreate(
+                [
+                    'month' => $month_of,
+                    'year' => $year_of,
+                    'employment_type' => $employment_type,
+                    'period_type' => $first_half ? "first_half" : ($second_half ? "second_half" : 'full_month'),
+                ],
+                [
+                    'period_start' => $first_half ? 1 : ($second_half ? 16 : 1),
+                    'period_end' => $first_half ? 15 : ($second_half ? $totalDaysInMonth : $totalDaysInMonth),
+                    'days_of_duty' => 22, // Temporary
+                ]
+            );
 
             $response_data = [
                 "month_of" => $month_of,
                 "year_of" => $year_of,
                 "first_half" => $first_half,
                 "second_half" => $second_half,
+                "payroll_period" => $payroll_period,
                 "employees" => $data
             ];
 
@@ -425,48 +453,58 @@ class EmployeeProfileController extends Controller
     {
         $cache_data = json_decode(Cache::get($request->uuid), true);
 
-        $employee_controller = new EmployeeController();
-        $excluded_employee_controller = new ExcludedEmployeeController();
         $employee_salary_controller = new EmployeeSalaryController();
 
+        $payroll_period = (object) $cache_data['payroll_period'];
         $employees = $cache_data['employees'];
         $month_of = $cache_data['month_of'];
         $year_of = $cache_data['year_of'];
         // $first_half = $cache_data['first_half'];
         // $second_half = $cache_data['second_half'];
 
-        $employee = [];
-
         foreach ($employees as $data) {
             if (is_array($data)) {
-                $employee = Employee::where('employee_number', $data['employee_id'])->first();
+                $find_employee = Employee::where('employee_number', $data['employee_id'])->first();
 
-                $response = $employee !== null
-                    ? $employee_controller->update(new EmployeeListRequest($data), $employee)
-                    : $employee_controller->store(new EmployeeListRequest($data));
+                $employee_details = [
+                    'employee_profile_id' => $data['employee']['profile_id'],
+                    'employee_number' => $data['employee_id'],
+                    'first_name' => $data['employee']['information']['first_name'],
+                    'last_name' => $data['employee']['information']['last_name'],
+                    'middle_name' => $data['employee']['information']['middle_name'],
+                    'extension_name' => $data['employee']['information']['name_extension'],
+                    'designation' => $data['employee']['designation']['name'],
+                    'assigned_area' => json_encode($data['assigned_area']),
+                    'is_newly_hired' => false,
+                    'is_excluded' => $data['is_out'],
+                    'is_resigned' => $data['is_out'],
+                    'status' => true,
+                ];
 
-                $responseData = $response->getData(true);
+                $employee = $find_employee !== null
+                    ? $this->employeeService->update($find_employee->id, $employee_details)
+                    : $this->employeeService->create($employee_details);
 
-                if (isset($responseData['data']['id'])) {
-                    $employee_id = $responseData['data']['id'];
-                }
 
-                $array_excluded_employees = [
-                    'employee_id' => $employee_id,
+                $excluded_employee_details = [
+                    'employee_id' => $employee->id,
+                    'payroll_period_id' => $payroll_period->id,
                     'month' => $month_of,
                     'year' => $year_of,
+                    'period_start' => $payroll_period->period_start,
+                    'period_end' => $payroll_period->period_end,
                     'reason' => json_encode([
                         'reason' => $this->getExclusionReason($data),
                         'remarks' => $this->getExclusionRemarks($data),
                         'amount' => $data['overall_net_salary']
                     ]),
-                    'is_removed' => 0,
+                    'is_removed' => false,
                 ];
 
-                $array_employee_salary = [
-                    'employee_id' => $employee_id,
+                $employee_salary_details = [
+                    'employee_id' => $employee->id,
                     'employment_type' => $data['employee']['employment_type']['name'],
-                    'basic_salary' => encrypt($data['grand_basic_salary']),
+                    'base_salary' => encrypt($data['grand_basic_salary']),
                     'salary_grade' => $data['salary_data']['salary_group']['salary_grade_number'],
                     'salary_step' => $data['salary_data']['step'],
                     'month' => $month_of,
@@ -474,28 +512,27 @@ class EmployeeProfileController extends Controller
                     'is_active' => 1
                 ];
 
-
                 // Handle ExcludedEmployee if out of payroll
                 if ($data['is_out'] === 1) {
-                    $excluded_employee = ExcludedEmployee::where('employee_id', $employee_id)
+                    $find_excluded_employee = ExcludedEmployee::where('employee_id', $employee->id)
                         ->where('month', $month_of)
                         ->where('year', $year_of)
                         ->first();
 
-                    $excludedEmployee === null
-                        ? $excluded_employee_controller->store(new Request($array_excluded_employees))
-                        : $excluded_employee_controller->update(new Request($array_excluded_employees), $excluded_employee);
+                    $find_excluded_employee === null
+                        ? $this->excludedEmployeeService->create($excluded_employee_details)
+                        : $this->excludedEmployeeService->update($find_excluded_employee->id, $excluded_employee_details);
                 }
 
                 // Handle EmployeeSalary
-                $employee_salary = EmployeeSalary::where('employee_id', $employee_id)
+                $employee_salary = EmployeeSalary::where('employee_id', $employee->id)
                     ->where('month', $month_of)
                     ->where('year', $year_of)
                     ->first();
 
                 $employee_salary_response = $employee_salary === null
-                    ? $employee_salary_controller->store(new EmployeeSalaryRequest($array_employee_salary))
-                    : $employee_salary_controller->update(new EmployeeSalaryRequest($array_employee_salary), $employee_salary);
+                    ? $employee_salary_controller->store(new EmployeeSalaryRequest($employee_salary_details))
+                    : $employee_salary_controller->update(new EmployeeSalaryRequest($employee_salary_details), $employee_salary);
 
                 $responseDataEmployeeSalary = $employee_salary_response->getData(true);
 
@@ -504,11 +541,11 @@ class EmployeeProfileController extends Controller
                 }
 
                 // Update other employee salaries to is_active = 0
-                EmployeeSalary::where('employee_id', $employee_id)
+                EmployeeSalary::where('employee_id', $employee)
                     ->where('id', '!=', $employee_salary_id)
                     ->update(['is_active' => 0]);
 
-                $employee[] = array_merge($responseData['data'], $data);
+                $employee[] = array_merge($employee, $data);
             }
         }
 
