@@ -51,6 +51,7 @@ class ReportsController extends Controller
             }
 
             $general_payroll = GeneralPayroll::with([
+                'Header',
                 'EmployeeList' => function ($query) {
                     $query->with([
                         'getTimeRecords' => function ($query) {
@@ -75,7 +76,6 @@ class ReportsController extends Controller
 
             $data = [];
             foreach ($general_payroll as $employee) {
-
                 //Decode json employee time record
                 $json_absent_dates = json_decode($employee->EmployeeList->getTimeRecords->absent_dates, true);
 
@@ -158,7 +158,7 @@ class ReportsController extends Controller
                         return \Carbon\Carbon::parse($date)->format('d');
                     })->implode(', ');
 
-                    $absent_dates = "{$month} {$days}";
+                    $absent_dates = "{$month} {$days} (" . count($absentDates) . "day/s)";
                 }
 
                 //validate employment type 
@@ -180,8 +180,8 @@ class ReportsController extends Controller
                 $total_net_pay = $gross_salary - $total_deduction; // Total net pay
 
                 // Split the total net pay into 1st half and 2nd half
-                $net_salary_first_half = round($total_net_pay / 2, 2); // Round to 2 decimal places
-                $net_salary_second_half = $total_net_pay - $net_salary_first_half; // Ensure the total matches
+                $net_salary_first_half = floor($total_net_pay / 2);
+                $net_salary_second_half = $total_net_pay - $net_salary_first_half;
 
                 // Construct employee details
                 $employee_details = [
@@ -235,7 +235,7 @@ class ReportsController extends Controller
                     'remarks' => $absent_dates ?? null,
 
                     // Date
-                    'month' => \Carbon\Carbon::create()->month($employee->month)->format('F'),
+                    'month' => \Carbon\Carbon::create()->month($employee->month)->format('F') . ", " . $employee->Header->fromPeriod . "-" . $employee->Header->toPeriod,
                     'year' => $employee->year,
                     'created_at' => $employee->created_at,
                 ];
