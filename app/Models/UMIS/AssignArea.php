@@ -60,7 +60,6 @@ class AssignArea extends Model
         return $this->belongsTo(SalaryGrade::class);
     }
 
-
     public function findDetails()
     {
         if ($this->division_id !== null) {

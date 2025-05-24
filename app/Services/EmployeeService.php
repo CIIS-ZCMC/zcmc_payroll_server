@@ -23,19 +23,19 @@ class EmployeeService
 
     public function update($id, array $data)
     {
-        $employee = Employee::find($id);
-        if ($employee) {
-            $employee->update($data);
-            return $employee;
+        $model = Employee::find($id);
+        if ($model) {
+            $model->update($data);
+            return $model;
         }
         return null;
     }
 
     public function destroy($id)
     {
-        $employee = Employee::find($id);
-        if ($employee) {
-            $employee->delete();
+        $model = Employee::find($id);
+        if ($model) {
+            $model->delete();
             return true;
         }
         return false;

@@ -2,18 +2,19 @@
 
 namespace App\Services;
 
-use App\Models\ExcludedEmployee;
+use App\Models\EmployeeTimeRecord;
 
-class ExcludeEmployeeService
+
+class EmployeeTimeRecordService
 {
     public function create(array $data)
     {
-        return ExcludedEmployee::create($data);
+        return EmployeeTimeRecord::create($data);
     }
 
     public function update($id, array $data)
     {
-        $model = ExcludedEmployee::find($id);
+        $model = EmployeeTimeRecord::find($id);
         if ($model) {
             $model->update($data);
             return $model;

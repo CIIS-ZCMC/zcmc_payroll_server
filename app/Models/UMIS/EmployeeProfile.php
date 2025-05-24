@@ -4,6 +4,7 @@ namespace App\Models\UMIS;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class EmployeeProfile extends Model
 {
@@ -100,5 +101,56 @@ class EmployeeProfile extends Model
                 $query->whereTime('second_in', '>=', '18:00') // Check second_in for 6 PM
                     ->whereTime('second_out', '>=', '06:00'); // Check second_out for 6 AM
             });
+    }
+
+    public function getAbsentDates($year, $month)
+    {
+        $generateDateRange = function ($from, $to) {
+            $start = Carbon::parse($from);
+            $end = Carbon::parse($to);
+            $dates = [];
+            while ($start->lte($end)) {
+                $dates[] = $start->format('Y-m-d');
+                $start->addDay();
+            }
+            return $dates;
+        };
+
+        $schedule_dates = $this->schedule->map(function ($s) {
+            return Carbon::parse($s->date)->format('Y-m-d');
+        })->unique();
+
+        $leave_dates = collect($this->leaveApplications)
+            ->where('status', 'received')
+            ->flatMap(function ($l) use ($generateDateRange) {
+                return $generateDateRange($l->date_from, $l->date_to);
+            })
+            ->unique();
+
+        $ob_dates = collect($this->approvedOB)
+            ->flatMap(function ($ob) use ($generateDateRange) {
+                return $generateDateRange($ob->date_from, $ob->date_to);
+            })
+            ->unique();
+
+        $ot_dates = collect($this->approvedOT)
+            ->flatMap(function ($ot) use ($generateDateRange) {
+                return $generateDateRange($ot->date_from, $ot->date_to);
+            })
+            ->unique();
+
+        $dtr_dates = $this->employeeDtr->pluck('dtr_date')->map(function ($d) {
+            return Carbon::parse($d)->format('Y-m-d');
+        })->unique();
+
+        $covered_dates = $leave_dates
+            ->merge($ob_dates)
+            ->merge($ot_dates)
+            ->merge($dtr_dates)
+            ->unique();
+
+        return $schedule_dates->reject(function ($d) use ($covered_dates) {
+            return $covered_dates->contains($d);
+        })->values();
     }
 }

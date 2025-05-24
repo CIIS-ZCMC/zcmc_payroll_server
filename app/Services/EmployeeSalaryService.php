@@ -2,18 +2,18 @@
 
 namespace App\Services;
 
-use App\Models\ExcludedEmployee;
+use App\Models\EmployeeSalary;
 
-class ExcludeEmployeeService
+class EmployeeSalaryService
 {
     public function create(array $data)
     {
-        return ExcludedEmployee::create($data);
+        return EmployeeSalary::create($data);
     }
 
     public function update($id, array $data)
     {
-        $model = ExcludedEmployee::find($id);
+        $model = EmployeeSalary::find($id);
         if ($model) {
             $model->update($data);
             return $model;

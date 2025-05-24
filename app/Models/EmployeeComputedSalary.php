@@ -4,24 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeComputedSalary extends Model
 {
-    use HasFactory;
+    use SoftDeletes, HasFactory;
 
     protected $table = 'employee_computed_salaries';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'time_record_id',
+        'employee_id',
+        'employee_time_record_id',
         'computed_salary'
     ];
 
-    public function timeRecord()
+    public $timestamps = true;
+
+    public function employee()
     {
-        return $this->belongsTo(TimeRecord::class);
+        return $this->belongsTo(Employee::class);
     }
 
-    public $timestamps = true;
+    public function employeeTimeRecord()
+    {
+        return $this->belongsTo(EmployeeTimeRecord::class);
+    }
 }

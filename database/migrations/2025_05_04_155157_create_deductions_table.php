@@ -20,7 +20,7 @@ class CreateDeductionsTable extends Migration
             $table->foreign('deduction_group_id')->references('id')->on('deduction_groups');
             $table->string('name');
             $table->string('code');
-            $table->string('type');
+            $table->string('type')->default('fixed')->comment('fixed / percentage / conditional');
             $table->string('condition_operator')->nullable();
             $table->double('condition_value')->nullable();
             $table->double('percent_value')->nullable();

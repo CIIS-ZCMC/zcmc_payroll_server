@@ -28,4 +28,10 @@ class Employee extends Model
         'status',
     ];
     public $timestamps = true;
+
+    public function employeeSalary()
+    {
+        // return $this->hasMany(EmployeeSalary::class)->latest();
+        return $this->hasOne(EmployeeSalary::class)->latestOfMany();
+    }
 }

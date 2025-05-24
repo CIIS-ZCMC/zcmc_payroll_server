@@ -26,9 +26,9 @@ class EmployeeResource extends JsonResource
             'status' => $this->status,
             'is_newly_hired' => $this->is_newly_hired,
             'is_excluded' => $this->is_excluded,
+            'salary' => new EmployeeSalaryResource($this->employeeSalary),
             'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('deductions')),
-            'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('receivables')),
-            'salaries' => EmployeeSalaryResource::collection($this->whenLoaded('salaries')),
+            'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('receivables'))
         ];
     }
 }

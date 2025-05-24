@@ -15,7 +15,8 @@ class EmployeeReceivable extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'employee_list_id',
+        'payroll_period_id',
+        'employee_id',
         'receivable_id',
         'amount',
         'percentage',
