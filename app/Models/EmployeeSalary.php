@@ -15,6 +15,7 @@ class EmployeeSalary extends Model
 
     protected $fillable = [
         'employee_id',
+        'payroll_period_id',
         'employment_type',
         'base_salary',
         'salary_grade',
@@ -29,5 +30,10 @@ class EmployeeSalary extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function payrollPeriod()
+    {
+        return $this->belongsTo(PayrollPeriod::class, 'payroll_period_id');
     }
 }

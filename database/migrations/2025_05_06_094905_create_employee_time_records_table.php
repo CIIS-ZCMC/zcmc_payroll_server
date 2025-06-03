@@ -17,6 +17,8 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')->references('id')->on('employees');
+            $table->unsignedBigInteger('payroll_period_id')->nullable();
+            $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
             $table->double('minutes')->comment('rate');
             $table->double('daily')->comment('rate');
             $table->double('hourly')->comment('rate');

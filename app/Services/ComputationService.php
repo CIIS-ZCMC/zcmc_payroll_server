@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\EmployeeReceivable;
 use App\Models\Receivable;
+use Symfony\Component\HttpFoundation\Response;
 
 class ComputationService
 {
@@ -31,7 +33,7 @@ class ComputationService
         return $grossSalary;
     }
 
-    public function hazardPay($salary_grade, $basic_salary, $working_days)//leave is not included
+    public function hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $working_days)//leave is not included
     {
         $salary_percentage = 0.0;
 
@@ -59,46 +61,96 @@ class ComputationService
             $salary_percentage = 0.05;
         }
 
-        if ($working_days >= 12) {
-            return (double) ($basic_salary * $salary_percentage);
-        } else if ($working_days <= 11) {
-            return (double) ($basic_salary * 0.14);
-        } else if ($working_days <= 6) {
-            return (double) ($basic_salary * 0.8);
-        } else {
-            return 0.00;
+        $amount = ($working_days >= 12)
+            ? (double) ($basic_salary * $salary_percentage)
+            : (($working_days <= 11) ? (double) ($basic_salary * 0.14)
+                : (($working_days <= 6) ? (double) ($basic_salary * 0.8) : 0.00));
+
+        if ($payroll_period_id !== null && $employee_id !== null) {
+            if ($employment_type !== 'Job Order') {
+                $hazard = Receivable::where('receivable_uuid', 'R-AjGZkFJiCn')->first();
+
+                EmployeeReceivable::updateOrCreate(
+                    [
+                        'payroll_period_id' => $payroll_period_id,
+                        'employee_id' => $employee_id,
+                        'receivable_id' => $hazard->id
+                    ],
+                    [
+                        'amount' => $amount,
+                        'status' => "active",
+                        'frequency' => "monthly",
+                        'is_default' => true
+                    ]
+                );
+
+                return response()->json(['message' => 'Data Successfully saved (HAZARD)'], Response::HTTP_OK);
+            }
         }
+
+        return $amount;
     }
 
-    public function pera($no_of_present_days, $no_of_absences, $employment_type, $required_duty_days)
+    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days)
     {
-        $pera = Receivable::where('code', 'PERA')->first();
+        $pera = Receivable::where('receivable_uuid', 'R-vwF8e28Fnz')->first();
 
-        $pera_full_amount = $pera->fixed_amount;
-        $pera_half_amount = $pera->fixed_amount / 2;
+        $pera_full_amount = round($pera->fixed_amount, 2);
+        $pera_half_amount = round($pera->fixed_amount / 2, 2);
 
         $pera_daily_amount = null;
 
-        if ($employment_type === 'Permanent Part-time') {
-            $pera_daily_amount = $pera_half_amount / $required_duty_days;
-        } elseif ($employment_type !== 'Permanent Part-time' && $employment_type !== 'Job Order') {
-            $pera_daily_amount = $pera_full_amount / $required_duty_days;
-        }
+        if ($no_of_present_days > 1) {
 
-        $daily_amount = number_format($pera_daily_amount, 2, '.', '');
+            // as of now pera_amount is 
+            // 1000 for Permanent Part-time per month
+            // 2000 for Full-Time and Other employment Type per month except JO
+            // required_duty_days is 22 for now
 
-        if ($no_of_absences >= 1) {
-            return ['amount' => $no_of_present_days * $daily_amount];
-        } elseif ($no_of_present_days >= $required_duty_days) {
-            $amount = null;
             if ($employment_type === 'Permanent Part-time') {
-                $amount = $pera_half_amount;
+                $pera_daily_amount = $pera_half_amount / $required_duty_days;
             } elseif ($employment_type !== 'Permanent Part-time' && $employment_type !== 'Job Order') {
-                $amount = $pera_full_amount;
+                $pera_daily_amount = $pera_full_amount / $required_duty_days;
             }
 
-            return ['amount' => $amount];
+            $amount = null;
+            $daily_amount = round($pera_daily_amount, 2);
+
+            if ($no_of_present_days >= $required_duty_days) {
+                $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
+            } else {
+                $amount = $no_of_present_days * $daily_amount;
+            }
+
+            if ($payroll_period_id !== null && $employee_id !== null) {
+                EmployeeReceivable::updateOrCreate(
+                    [
+                        'payroll_period_id' => $payroll_period_id,
+                        'employee_id' => $employee_id,
+                        'receivable_id' => $pera->id
+                    ],
+                    [
+                        'amount' => $amount,
+                        'status' => "active",
+                        'frequency' => "monthly",
+                        'is_default' => true
+                    ]
+                );
+
+                return response()->json(['message' => 'Data Successfully saved (PERA)'], Response::HTTP_OK);
+            }
+
+
+            return [
+                'id' => $pera->id,
+                'amount' => $amount
+            ];
         }
+
+        return [
+            'id' => $pera->id,
+            'amount' => 0
+        ];
     }
 
 }

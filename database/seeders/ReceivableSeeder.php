@@ -16,7 +16,7 @@ class ReceivableSeeder extends Seeder
     public function run()
     {
         Receivable::firstOrCreate([
-            'receivable_uuid' => "R-" . substr(str_replace('-', '', substr(str_replace('-', '', Str::uuid()), 0, 10)), 0, 10),
+            'receivable_uuid' => "R-vwF8e28Fnz",
             'name' => 'Personnel Economic Relief Allowance',
             'code' => 'PERA',
             'type' => 'fixed',
@@ -25,10 +25,8 @@ class ReceivableSeeder extends Seeder
             'status' => 'Active',
         ]);
 
-
-
         Receivable::firstOrCreate([
-            'receivable_uuid' => "R-" . substr(str_replace('-', '', Str::uuid()), 0, 10),
+            'receivable_uuid' => "R-AjGZkFJiCn",
             'name' => 'Hazard',
             'code' => 'HAZARD',
             'type' => 'fixed',
@@ -38,7 +36,7 @@ class ReceivableSeeder extends Seeder
         ]);
 
         Receivable::firstOrCreate([
-            'receivable_uuid' => "R-" . substr(str_replace('-', '', Str::uuid()), 0, 10),
+            'receivable_uuid' => "R-i5QXirTzLi",
             'name' => 'REPRESENTATION ALLOWANCE',
             'code' => 'REPS',
             'type' => 'fixed',
@@ -48,7 +46,7 @@ class ReceivableSeeder extends Seeder
         ]);
 
         Receivable::firstOrCreate([
-            'receivable_uuid' => "R-" . substr(str_replace('-', '', Str::uuid()), 0, 10),
+            'receivable_uuid' => "R-7Voi7kcTJp",
             'name' => 'TRANSPORATION  ALLOWANCE',
             'code' => 'TRANS',
             'type' => 'fixed',
@@ -58,7 +56,7 @@ class ReceivableSeeder extends Seeder
         ]);
 
         Receivable::firstOrCreate([
-            'receivable_uuid' => "R-" . substr(str_replace('-', '', Str::uuid()), 0, 10),
+            'receivable_uuid' => "R-6TWquJRBE9",
             'name' => 'CELL CARD ALLOWANCE',
             'code' => 'CELL',
             'type' => 'fixed',

@@ -16,6 +16,7 @@ class EmployeeTimeRecordResource extends JsonResource
     {
         return [
             'employee' => new EmployeeResource($this->employee),
+            'payroll_period' => new PayrollPeriodResource($this->payrollPeriod),
             'minutes' => $this->minutes,
             'daily' => $this->daily,
             'hourly' => $this->hourly,
