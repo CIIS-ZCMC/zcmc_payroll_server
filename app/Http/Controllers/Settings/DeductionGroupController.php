@@ -87,7 +87,7 @@ class DeductionGroupController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        // Check if code already exists in other deductions
+        // Check if code already exists in other deductions group
         if ($request->has('code')) {
             $existing = DeductionGroup::whereNull('deleted_at')
                 ->where('code', $request->input('code'))

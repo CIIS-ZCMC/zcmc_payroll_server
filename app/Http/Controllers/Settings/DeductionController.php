@@ -89,9 +89,9 @@ class DeductionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $deduction = Deduction::findOrFail($id);
+        $data = Deduction::findOrFail($id);
 
-        if (!$deduction) {
+        if (!$data) {
             return response()->json([
                 'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
@@ -100,7 +100,7 @@ class DeductionController extends Controller
         // Check if code already exists in other deductions
         if ($request->has('code')) {
             $existing = Deduction::whereNull('deleted_at')
-                ->where('code', $request->isnput('code'))
+                ->where('code', $request->input('code'))
                 ->where('id', '!=', $id)
                 ->first();
 
@@ -111,10 +111,10 @@ class DeductionController extends Controller
             }
         }
 
-        $deduction->update($request->all());
+        $data->update($request->all());
 
         return response()->json([
-            'data' => new DeductionResource($deduction),
+            'data' => new DeductionResource($data),
             'message' => "Data Successfully updated"
         ], Response::HTTP_OK);
 

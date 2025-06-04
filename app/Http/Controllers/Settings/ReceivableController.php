@@ -19,7 +19,7 @@ class ReceivableController extends Controller
     public function index()
     {
         return response()->json([
-            'responseData' => ReceivableResource::collection(Receivable::all()),
+            'responseData' => ReceivableResource::collection(Receivable::whereNull('deleted_at')->get()),
             'message' => 'Receivables retrieved successfully.'
         ], Response::HTTP_OK);
 
@@ -34,7 +34,22 @@ class ReceivableController extends Controller
      */
     public function store(ReceivableRequest $request)
     {
-        $data = Receivable::create($request->all());
+        $validate = $request->validated();
+        $validate_code = Receivable::whereNull('deleted_at')->where('code', $validate['code'])->first();
+
+        if ($validate_code) {
+            return response()->json(['message' => 'Code already exist'], Response::HTTP_FOUND);
+        }
+
+        if ($validate['type'] === null) {
+            if ($validate['percent_value'] !== null) {
+                $validate['type'] = 'percentage';
+            } elseif ($validate['fixed_amount'] !== null) {
+                $validate['type'] = 'fixed';
+            }
+        }
+
+        $data = Receivable::create($validate);
 
         return response()->json([
             'data' => new ReceivableResource($data),
@@ -77,8 +92,22 @@ class ReceivableController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => "Receivable not found",
+                'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Check if code already exists in other receivables
+        if ($request->has('code')) {
+            $existing = Receivable::whereNull('deleted_at')
+                ->where('code', $request->input('code'))
+                ->where('id', '!=', $id)
+                ->first();
+
+            if ($existing) {
+                return response()->json([
+                    'message' => 'Code already exist'
+                ], Response::HTTP_FOUND);
+            }
         }
 
         $data->update($request->all());
@@ -107,8 +136,6 @@ class ReceivableController extends Controller
 
         $data->delete();
 
-        return response()->json([
-            'message' => "Receivable deleted successfully",
-        ], Response::HTTP_OK);
+        return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
     }
 }

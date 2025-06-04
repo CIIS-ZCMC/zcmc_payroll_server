@@ -25,8 +25,8 @@ class DeductionRequest extends FormRequest
     {
         return [
             'deduction_group_id' => 'required|integer',
-            'code' => 'required|string',
             'name' => 'required|string',
+            'code' => 'required|string',
             'type' => 'nullable|string',
             'condition_operator' => 'nullable|string',
             'condition_value' => 'nullable|string',

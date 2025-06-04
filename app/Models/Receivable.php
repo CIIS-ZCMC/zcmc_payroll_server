@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Receivable extends Model
 {
@@ -15,6 +16,7 @@ class Receivable extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'receivable_uuid',
         'name',
         'code',
         'type',
@@ -27,4 +29,15 @@ class Receivable extends Model
     ];
 
     public $timestamps = true;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->receivable_uuid)) {
+                $model->receivable_uuid = 'R-' . substr(str_replace('-', '', Str::uuid()), 0, 10);
+            }
+        });
+    }
 }
