@@ -37,7 +37,7 @@ class DeductionSeeder extends Seeder
             'deduction_group_id' => $PhilHealth,
             'name' => 'PHILHEALTH Premium',
             'code' => 'PHIC',
-            'type' => 'fixed',
+            'type' => 'conditional',
             'fixed_amount' => 0,
         ]);
 

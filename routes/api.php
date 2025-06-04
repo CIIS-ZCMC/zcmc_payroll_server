@@ -66,14 +66,6 @@ Route::
                     Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
                     Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
 
-
-                    Route::get('deductions', 'DeductionController@index');
-                    Route::post('deduction', 'DeductionController@store');
-                    Route::get('deduction/{id}', 'DeductionController@show');
-                    Route::put('deduction/{id}', 'DeductionController@update');
-                    Route::delete('deduction/{id}', 'DeductionController@destroy');
-                    Route::put('deduction-stop/{id}', 'DeductionController@stop');
-
                     Route::get('deduction-employment-type', 'DeductionController@getEmploymentType');
                     Route::get('deduction-designation', 'DeductionController@getDesignation');
                     Route::get('deduction-area', 'DeductionController@getArea');
@@ -174,10 +166,12 @@ Route::
         
             //Libraries
             Route::namespace('Settings')->group(function () {
-                Route::apiResource('deduction-groups', 'DeductionGroupController');
+                Route::put('deduction-stop/{id}', 'DeductionController@stop');
                 Route::apiResource('deductions', 'DeductionController');
                 Route::apiResource('deduction-rules', 'DeductionRuleController');
+                Route::apiResource('deduction-groups', 'DeductionGroupController');
                 Route::apiResource('receivables', 'ReceivableController');
+
             });
 
             // UMIS

@@ -19,7 +19,7 @@ class DeductionController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => DeductionResource::collection(Deduction::all()),
+            'data' => DeductionResource::collection(Deduction::whereNull('deleted_at')->get()),
             'message' => "Data Successfully retrieved"
         ], Response::HTTP_OK);
     }
@@ -33,7 +33,22 @@ class DeductionController extends Controller
      */
     public function store(DeductionRequest $request)
     {
-        $data = Deduction::create($request->all());
+        $validate = $request->validated();
+        $validate_code = Deduction::whereNull('deleted_at')->where('code', $validate['code'])->first();
+
+        if ($validate_code) {
+            return response()->json(['message' => 'Code already exist'], Response::HTTP_FOUND);
+        }
+
+        if ($validate['type'] === null) {
+            if ($validate['percent_value'] !== null) {
+                $validate['type'] = 'percentage';
+            } elseif ($validate['fixed_amount'] !== null) {
+                $validate['type'] = 'fixed';
+            }
+        }
+
+        $data = Deduction::create($validate);
 
         return response()->json([
             'data' => new DeductionResource($data),
@@ -80,6 +95,20 @@ class DeductionController extends Controller
             return response()->json([
                 'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Check if code already exists in other deductions
+        if ($request->has('code')) {
+            $existing = Deduction::whereNull('deleted_at')
+                ->where('code', $request->isnput('code'))
+                ->where('id', '!=', $id)
+                ->first();
+
+            if ($existing) {
+                return response()->json([
+                    'message' => 'Code already exist'
+                ], Response::HTTP_FOUND);
+            }
         }
 
         $deduction->update($request->all());

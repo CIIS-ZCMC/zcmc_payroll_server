@@ -19,7 +19,7 @@ class DeductionGroupController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => DeductionGroupResource::collection(DeductionGroup::all()),
+            'data' => DeductionGroupResource::collection(DeductionGroup::whereNull('deleted_at')->get()),
             'message' => "Data Successfully retrieved"
         ], Response::HTTP_OK);
     }
@@ -32,7 +32,14 @@ class DeductionGroupController extends Controller
      */
     public function store(DeductionGroupRequest $request)
     {
-        $data = DeductionGroup::create($request->all());
+        $validate = $request->validated();
+        $validate_code = DeductionGroup::whereNull('deleted_at')->where('code', $validate['code'])->first();
+
+        if ($validate_code) {
+            return response()->json(['message' => 'Code already exist'], Response::HTTP_FOUND);
+        }
+
+        $data = DeductionGroup::create($validate);
 
         return response()->json([
             'data' => new DeductionGroupResource($data),
@@ -76,8 +83,22 @@ class DeductionGroupController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => 'No record found.'
+                'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Check if code already exists in other deductions
+        if ($request->has('code')) {
+            $existing = DeductionGroup::whereNull('deleted_at')
+                ->where('code', $request->input('code'))
+                ->where('id', '!=', $id)
+                ->first();
+
+            if ($existing) {
+                return response()->json([
+                    'message' => 'Code already exist'
+                ], Response::HTTP_FOUND);
+            }
         }
 
         $data->update($request->all());

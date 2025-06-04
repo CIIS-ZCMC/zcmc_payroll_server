@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Deduction extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'deductions';
 
@@ -28,6 +30,17 @@ class Deduction extends Model
     ];
 
     public $timestamps = true;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->deduction_uuid)) {
+                $model->deduction_uuid = 'D-' . substr(str_replace('-', '', Str::uuid()), 0, 10);
+            }
+        });
+    }
 
     public function deductionGroup()
     {
