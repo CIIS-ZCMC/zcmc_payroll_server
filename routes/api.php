@@ -35,10 +35,6 @@ Route::
             // Secure End Points
             Route::middleware('auth.token')->group(function () {
 
-                Route::get('test', function () {
-                    return 'test';
-                });
-
                 Route::namespace('Authentication')->group(function () {
                     Route::get('revalidate-session', 'LoginController@validateSession');
                     Route::delete('sign-out', 'LoginController@destroy');
@@ -70,11 +66,6 @@ Route::
                     Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
                     Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
 
-                    Route::get('deduction-groups', 'DeductionGroupController@index');
-                    Route::post('deduction-group', 'DeductionGroupController@store');
-                    Route::get('deduction-group/{id}', 'DeductionGroupController@show');
-                    Route::put('deduction-group/{id}', 'DeductionGroupController@update');
-                    Route::delete('deduction-group/{id}', 'DeductionGroupController@destroy');
 
                     Route::get('deductions', 'DeductionController@index');
                     Route::post('deduction', 'DeductionController@store');
@@ -177,15 +168,6 @@ Route::
                     Route::get('reports-total-deductions', 'ReportsController@requestDeductions');
                 });
 
-                /** 
-                 * Fetch Data From UMIS
-                 */
-                Route::namespace('UMIS')->group(function () {
-                    Route::get('fetch_record_step_1', 'EmployeeProfileController@fetchStep1');
-                    Route::post('fetch_record_step_2', 'EmployeeProfileController@fetchStep2');
-                    Route::post('fetch_record_step_3', 'EmployeeProfileController@fetchStep3');
-                    Route::post('fetch_record_step_4', 'EmployeeProfileController@fetchStep4');
-                });
             });
 
             //Version 2 Api's

@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\DeductionGroup;
 use Illuminate\Database\Seeder;
-use Str;
+use Illuminate\Support\Str;
 
 class DeductionGroupSeeder extends Seeder
 {
