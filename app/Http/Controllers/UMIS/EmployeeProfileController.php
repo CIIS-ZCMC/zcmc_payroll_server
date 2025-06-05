@@ -168,11 +168,11 @@ class EmployeeProfileController extends Controller
                 }
             ]);
 
-            if ($employment_type === 'Job Order') {
-                $employee_data->where('employee_id', 5);
-            } else {
-                $employee_data->where('employee_id', '!=', 5);
-            }
+            // if ($employment_type === 'Job Order') {
+            //     $employee_data->where('employee_id', 5);
+            // } else {
+            //     $employee_data->where('employee_id', '!=', 5);
+            // }
 
             $employee_data = $employee_data->get();
 
@@ -583,6 +583,7 @@ class EmployeeProfileController extends Controller
         $period_end = $cache_data['period_end'];
         $first_half = $cache_data['first_half'];
         $second_half = $cache_data['second_half'];
+        $payroll_employment_type = $cache_data['employment_type'];
 
         $defaultMonthCount = cal_days_in_month(CAL_GREGORIAN, $month_of, $year_of);
         $from = 1;
@@ -591,10 +592,41 @@ class EmployeeProfileController extends Controller
         $result = null;
         foreach ($employees as $data) {
             if ($data['is_excluded'] === false) {
-                $employment_type = $data['employment_type']['name'];
+                // $employment_type = $data['employment_type']['name'];
+
+                // // Adjust period for Job Order employees
+                // if ($employment_type === "Job Order") {
+                //     if ($first_half) {
+                //         $from = 1;
+                //         $to = 15;
+                //     } elseif ($second_half) {
+                //         $from = 16;
+                //         $to = $defaultMonthCount;
+                //     }
+                // }
+
+                $employment_type = strtolower($data['employment_type']['name']);
+
+                // Filter employees based on payroll employment type
+                $valid_employment_types = [];
+
+                if ($payroll_employment_type === 'permanent') {
+                    $valid_employment_types = [
+                        'permanent full-time',
+                        'permanent part-time',
+                        'permanent cti',
+                        'temporary'
+                    ];
+                } elseif ($payroll_employment_type === 'job order') {
+                    $valid_employment_types = ['job order'];
+                }
+
+                if (!in_array($employment_type, $valid_employment_types)) {
+                    continue; // Skip this employee
+                }
 
                 // Adjust period for Job Order employees
-                if ($employment_type === "Job Order") {
+                if ($employment_type === "job order") {
                     if ($first_half) {
                         $from = 1;
                         $to = 15;
