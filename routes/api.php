@@ -1,6 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Employees\EmployeeController;
+use App\Http\Controllers\Settings\DeductionController;
+use App\Http\Controllers\Settings\DeductionGroupController;
+use App\Http\Controllers\Settings\DeductionRuleController;
+use App\Http\Controllers\Settings\ReceivableController;
+use App\Http\Controllers\UMIS\EmployeeProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -162,23 +167,22 @@ Route::
 
             });
 
-            //Version 2 Api's
-        
-            //Libraries
-            Route::namespace('Settings')->group(function () {
-                Route::put('deduction-stop/{id}', 'DeductionController@stop');
-                Route::apiResource('deductions', 'DeductionController');
-                Route::apiResource('deduction-rules', 'DeductionRuleController');
-                Route::apiResource('deduction-groups', 'DeductionGroupController');
-                Route::apiResource('receivables', 'ReceivableController');
-
-            });
-
-            // UMIS
-            Route::namespace('UMIS')->group(function () {
-                Route::get('fetch_record_step_1', 'EmployeeProfileController@fetchStep1');
-                Route::post('fetch_record_step_2', 'EmployeeProfileController@fetchStep2');
-                Route::post('fetch_record_step_3', 'EmployeeProfileController@fetchStep3');
-                Route::post('fetch_record_step_4', 'EmployeeProfileController@fetchStep4');
-            });
         });
+
+//Version 2 Api's
+
+//Libraries
+Route::put('deduction-stop/{id}', [DeductionController::class, 'stop']);
+Route::apiResource('deductions', DeductionController::class);
+Route::apiResource('deduction-rules', DeductionRuleController::class);
+Route::apiResource('deduction-groups', DeductionGroupController::class);
+Route::apiResource('receivables', ReceivableController::class);
+
+// UMIS
+Route::get('fetch_record_step_1', [EmployeeProfileController::class, 'fetchStep1']);
+Route::post('fetch_record_step_2', [EmployeeProfileController::class, 'fetchStep2']);
+Route::post('fetch_record_step_3', [EmployeeProfileController::class, 'fetchStep3']);
+Route::post('fetch_record_step_4', [EmployeeProfileController::class, 'fetchStep4']);
+
+//Employee
+Route::apiResource('employees', EmployeeController::class)->only(['index']);

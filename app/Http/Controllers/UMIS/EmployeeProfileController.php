@@ -306,7 +306,7 @@ class EmployeeProfileController extends Controller
 
                 //  This function Return True or False
                 $salaryLimit = $employee->employmentType->name === "Job Order" ? 2500 : 5000;
-                $outOfPayroll = $netPay < $salaryLimit;
+                $outOfPayroll = $netPay <= $salaryLimit ? 'true' : 'false'; //if net_pay or less than salary limit, then out of payroll
 
                 $first_in = $employee->nigthDuties->first()->first_in ?? null;
                 $first_out = $employee->nigthDuties->first()->first_out ?? null;
@@ -591,126 +591,127 @@ class EmployeeProfileController extends Controller
 
         $result = null;
         foreach ($employees as $data) {
-            if ($data['is_excluded'] === false) {
-                // $employment_type = $data['employment_type']['name'];
+            // $employment_type = $data['employment_type']['name'];
 
-                // // Adjust period for Job Order employees
-                // if ($employment_type === "Job Order") {
-                //     if ($first_half) {
-                //         $from = 1;
-                //         $to = 15;
-                //     } elseif ($second_half) {
-                //         $from = 16;
-                //         $to = $defaultMonthCount;
-                //     }
-                // }
+            // // Adjust period for Job Order employees
+            // if ($employment_type === "Job Order") {
+            //     if ($first_half) {
+            //         $from = 1;
+            //         $to = 15;
+            //     } elseif ($second_half) {
+            //         $from = 16;
+            //         $to = $defaultMonthCount;
+            //     }
+            // }
 
-                $employment_type = strtolower($data['employment_type']['name']);
+            $employment_type = strtolower($data['employment_type']['name']);
 
-                // Filter employees based on payroll employment type
-                $valid_employment_types = [];
+            // Filter employees based on payroll employment type
+            $valid_employment_types = [];
 
-                if ($payroll_employment_type === 'permanent') {
-                    $valid_employment_types = [
-                        'permanent full-time',
-                        'permanent part-time',
-                        'permanent cti',
-                        'temporary'
-                    ];
-                } elseif ($payroll_employment_type === 'job order') {
-                    $valid_employment_types = ['job order'];
-                }
-
-                if (!in_array($employment_type, $valid_employment_types)) {
-                    continue; // Skip this employee
-                }
-
-                // Adjust period for Job Order employees
-                if ($employment_type === "job order") {
-                    if ($first_half) {
-                        $from = 1;
-                        $to = 15;
-                    } elseif ($second_half) {
-                        $from = 16;
-                        $to = $defaultMonthCount;
-                    }
-                }
-
-                $data['time_record']['night_differentials'] = array_sum(array_column($data['time_record']['night_differentials'], 'total_hours'));
-
-                $employee_time_record_details = [
-                    'employee_id' => $data['id'],
-                    'payroll_period_id' => $period_id,
-                    'minutes' => $data['time_record']['rates']['minutes'],
-                    'daily' => $data['time_record']['rates']['daily'],
-                    'hourly' => $data['time_record']['rates']['hourly'],
-                    'absent_rate' => $data['time_record']['absent_rate'],
-                    'undertime_rate' => $data['time_record']['undertime_rate'],
-                    'base_salary' => $data['time_record']['base_salary'],
-                    'initial_net_pay' => $data['time_record']['initial_net_pay'],
-                    'net_pay' => $data['time_record']['net_pay'],
-                    'total_working_minutes' => $data['time_record']['total_working_minutes'],
-                    'total_working_minutes_with_leave' => $data['time_record']['total_working_minutes_with_leave'],
-                    'total_working_hours' => $data['time_record']['total_working_hours'],
-                    'total_working_hours_with_leave' => $data['time_record']['total_working_hours_with_leave'],
-                    'total_overtime_minutes' => $data['time_record']['total_overtime_minutes'],
-                    'total_undertime_minutes' => $data['time_record']['total_undertime_minutes'],
-                    'total_official_business_minutes' => $data['time_record']['total_official_business_minutes'],
-                    'total_official_time_minutes' => $data['time_record']['total_official_time_minutes'],
-                    'total_leave_minutes' => $data['time_record']['total_leave_minutes'],
-                    'no_of_present_days' => $data['time_record']['no_of_present_days'],
-                    'no_of_present_days_with_leave' => $data['time_record']['no_of_present_days_with_leave'],
-                    'no_of_leave_wo_pay' => $data['time_record']['no_of_leave_wo_pay'],
-                    'no_of_leave_w_pay' => $data['time_record']['no_of_leave_w_pay'],
-                    'no_of_absences' => $data['time_record']['no_of_absences'],
-                    'no_of_invalid_entry' => $data['time_record']['no_of_invalid_entry'],
-                    'no_of_day_off' => $data['time_record']['no_of_day_off'],
-                    'no_of_schedule' => $data['time_record']['no_of_schedule'],
-                    'night_differentials' => json_encode($data['time_record']['night_differentials']),
-                    'absent_dates' => json_encode($data['time_record']['absent_dates']),
-                    'month' => $data['payroll']['month'],
-                    'year' => $data['payroll']['year'],
-                    'from' => $data['payroll']['from'],
-                    'to' => $data['payroll']['to'],
-                    'is_night_shift' => false,
-                    'is_active' => true
+            if ($payroll_employment_type === 'permanent') {
+                $valid_employment_types = [
+                    'permanent full-time',
+                    'permanent part-time',
+                    'permanent cti',
+                    'temporary'
                 ];
-
-                // Check if time record exists
-                $find_employee_time_record = EmployeeTimeRecord::where('employee_id', $data['id'])
-                    ->where('payroll_period_id', $period_id)
-                    ->where('month', $month_of)
-                    ->where('year', $year_of);
-
-                if ($employment_type === "Job Order") {
-                    $find_employee_time_record->where('from', $from)
-                        ->where('to', $to);
-                }
-
-                $find_result = $find_employee_time_record->first();
-
-                $find_result === null
-                    ? $result = $this->employeeTimeRecordService->create($employee_time_record_details)
-                    : $result = $this->employeeTimeRecordService->update($find_result->id, $employee_time_record_details);
-
-                EmployeeComputedSalary::updateOrCreate(
-                    [
-                        'employee_id' => $result->employee_id,
-                        'employee_time_record_id' => $result->id
-                    ],
-                    [
-                        'computed_salary' => $result->net_pay
-                    ]
-                );
-
-                // Deactivate other time records
-                EmployeeTimeRecord::where('payroll_period_id', '!=', $period_id)
-                    ->where('month', '!=', $month_of)
-                    ->where('year', '!=', $year_of)
-                    ->update(['is_active' => false]);
-
-                $time_record[] = $result;
+            } elseif ($payroll_employment_type === 'job order') {
+                $valid_employment_types = ['job order'];
             }
+
+            if (!in_array($employment_type, $valid_employment_types)) {
+                continue; // Skip this employee
+            }
+
+            // Adjust period for Job Order employees
+            if ($employment_type === "job order") {
+                if ($first_half) {
+                    $from = 1;
+                    $to = 15;
+                } elseif ($second_half) {
+                    $from = 16;
+                    $to = $defaultMonthCount;
+                }
+            }
+
+            $data['time_record']['night_differentials'] = array_sum(array_column($data['time_record']['night_differentials'], 'total_hours'));
+            $is_excluded = $data['time_record']['is_out'] === 'true' ? 1 : 0;
+
+            $employee_time_record_details = [
+                'employee_id' => $data['id'],
+                'payroll_period_id' => $period_id,
+                'minutes' => $data['time_record']['rates']['minutes'],
+                'daily' => $data['time_record']['rates']['daily'],
+                'hourly' => $data['time_record']['rates']['hourly'],
+                'absent_rate' => $data['time_record']['absent_rate'],
+                'undertime_rate' => $data['time_record']['undertime_rate'],
+                'base_salary' => $data['time_record']['base_salary'],
+                'initial_net_pay' => $data['time_record']['initial_net_pay'],
+                'net_pay' => $data['time_record']['net_pay'],
+                'total_working_minutes' => $data['time_record']['total_working_minutes'],
+                'total_working_minutes_with_leave' => $data['time_record']['total_working_minutes_with_leave'],
+                'total_working_hours' => $data['time_record']['total_working_hours'],
+                'total_working_hours_with_leave' => $data['time_record']['total_working_hours_with_leave'],
+                'total_overtime_minutes' => $data['time_record']['total_overtime_minutes'],
+                'total_undertime_minutes' => $data['time_record']['total_undertime_minutes'],
+                'total_official_business_minutes' => $data['time_record']['total_official_business_minutes'],
+                'total_official_time_minutes' => $data['time_record']['total_official_time_minutes'],
+                'total_leave_minutes' => $data['time_record']['total_leave_minutes'],
+                'no_of_present_days' => $data['time_record']['no_of_present_days'],
+                'no_of_present_days_with_leave' => $data['time_record']['no_of_present_days_with_leave'],
+                'no_of_leave_wo_pay' => $data['time_record']['no_of_leave_wo_pay'],
+                'no_of_leave_w_pay' => $data['time_record']['no_of_leave_w_pay'],
+                'no_of_absences' => $data['time_record']['no_of_absences'],
+                'no_of_invalid_entry' => $data['time_record']['no_of_invalid_entry'],
+                'no_of_day_off' => $data['time_record']['no_of_day_off'],
+                'no_of_schedule' => $data['time_record']['no_of_schedule'],
+                'night_differentials' => json_encode($data['time_record']['night_differentials']),
+                'absent_dates' => json_encode($data['time_record']['absent_dates']),
+                'month' => $data['payroll']['month'],
+                'year' => $data['payroll']['year'],
+                'from' => $data['payroll']['from'],
+                'to' => $data['payroll']['to'],
+                'is_night_shift' => false,
+                'is_active' => true,
+                'is_excluded' => $is_excluded,
+            ];
+
+            // Check if time record exists
+            $find_employee_time_record = EmployeeTimeRecord::where('employee_id', $data['id'])
+                ->where('payroll_period_id', $period_id)
+                ->where('month', $month_of)
+                ->where('year', $year_of);
+
+            if ($employment_type === "Job Order") {
+                $find_employee_time_record->where('from', $from)
+                    ->where('to', $to);
+            }
+
+            $find_result = $find_employee_time_record->first();
+
+            $find_result === null
+                ? $result = $this->employeeTimeRecordService->create($employee_time_record_details)
+                : $result = $this->employeeTimeRecordService->update($find_result->id, $employee_time_record_details);
+
+            EmployeeComputedSalary::updateOrCreate(
+                [
+                    'employee_id' => $result->employee_id,
+                    'employee_time_record_id' => $result->id
+                ],
+                [
+                    'computed_salary' => $result->net_pay
+                ]
+            );
+
+            // Deactivate other time records
+            EmployeeTimeRecord::where('payroll_period_id', '!=', $period_id)
+                ->where('month', '!=', $month_of)
+                ->where('year', '!=', $year_of)
+                ->update(['is_active' => false]);
+
+            $time_record[] = $result;
+
         }
 
         $response_data = [

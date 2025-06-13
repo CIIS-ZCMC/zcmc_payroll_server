@@ -34,4 +34,24 @@ class Employee extends Model
         // return $this->hasMany(EmployeeSalary::class)->latest();
         return $this->hasOne(EmployeeSalary::class)->latestOfMany();
     }
+
+    public function employeeTimeRecords()
+    {
+        return $this->hasMany(EmployeeTimeRecord::class);
+    }
+
+    public function employeeComputedSalaries()
+    {
+        return $this->hasMany(EmployeeComputedSalary::class);
+    }
+
+    public function employeeDeductions()
+    {
+        return $this->hasMany(EmployeeDeduction::class);
+    }
+
+    public function employeeReceivables()
+    {
+        return $this->hasMany(EmployeeReceivable::class);
+    }
 }

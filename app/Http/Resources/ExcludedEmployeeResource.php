@@ -16,12 +16,14 @@ class ExcludedEmployeeResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'employee_list_id' => EmployeeListResource::collection([$this->employeeList]),
-            'payroll_headers_id ' => PayrollHeaderResources::collection([$this->payrollHeader]),
-            'reason' => $this->last_name,
-            'year' => $this->middle_name,
-            'month' => $this->designation,
-            'created' => $this->created_at
+            'employee' => new EmployeeResource($this->employee),
+            'payroll_period' => new PayrollPeriodResource($this->payrollPeriod),
+            'month' => $this->month,
+            'year' => $this->year,
+            'period_start' => $this->period_start,
+            'period_end' => $this->period_end,
+            'reason' => $this->reason,
+            'is_removed' => $this->is_removed,
         ];
     }
 }
