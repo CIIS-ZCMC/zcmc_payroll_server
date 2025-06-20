@@ -11,23 +11,24 @@ class EmployeeDeduction extends Model
     protected $table = 'employee_deductions';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'employee_list_id',
+        'payroll_period_id',
+        'employee_id',
         'deduction_id',
         'amount',
         'percentage',
         'frequency',
-        'status',
         'date_from',
         'date_to',
-        'stopped_at',
-        'completed_at',
-        'reason',
         'with_terms',
         'total_term',
         'total_paid',
+        'reason',
+        'status',
         'is_default',
         'isDifferential',
         'willDeduct',
+        'stopped_at',
+        'completed_at',
     ];
     public $timestamps = true;
 
@@ -70,5 +71,11 @@ class EmployeeDeduction extends Model
     public function employeeDeductionTrails()
     {
         return $this->hasMany(EmployeeDeductionTrail::class, 'employee_deduction_id');
+    }
+
+    //Version 2
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
     }
 }

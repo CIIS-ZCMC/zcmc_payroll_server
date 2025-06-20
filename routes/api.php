@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Employee\EmployeeListController;
 use App\Http\Controllers\Employees\EmployeeController;
+use App\Http\Controllers\Employees\EmployeeDeductionController;
+use App\Http\Controllers\Payroll\PayrollPeriodController;
 use App\Http\Controllers\Settings\DeductionController;
 use App\Http\Controllers\Settings\DeductionGroupController;
 use App\Http\Controllers\Settings\DeductionRuleController;
@@ -70,11 +73,6 @@ Route::
                     Route::post('/update-employee-deductions', 'EmployeeDeductionController@updateDeduction');
                     Route::post('/update-deduction-status', 'EmployeeDeductionController@updateStatus');
                     Route::post('/add-employee-deductions', 'EmployeeDeductionController@storeDeduction');
-
-                    Route::get('deduction-employment-type', 'DeductionController@getEmploymentType');
-                    Route::get('deduction-designation', 'DeductionController@getDesignation');
-                    Route::get('deduction-area', 'DeductionController@getArea');
-                    Route::get('deduction-salary-grade', 'DeductionController@getSalaryGrade');
                 });
 
                 /**
@@ -186,3 +184,7 @@ Route::post('fetch_record_step_4', [EmployeeProfileController::class, 'fetchStep
 
 //Employee
 Route::apiResource('employees', EmployeeController::class)->only(['index']);
+Route::apiResource('employee-deductions', EmployeeDeductionController::class);
+
+//Payroll Period
+Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);

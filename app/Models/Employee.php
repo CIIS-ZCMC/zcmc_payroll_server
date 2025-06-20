@@ -31,7 +31,6 @@ class Employee extends Model
 
     public function employeeSalary()
     {
-        // return $this->hasMany(EmployeeSalary::class)->latest();
         return $this->hasOne(EmployeeSalary::class)->latestOfMany();
     }
 
@@ -53,5 +52,10 @@ class Employee extends Model
     public function employeeReceivables()
     {
         return $this->hasMany(EmployeeReceivable::class);
+    }
+
+    public function excludedEmployees()
+    {
+        return $this->hasMany(ExcludedEmployee::class);
     }
 }

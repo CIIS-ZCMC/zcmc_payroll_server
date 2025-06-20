@@ -4,18 +4,13 @@ namespace App\Http\Controllers\UMIS;
 
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Employee\EmployeeSalaryController;
-use App\Http\Controllers\GeneralPayroll\ComputationController;
-use App\Http\Requests\EmployeeSalaryRequest;
 use App\Http\Resources\EmployeeTimeRecordResource;
 use App\Models\Employee;
 use App\Models\EmployeeComputedSalary;
-use App\Models\EmployeeReceivable;
 use App\Models\EmployeeSalary;
 use App\Models\EmployeeTimeRecord;
 use App\Models\ExcludedEmployee;
 use App\Models\PayrollPeriod;
-use App\Models\TimeRecord;
 use App\Models\UMIS\EmployeeProfile;
 use App\Models\UMIS\InActiveEmployee;
 use App\Models\UMIS\LeaveType;
@@ -168,11 +163,15 @@ class EmployeeProfileController extends Controller
                 }
             ]);
 
-            // if ($employment_type === 'Job Order') {
-            //     $employee_data->where('employee_id', 5);
-            // } else {
-            //     $employee_data->where('employee_id', '!=', 5);
-            // }
+            if ($employment_type === 'Job Order') {
+                $employee_data->whereHas('employmentType', function ($query) {
+                    $query->where('name', 'Job Order');
+                });
+            } else {
+                $employee_data->whereHas('employmentType', function ($query) {
+                    $query->where('name', '!=', 'Job Order');
+                });
+            }
 
             $employee_data = $employee_data->get();
 
@@ -211,13 +210,13 @@ class EmployeeProfileController extends Controller
                 $totalUnderTimeMinutes = round((int) optional($employee->dailyTimeRecords->first())->total_undertime_minutes ?? 0);
 
                 //  Total working details
-                $totalMinutes = round((int) $totalWorkingMinutes + $totalLeaveMinutes);
+                $totalMinutes = round((int) $totalWorkingMinutes + $totalLeaveMinutes, 2);
                 $totalWorkingHours = round($totalMinutes / 60, 2);
-                $noOfPresentDays = $totalMinutes / $expectedMinutesPerDay;
+                $noOfPresentDays = round($totalMinutes / $expectedMinutesPerDay, 1);
 
-                $totalWorkingMinutesWithLeave = round($totalMinutes + $totalOBMinutes + $totalOTMinutes);
+                $totalWorkingMinutesWithLeave = round($totalMinutes + $totalOBMinutes + $totalOTMinutes, 2);
                 $totalWorkingHoursWithLeave = round($totalWorkingMinutesWithLeave / 60, 2);
-                $noOfPresentDaysWithLeave = $totalWorkingMinutesWithLeave / $expectedMinutesPerDay;
+                $noOfPresentDaysWithLeave = round($totalWorkingMinutesWithLeave / $expectedMinutesPerDay, 1);
 
                 // Leave calculations
                 $noOfLeaveWoPay = $receivedLeave->where('without_pay', true)->count();
@@ -308,14 +307,25 @@ class EmployeeProfileController extends Controller
                 $salaryLimit = $employee->employmentType->name === "Job Order" ? 2500 : 5000;
                 $outOfPayroll = $netPay <= $salaryLimit ? 'true' : 'false'; //if net_pay or less than salary limit, then out of payroll
 
-                $first_in = $employee->nigthDuties->first()->first_in ?? null;
-                $first_out = $employee->nigthDuties->first()->first_out ?? null;
-                $nightDifferentials[] = $this->getNightDifferentialHours($first_in, $first_out, $biometric_id, [], $employee->schedule);
+                $night_duties = $employee->nigthDuties;
+                $nightDiff = $night_duties->map(function ($duty) {
+                    return [
+                        'biometric_id' => $duty->biometric_id,
+                        'dtr_date' => $duty->dtr_date,
+                        'first_in' => $duty->first_in,
+                        'first_out' => $duty->first_out,
+                        'second_in' => $duty->second_in,
+                        'second_out' => $duty->second_out,
+                        'total_working_minutes' => $duty->total_working_minutes,
+                        'overtime_minutes' => $duty->overtime_minutes ?? 0,
+                        'undertime_minutes' => $duty->undertime_minutes ?? 0,
+                        'overall_minutes_rendered' => $duty->overall_minutes_rendered,
+                    ];
+                })->toArray();
 
-                //  Get Night Diff base on ID
-                $nightDiff = array_values(array_filter($nightDifferentials, function ($row) use ($biometric_id) {
-                    return $row['biometric_id'] ?? null === $biometric_id;
-                }));
+                // Get the overall total working minutes of night duties
+                $overallNightDutyMinutes = $night_duties->sum('total_working_minutes');
+                $total_night_duty_hours = round($overallNightDutyMinutes / 60, 2);
 
                 //  Get Absent dates
                 $absent_date = $employee->getAbsentDates($year_of, $month_of);
@@ -371,6 +381,7 @@ class EmployeeProfileController extends Controller
                         'total_official_business_minutes' => $totalOBMinutes,
                         'total_official_time_minutes' => $totalOTMinutes,
                         'total_leave_minutes' => $totalLeaveMinutes,
+                        'total_night_duty_hours' => $total_night_duty_hours,
                         'no_of_present_days' => $noOfPresentDays,
                         'no_of_present_days_with_leave' => $noOfPresentDaysWithLeave,
                         'no_of_leave_wo_pay' => $noOfLeaveWoPay,
@@ -476,7 +487,7 @@ class EmployeeProfileController extends Controller
                     'designation' => $data['designation']['name'],
                     'assigned_area' => json_encode($data['assigned_area']),
                     'is_newly_hired' => false,
-                    'is_excluded' => $data['time_record']['is_out'],
+                    'is_excluded' => $data['time_record']['is_out'] === 'true' ? 1 : 0,
                     'is_resigned' => false,
                     'status' => $data['is_inactive'] === false ? true : false,
                 ];
@@ -509,7 +520,7 @@ class EmployeeProfileController extends Controller
                 ];
 
                 // Handle ExcludedEmployee if out of payroll
-                if ($data['time_record']['is_out'] === true) {
+                if ($data['time_record']['is_out'] === 'true') {
                     $find_excluded_employee = ExcludedEmployee::where('employee_id', $employee->id)
                         ->where('month', $month_of)
                         ->where('year', $year_of)
@@ -635,8 +646,7 @@ class EmployeeProfileController extends Controller
                 }
             }
 
-            $data['time_record']['night_differentials'] = array_sum(array_column($data['time_record']['night_differentials'], 'total_hours'));
-            $is_excluded = $data['time_record']['is_out'] === 'true' ? 1 : 0;
+            $status = $data['time_record']['is_out'] === 'true' ? 'excluded' : 'included';
 
             $employee_time_record_details = [
                 'employee_id' => $data['id'],
@@ -658,6 +668,7 @@ class EmployeeProfileController extends Controller
                 'total_official_business_minutes' => $data['time_record']['total_official_business_minutes'],
                 'total_official_time_minutes' => $data['time_record']['total_official_time_minutes'],
                 'total_leave_minutes' => $data['time_record']['total_leave_minutes'],
+                'total_night_duty_hours' => $data['time_record']['total_night_duty_hours'],
                 'no_of_present_days' => $data['time_record']['no_of_present_days'],
                 'no_of_present_days_with_leave' => $data['time_record']['no_of_present_days_with_leave'],
                 'no_of_leave_wo_pay' => $data['time_record']['no_of_leave_wo_pay'],
@@ -674,7 +685,7 @@ class EmployeeProfileController extends Controller
                 'to' => $data['payroll']['to'],
                 'is_night_shift' => false,
                 'is_active' => true,
-                'is_excluded' => $is_excluded,
+                'status' => $status,
             ];
 
             // Check if time record exists

@@ -25,4 +25,9 @@ class PayrollPeriod extends Model
         'last_generated_at',
         'locked_at'
     ];
+
+    public function excludedEmployees()
+    {
+        return $this->hasMany(ExcludedEmployee::class);
+    }
 }

@@ -52,4 +52,9 @@ class Deduction extends Model
         return $this->hasMany(DeductionRule::class, 'deduction_id');
 
     }
+
+    public function employeeDeductions()
+    {
+        return $this->hasMany(EmployeeDeduction::class, 'deduction_id');
+    }
 }

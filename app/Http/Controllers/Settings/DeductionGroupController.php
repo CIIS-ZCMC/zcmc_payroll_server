@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeductionGroupRequest;
 use App\Http\Resources\DeductionGroupResource;
+use App\Models\Deduction;
 use App\Models\DeductionGroup;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,11 +17,16 @@ class DeductionGroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->import_selection) {
+            return $this->importSelection($request);
+        }
+
         return response()->json([
             'data' => DeductionGroupResource::collection(DeductionGroup::whereNull('deleted_at')->get()),
-            'message' => "Data Successfully retrieved"
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -43,7 +49,8 @@ class DeductionGroupController extends Controller
 
         return response()->json([
             'data' => new DeductionGroupResource($data),
-            'message' => "Data Successfully saved"
+            'message' => "Data Successfully saved",
+            'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
 
@@ -59,13 +66,15 @@ class DeductionGroupController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => 'No record found.'
+                'message' => 'No record found.',
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'data' => new DeductionGroupResource($data),
-            'message' => "Data Successfully retrieved"
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -83,7 +92,8 @@ class DeductionGroupController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => "Data not found"
+                'message' => "Data not found",
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -96,7 +106,8 @@ class DeductionGroupController extends Controller
 
             if ($existing) {
                 return response()->json([
-                    'message' => 'Code already exist'
+                    'message' => 'Code already exist',
+                    'statusCode' => 302
                 ], Response::HTTP_FOUND);
             }
         }
@@ -106,6 +117,7 @@ class DeductionGroupController extends Controller
         return response()->json([
             'data' => new DeductionGroupResource($data),
             'message' => "Successfully update",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -127,6 +139,43 @@ class DeductionGroupController extends Controller
 
         $data->delete();
 
-        return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
+        return response()->json([
+            'message' => "Data Successfully deleted",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
+    }
+
+    public function importSelection(Request $request)
+    {
+        $payroll_period_id = $request->payroll_period_id;
+        $deduction_id = $request->deduction_id;
+
+        $deduction = Deduction::find($deduction_id);
+
+        if (!$deduction) {
+            return response()->json([
+                'message' => 'Deduction not found.',
+                'statusCode' => 404
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = DeductionGroup::with([
+            'deductions' => function ($q) use ($payroll_period_id, $deduction_id) {
+                $q->with([
+                    'employeeDeductions' => function ($query) use ($payroll_period_id) {
+                        $query->where('payroll_period_id', $payroll_period_id);
+                    },
+                    'employeeDeductions.employee'
+                ]);
+            }
+        ])->where('id', $deduction->deduction_group_id)
+            ->whereNull('deleted_at')
+            ->first();
+
+        return response()->json([
+            'data' => new DeductionGroupResource($data),
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
     }
 }

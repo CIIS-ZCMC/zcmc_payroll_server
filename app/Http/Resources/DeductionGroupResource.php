@@ -19,7 +19,7 @@ class DeductionGroupResource extends JsonResource
             "uuid" => $this->deduction_group_uuid,
             "name" => $this->name,
             "code" => $this->code,
-            "deduction_type" => DeductionResource::collection($this->deduction)
+            "deduction_type" => DeductionResource::collection($this->whenLoaded('deductions'))
         ];
     }
 }

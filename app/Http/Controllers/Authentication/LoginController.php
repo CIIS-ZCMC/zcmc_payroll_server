@@ -71,7 +71,7 @@ class LoginController extends Controller
                 'designation' => $employee_designation,
                 'permissions' => json_decode($permissions)
             ],
-            'Token' => $token,
+            'token' => $token,
             'statusCode' => 200,
             'message' => 'Successfully authenticate user.'
         ], Response::HTTP_OK)

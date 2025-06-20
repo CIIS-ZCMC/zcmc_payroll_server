@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Employees;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeTimeRecordResource;
 use App\Http\Resources\ExcludedEmployeeResource;
-use App\Models\Employee;
 use App\Models\EmployeeTimeRecord;
 use App\Models\ExcludedEmployee;
 use App\Models\PayrollPeriod;
@@ -30,14 +29,14 @@ class EmployeeController extends Controller
         if (!$data) {
             return response()->json([
                 'message' => 'No data found for the specified payroll period.',
-                'status' => 404
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'message' => 'Data retrieved successfully.',
-            'status' => 200,
-            'data' => EmployeeTimeRecordResource::collection($data),
+            'statusCode' => 200,
+            'responseData' => EmployeeTimeRecordResource::collection($data),
         ], Response::HTTP_OK);
     }
 
@@ -45,6 +44,7 @@ class EmployeeController extends Controller
     {
         $payroll_period = PayrollPeriod::where('locked_at', null)
             ->where('employment_type', $request->employment_type)
+            ->where('period_type', $request->period_type)
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
             ->first();
@@ -86,7 +86,7 @@ class EmployeeController extends Controller
         if (!$payroll_period) {
             return response()->json([
                 'message' => 'Payroll period not found for the specified criteria.',
-                'status' => 404
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -97,14 +97,14 @@ class EmployeeController extends Controller
         if (!$data) {
             return response()->json([
                 'message' => 'No excluded employees found for the specified payroll period.',
-                'status' => 404
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'message' => 'Excluded employees retrieved successfully.',
-            'status' => 200,
-            'data' => ExcludedEmployeeResource::collection($data)
+            'statusCode' => 200,
+            'responseData' => ExcludedEmployeeResource::collection($data)
         ], Response::HTTP_OK);
     }
 }

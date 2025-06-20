@@ -19,8 +19,9 @@ class DeductionController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => DeductionResource::collection(Deduction::whereNull('deleted_at')->get()),
-            'message' => "Data Successfully retrieved"
+            'responseData' => DeductionResource::collection(Deduction::whereNull('deleted_at')->get()),
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -51,8 +52,9 @@ class DeductionController extends Controller
         $data = Deduction::create($validate);
 
         return response()->json([
-            'data' => new DeductionResource($data),
-            'message' => "Data Successfully saved"
+            'responseData' => new DeductionResource($data),
+            'message' => "Data Successfully saved",
+            'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
 
@@ -62,10 +64,16 @@ class DeductionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        $payroll_period_id = $request->payroll_period_id;
 
-        $data = Deduction::findOrFail($id);
+        $data = Deduction::with([
+            'employeeDeductions' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', 1);
+            },
+            'employeeDeductions.employee'
+        ])->where('id', $id)->first();
 
         if (!$data) {
             return response()->json([
@@ -75,7 +83,8 @@ class DeductionController extends Controller
 
         return response()->json([
             'data' => new DeductionResource($data),
-            'message' => "Data Successfully retrieved"
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -114,8 +123,9 @@ class DeductionController extends Controller
         $data->update($request->all());
 
         return response()->json([
-            'data' => new DeductionResource($data),
-            'message' => "Data Successfully updated"
+            'responseData' => new DeductionResource($data),
+            'message' => "Data Successfully updated",
+            'statusCode' => 200
         ], Response::HTTP_OK);
 
     }
@@ -138,7 +148,10 @@ class DeductionController extends Controller
 
         $data->delete();
 
-        return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
+        return response()->json([
+            'message' => "Data Successfully deleted",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
 
     }
 

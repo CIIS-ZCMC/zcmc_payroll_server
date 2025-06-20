@@ -36,6 +36,7 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->double('total_official_business_minutes');
             $table->double('total_official_time_minutes');
             $table->double('total_leave_minutes');
+            $table->double('total_night_duty_hours');
             $table->double('no_of_present_days');
             $table->double('no_of_present_days_with_leave');
             $table->double('no_of_leave_wo_pay');

@@ -34,8 +34,8 @@ class DeductionGroup extends Model
         });
     }
 
-    public function deduction()
+    public function deductions()
     {
-        return $this->hasMany(Deduction::class);
+        return $this->hasMany(Deduction::class, 'deduction_group_id');
     }
 }

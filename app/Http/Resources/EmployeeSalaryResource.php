@@ -16,7 +16,8 @@ class EmployeeSalaryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'employee_id ' => $this->employee_id,
+            'employee_id' => $this->employee_id,
+            'payroll_period_id' => $this->payroll_period_id,
             'employment_type' => $this->employment_type,
             'base_salary' => decrypt($this->base_salary),
             'salary_grade' => $this->salary_grade,

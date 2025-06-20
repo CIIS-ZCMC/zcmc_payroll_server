@@ -20,7 +20,8 @@ class ReceivableController extends Controller
     {
         return response()->json([
             'responseData' => ReceivableResource::collection(Receivable::whereNull('deleted_at')->get()),
-            'message' => 'Receivables retrieved successfully.'
+            'message' => 'Receivables retrieved successfully.',
+            'statusCode' => 200
         ], Response::HTTP_OK);
 
     }
@@ -38,7 +39,10 @@ class ReceivableController extends Controller
         $validate_code = Receivable::whereNull('deleted_at')->where('code', $validate['code'])->first();
 
         if ($validate_code) {
-            return response()->json(['message' => 'Code already exist'], Response::HTTP_FOUND);
+            return response()->json([
+                'message' => 'Code already exist',
+                'statusCode' => 302
+            ], Response::HTTP_FOUND);
         }
 
         if ($validate['type'] === null) {
@@ -54,6 +58,7 @@ class ReceivableController extends Controller
         return response()->json([
             'data' => new ReceivableResource($data),
             'message' => "Successfully saved",
+            'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
 
@@ -70,12 +75,14 @@ class ReceivableController extends Controller
         if (!$data) {
             return response()->json([
                 'message' => "Receivable not found",
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'data' => new ReceivableResource($data),
             'message' => "Receivable retrieved successfully",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -92,7 +99,8 @@ class ReceivableController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => "Data not found"
+                'message' => "Data not found",
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -105,7 +113,8 @@ class ReceivableController extends Controller
 
             if ($existing) {
                 return response()->json([
-                    'message' => 'Code already exist'
+                    'message' => 'Code already exist',
+                    'statusCode' => 302
                 ], Response::HTTP_FOUND);
             }
         }
@@ -115,6 +124,7 @@ class ReceivableController extends Controller
         return response()->json([
             'data' => new ReceivableResource($data),
             'message' => "Receivable updated successfully",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -131,11 +141,15 @@ class ReceivableController extends Controller
         if (!$data) {
             return response()->json([
                 'message' => "Receivable not found",
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
         $data->delete();
 
-        return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
+        return response()->json([
+            'message' => "Data Successfully deleted",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
     }
 }

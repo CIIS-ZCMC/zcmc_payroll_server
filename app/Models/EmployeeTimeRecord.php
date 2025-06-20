@@ -33,6 +33,7 @@ class EmployeeTimeRecord extends Model
         'total_official_business_minutes',
         'total_official_time_minutes',
         'total_leave_minutes',
+        'total_night_duty_hours',
         'no_of_present_days',
         'no_of_present_days_with_leave',
         'no_of_leave_wo_pay',
@@ -49,6 +50,7 @@ class EmployeeTimeRecord extends Model
         'to',
         'is_night_shift',
         'is_active',
+        'status'
     ];
 
     public function employee()

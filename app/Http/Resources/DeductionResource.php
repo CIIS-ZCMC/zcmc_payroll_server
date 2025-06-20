@@ -33,6 +33,7 @@ class DeductionResource extends JsonResource
             ],
             'deduction_group_name' => $this->deductionGroup->name,
             'deduction_rule' => DeductionRuleResource::collection($this->deductionRule),
+            'employee_deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
             'deleted_at' => Carbon::parse($this->deleted_at)->format('M d, Y'),
             'created_at' => Carbon::parse($this->created_at)->format('M d, Y'),
             'updated_at' => Carbon::parse($this->updated_at)->format('M d, Y'),

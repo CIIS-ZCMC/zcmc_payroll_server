@@ -19,7 +19,8 @@ class DeductionRuleController extends Controller
     {
         return response()->json([
             'data' => DeductionRuleResource::collection(DeductionRule::all()),
-            'message' => "Data Successfully retrieved"
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -35,7 +36,8 @@ class DeductionRuleController extends Controller
 
         return response()->json([
             'data' => new DeductionRuleResource($data),
-            'message' => "Data Successfully saved"
+            'message' => "Data Successfully saved",
+            'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
 
@@ -51,13 +53,15 @@ class DeductionRuleController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => "Data not found"
+                'message' => "Data not found",
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'data' => new DeductionRuleResource($data),
-            'message' => "Data Successfully retrieved"
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -74,7 +78,8 @@ class DeductionRuleController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => "Data not found"
+                'message' => "Data not found",
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -82,7 +87,8 @@ class DeductionRuleController extends Controller
 
         return response()->json([
             'data' => new DeductionRuleResource($data),
-            'message' => "Data Successfully updated"
+            'message' => "Data Successfully updated",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
@@ -98,14 +104,16 @@ class DeductionRuleController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => "Data not found"
+                'message' => "Data not found",
+                'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
 
         $data->delete();
 
         return response()->json([
-            'message' => "Data Successfully deleted"
+            'message' => "Data Successfully deleted",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 }
