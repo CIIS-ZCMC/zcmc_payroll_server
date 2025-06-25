@@ -17,22 +17,21 @@ class ReceivableResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->receivable_uuid,
             'name' => $this->name,
             'code' => $this->code,
-            'employment_type' => $this->employment_type,
-            'charge_basis' => $this->amount ? "Fixed Amount" : "Percentage Of Salary",
-            'amount' => (string) ($this->percentage !== null ? $this->percentage : $this->amount),
+            'type' => $this->type,
+            'condition_operator' => $this->condition_operator,
+            'condition_value' => $this->condition_value,
+            'percent_value' => $this->percent_value,
+            'fixed_amount' => $this->fixed_amount,
             'billing_cycle' => $this->billing_cycle,
-            'terms_to_pay' => $this->terms_to_pay,
-            'is_applied_to_all' => $this->is_applied_to_all,
-            'apply_salarygrade_from' => $this->apply_salarygrade_from,
-            'apply_salarygrade_to' => $this->apply_salarygrade_to,
-            'is_mandatory' => $this->is_mandatory ? "Yes" : "No",
             'status' => $this->status,
-            'reason' => $this->reason ?? "",
+            // 'deduction_rule' => DeductionRuleResource::collection($this->deductionRule),
+            // 'employee_deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
+            'deleted_at' => Carbon::parse($this->deleted_at)->format('M d, Y'),
             'created_at' => Carbon::parse($this->created_at)->format('M d, Y'),
             'updated_at' => Carbon::parse($this->updated_at)->format('M d, Y'),
-            'stopped_at' => $this->stopped_at ? Carbon::parse($this->stopped_at)->format('M d, Y') : "N/A"
         ];
     }
 }

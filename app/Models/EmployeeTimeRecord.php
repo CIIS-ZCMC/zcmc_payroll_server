@@ -62,4 +62,9 @@ class EmployeeTimeRecord extends Model
     {
         return $this->belongsTo(PayrollPeriod::class, 'payroll_period_id');
     }
+
+    public function employeeComputedSalary()
+    {
+        return $this->hasOne(EmployeeComputedSalary::class);
+    }
 }

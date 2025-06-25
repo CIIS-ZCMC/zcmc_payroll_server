@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\EmployeeComputedSalary;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmployeeResource extends JsonResource
@@ -38,8 +39,8 @@ class EmployeeResource extends JsonResource
             'is_newly_hired' => $this->is_newly_hired,
             'is_excluded' => $this->is_excluded,
             'salary' => new EmployeeSalaryResource($this->employeeSalary),
-            'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('deductions')),
-            'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('receivables'))
+            'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
+            'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('employeeReceivables'))
         ];
     }
 }

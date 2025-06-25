@@ -19,7 +19,7 @@ class CreateEmployeeComputedSalaries extends Migration
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->unsignedBigInteger('employee_time_record_id');
             $table->foreign('employee_time_record_id')->references('id')->on('employee_time_records');
-            $table->text('computed_salary')->comment("Without night differential computation and deductions");
+            $table->double('computed_salary')->comment("Without night differential computation and deductions");
             $table->softDeletes();
             $table->timestamps();
         });

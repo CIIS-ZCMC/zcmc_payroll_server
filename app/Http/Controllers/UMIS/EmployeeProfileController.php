@@ -5,6 +5,7 @@ namespace App\Http\Controllers\UMIS;
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeTimeRecordResource;
+use App\Http\Resources\PayrollPeriodResource;
 use App\Models\Employee;
 use App\Models\EmployeeComputedSalary;
 use App\Models\EmployeeSalary;
@@ -411,10 +412,10 @@ class EmployeeProfileController extends Controller
             Cache::put($uuid, json_encode($response_data));
 
             return response()->json([
-                'message' => "Successfully Fetched.",
-                'responseData' => $uuid,
+                'data' => ['uuid' => $uuid],
+                'message' => "Successfully Fetched. Step 1",
                 'statusCode' => 200
-            ], );
+            ], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
@@ -573,10 +574,10 @@ class EmployeeProfileController extends Controller
         Cache::put($uuid, json_encode($response_data));
 
         return response()->json([
+            'data' => ['uuid' => $uuid],
             'message' => "Data Successfully saved (Step 2)",
-            'responseData' => $uuid,
             'statusCode' => 200
-        ], Response::HTTP_CREATED);
+        ], Response::HTTP_OK);
     }
 
     // Step 3 (Complete)
@@ -743,8 +744,8 @@ class EmployeeProfileController extends Controller
         Cache::put($uuid, json_encode($response_data));
 
         return response()->json([
+            'data' => ['uuid' => $uuid],
             'message' => "Data Successfully saved (Step 3)",
-            'responseData' => $uuid,
             'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
@@ -771,9 +772,28 @@ class EmployeeProfileController extends Controller
 
         Cache::forget($request->uuid);
 
+        $response_data = [
+            "employment_type" => $cache_data['employment_type'],
+            'month_of' => $cache_data['month_of'],
+            'year_of' => $cache_data['year_of'],
+            "period_id" => $cache_data['period_id'],
+            "period_type" => $cache_data['period_type'],
+            "period_start" => $cache_data['period_start'],
+            "period_end" => $cache_data['period_end'],
+            'first_half' => $cache_data['first_half'],
+            'second_half' => $cache_data['second_half'],
+        ];
+
+        $payroll_period = PayrollPeriod::whereNull('locked_at')
+            ->where('employment_type', $response_data['employment_type'])
+            ->where('period_type', $response_data['period_type'])
+            ->where('month', $response_data['month_of'])
+            ->where('year', $response_data['year_of'])
+            ->first();
+
         return response()->json([
             'message' => "Successfully Fetched.",
-            'data' => $employees,
+            'data' => new PayrollPeriodResource($payroll_period),
             "employee_generated" => count($employees),
             'statusCode' => 200
         ], Response::HTTP_CREATED);

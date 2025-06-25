@@ -30,4 +30,9 @@ class PayrollPeriod extends Model
     {
         return $this->hasMany(ExcludedEmployee::class);
     }
+
+    public function employeePayroll()
+    {
+        return $this->hasMany(EmployeePayroll::class);
+    }
 }
