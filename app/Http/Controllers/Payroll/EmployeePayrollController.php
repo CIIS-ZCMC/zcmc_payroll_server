@@ -83,7 +83,7 @@ class EmployeePayrollController extends Controller
             ])
                 ->where('payroll_period_id', $payroll_period_id)
                 ->where('employee_id', $employee->id)
-                ->where('id', $data['id'])
+                // ->where('id', $data['id'])
                 ->first();
 
             $employee_computed_salary = EmployeeComputedSalary::where('employee_id', $employee->id)

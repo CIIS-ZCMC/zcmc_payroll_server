@@ -42,10 +42,6 @@ class EmployeeDeduction extends Model
         return $this->belongsTo(EmployeeList::class, 'employee_list_id');
     }
 
-    public function deductions()
-    {
-        return $this->belongsTo(Deduction::class, 'deduction_id');
-    }
     public function getDeductions()
     {
         return $this->belongsTo(Deduction::class, 'id');
@@ -77,5 +73,10 @@ class EmployeeDeduction extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function deductions()
+    {
+        return $this->belongsTo(Deduction::class, 'deduction_id');
     }
 }

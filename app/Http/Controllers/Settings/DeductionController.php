@@ -70,7 +70,7 @@ class DeductionController extends Controller
 
         $data = Deduction::with([
             'employeeDeductions' => function ($query) use ($payroll_period_id) {
-                $query->where('payroll_period_id', 1);
+                $query->where('payroll_period_id', $payroll_period_id);
             },
             'employeeDeductions.employee'
         ])->where('id', $id)->first();

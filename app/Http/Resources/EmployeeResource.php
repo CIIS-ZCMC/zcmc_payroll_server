@@ -40,7 +40,39 @@ class EmployeeResource extends JsonResource
             'is_excluded' => $this->is_excluded,
             'salary' => new EmployeeSalaryResource($this->employeeSalary),
             'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
-            'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('employeeReceivables'))
+            'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('employeeReceivables')),
+            'deduction_group' => $this->groupDeductionsByGroup()
         ];
+    }
+
+    public function groupDeductionsByGroup()
+    {
+        $grouped = [];
+
+        $deductions = $this->employeeDeductions->load('deductions.deductionGroup');
+
+        foreach ($deductions as $deduction) {
+            $group = $deduction->deductions->deductionGroup ?? null;
+
+            if (!$group) {
+                $groupName = 'Ungrouped';
+                $groupId = null;
+            } else {
+                $groupName = $group->name;
+                $groupId = $group->id;
+            }
+
+            if (!isset($grouped[$groupName])) {
+                $grouped[$groupName] = [
+                    'group_id' => $groupId,
+                    'group_name' => $groupName,
+                    'deductions' => []
+                ];
+            }
+
+            $grouped[$groupName]['deductions'][] = new EmployeeDeductionResource($deduction);
+        }
+
+        return array_values($grouped);
     }
 }

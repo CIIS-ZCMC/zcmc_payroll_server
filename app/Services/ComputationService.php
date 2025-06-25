@@ -84,7 +84,7 @@ class ComputationService
                     ]
                 );
 
-                return response()->json(['message' => 'Data Successfully saved (HAZARD)'], Response::HTTP_OK);
+                return $amount;
             }
         }
 
@@ -137,7 +137,12 @@ class ComputationService
                     ]
                 );
 
-                return response()->json(['message' => 'Data Successfully saved (PERA)'], Response::HTTP_OK);
+                return [
+                    'id' => $pera->id,
+                    'amount' => $amount
+                ];
+
+                // return response()->json(['message' => 'Data Successfully saved (PERA)'], Response::HTTP_OK);
             }
 
 

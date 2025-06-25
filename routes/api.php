@@ -6,6 +6,7 @@ use App\Http\Controllers\Employees\EmployeeDeductionController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
 use App\Http\Controllers\Payroll\GeneralPayrollController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
+use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\Settings\DeductionController;
 use App\Http\Controllers\Settings\DeductionGroupController;
 use App\Http\Controllers\Settings\DeductionRuleController;
@@ -195,4 +196,7 @@ Route::middleware('auth.token')->group(function () {
     //General Payroll
     Route::apiResource('general-payrolls', GeneralPayrollController::class);
 });
+
+//Report
+Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);
 

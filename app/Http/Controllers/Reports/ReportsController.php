@@ -5,14 +5,19 @@ namespace App\Http\Controllers\Reports;
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GeneralPayroll\PayrollController;
+use App\Http\Resources\EmployeePayrollReportsResource;
+use App\Http\Resources\EmployeePayrollResource;
 use App\Http\Resources\GeneralPayrollResources;
+use App\Http\Resources\PayrollReportResource;
 use App\Models\DeductionGroup;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeList;
+use App\Models\EmployeePayroll;
 use App\Models\EmployeeReceivable;
 use App\Models\EmployeeSalary;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollHeaders;
+use App\Models\PayrollPeriod;
 use App\Models\UMIS\EmployeeProfile;
 use App\Models\UMIS\EmploymentType;
 use Illuminate\Http\Request;
@@ -346,5 +351,64 @@ class ReportsController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function index(Request $request)
+    {
+        if ($request->salary_type === 'payroll') {
+            return $this->payroll($request);
+        }
+
+    }
+
+    public function payroll(Request $request)
+    {
+        $payroll_period = PayrollPeriod::where('id', $request->payroll_period_id)->first();
+
+        $general_payroll = GeneralPayroll::with([
+            'payrollPeriod' => function ($query) use ($payroll_period) {
+                $query->with([
+                    'employeeTimeRecords' => function ($q) use ($payroll_period) {
+                        $q->with([
+                            'employee' => function ($q) use ($payroll_period) {
+                                $q->with([
+                                    'employeeDeductions' => function ($q) use ($payroll_period) {
+                                        $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
+                                    }
+                                ]);
+                            },
+                            'employeeComputedSalary'
+                        ])->where('status', 'included');
+                    }
+                ]);
+            }
+        ])->where('payroll_period_id', $payroll_period->id)->first();
+
+        $employee_payroll = EmployeePayroll::with([
+            'employee',
+            'payrollPeriod',
+            'employeeTimeRecord' => function ($q) use ($payroll_period) {
+                $q->with([
+                    'employee' => function ($q) use ($payroll_period) {
+                        $q->with([
+                            'employeeDeductions' => function ($q) use ($payroll_period) {
+                                $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
+                            }
+                        ]);
+                    },
+                    'employeeComputedSalary'
+                ])->where('status', 'included');
+            },
+            'employee.employeeSalary',
+            'employee.employeeComputedSalaries' => function ($q) {
+
+            }
+        ])->where('payroll_period_id', $payroll_period->id)->get();
+
+        return response()->json([
+            'responseData' => EmployeePayrollReportsResource::collection($employee_payroll),
+            'message' => 'Success',
+            'statusCode' => 200
+        ], Response::HTTP_OK);
     }
 }
