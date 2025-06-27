@@ -355,7 +355,7 @@ class ReportsController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->salary_type === 'payroll') {
+        if ($request->report_type === 'payroll') {
             return $this->payroll($request);
         }
 
@@ -363,7 +363,12 @@ class ReportsController extends Controller
 
     public function payroll(Request $request)
     {
-        $payroll_period = PayrollPeriod::where('id', $request->payroll_period_id)->first();
+        $payroll_period = PayrollPeriod::whereNull('locked_at')
+            ->where('employment_type', $request->employment_type)
+            ->where('period_type', $request->period_type)
+            ->where('month', $request->month_of)
+            ->where('year', $request->year_of)
+            ->first();
 
         $general_payroll = GeneralPayroll::with([
             'payrollPeriod' => function ($query) use ($payroll_period) {
@@ -406,9 +411,9 @@ class ReportsController extends Controller
         ])->where('payroll_period_id', $payroll_period->id)->get();
 
         return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
             'responseData' => EmployeePayrollReportsResource::collection($employee_payroll),
-            'message' => 'Success',
-            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 }
