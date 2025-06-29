@@ -396,6 +396,9 @@ class ReportsController extends Controller
                 $q->with([
                     'employee' => function ($q) use ($payroll_period) {
                         $q->with([
+                            'employeeReceivables' => function ($q) use ($payroll_period) {
+                                $q->with(['receivables'])->where('payroll_period_id', $payroll_period->id);
+                            },
                             'employeeDeductions' => function ($q) use ($payroll_period) {
                                 $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
                             }

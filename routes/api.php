@@ -195,8 +195,7 @@ Route::middleware('auth.token')->group(function () {
 
     //General Payroll
     Route::apiResource('general-payrolls', GeneralPayrollController::class);
+
+    //Report
+    Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);
 });
-
-//Report
-Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);
-
