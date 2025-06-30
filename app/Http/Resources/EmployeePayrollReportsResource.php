@@ -49,7 +49,7 @@ class EmployeePayrollReportsResource extends JsonResource
         );
 
         $gsis_code = DeductionGroup::where('id', 2)->first();
-        $pagibig_code = DeductionGroup::where('id', 3)->first();
+        $pagibig_code = DeductionGroup::where('id', 4)->first();
         $others_code = DeductionGroup::where('id', 6)->first();
 
         $gsis_deduction = $this->filter_deduction($employee_deduction, $gsis_code->code);
@@ -79,6 +79,8 @@ class EmployeePayrollReportsResource extends JsonResource
             'net_pay' => $this->net_pay ?? 0,
             'net_pay_first_half' => $first_half ?? 0,
             'net_pay_second_half' => $second_half ?? 0,
+            'first_period' => '1-15',
+            'second_period' => '16-' . date('t', mktime(0, 0, 0, $this->payrollPeriod->month, 1)),
 
             'pera' => $fixed_pera['amount'],
             'hazard' => $fixed_hazard,
@@ -105,6 +107,9 @@ class EmployeePayrollReportsResource extends JsonResource
             // Employee Receivables
             'employee_receivables' => $this->map_receivables($employee_receivable),
             'total_employee_receivables' => round($employee_receivable->sum('amount'), 2),
+
+            // Employee Deductions
+            'employee_deductions' => $this->map_deductions($employee_deduction),
             'total_employee_deductions' => round($employee_deduction->sum('amount'), 2),
 
             'remarks' => $absent_dates['dates'],
@@ -143,6 +148,20 @@ class EmployeePayrollReportsResource extends JsonResource
         })->values();
     }
 
+    public function map_deductions($employee_deduction)
+    {
+        return $employee_deduction->map(function ($deduction) {
+            return [
+                'employee_receivable_id' => $deduction->id,
+                'employee_id' => $deduction->employee_id,
+                'deduction_id' => $deduction->deduction_id,
+                'deduction_name' => $deduction->deductions->name,
+                'code' => $deduction->deductions->code ?? null,
+                'amount' => $deduction->amount ?? 0
+            ];
+        })->values();
+    }
+
     public function map_absent_dates($employee_time_record)
     {
         $decode_date = json_decode($employee_time_record->absent_dates);
@@ -159,7 +178,7 @@ class EmployeePayrollReportsResource extends JsonResource
             $month = date('F', strtotime($decode_date[0]));
 
             return [
-                'dates' => implode(', ', $days) . ' of ' . $month,
+                'dates' => $month . ' ' . implode(', ', $days),
                 'count' => count($days)
             ];
         }
