@@ -93,7 +93,7 @@ class ComputationService
 
     public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days)
     {
-        $pera = Receivable::where('receivable_uuid', 'R-vwF8e28Fnz')->first();
+        $pera = Receivable::where('id', 1)->first();
 
         $pera_full_amount = round($pera->fixed_amount, 2);
         $pera_half_amount = round($pera->fixed_amount / 2, 2);

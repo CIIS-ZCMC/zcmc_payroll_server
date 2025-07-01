@@ -143,14 +143,28 @@ class EmployeeProfile extends Model
             return Carbon::parse($d)->format('Y-m-d');
         })->unique();
 
+        $holiday_dates = Holiday::all()
+            ->filter(function ($holiday) use ($month) {
+                return Carbon::createFromFormat('m-d', $holiday->month_day)->format('m') == str_pad($month, 2, '0', STR_PAD_LEFT);
+            })
+            ->map(function ($holiday) use ($year) {
+                return Carbon::createFromFormat('Y-m-d', $year . '-' . $holiday->month_day)->format('Y-m-d');
+            })->unique();
+
         $covered_dates = $leave_dates
             ->merge($ob_dates)
             ->merge($ot_dates)
             ->merge($dtr_dates)
+            ->merge($holiday_dates)
             ->unique();
 
-        return $schedule_dates->reject(function ($d) use ($covered_dates) {
+        $absent_dates = $schedule_dates->reject(function ($d) use ($covered_dates) {
             return $covered_dates->contains($d);
         })->values();
+
+        return [
+            'dates' => $absent_dates,
+            'count' => $absent_dates->count()
+        ];
     }
 }

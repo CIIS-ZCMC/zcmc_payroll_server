@@ -224,7 +224,8 @@ class EmployeeProfileController extends Controller
                 $noOfLeaveWPay = $receivedLeave->where('without_pay', false)->count();
 
                 // Absence and day-off calculations
-                $noOfAbsences = $scheduleCount - $noOfPresentDays;
+                $absences = $employee->getAbsentDates($year_of, $month_of);
+                $noOfAbsences = $absences['count'];
                 $noOfDayOff = $totalDaysInMonth - $scheduleCount;
 
                 if ($employee->employmentType->name === "Job Order") {
@@ -329,7 +330,7 @@ class EmployeeProfileController extends Controller
                 $total_night_duty_hours = round($overallNightDutyMinutes / 60, 2);
 
                 //  Get Absent dates
-                $absent_date = $employee->getAbsentDates($year_of, $month_of);
+                $absent_date = $absences['dates'];
 
                 $is_inactive = InActiveEmployee::where('employee_id', $employee->employee_id)->exists();
 
