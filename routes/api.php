@@ -191,10 +191,10 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);
 
     //Employee Payroll
-    Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store']);
+    Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
 
     //General Payroll
-    Route::apiResource('general-payrolls', GeneralPayrollController::class);
+    Route::apiResource('general-payrolls', GeneralPayrollController::class)->only(['index', 'destroy']);
 
     //Report
     Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);

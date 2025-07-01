@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\EmployeeList;
 use App\Models\PayrollHeaders;
 use App\Models\GeneralPayrollTrails;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class GeneralPayroll extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = "general_payrolls";
 

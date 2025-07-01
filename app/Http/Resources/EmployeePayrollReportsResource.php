@@ -79,8 +79,6 @@ class EmployeePayrollReportsResource extends JsonResource
             'net_pay' => $this->net_pay ?? 0,
             'net_pay_first_half' => $first_half ?? 0,
             'net_pay_second_half' => $second_half ?? 0,
-            'first_period' => '1-15',
-            'second_period' => '16-' . date('t', mktime(0, 0, 0, $this->payrollPeriod->month, 1)),
 
             'pera' => $fixed_pera['amount'],
             'hazard' => $fixed_hazard,
@@ -112,8 +110,11 @@ class EmployeePayrollReportsResource extends JsonResource
             'employee_deductions' => $this->map_deductions($employee_deduction),
             'total_employee_deductions' => round($employee_deduction->sum('amount'), 2),
 
-            'remarks' => $absent_dates['dates'],
-            'days_of_absent' => $absent_dates['count']
+            'remarks' => $absent_dates['dates'] ?? "N/A",
+            'days_of_absent' => $absent_dates['count'],
+
+            'first_period' => '1-15',
+            'second_period' => '16-' . date('t', mktime(0, 0, 0, $this->payrollPeriod->month, 1)),
         ];
     }
 

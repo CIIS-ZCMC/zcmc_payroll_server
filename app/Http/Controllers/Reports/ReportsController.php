@@ -370,24 +370,25 @@ class ReportsController extends Controller
             ->where('year', $request->year_of)
             ->first();
 
-        $general_payroll = GeneralPayroll::with([
-            'payrollPeriod' => function ($query) use ($payroll_period) {
-                $query->with([
-                    'employeeTimeRecords' => function ($q) use ($payroll_period) {
-                        $q->with([
-                            'employee' => function ($q) use ($payroll_period) {
-                                $q->with([
-                                    'employeeDeductions' => function ($q) use ($payroll_period) {
-                                        $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
-                                    }
-                                ]);
-                            },
-                            'employeeComputedSalary'
-                        ])->where('status', 'included');
-                    }
-                ]);
-            }
-        ])->where('payroll_period_id', $payroll_period->id)->first();
+        // $general_payroll = GeneralPayroll::with([
+        //     'payrollPeriod' => function ($query) use ($payroll_period) {
+        //         $query->with([
+        //             'employeeTimeRecords' => function ($q) use ($payroll_period) {
+        //                 $q->with([
+        //                     'employee' => function ($q) use ($payroll_period) {
+        //                         $q->with([
+        //                             'employeeDeductions' => function ($q) use ($payroll_period) {
+        //                                 $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
+        //                             }
+        //                         ]);
+        //                     },
+        //                     'employeeComputedSalary'
+        //                 ])->where('status', 'included');
+        //             }
+        //         ]);
+        //     }
+        // ])->where('payroll_period_id', $payroll_period->id)->first();
+
 
         $employee_payroll = EmployeePayroll::with([
             'employee',
