@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Employees;
+namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeTimeRecordResource;
 use App\Http\Resources\ExcludedEmployeeResource;
 use App\Models\EmployeeTimeRecord;
 use App\Models\ExcludedEmployee;
 use App\Models\PayrollPeriod;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeController extends Controller

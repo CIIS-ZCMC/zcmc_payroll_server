@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\Authentication\LoginController;
-use App\Http\Controllers\Employees\EmployeeController;
-use App\Http\Controllers\Employees\EmployeeDeductionController;
+use App\Http\Controllers\Employee\EmployeeController;
+use App\Http\Controllers\Employee\EmployeeDeductionController;
+use App\Http\Controllers\Employee\EmployeeReceivableController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
 use App\Http\Controllers\Payroll\GeneralPayrollController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
@@ -186,6 +187,7 @@ Route::middleware('auth.token')->group(function () {
     //Employee
     Route::apiResource('employees', EmployeeController::class)->only(['index']);
     Route::apiResource('employee-deductions', EmployeeDeductionController::class);
+    Route::apiResource('employee-receivables', EmployeeReceivableController::class);
 
     //Payroll Period
     Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Employees;
+namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Imports\ImportEmployeeDeduction;
 use App\Models\Deduction;
@@ -10,17 +11,11 @@ use App\Models\Employee;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeTimeRecord;
 use App\Models\PayrollPeriod;
-use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeDeductionController extends Controller
 {
-    public function index(Request $request)
-    {
-
-    }
-
     public function store(Request $request)
     {
         if ($request->single_data) {
@@ -210,5 +205,4 @@ class EmployeeDeductionController extends Controller
             'statusCode' => 200,
         ], Response::HTTP_OK);
     }
-
 }
