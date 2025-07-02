@@ -8,6 +8,7 @@ use App\Imports\ImportEmployeeDeduction;
 use App\Models\Deduction;
 use App\Models\Employee;
 use App\Models\EmployeeDeduction;
+use App\Models\EmployeeTimeRecord;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,6 +23,10 @@ class EmployeeDeductionController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->single_data) {
+            return $this->create($request);
+        }
+
         if ($request->import) {
             return $this->import($request);
         }
@@ -69,6 +74,63 @@ class EmployeeDeductionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
+    public function show($id, Request $request)
+    {
+        $data = EmployeeDeduction::where('employee_id', $id)->where('payroll_period_id', $request->payroll_period_id)->get();
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'responseData' => EmployeeDeductionResource::collection($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function create(Request $request)
+    {
+        $check = EmployeeDeduction::where('payroll_period_id', $request->payroll_period_id)
+            ->where('employee_id', $request->employee_id)
+            ->where('deduction_id', $request->deduction_id)
+            ->first();
+
+        if ($check) {
+            return response()->json([
+                'message' => 'Deduction already exists for this employee and payroll period.',
+                'statusCode' => 302,
+            ], Response::HTTP_FOUND);
+        }
+
+        if ($request->percentage > 0) {
+            $base_salary = EmployeeTimeRecord::where('payroll_period_id', $request->payroll_period_id)
+                ->where('employee_id', $request->employee_id)->first()->base_salary;
+
+            $percentage = $request->percentage / 100;
+            $request->amount = round($base_salary * $percentage, 2);
+        }
+
+        $request_data = [
+            'payroll_period_id' => $request->payroll_period_id,
+            'employee_id' => $request->employee_id,
+            'deduction_id' => $request->deduction_id,
+            'amount' => $request->amount,
+            'percentage' => $request->percentage,
+            'frequency' => $request->frequency,
+            'date_from' => $request->date_from,
+            'date_to' => $request->payrdate_tooll_period,
+            'with_terms' => $request->with_terms,
+            'total_term' => $request->total_term,
+            'total_paid' => $request->total_paid,
+            'reason' => $request->reason,
+            'is_default' => $request->is_default,
+        ];
+
+        $data = Employeededuction::create($request_data);
+        return response()->json([
+            'message' => 'Employee deduction created successfully.',
+            'statusCode' => 200,
+            'responseData' => new EmployeeDeductionResource($data),
+        ], Response::HTTP_CREATED);
+    }
+
     public function import(Request $request)
     {
         $request->validate([
@@ -83,4 +145,70 @@ class EmployeeDeductionController extends Controller
             'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
+
+    public function update($id, Request $request)
+    {
+        if ($request->boolean('to_complete')) {
+            return $this->complete($id);
+        }
+
+        $data = EmployeeDeduction::find($id);
+
+        if ($request->percentage > 0) {
+            $base_salary = EmployeeTimeRecord::where('payroll_period_id', $data->payroll_period_id)
+                ->where('employee_id', $data->employee_id)->first()->base_salary;
+
+            $percentage = $request->percentage / 100;
+            $request->amount = round($base_salary * $percentage, 2);
+        }
+
+        $request_data = [
+            'amount' => $request->amount,
+            'percentage' => $request->percentage,
+            'frequency' => $request->frequency,
+            'with_terms' => $request->with_terms,
+            'total_term' => $request->total_term,
+            'reason' => $request->reason,
+            'is_default' => $request->is_default,
+        ];
+
+        $data->update($request_data);
+        return response()->json([
+            'message' => 'Employee deduction updated successfully.',
+            'statusCode' => 200,
+            'responseData' => new EmployeeDeductionResource($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function destroy($id, Request $request)
+    {
+        $data = EmployeeDeduction::findOrFail($id);
+        $data->delete(); // Soft delete
+
+        return response()->json([
+            'message' => "Data successfully deleted",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
+    }
+
+    public function complete($id)
+    {
+        $data = EmployeeDeduction::findOrFail($id);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Employee Deduction not found.',
+                'statusCode' => 404
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $data->update(['completed_at' => now()]);
+
+        return response()->json([
+            'data' => new EmployeeDeductionResource($data),
+            'message' => 'Data successfully locked.',
+            'statusCode' => 200,
+        ], Response::HTTP_OK);
+    }
+
 }

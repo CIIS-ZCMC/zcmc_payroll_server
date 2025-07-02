@@ -64,6 +64,7 @@ class EmployeeProfileController extends Controller
             $year_of = $request->year_of;
             $month_of = $request->month_of;
 
+            $period_type = $request->period_type;
             $first_half = $request->first_half ?? null;
             $second_half = $request->second_half ?? null;
 
@@ -401,6 +402,7 @@ class EmployeeProfileController extends Controller
                 "employment_type" => $employment_type,
                 "month_of" => $month_of,
                 "year_of" => $year_of,
+                "period_type" => $period_type,
                 "period_start" => $payrollPeriodStart,
                 "period_end" => $payrollPeriodEnd,
                 "first_half" => $first_half,
@@ -433,38 +435,62 @@ class EmployeeProfileController extends Controller
         $employment_type = $cache_data['employment_type'];
         $month_of = $cache_data['month_of'];
         $year_of = $cache_data['year_of'];
+        $period_type = $cache_data['period_type'];
         $period_start = $cache_data['period_start'];
         $period_end = $cache_data['period_end'];
         $first_half = $cache_data['first_half'];
         $second_half = $cache_data['second_half'];
 
-        $payroll_period = PayrollPeriod::where('month', $month_of)
-            ->where('year', $year_of)
+        $payroll_period = PayrollPeriod::where('period_type', $period_type)
             ->where('employment_type', $employment_type)
+            ->where('month', $month_of)
+            ->where('year', $year_of)
             ->first();
 
-        if ($payroll_period === null) {
+        if ($period_type === 'second_half' && $payroll_period === null) {
+            $find_first_half = PayrollPeriod::where('period_type', 'first_half')
+                ->where('employment_type', $employment_type)
+                ->where('month', $month_of)
+                ->where('year', $year_of)
+                ->first();
+
+            if ($find_first_half !== null) {
+                if ($find_first_half->locked_at === null) {
+                    return response()->json([
+                        'message' => "Please lock the first payroll period before proceeding with the second half.",
+                        'statusCode' => 302
+                    ], Response::HTTP_FOUND);
+                }
+            }
+
             $payroll_period = PayrollPeriod::create([
                 'month' => $month_of,
                 'year' => $year_of,
                 'employment_type' => $employment_type,
-                'period_type' => 'first_half',
+                'period_type' => $period_type,
                 'period_start' => $period_start,
                 'period_end' => $period_end,
                 'days_of_duty' => $this->Working_Days,
             ]);
-        } elseif ($payroll_period->period_type === 'first_half' && $payroll_period->locked_at === null) {
-            $payroll_period->update([
-                'period_start' => $period_start,
-                'period_end' => $period_end,
-                'days_of_duty' => $this->Working_Days,
-            ]);
-        } elseif ($payroll_period->period_type === 'first_half' && $payroll_period->locked_at !== null) {
+        } elseif ($payroll_period !== null) {
+            if ($payroll_period->locked_at === null) {
+                $payroll_period->update([
+                    'period_start' => $period_start,
+                    'period_end' => $period_end,
+                    'days_of_duty' => $this->Working_Days,
+                ]);
+            } elseif ($payroll_period->locked_at !== null) {
+                return response()->json([
+                    'message' => "Payroll is already locked.",
+                    'statusCode' => 302
+                ], Response::HTTP_FOUND);
+            }
+        } else {
             $payroll_period = PayrollPeriod::create([
                 'month' => $month_of,
                 'year' => $year_of,
                 'employment_type' => $employment_type,
-                'period_type' => 'second_half',
+                'period_type' => $period_type,
                 'period_start' => $period_start,
                 'period_end' => $period_end,
                 'days_of_duty' => $this->Working_Days,
@@ -844,7 +870,7 @@ class EmployeeProfileController extends Controller
     public function netPay($base_salary, $total_present_days)
     {
         if ($total_present_days >= 1) {
-            $rate = $base_salary / $this->Working_Days;
+            $rate = round($base_salary / $this->Working_Days, 2);
             return round($rate * $total_present_days, 2);
         }
 
