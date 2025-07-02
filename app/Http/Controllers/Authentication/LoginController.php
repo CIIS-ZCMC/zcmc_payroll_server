@@ -38,13 +38,13 @@ class LoginController extends Controller
         $employee_details = $user_details['employee_details'];
         $contact = $employee_details['contact'];
 
-        $session = $data['session'];
+        $session = $generatedToken; //$data['session'];
 
         $employee_id = $user_details['employee_id'];
         $employee_designation = $user_details['designation'];
         $employee_email = $contact['email_address'];
         $employee_name = $data['user_details']['name'];
-        $token = $session['token'];
+        $token = $session; // $session['token'];
         $permissions = json_encode($data['permissions']);
         $last_used_at = Carbon::now();
         $expire_at = Carbon::now()->addMinutes(30);
@@ -84,7 +84,7 @@ class LoginController extends Controller
                 false
             );
     }
-    
+
     public function destroy(Request $request)
     {
 

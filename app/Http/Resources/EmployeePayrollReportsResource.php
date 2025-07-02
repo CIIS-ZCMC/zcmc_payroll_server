@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\DeductionGroup;
+use App\Models\Receivable;
 use App\Services\ComputationService;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -31,13 +32,13 @@ class EmployeePayrollReportsResource extends JsonResource
 
         $compute = new ComputationService;
 
-        $fixed_pera = $compute->pera(
-            $this->payroll_period_id,
-            $employee->id,
-            22,
-            $employee_salary->employment_type,
-            22
-        );
+        $pera = Receivable::where('id', 1)->first();
+        $fixed_pera = null;
+        if ($employee_salary->employment_type === 'Permanent Full-time') {
+            $fixed_pera = round($pera->fixed_amount, 2);
+        } elseif ($employee_salary->employment_type === 'Permanent Part-time') {
+            $fixed_pera = round($pera->fixed_amount / 2, 2);
+        }
 
         $fixed_hazard = $compute->hazardPay(
             $this->payroll_period_id,
@@ -68,7 +69,7 @@ class EmployeePayrollReportsResource extends JsonResource
             'employee_id' => $employee->id,
             'employee_profile_id' => $employee->employee_profile_id,
             'employee_number' => $employee->employee_number,
-            'employee_name' => $employee_name,
+            'employee_name' => strtoupper($employee_name),
             'designation' => $employee->designation,
             'salary_grade' => $employee_salary->salary_grade,
             'salary_step' => $employee_salary->salary_step,
@@ -80,7 +81,7 @@ class EmployeePayrollReportsResource extends JsonResource
             'net_pay_first_half' => $first_half ?? 0,
             'net_pay_second_half' => $second_half ?? 0,
 
-            'pera' => $fixed_pera['amount'],
+            'pera' => (int) $fixed_pera,
             'hazard' => $fixed_hazard,
             'absent_rate' => $employee_time_record->absent_rate ?? 0,
 

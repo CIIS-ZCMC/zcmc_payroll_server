@@ -91,15 +91,14 @@ class ComputationService
         return $amount;
     }
 
-    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days)
+    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days, $absences)
     {
         $pera = Receivable::where('id', 1)->first();
 
         $pera_full_amount = round($pera->fixed_amount, 2);
         $pera_half_amount = round($pera->fixed_amount / 2, 2);
 
-        $pera_daily_amount = null;
-
+        $pera_amount = null;
         if ($no_of_present_days > 1) {
 
             // as of now pera_amount is 
@@ -108,43 +107,46 @@ class ComputationService
             // required_duty_days is 22 for now
 
             if ($employment_type === 'Permanent Part-time') {
-                $pera_daily_amount = $pera_half_amount / $required_duty_days;
+                $pera_amount = $pera_half_amount;
             } elseif ($employment_type !== 'Permanent Part-time' && $employment_type !== 'Job Order') {
-                $pera_daily_amount = $pera_full_amount / $required_duty_days;
+                $pera_amount = $pera_full_amount;
             }
 
             $amount = null;
-            $daily_amount = round($pera_daily_amount, 2);
-
-            if ($no_of_present_days >= $required_duty_days) {
-                $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
+            if ($absences >= 1) {
+                $deduct = floor($pera_amount / $required_duty_days * $absences * 100) / 100;
+                $amount = floor(num: ($pera_amount - $deduct) * 100) / 100;
             } else {
-                $amount = $no_of_present_days * $daily_amount;
+                $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
             }
 
             if ($payroll_period_id !== null && $employee_id !== null) {
-                EmployeeReceivable::updateOrCreate(
-                    [
-                        'payroll_period_id' => $payroll_period_id,
-                        'employee_id' => $employee_id,
-                        'receivable_id' => $pera->id
-                    ],
-                    [
-                        'amount' => $amount,
-                        'status' => "active",
-                        'frequency' => "monthly",
-                        'is_default' => true
-                    ]
-                );
+                $find = EmployeeReceivable::where('payroll_period_id', $payroll_period_id)
+                    ->where('employee_id', $employee_id)
+                    ->where('receivable_id', $pera->id)
+                    ->first();
+
+                $request_data = [
+                    'payroll_period_id' => $payroll_period_id,
+                    'employee_id' => $employee_id,
+                    'receivable_id' => $pera->id,
+                    'amount' => $amount,
+                    'status' => "active",
+                    'frequency' => "monthly",
+                    'is_default' => true
+                ];
+
+                if (!$find) {
+                    EmployeeReceivable::create($request_data);
+                } else {
+                    $find->update($request_data);
+                }
 
                 return [
                     'id' => $pera->id,
                     'amount' => $amount
                 ];
-
-                // return response()->json(['message' => 'Data Successfully saved (PERA)'], Response::HTTP_OK);
             }
-
 
             return [
                 'id' => $pera->id,
@@ -156,6 +158,29 @@ class ComputationService
             'id' => $pera->id,
             'amount' => 0
         ];
+    }
+
+
+
+    public function CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType)
+    {
+        $pera = 2000;
+
+        if ($employmentType === "Permanent Part-time") {
+            if ($totalAbsences >= 1) {
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(1000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((1000 - $totalDedForAbsent) * 100) / 100;
+            }
+        } else {
+            if ($totalAbsences >= 1) {
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(2000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((2000 - $totalDedForAbsent) * 100) / 100;
+            }
+        }
+
+        return $pera;
     }
 
 }

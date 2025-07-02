@@ -761,12 +761,13 @@ class EmployeeProfileController extends Controller
             $employee_id = $data['employee']['id'];
             $payroll_period_id = $data['payroll_period']['id'];
             $no_of_present_days = ['no_of_present_days_with_leave'];
+            $no_of_absences = $data['no_of_absences'];
             $employment_type = $data['employee']['salary']['employment_type'];
             $salary_grade = $data['employee']['salary']['salary_grade'];
             $basic_salary = $data['employee']['salary']['base_salary'];
 
             if ($employment_type !== "Job Order") {
-                $pera = $this->computationService->pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, 22);
+                $pera = $this->computationService->pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, 22, $no_of_absences);
                 $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
             }
         }
