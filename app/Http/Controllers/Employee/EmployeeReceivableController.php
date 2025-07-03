@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeReceivableController extends Controller
 {
-        public function store(Request $request)
+    public function store(Request $request)
     {
         if ($request->single_data) {
             return $this->create($request);

@@ -16,8 +16,12 @@ class DeductionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->pagination) {
+            return $this->pagination($request);
+        }
+
         return response()->json([
             'responseData' => DeductionResource::collection(Deduction::whereNull('deleted_at')->get()),
             'message' => "Data Successfully retrieved",
@@ -155,6 +159,33 @@ class DeductionController extends Controller
 
     }
 
+    public function pagination(Request $request)
+    {
+        $validated = $request->validate([
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'page' => 'sometimes|integer|min:1|max:100'
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $page = $validated['page'] ?? 1;
+
+        $data = Deduction::whereNull('deleted_at')->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'responseData' => [
+                'data' => DeductionResource::collection($data),
+                'meta' => [
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'per_page' => $data->perPage(),
+                    'total' => $data->total(),
+                ]
+            ],
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
+    }
+
     // public function stop(Request $request, $id)
     // {
     //     try {
@@ -178,49 +209,4 @@ class DeductionController extends Controller
     //     }
     // }
 
-    // public function clearEmployeeDeductions($id)
-    // {
-    //     try {
-    //         $dateArray = request()->processMonth;
-
-    //         // Construct the date strings from the array
-    //         $dateToString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOtoPeriod'];
-    //         $dateFromString = $dateArray['year'] . '-' . $dateArray['month'] . '-' . $dateArray['JOfromPeriod'];
-
-    //         // Create DateTime objects from the generated date strings
-    //         $payrollDateTo = new DateTime($dateToString);
-    //         $payrollDateFrom = new DateTime($dateFromString);
-
-    //         // Check if JOtoPeriod is zero
-    //         if ($dateArray['JOtoPeriod'] === 0) {
-    //             // Set payrollDateTo to the last day of the month
-    //             $payrollDateTo = (new DateTime("$dateArray[year]-$dateArray[month]-01"))->modify('last day of this month');
-    //         }
-
-    //         // Check if JOfromPeriod is zero
-    //         if ($dateArray['JOfromPeriod'] === 0) {
-    //             // Set payrollDateFrom to the first day of the month
-    //             $payrollDateFrom = (new DateTime("$dateArray[year]-$dateArray[month]-01"));
-    //         }
-
-    //         $deduction = Deduction::find($id);
-    //         if (!$deduction) {
-    //             return response()->json([
-    //                 'message' => 'Deduction not found'
-    //             ], Response::HTTP_NOT_FOUND);
-    //         }
-    //         $deduction->getImports()
-    //             ->whereBetween('payroll_date', [$payrollDateFrom, $payrollDateTo])
-    //             ->delete();
-    //         // $deduction->employeeDeductions()->update(['willDeduct' => null]);
-    //         $deduction->employeeDeductions()
-    //             ->whereDate('created_at', Carbon::today())
-    //             ->delete();
-
-    //         return response()->json(['Message' => "Successfuly Cleared all willDeduct list " . $id, 'statusCode' => Response::HTTP_OK], Response::HTTP_OK);
-    //     } catch (\Throwable $th) {
-    //         Helpers::errorLog($this->CONTROLLER_NAME, 'clearEmployeeDeductions', $th->getMessage());
-    //         return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-    //     }
-    // }
 }

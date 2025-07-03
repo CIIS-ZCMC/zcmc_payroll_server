@@ -33,47 +33,15 @@ class EmployeeDeduction extends Model
     ];
     public $timestamps = true;
 
-    public function logs()
-    {
-        return $this->hasMany(EmployeeDeductionLog::class);
-    }
-
-    public function employeeList()
-    {
-        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
-    }
-
-    public function getDeductions()
-    {
-        return $this->belongsTo(Deduction::class, 'id');
-    }
-    public function getDeductionGroup()
-    {
-        return $this->belongsTo(DeductionGroup::class, 'id');
-    }
-    public function DeductionTrails()
-    {
-        return $this->hasMany(EmployeeDeductionTrail::class, "employee_deduction_id");
-    }
-
-    public function stoppageLogs()
-    {
-        return $this->hasMany(StoppageLog::class, 'employee_deduction_id');
-    }
-    public function adjustments()
-    {
-        return $this->hasMany(EmployeeDeductionAdjustment::class, 'employee_deduction_id');
-    }
-
-    public function employeeDeductionTrails()
-    {
-        return $this->hasMany(EmployeeDeductionTrail::class, 'employee_deduction_id');
-    }
-
     //Version 2
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function payrollPeriod()
+    {
+        return $this->belongsTo(PayrollPeriod::class);
     }
 
     public function deductions()

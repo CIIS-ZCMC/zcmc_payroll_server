@@ -16,6 +16,65 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeDeductionController extends Controller
 {
+    public function index(Request $request)
+    {
+        if ($request->pagination) {
+            return $this->pagination($request);
+        }
+
+        $data = EmployeeDeduction::with([
+            'employee',
+            'payrollPeriod',
+            'deductions'
+        ])->get();
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'responseData' => EmployeeDeductionResource::collection($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function pagination(Request $request)
+    {
+        $validated = $request->validate([
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'page' => 'sometimes|integer|min:1|max:100'
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $page = $validated['page'] ?? 1;
+
+        $data = EmployeeDeduction::whereNull('deleted_at')
+            ->with(['employee', 'payrollPeriod', 'deductions'])
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'responseData' => [
+                'data' => EmployeeDeductionResource::collection($data),
+                'meta' => [
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'per_page' => $data->perPage(),
+                    'total' => $data->total(),
+                ]
+            ],
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
+    }
+
+    public function show($id, Request $request)
+    {
+        $data = EmployeeDeduction::find($id);
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'data' => new EmployeeDeductionResource($data),
+        ], Response::HTTP_OK);
+    }
+
     public function store(Request $request)
     {
         if ($request->single_data) {
@@ -69,17 +128,6 @@ class EmployeeDeductionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    public function show($id, Request $request)
-    {
-        $data = EmployeeDeduction::where('employee_id', $id)->where('payroll_period_id', $request->payroll_period_id)->get();
-
-        return response()->json([
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-            'responseData' => EmployeeDeductionResource::collection($data),
-        ], Response::HTTP_OK);
-    }
-
     public function create(Request $request)
     {
         $check = EmployeeDeduction::where('payroll_period_id', $request->payroll_period_id)
@@ -110,7 +158,7 @@ class EmployeeDeductionController extends Controller
             'percentage' => $request->percentage,
             'frequency' => $request->frequency,
             'date_from' => $request->date_from,
-            'date_to' => $request->payrdate_tooll_period,
+            'date_to' => $request->date_to,
             'with_terms' => $request->with_terms,
             'total_term' => $request->total_term,
             'total_paid' => $request->total_paid,
@@ -118,11 +166,12 @@ class EmployeeDeductionController extends Controller
             'is_default' => $request->is_default,
         ];
 
-        $data = Employeededuction::create($request_data);
+        $data = EmployeeDeduction::create($request_data);
+
         return response()->json([
             'message' => 'Employee deduction created successfully.',
             'statusCode' => 200,
-            'responseData' => new EmployeeDeductionResource($data),
+            'data' => new EmployeeDeductionResource($data),
         ], Response::HTTP_CREATED);
     }
 
@@ -175,17 +224,6 @@ class EmployeeDeductionController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function destroy($id, Request $request)
-    {
-        $data = EmployeeDeduction::findOrFail($id);
-        $data->delete(); // Soft delete
-
-        return response()->json([
-            'message' => "Data successfully deleted",
-            'statusCode' => 200
-        ], Response::HTTP_OK);
-    }
-
     public function complete($id)
     {
         $data = EmployeeDeduction::findOrFail($id);
@@ -203,6 +241,17 @@ class EmployeeDeductionController extends Controller
             'data' => new EmployeeDeductionResource($data),
             'message' => 'Data successfully locked.',
             'statusCode' => 200,
+        ], Response::HTTP_OK);
+    }
+
+    public function destroy($id, Request $request)
+    {
+        $data = EmployeeDeduction::findOrFail($id);
+        $data->delete(); // Soft delete
+
+        return response()->json([
+            'message' => "Data successfully deleted",
+            'statusCode' => 200
         ], Response::HTTP_OK);
     }
 }
