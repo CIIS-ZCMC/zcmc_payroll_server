@@ -64,17 +64,6 @@ class EmployeeDeductionController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function show($id, Request $request)
-    {
-        $data = EmployeeDeduction::find($id);
-
-        return response()->json([
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-            'data' => new EmployeeDeductionResource($data),
-        ], Response::HTTP_OK);
-    }
-
     public function store(Request $request)
     {
         if ($request->single_data) {
@@ -190,9 +179,42 @@ class EmployeeDeductionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
+    public function show($id, Request $request)
+    {
+        if ($request->mode === "edit") {
+            return $this->edit($id);
+        }
+
+        $data = EmployeeDeduction::with([
+            'employee',
+            'payrollPeriod',
+            'deductions'
+        ])->whereNull('deleted_at')
+            ->where('employee_id', $id)
+            ->where('payroll_period_id', $request->payroll_period_id)
+            ->get();
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'responseData' => EmployeeDeductionResource::collection($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function edit($id)
+    {
+        $data = EmployeeDeduction::find($id);
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'data' => new EmployeeDeductionResource($data),
+        ], Response::HTTP_OK);
+    }
+
     public function update($id, Request $request)
     {
-        if ($request->boolean('to_complete')) {
+        if ($request->mode === 'complete') {
             return $this->complete($id);
         }
 
@@ -220,7 +242,7 @@ class EmployeeDeductionController extends Controller
         return response()->json([
             'message' => 'Employee deduction updated successfully.',
             'statusCode' => 200,
-            'responseData' => new EmployeeDeductionResource($data),
+            'data' => new EmployeeDeductionResource($data),
         ], Response::HTTP_OK);
     }
 
