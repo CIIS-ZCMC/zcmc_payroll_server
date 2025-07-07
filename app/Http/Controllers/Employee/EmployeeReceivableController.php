@@ -15,6 +15,54 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeReceivableController extends Controller
 {
+    public function index(Request $request)
+    {
+        if ($request->pagination) {
+            return $this->pagination($request);
+        }
+
+        $data = EmployeeReceivable::with([
+            'employee',
+            'payrollPeriod',
+            'deductions'
+        ])->get();
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'responseData' => EmployeeReceivableResource::collection($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function pagination(Request $request)
+    {
+        $validated = $request->validate([
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'page' => 'sometimes|integer|min:1|max:100'
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $page = $validated['page'] ?? 1;
+
+        $data = EmployeeReceivable::whereNull('deleted_at')
+            ->with(['employee', 'payrollPeriod', 'deductions'])
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'responseData' => [
+                'data' => EmployeeReceivableResource::collection($data),
+                'meta' => [
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'per_page' => $data->perPage(),
+                    'total' => $data->total(),
+                ]
+            ],
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
+    }
+
     public function store(Request $request)
     {
         if ($request->single_data) {
@@ -38,6 +86,12 @@ class EmployeeReceivableController extends Controller
                     ->where('receivable_id', $receivable->id)
                     ->first();
 
+                if ($existing && $existing->locked_at !== null) {
+                    return response()->json([
+                        'message' => "Payroll is already locked",
+                        'statusCode' => 403
+                    ], Response::HTTP_FORBIDDEN);
+                }
 
                 $request_data = [
                     'payroll_period_id' => $payroll_period->id,
@@ -68,19 +122,16 @@ class EmployeeReceivableController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    public function show($id, Request $request)
-    {
-        $data = EmployeeReceivable::where('employee_id', $id)->where('payroll_period_id', $request->payroll_period_id)->get();
-
-        return response()->json([
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-            'responseData' => EmployeeReceivableResource::collection($data),
-        ], Response::HTTP_OK);
-    }
-
     public function create(Request $request)
     {
+        $payroll_period = PayrollPeriod::find($request->payroll_period_id);
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $check = EmployeeReceivable::where('payroll_period_id', $request->payroll_period_id)
             ->where('employee_id', $request->employee_id)
             ->where('receivable_id', $request->receivable_id)
@@ -121,7 +172,7 @@ class EmployeeReceivableController extends Controller
         return response()->json([
             'message' => 'Employee receivable created successfully.',
             'statusCode' => 200,
-            'responseData' => new EmployeeReceivableResource($data),
+            'data' => new EmployeeReceivableResource($data),
         ], Response::HTTP_CREATED);
     }
 
@@ -140,13 +191,54 @@ class EmployeeReceivableController extends Controller
         ], Response::HTTP_CREATED);
     }
 
+    public function show($id, Request $request)
+    {
+        if ($request->mode === "edit") {
+            return $this->edit($id);
+        }
+
+        $data = EmployeeReceivable::with([
+            'employee',
+            'payrollPeriod',
+            'receivables'
+        ])->whereNull('deleted_at')
+            ->where('employee_id', $id)
+            ->where('payroll_period_id', $request->payroll_period_id)
+            ->get();
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'responseData' => EmployeeReceivableResource::collection($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function edit($id)
+    {
+        $data = EmployeeReceivable::find($id);
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'data' => new EmployeeReceivableResource($data),
+        ], Response::HTTP_OK);
+    }
+
     public function update($id, Request $request)
     {
-        if ($request->boolean('to_complete')) {
+        if ($request->mode === 'complete') {
             return $this->complete($id);
         }
 
         $data = EmployeeReceivable::find($id);
+
+        $payroll_period = PayrollPeriod::find($data->payroll_period_id);
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         if ($request->percentage > 0) {
             $base_salary = EmployeeTimeRecord::where('payroll_period_id', $data->payroll_period_id)
@@ -170,7 +262,34 @@ class EmployeeReceivableController extends Controller
         return response()->json([
             'message' => 'Employee receivable updated successfully.',
             'statusCode' => 200,
-            'responseData' => new EmployeeReceivableResource($data),
+            'data' => new EmployeeReceivableResource($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function complete($id)
+    {
+        $data = EmployeeReceivable::findOrFail($id);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Employee Deduction not found.',
+                'statusCode' => 404
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $payroll_period = PayrollPeriod::find($data->payroll_period_id);
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $data->update(['completed_at' => now()]);
+        return response()->json([
+            'data' => new EmployeeReceivableResource($data),
+            'message' => 'Receivable successfully completed.',
+            'statusCode' => 200,
         ], Response::HTTP_OK);
     }
 
@@ -182,26 +301,6 @@ class EmployeeReceivableController extends Controller
         return response()->json([
             'message' => "Data successfully deleted",
             'statusCode' => 200
-        ], Response::HTTP_OK);
-    }
-
-    public function complete($id)
-    {
-        $data = EmployeeReceivable::findOrFail($id);
-
-        if (!$data) {
-            return response()->json([
-                'message' => 'Employee Receivable not found.',
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data->update(['completed_at' => now()]);
-
-        return response()->json([
-            'data' => new EmployeeReceivableResource($data),
-            'message' => 'Data successfully locked.',
-            'statusCode' => 200,
         ], Response::HTTP_OK);
     }
 }

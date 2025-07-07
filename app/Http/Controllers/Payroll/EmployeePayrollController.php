@@ -60,6 +60,13 @@ class EmployeePayrollController extends Controller
             return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
         }
 
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $selected_employee = $request->selected_employees;
         foreach ($selected_employee as $data) {
             $employee = Employee::where('employee_number', $data['employee_number'])->first();

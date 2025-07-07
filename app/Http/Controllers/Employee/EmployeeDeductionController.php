@@ -87,6 +87,12 @@ class EmployeeDeductionController extends Controller
                     ->where('deduction_id', $deduction->id)
                     ->first();
 
+                if ($existing && $existing->locked_at !== null) {
+                    return response()->json([
+                        'message' => "Payroll is already locked",
+                        'statusCode' => 403
+                    ], Response::HTTP_FORBIDDEN);
+                }
 
                 $request_data = [
                     'payroll_period_id' => $payroll_period->id,
@@ -119,6 +125,14 @@ class EmployeeDeductionController extends Controller
 
     public function create(Request $request)
     {
+        $payroll_period = PayrollPeriod::find($request->payroll_period_id);
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $check = EmployeeDeduction::where('payroll_period_id', $request->payroll_period_id)
             ->where('employee_id', $request->employee_id)
             ->where('deduction_id', $request->deduction_id)
@@ -220,6 +234,14 @@ class EmployeeDeductionController extends Controller
 
         $data = EmployeeDeduction::find($id);
 
+        $payroll_period = PayrollPeriod::find($data->payroll_period_id);
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         if ($request->percentage > 0) {
             $base_salary = EmployeeTimeRecord::where('payroll_period_id', $data->payroll_period_id)
                 ->where('employee_id', $data->employee_id)->first()->base_salary;
@@ -257,11 +279,19 @@ class EmployeeDeductionController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
+        $payroll_period = PayrollPeriod::find($data->payroll_period_id);
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $data->update(['completed_at' => now()]);
 
         return response()->json([
             'data' => new EmployeeDeductionResource($data),
-            'message' => 'Data successfully locked.',
+            'message' => 'Deduction successfully locked.',
             'statusCode' => 200,
         ], Response::HTTP_OK);
     }
@@ -269,6 +299,14 @@ class EmployeeDeductionController extends Controller
     public function destroy($id, Request $request)
     {
         $data = EmployeeDeduction::findOrFail($id);
+
+        $payroll_period = PayrollPeriod::find($data->payroll_period_id);
+        if ($payroll_period && $payroll_period->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
         $data->delete(); // Soft delete
 
         return response()->json([

@@ -16,14 +16,17 @@ class ReceivableController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->pagination) {
+            return $this->pagination($request);
+        }
+
         return response()->json([
             'responseData' => ReceivableResource::collection(Receivable::whereNull('deleted_at')->get()),
-            'message' => 'Receivables retrieved successfully.',
+            'message' => "Data Successfully retrieved",
             'statusCode' => 200
         ], Response::HTTP_OK);
-
     }
 
 
@@ -39,10 +42,7 @@ class ReceivableController extends Controller
         $validate_code = Receivable::whereNull('deleted_at')->where('code', $validate['code'])->first();
 
         if ($validate_code) {
-            return response()->json([
-                'message' => 'Code already exist',
-                'statusCode' => 302
-            ], Response::HTTP_FOUND);
+            return response()->json(['message' => 'Code already exist'], Response::HTTP_FOUND);
         }
 
         if ($validate['type'] === null) {
@@ -57,7 +57,7 @@ class ReceivableController extends Controller
 
         return response()->json([
             'data' => new ReceivableResource($data),
-            'message' => "Successfully saved",
+            'message' => "Data Successfully saved",
             'statusCode' => 200
         ], Response::HTTP_CREATED);
     }
@@ -68,20 +68,26 @@ class ReceivableController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $data = Receivable::findOrFail($id);
+        $payroll_period_id = $request->payroll_period_id;
+
+        $data = Receivable::with([
+            'employeeReceivables' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', $payroll_period_id);
+            },
+            'employeeReceivables.employee'
+        ])->where('id', $id)->first();
 
         if (!$data) {
             return response()->json([
-                'message' => "Receivable not found",
-                'statusCode' => 404
+                'message' => "Data not found"
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'data' => new ReceivableResource($data),
-            'message' => "Receivable retrieved successfully",
+            'message' => "Data Successfully retrieved",
             'statusCode' => 200
         ], Response::HTTP_OK);
     }
@@ -123,7 +129,7 @@ class ReceivableController extends Controller
 
         return response()->json([
             'data' => new ReceivableResource($data),
-            'message' => "Receivable updated successfully",
+            'message' => "Data Successfully updated",
             'statusCode' => 200
         ], Response::HTTP_OK);
     }
@@ -140,7 +146,7 @@ class ReceivableController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => "Receivable not found",
+                'message' => "Data not found",
                 'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
@@ -149,6 +155,33 @@ class ReceivableController extends Controller
 
         return response()->json([
             'message' => "Data Successfully deleted",
+            'statusCode' => 200
+        ], Response::HTTP_OK);
+    }
+
+    public function pagination(Request $request)
+    {
+        $validated = $request->validate([
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'page' => 'sometimes|integer|min:1|max:100'
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $page = $validated['page'] ?? 1;
+
+        $data = Receivable::whereNull('deleted_at')->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'responseData' => [
+                'data' => ReceivableResource::collection($data),
+                'meta' => [
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'per_page' => $data->perPage(),
+                    'total' => $data->total(),
+                ]
+            ],
+            'message' => "Data Successfully retrieved",
             'statusCode' => 200
         ], Response::HTTP_OK);
     }

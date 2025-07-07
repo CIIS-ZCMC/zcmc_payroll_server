@@ -42,8 +42,7 @@ class EmployeeController extends Controller
 
     private function getEmployee(Request $request)
     {
-        $payroll_period = PayrollPeriod::where('locked_at', null)
-            ->where('employment_type', $request->employment_type)
+        $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
             ->where('period_type', $request->period_type)
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
@@ -77,8 +76,7 @@ class EmployeeController extends Controller
 
     private function getExcludedEmployees(Request $request)
     {
-        $payroll_period = PayrollPeriod::where('locked_at', null)
-            ->where('employment_type', $request->employment_type)
+        $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
             ->first();

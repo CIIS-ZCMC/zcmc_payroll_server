@@ -43,4 +43,9 @@ class Receivable extends Model
             }
         });
     }
+
+    public function employeeReceivables()
+    {
+        return $this->hasMany(EmployeeReceivable::class, 'receivable_id');
+    }
 }

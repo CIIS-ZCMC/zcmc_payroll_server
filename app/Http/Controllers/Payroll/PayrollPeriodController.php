@@ -14,15 +14,14 @@ class PayrollPeriodController extends Controller
 {
     public function index(Request $request)
     {
-        $payroll_period = PayrollPeriod::whereNull('locked_at')
-            ->where('employment_type', $request->employment_type)
+        $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
             ->where('period_type', $request->period_type)
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
             ->first();
 
         if (!$payroll_period) {
-            $payroll_period = PayrollPeriod::whereNull('locked_at')->latest()->first();
+            $payroll_period = PayrollPeriod::latest()->first();
         }
 
         if (!$payroll_period) {
