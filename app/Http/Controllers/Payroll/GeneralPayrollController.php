@@ -27,12 +27,24 @@ class GeneralPayrollController extends Controller
         ]);
     }
 
-    public function destroy($id, Request $request)
+    public function update($id, Request $request)
     {
-        if ($request->boolean('to_locked')) {
+        if ($request->mode === 'locked') {
             return $this->locked($id);
         }
 
+        $data = GeneralPayroll::findOrFail($id);
+        $data->update($request->all());
+
+        return response()->json([
+            'data' => new GeneralPayrollResource($data),
+            'message' => 'Data successfully updated.',
+            'statusCode' => 200,
+        ]);
+    }
+
+    public function destroy($id, Request $request)
+    {
         $data = GeneralPayroll::findOrFail($id);
         $data->delete(); // Soft delete
 

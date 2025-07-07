@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Authentication\AuthenticationController;
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Employee\EmployeeDeductionController;
@@ -30,6 +31,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('sign-in', [LoginController::class, 'store']);
 
 Route::middleware('auth.token')->group(function () {
+    //Authentication
+    Route::get('authentications', [AuthenticationController::class, 'index']);
+
     //Libraries
     Route::put('deduction-stop/{id}', [DeductionController::class, 'stop']);
     Route::apiResource('deductions', DeductionController::class);
@@ -55,7 +59,7 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
 
     //General Payroll
-    Route::apiResource('general-payrolls', GeneralPayrollController::class)->only(['index', 'destroy']);
+    Route::apiResource('general-payrolls', GeneralPayrollController::class)->only(['index', 'update', 'destroy']);
 
     //Report
     Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);

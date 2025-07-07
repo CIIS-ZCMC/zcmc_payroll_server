@@ -19,7 +19,7 @@ class CreateGeneralPayrollsTable extends Migration
             $table->string('generated_by_name');
             $table->unsignedBigInteger('payroll_period_id')->nullable();
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
-            $table->double('total_employees');
+            $table->integer('total_employees');
             $table->double('total_deductions');
             $table->double('total_receivables');
             $table->double('total_gross');

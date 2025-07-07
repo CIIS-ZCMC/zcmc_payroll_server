@@ -16,6 +16,7 @@ class PersonalAccessToken extends Model
         'employee_id',
         'email',
         'name',
+        'authorization_pin',
         'token',
         'permissions',
         'last_used_at',

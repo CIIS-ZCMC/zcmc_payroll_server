@@ -19,7 +19,7 @@ class GeneralPayrollResource extends JsonResource
             'generated_by_id' => $this->generated_by_id,
             'generated_by_name' => $this->generated_by_name,
             'payroll_period' => new PayrollPeriodResource($this->payrollPeriod),
-            'total_employees' => number_format($this->total_employees, 2),
+            'total_employees' => $this->total_employees,
             'total_deductions' => number_format($this->total_deductions, 2),
             'total_receivables' => number_format($this->total_receivables, 2),
             'total_gross' => number_format($this->total_gross, 2),

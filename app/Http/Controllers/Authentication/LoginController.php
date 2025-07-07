@@ -48,6 +48,7 @@ class LoginController extends Controller
         $permissions = json_encode($data['permissions']);
         $last_used_at = Carbon::now();
         $expire_at = Carbon::now()->addMinutes(30);
+        $authorization_pin = $data['authorization_pin'];
 
         self::__destroySession($employee_id);
 
@@ -55,6 +56,7 @@ class LoginController extends Controller
             'employee_id' => $employee_id,
             'email' => $employee_email,
             'name' => $employee_name,
+            'authorization_pin' => encrypt($authorization_pin),
             'token' => $token,
             'permissions' => $permissions,
             'last_used_at' => $last_used_at,

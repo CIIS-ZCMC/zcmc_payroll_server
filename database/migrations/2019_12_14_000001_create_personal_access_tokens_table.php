@@ -18,6 +18,7 @@ class CreatePersonalAccessTokensTable extends Migration
             $table->string('employee_id')->unique();
             $table->string('email')->nullable();
             $table->string('name');
+            $table->string('authorization_pin');
             $table->string('token', 64)->unique();
             $table->datetime('expire_at')->nullable();
             $table->text('permissions')->nullable();
