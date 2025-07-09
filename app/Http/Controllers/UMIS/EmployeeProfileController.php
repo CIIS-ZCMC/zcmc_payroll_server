@@ -441,72 +441,55 @@ class EmployeeProfileController extends Controller
         $first_half = $cache_data['first_half'];
         $second_half = $cache_data['second_half'];
 
-        $payroll_period = PayrollPeriod::where('period_type', $period_type)
-            ->where('employment_type', $employment_type)
-            ->where('month', $month_of)
-            ->where('year', $year_of)
-            ->first();
-
-        if ($period_type === 'second_half' && $payroll_period === null) {
-            $find_first_half = PayrollPeriod::where('period_type', 'first_half')
+        if ($period_type === 'second_half') {
+            $firstHalf = PayrollPeriod::where('period_type', 'first_half')
                 ->where('employment_type', $employment_type)
                 ->where('month', $month_of)
                 ->where('year', $year_of)
                 ->first();
 
-            if ($find_first_half !== null) {
-                if ($find_first_half->locked_at === null) {
-                    return response()->json([
-                        'message' => "Please lock the first payroll period before proceeding with the second half.",
-                        'statusCode' => 302
-                    ], Response::HTTP_FOUND);
-                }
-            }
-
-            $payroll_period = PayrollPeriod::create([
-                'month' => $month_of,
-                'year' => $year_of,
-                'employment_type' => $employment_type,
-                'period_type' => $period_type,
-                'period_start' => $period_start,
-                'period_end' => $period_end,
-                'days_of_duty' => $this->Working_Days,
-                'is_active' => true
-            ]);
-        } elseif ($payroll_period !== null) {
-            if ($payroll_period->locked_at === null) {
-                $payroll_period->update([
-                    'period_start' => $period_start,
-                    'period_end' => $period_end,
-                    'days_of_duty' => $this->Working_Days,
-                    'is_active' => true
-                ]);
-            } elseif ($payroll_period->locked_at !== null) {
+            if ($firstHalf && !$firstHalf->locked_at) {
                 return response()->json([
-                    'message' => "Payroll is already locked.",
-                    'statusCode' => 302
-                ], Response::HTTP_FOUND);
+                    'message' => "First half payroll period must be locked before creating second half",
+                    'statusCode' => 403
+                ], 403);
             }
-        } else {
-            $payroll_period = PayrollPeriod::create([
-                'month' => $month_of,
-                'year' => $year_of,
-                'employment_type' => $employment_type,
-                'period_type' => $period_type,
-                'period_start' => $period_start,
-                'period_end' => $period_end,
-                'days_of_duty' => $this->Working_Days,
-                'is_active' => true
-            ]);
         }
+
+        // Find or create payroll period
+        $payroll_period = PayrollPeriod::firstOrNew([
+            'period_type' => $period_type,
+            'employment_type' => $employment_type,
+            'month' => $month_of,
+            'year' => $year_of
+        ]);
+
+        // Prepare update data
+        $payrollData = [
+            'period_start' => $period_start,
+            'period_end' => $period_end,
+            'days_of_duty' => $this->Working_Days,
+            'is_active' => true
+        ];
+
+        // Create/update payroll period
+        if ($payroll_period->exists) {
+            if ($payroll_period->locked_at) {
+                return response()->json([
+                    'message' => "Payroll is already locked",
+                    'statusCode' => 403
+                ], 403);
+            }
+            $payroll_period->update($payrollData);
+        } else {
+            $payroll_period->fill($payrollData)->save();
+        }
+
+        // Deactivate other periods
+        PayrollPeriod::where('id', '!=', $payroll_period->id)->update(['is_active' => false]);
 
         $period_id = $payroll_period->id;
         $period_type = $payroll_period->period_type;
-
-        if ($payroll_period) {
-            $other_payroll_period = PayrollPeriod::where('id', '!=', $period_id)
-                ->update(['is_active' => false]);
-        }
 
         $employee_data = [];
         foreach ($employees as $data) {
