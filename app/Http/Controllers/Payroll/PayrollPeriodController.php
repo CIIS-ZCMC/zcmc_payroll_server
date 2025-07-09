@@ -21,40 +21,29 @@ class PayrollPeriodController extends Controller
             ->first();
 
         if (!$payroll_period) {
-            $payroll_period = PayrollPeriod::latest()->first();
+            $payroll_period = PayrollPeriod::where('is_active', true)->first();
+
+            if (!$payroll_period) {
+                return response()->json([
+                    'message' => 'No payroll period found for the given criteria.',
+                    'statusCode' => 404,
+                ], Response::HTTP_NOT_FOUND);
+            }
         }
 
-        if (!$payroll_period) {
-            return response()->json([
-                'message' => 'No payroll period found for the given criteria.',
-                'statusCode' => 404,
-            ], Response::HTTP_NOT_FOUND);
-        }
+        $payroll_period->update([
+            'is_active' => true,
+        ]);
 
-        if ($request->employee_records) {
-            $data = EmployeeTimeRecord::where('payroll_period_id', $payroll_period->id)
-                ->with([
-                    'payrollPeriod',
-                    'employee',
-                    'employee.employeeSalary',
-                    'employee.employeeComputedSalaries',
-                    'employee.employeeDeductions',
-                    'employee.employeeReceivables',
-                ])->get();
-
-
-            return response()->json([
-                'message' => 'Payroll period retrieved successfully with employee records.',
-                'data' => EmployeeTimeRecordResource::collection($data),
-                'statusCode' => 200,
-            ], Response::HTTP_OK);
-        }
+        //Deactivate Other payroll periods
+        PayrollPeriod::where('id', '!=', $payroll_period->id)->update([
+            'is_active' => false,
+        ]);
 
         return response()->json([
             'message' => 'Payroll period retrieved successfully.',
             'data' => new PayrollPeriodResource($payroll_period),
             'statusCode' => 200,
         ], Response::HTTP_OK);
-
     }
 }

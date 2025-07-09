@@ -471,6 +471,7 @@ class EmployeeProfileController extends Controller
                 'period_start' => $period_start,
                 'period_end' => $period_end,
                 'days_of_duty' => $this->Working_Days,
+                'is_active' => true
             ]);
         } elseif ($payroll_period !== null) {
             if ($payroll_period->locked_at === null) {
@@ -478,6 +479,7 @@ class EmployeeProfileController extends Controller
                     'period_start' => $period_start,
                     'period_end' => $period_end,
                     'days_of_duty' => $this->Working_Days,
+                    'is_active' => true
                 ]);
             } elseif ($payroll_period->locked_at !== null) {
                 return response()->json([
@@ -494,11 +496,17 @@ class EmployeeProfileController extends Controller
                 'period_start' => $period_start,
                 'period_end' => $period_end,
                 'days_of_duty' => $this->Working_Days,
+                'is_active' => true
             ]);
         }
 
         $period_id = $payroll_period->id;
         $period_type = $payroll_period->period_type;
+
+        if ($payroll_period) {
+            $other_payroll_period = PayrollPeriod::where('id', '!=', $period_id)
+                ->update(['is_active' => false]);
+        }
 
         $employee_data = [];
         foreach ($employees as $data) {
@@ -795,6 +803,7 @@ class EmployeeProfileController extends Controller
             if ($employment_type !== "Job Order") {
                 $pera = $this->computationService->pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, 22, $no_of_absences);
                 $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
+                $deduction = $this->computationService->employeeDeduction($payroll_period_id, $employee_id);
             }
         }
 

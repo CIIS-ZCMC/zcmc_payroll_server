@@ -23,7 +23,8 @@ class PayrollPeriod extends Model
         'is_special',
         'posted_at',
         'last_generated_at',
-        'locked_at'
+        'locked_at',
+        'is_active'
     ];
 
     public function excludedEmployees()

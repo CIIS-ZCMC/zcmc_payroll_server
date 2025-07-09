@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\EmployeeDeduction;
 use App\Models\EmployeeReceivable;
+use App\Models\PayrollPeriod;
 use App\Models\Receivable;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -160,7 +162,58 @@ class ComputationService
         ];
     }
 
+    public function employeeDeduction($payroll_period_id, $employee_id)
+    {
+        // Get deductions for current payroll period
+        $currentDeductions = EmployeeDeduction::where('payroll_period_id', $payroll_period_id)
+            ->where('employee_id', $employee_id)
+            ->get();
 
+        // If deductions exist for current period, return them
+        if ($currentDeductions->isNotEmpty()) {
+            return $currentDeductions;
+        }
+
+        // Get current payroll period details
+        $payroll_period_of_the_month = PayrollPeriod::find($payroll_period_id);
+
+        // Find most recent previous period in same month
+        $lastPayrollPeriodOfTheMonth = PayrollPeriod::where('id', '<', $payroll_period_of_the_month->id)
+            ->where('month', $payroll_period_of_the_month->month)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        // Determine last payroll period using optimal assignment
+        $lastPayrollPeriod = null;
+        if ($lastPayrollPeriodOfTheMonth) {
+            $lastPayrollPeriod = $lastPayrollPeriodOfTheMonth;  // Direct assignment
+        } else {
+            $lastPayrollPeriod = PayrollPeriod::where('id', '<', $payroll_period_id)
+                ->orderBy('id', 'desc')
+                ->first();
+        }
+
+        if ($lastPayrollPeriod) {
+            $lastDeduction = EmployeeDeduction::where('payroll_period_id', $lastPayrollPeriod->id)
+                ->where('employee_id', $employee_id)
+                ->get();
+
+            // If a previous deduction exists, create a copy for the current period
+            if ($lastDeduction->isNotEmpty()) {
+                $newDeductions = [];
+                foreach ($lastDeduction as $deduction) {
+                    $newDeduction = $deduction->replicate();
+                    $newDeduction->payroll_period_id = $payroll_period_id;
+                    $newDeduction->save();
+                    $newDeductions[] = $newDeduction;
+                }
+
+                return collect($newDeductions);
+            }
+        }
+
+        return $currentDeductions;
+    }
 
     public function CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType)
     {

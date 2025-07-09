@@ -12,12 +12,20 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 
 class ImportEmployeeDeduction implements ToCollection
 {
+    protected $payrollPeriodId;
+    // Add constructor to accept payroll_period_id
+    public function __construct($payrollPeriodId)
+    {
+        $this->payrollPeriodId = $payrollPeriodId;
+    }
+
     /**
      * @param Collection $collection
      */
     public function collection(Collection $collection)
     {
         try {
+            /// pass payroll_period_id from controller
 
             $code = $collection[0][1]; // e.g. "WTAX"
             $monthName = $collection[1][1]; // e.g. "February"
@@ -30,14 +38,15 @@ class ImportEmployeeDeduction implements ToCollection
                 throw new \Exception("Deduction code not found: $code");
             }
 
-            $payroll_period = PayrollPeriod::where('employment_type', 'permanent')
-                ->where('month', $month)
-                ->where('year', $year)
-                ->latest()
-                ->first();
+            $payroll_period = PayrollPeriod::find($this->payrollPeriodId);
 
             if (!$payroll_period) {
                 throw new \Exception("Payroll period not found for $monthName $year");
+            }
+
+            $payroll_period_type = $payroll_period->period_type === 'first_half' ? 'First Half' : 'Second Half';
+            if ($payroll_period->locked_at !== null) {
+                throw new \Exception("Payroll period is already locked for $monthName $year : $payroll_period_type");
             }
 
             $data_rows = $collection->slice(2);

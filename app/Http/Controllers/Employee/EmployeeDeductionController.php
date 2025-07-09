@@ -66,11 +66,20 @@ class EmployeeDeductionController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->single_data) {
+        $existing = PayrollPeriod::find($request->payroll_period_id);
+
+        if ($existing && $existing->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        if ($request->mode === 'single') {
             return $this->create($request);
         }
 
-        if ($request->import) {
+        if ($request->mode === 'bulk') {
             return $this->import($request);
         }
 
@@ -82,18 +91,6 @@ class EmployeeDeductionController extends Controller
             $deduction = Deduction::find($data['deduction_id']);
 
             if ($payroll_period && $employee && $deduction) {
-                $existing = EmployeeDeduction::where('payroll_period_id', $payroll_period->id)
-                    ->where('employee_id', $employee->id)
-                    ->where('deduction_id', $deduction->id)
-                    ->first();
-
-                if ($existing && $existing->locked_at !== null) {
-                    return response()->json([
-                        'message' => "Payroll is already locked",
-                        'statusCode' => 403
-                    ], Response::HTTP_FORBIDDEN);
-                }
-
                 $request_data = [
                     'payroll_period_id' => $payroll_period->id,
                     'employee_id' => $employee->id,
@@ -181,16 +178,26 @@ class EmployeeDeductionController extends Controller
     public function import(Request $request)
     {
         $request->validate([
+            'payroll_period_id' => 'required',
             'file' => 'required|file|mimes:xlsx,xls,csv|max:2048'
         ]);
 
-        Excel::import(new ImportEmployeeDeduction, $request->file('file'));
+        try {
+            $payrollPeriodId = $request->input('payroll_period_id');
+            Excel::import(new ImportEmployeeDeduction($payrollPeriodId), $request->file('file'));
 
-        return response()->json([
-            'message' => 'Employee deductions imported successfully.',
-            'responseData' => [],
-            'statusCode' => 200
-        ], Response::HTTP_CREATED);
+            return response()->json([
+                'message' => 'Employee deductions imported successfully.',
+                'responseData' => [],
+                'statusCode' => 200
+            ], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Import failed: ' . $e->getMessage(),
+                'responseData' => [],
+                'statusCode' => 422
+            ], 422);
+        }
     }
 
     public function show($id, Request $request)

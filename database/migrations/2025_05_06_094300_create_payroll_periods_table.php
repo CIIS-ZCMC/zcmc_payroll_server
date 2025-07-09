@@ -26,6 +26,7 @@ class CreatePayrollPeriodsTable extends Migration
             $table->dateTime("posted_at")->nullable();
             $table->dateTime("last_generated_at")->nullable();
             $table->dateTime("locked_at")->nullable();
+            $table->boolean("is_active")->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
