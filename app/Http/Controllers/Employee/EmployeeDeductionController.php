@@ -66,9 +66,9 @@ class EmployeeDeductionController extends Controller
 
     public function store(Request $request)
     {
-        $existing = PayrollPeriod::find($request->payroll_period_id);
+        $PayrollPeriod = PayrollPeriod::find($request->payroll_period_id);
 
-        if ($existing && $existing->locked_at !== null) {
+        if ($PayrollPeriod && $PayrollPeriod->locked_at !== null) {
             return response()->json([
                 'message' => "Payroll is already locked",
                 'statusCode' => 403
@@ -91,6 +91,11 @@ class EmployeeDeductionController extends Controller
             $deduction = Deduction::find($data['deduction_id']);
 
             if ($payroll_period && $employee && $deduction) {
+                $existing = EmployeeDeduction::where('payroll_period_id', $payroll_period->id)
+                    ->where('employee_id', $employee->id)
+                    ->where('deduction_id', $deduction->id)
+                    ->first();
+
                 $request_data = [
                     'payroll_period_id' => $payroll_period->id,
                     'employee_id' => $employee->id,
