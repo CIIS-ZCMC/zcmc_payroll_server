@@ -10,15 +10,30 @@ use App\Models\EmployeePayroll;
 use App\Models\EmployeeTimeRecord;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
+use App\Services\EmployeeTimeRecordService;
+use App\Services\PayrollPeriodService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmployeePayrollController extends Controller
 {
+    protected $payrollPeriod;
+    protected $employeeTimeRecord;
+
+    public function __construct(EmployeeTimeRecordService $employeeTimeRecordService, PayrollPeriodService $payrollPeriodService)
+    {
+        $this->employeeTimeRecord = $employeeTimeRecordService;
+        $this->payrollPeriod = $payrollPeriodService;
+    }
+
     public function index(Request $request)
     {
         if ($request->mode === 'included') {
             return $this->included($request);
+        }
+
+        if ($request->mode === 'excluded') {
+            return $this->excluded($request);
         }
 
         $payroll_period_id = $request->payroll_period_id;
@@ -214,52 +229,73 @@ class EmployeePayrollController extends Controller
 
     public function included(Request $request)
     {
-        $payroll_period_id = $request->payroll_period_id;
-        $payroll_period = PayrollPeriod::find($payroll_period_id);
+        $payroll_period = $this->payrollPeriod->find($request->payroll_period_id);
 
         if (!$payroll_period) {
             return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
         }
 
-        $data = EmployeeTimeRecord::with([
-            'payrollPeriod',
-            'employeeComputedSalary',
-            'employee' => function ($query) use ($payroll_period) {
-                $query->with([
-                    'employeeSalary',
-                    'employeeDeductions' => function ($query) use ($payroll_period) {
-                        $query->where('payroll_period_id', $payroll_period->id);
-                    },
-                    'employeeReceivables' => function ($query) use ($payroll_period) {
-                        $query->where('payroll_period_id', $payroll_period->id);
-                    },
-                ]);
-            }
-        ])
-            ->where('payroll_period_id', $payroll_period->id)
-            ->where('status', 'included')
-            ->get()
-            ->map(function ($record) {
-                // Calculate total receivables for this payroll period
-                $totalReceivables = $record->employee->employeeReceivables->sum('amount');
+        $employee_time_record = $this->employeeTimeRecord->get($payroll_period);
+        $data = $employee_time_record->map(function ($record) {
+            // Calculate total receivables for this payroll period
+            $totalReceivables = $record->employee->employeeReceivables->sum('amount');
 
-                // Calculate total deductions for this payroll period
-                $totalDeductions = $record->employee->employeeDeductions->sum('amount');
+            // Calculate total deductions for this payroll period
+            $totalDeductions = $record->employee->employeeDeductions->sum('amount');
 
-                // Compute net pay
-                $grossPay = round($record->employeeComputedSalary->computed_salary + $totalReceivables, 2);
-                $netPay = round($grossPay - $totalDeductions, 2);
+            // Compute net pay
+            $grossPay = round($record->employeeComputedSalary->computed_salary + $totalReceivables, 2);
+            $netPay = round($grossPay - $totalDeductions, 2);
 
-                // Add computed fields to the record
-                $record->total_receivables = $totalReceivables;
-                $record->total_deductions = $totalDeductions;
-                $record->gross_salary = $grossPay;
-                $record->net_pay = $netPay;
+            // Add computed fields to the record
+            $record->total_receivables = $totalReceivables;
+            $record->total_deductions = $totalDeductions;
+            $record->gross_salary = $grossPay;
+            $record->net_pay = $netPay;
 
-                return $record;
-            })
+            return $record;
+        })
             ->filter(function ($record) {
-                return $record->net_pay >= 5000;
+                return $record->status === 'included' && $record->net_pay >= 5000;
+            })->values();
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'responseData' => EmployeePayrollResource::collection($data),
+        ], Response::HTTP_OK);
+    }
+
+    public function excluded(Request $request)
+    {
+        $payroll_period = $this->payrollPeriod->find($request->payroll_period_id);
+
+        if (!$payroll_period) {
+            return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
+        }
+
+        $employee_time_record = $this->employeeTimeRecord->get($payroll_period);
+        $data = $employee_time_record->map(function ($record) {
+            // Calculate total receivables for this payroll period
+            $totalReceivables = $record->employee->employeeReceivables->sum('amount');
+
+            // Calculate total deductions for this payroll period
+            $totalDeductions = $record->employee->employeeDeductions->sum('amount');
+
+            // Compute net pay
+            $grossPay = round($record->employeeComputedSalary->computed_salary + $totalReceivables, 2);
+            $netPay = round($grossPay - $totalDeductions, 2);
+
+            // Add computed fields to the record
+            $record->total_receivables = $totalReceivables;
+            $record->total_deductions = $totalDeductions;
+            $record->gross_salary = $grossPay;
+            $record->net_pay = $netPay;
+
+            return $record;
+        })
+            ->filter(function ($record) {
+                return $record->status === 'included' && $record->net_pay < 5000;
             })->values();
 
         return response()->json([

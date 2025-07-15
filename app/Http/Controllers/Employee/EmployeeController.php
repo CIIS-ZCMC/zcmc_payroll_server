@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Services\ComputationService;
+use App\Services\EmployeeSalaryService;
+use App\Services\EmployeeService;
+use App\Services\EmployeeTimeRecordService;
+use App\Services\ExcludeEmployeeService;
 use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeTimeRecordResource;
 use App\Http\Resources\ExcludedEmployeeResource;
@@ -13,6 +18,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeController extends Controller
 {
+    protected $employeeService;
+    protected $excludedEmployeeService;
+    protected $employeeSalaryService;
+    protected $employeeTimeRecordService;
+    protected $computationService;
+
+    public function __construct(
+        EmployeeService $employeeService,
+        ExcludeEmployeeService $excludedEmployeeService,
+        EmployeeSalaryService $employeeSalaryService,
+        EmployeeTimeRecordService $employeeTimeRecordService,
+        ComputationService $computationService
+    ) {
+        $this->employeeService = $employeeService;
+        $this->excludedEmployeeService = $excludedEmployeeService;
+        $this->employeeSalaryService = $employeeSalaryService;
+        $this->employeeTimeRecordService = $employeeTimeRecordService;
+        $this->computationService = $computationService;
+    }
+
     /**
      * Display a listing of the resource.
      *

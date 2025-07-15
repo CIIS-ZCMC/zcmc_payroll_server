@@ -93,6 +93,85 @@ class ComputationService
         return $amount;
     }
 
+
+    private function getHazardPayPercentage($salary_grade)
+    {
+        // 2016 rules simplified percentage table (section 3.3)
+        if ($salary_grade <= 19)
+            return 0.25;
+        if ($salary_grade == 20)
+            return 0.15;
+        if ($salary_grade == 21)
+            return 0.13;
+        if ($salary_grade == 22)
+            return 0.12;
+        if ($salary_grade == 23)
+            return 0.11;
+        if ($salary_grade == 24 || $salary_grade == 25)
+            return 0.10;
+        if ($salary_grade == 26)
+            return 0.09;
+        if ($salary_grade == 27)
+            return 0.08;
+        if ($salary_grade == 28)
+            return 0.07;
+        if ($salary_grade == 29 || $salary_grade == 30)
+            return 0.06;
+        if ($salary_grade == 31)
+            return 0.05;
+
+        return 0.00; // Default if salary grade doesn't match
+    }
+    public function hazard($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $is_part_time = false, $absent_days = 0, $no_of_leave_days = 0)
+    {
+        // Check if employee should be excluded due to excessive absence (11+ working days)
+        if ($absent_days >= 11) {
+            return 0.00;
+        }
+
+        if ($no_of_leave_days >= 11) {
+            return 0.00;
+        }
+
+        // Determine percentage based on salary grade (2016 rules)
+        $salary_percentage = $this->getHazardPayPercentage($salary_grade);
+
+        // Calculate full amount
+        $amount = $basic_salary * $salary_percentage;
+
+        // Adjust for part-time workers (2016 rules section 3.4)
+        if ($is_part_time) {
+            $amount = $amount / 2;
+        }
+
+        // Job Order employees are not eligible (assuming this is your business rule)
+        if ($employment_type === 'Job Order') {
+            return 0.00;
+        }
+
+        if ($payroll_period_id !== null && $employee_id !== null) {
+            $hazard = Receivable::where('id', 2)->first();
+
+            if ($hazard) {
+                EmployeeReceivable::updateOrCreate(
+                    [
+                        'payroll_period_id' => $payroll_period_id,
+                        'employee_id' => $employee_id,
+                        'receivable_id' => $hazard->id
+                    ],
+                    [
+                        'amount' => $amount,
+                        'status' => "active",
+                        'frequency' => "monthly",
+                        'is_default' => true
+                    ]
+                );
+            }
+        }
+
+        return $amount;
+    }
+
     public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days, $absences)
     {
         $pera = Receivable::where('id', 1)->first();

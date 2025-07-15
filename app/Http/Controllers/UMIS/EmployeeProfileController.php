@@ -212,17 +212,19 @@ class EmployeeProfileController extends Controller
                 $totalUnderTimeMinutes = round((int) optional($employee->dailyTimeRecords->first())->total_undertime_minutes ?? 0);
 
                 //  Total working details
-                $totalMinutes = round((int) $totalWorkingMinutes + $totalLeaveMinutes, 2);
+                $totalMinutes = round((int) $totalWorkingMinutes, 2);
                 $totalWorkingHours = round($totalMinutes / 60, 2);
                 $noOfPresentDays = round($totalMinutes / $expectedMinutesPerDay, 1);
 
-                $totalWorkingMinutesWithLeave = round($totalMinutes + $totalOBMinutes + $totalOTMinutes, 2);
+                $totalWorkingMinutesWithLeave = round($totalMinutes + $totalLeaveMinutes + $totalOBMinutes + $totalOTMinutes, 2);
                 $totalWorkingHoursWithLeave = round($totalWorkingMinutesWithLeave / 60, 2);
                 $noOfPresentDaysWithLeave = round($totalWorkingMinutesWithLeave / $expectedMinutesPerDay, 1);
 
                 // Leave calculations
-                $noOfLeaveWoPay = $receivedLeave->where('without_pay', true)->count();
-                $noOfLeaveWPay = $receivedLeave->where('without_pay', false)->count();
+                $leaveWoPayMinutes = (int) optional($receivedLeave->where('without_pay', true)->first())->total_leave_minutes;
+                $leaveWPayMinutes = (int) optional($receivedLeave->where('without_pay', false)->first())->total_leave_minutes;
+                $noOfLeaveWoPay = round($leaveWoPayMinutes / $expectedMinutesPerDay, 1);
+                $noOfLeaveWPay = round($leaveWPayMinutes / $expectedMinutesPerDay, 1);
 
                 // Absence and day-off calculations
                 $absences = $employee->getAbsentDates($year_of, $month_of);
@@ -775,18 +777,45 @@ class EmployeeProfileController extends Controller
         $employees = $cache_data['employees'];
 
         foreach ($employees as $data) {
-            $employee_id = $data['employee']['id'];
             $payroll_period_id = $data['payroll_period']['id'];
-            $no_of_present_days = ['no_of_present_days_with_leave'];
-            $no_of_absences = $data['no_of_absences'];
+            $employee_id = $data['employee']['id'];
             $employment_type = $data['employee']['salary']['employment_type'];
             $salary_grade = $data['employee']['salary']['salary_grade'];
             $basic_salary = $data['employee']['salary']['base_salary'];
+            $no_of_present_days = ['no_of_present_days']; //without leave, ob and ot , also holiday not included
+            $no_of_present_days_with_leave = ['no_of_present_days_with_leave'];
+            $no_of_absences = $data['no_of_absences'];
+            $no_of_leave_wo_pay = $data['no_of_leave_wo_pay'];
+            $no_of_leave_w_pay = $data['no_of_leave_w_pay'];
+            $no_of_leave_days = $no_of_leave_wo_pay + $no_of_leave_w_pay;
+
+            $is_part_time = $employment_type === 'Permanent Part-time' ? true : false;
 
             if ($employment_type !== "Job Order") {
-                $pera = $this->computationService->pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, 22, $no_of_absences);
-                $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
-                $deduction = $this->computationService->employeeDeduction($payroll_period_id, $employee_id);
+                $hazard = $this->computationService->hazard(
+                    $payroll_period_id,
+                    $employee_id,
+                    $employment_type,
+                    $salary_grade,
+                    $basic_salary,
+                    $is_part_time,
+                    $no_of_absences,
+                    $no_of_leave_days
+                );
+
+                $pera = $this->computationService->pera(
+                    $payroll_period_id,
+                    $employee_id,
+                    $no_of_present_days_with_leave,
+                    $employment_type,
+                    22,
+                    $no_of_absences
+                );
+                // $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
+                $deduction = $this->computationService->employeeDeduction(
+                    $payroll_period_id,
+                    $employee_id
+                );
             }
         }
 
