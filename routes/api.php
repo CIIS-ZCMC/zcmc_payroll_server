@@ -5,6 +5,7 @@ use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Employee\EmployeeDeductionController;
 use App\Http\Controllers\Employee\EmployeeReceivableController;
+use App\Http\Controllers\Employee\EmployeeTimeRecordController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
 use App\Http\Controllers\Payroll\GeneralPayrollController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
@@ -51,12 +52,14 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('employees', EmployeeController::class)->only(['index']);
     Route::apiResource('employee-deductions', EmployeeDeductionController::class);
     Route::apiResource('employee-receivables', EmployeeReceivableController::class);
+    Route::apiResource('employee-time-records', EmployeeTimeRecordController::class);
+
 
     //Payroll Period
     Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);
 
     //Employee Payroll
-    // Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
+    Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
 
     //General Payroll
     Route::apiResource('general-payrolls', GeneralPayrollController::class)->only(['index', 'update', 'destroy']);
@@ -64,6 +67,4 @@ Route::middleware('auth.token')->group(function () {
     //Report
     Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);
 });
-
-Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
 

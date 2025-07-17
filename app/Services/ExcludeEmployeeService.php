@@ -20,4 +20,14 @@ class ExcludeEmployeeService
         }
         return null;
     }
+
+    public function delete($id)
+    {
+        $model = ExcludedEmployee::find($id);
+        if ($model) {
+            $model->delete();
+            return true;
+        }
+        return false;
+    }
 }
