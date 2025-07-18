@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeTimeRecordResource;
 use App\Models\EmployeeTimeRecord;
+use App\Models\PayrollPeriod;
 use App\Services\ExcludeEmployeeService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,7 @@ class EmployeeTimeRecordController extends Controller
     }
     public function update($id, Request $request)
     {
+
         $request_data = $request->all();
 
         $data = EmployeeTimeRecord::find($id);
@@ -29,6 +31,16 @@ class EmployeeTimeRecordController extends Controller
                 'statusCode' => 404
             ], Response::HTTP_NOT_FOUND);
         }
+
+        $PayrollPeriod = PayrollPeriod::find($data->payroll_period_id);
+
+        if ($PayrollPeriod && $PayrollPeriod->locked_at !== null) {
+            return response()->json([
+                'message' => "Payroll is already locked",
+                'statusCode' => 403
+            ], Response::HTTP_FORBIDDEN);
+        }
+
 
         if ($request_data['mode'] == 'exclude') {
             $mode = $this->excludedEmployeeService->create($request_data);

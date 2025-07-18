@@ -186,174 +186,175 @@ class ReportsController extends Controller
         }
     }
 
-    public function requestDeductions(Request $request)
-    {
-        try {
-            $find = PayrollHeaders::where('month', $request->month)
-                ->where('year', $request->year)
-                ->where('employment_type', $request->employment_type);
+    // public function requestDeductions(Request $request)
+    // {
+    //     try {
+    //         $find = PayrollHeaders::where('month', $request->month)
+    //             ->where('year', $request->year)
+    //             ->where('employment_type', $request->employment_type);
 
-            if ($request->employment_type === 'job order') {
-                // Check if salary period is 1-15 or 16-30/31
-                if ($request->salary_period === '1-15') {
-                    $find->where('fromPeriod', 1)
-                        ->where('toPeriod', 15);
-                } elseif ($request->salary_period === '16-30/31') {
-                    $find->where('fromPeriod', 16)
-                        ->where('toPeriod', 30); // You can also adjust for months with 31 days if needed
-                }
-            }
+    //         if ($request->employment_type === 'job order') {
+    //             // Check if salary period is 1-15 or 16-30/31
+    //             if ($request->salary_period === '1-15') {
+    //                 $find->where('fromPeriod', 1)
+    //                     ->where('toPeriod', 15);
+    //             } elseif ($request->salary_period === '16-30/31') {
+    //                 $find->where('fromPeriod', 16)
+    //                     ->where('toPeriod', 30); // You can also adjust for months with 31 days if needed
+    //             }
+    //         }
 
-            $payrollHeader = $find->first();
-            if (!$payrollHeader) {
-                return response()->json(['message' => 'Payroll header not found'], Response::HTTP_NOT_FOUND);
-            }
-
-
+    //         $payrollHeader = $find->first();
+    //         if (!$payrollHeader) {
+    //             return response()->json(['message' => 'Payroll header not found'], Response::HTTP_NOT_FOUND);
+    //         }
 
 
-            $payrolls = PayrollHeaders::with([
-                'genPayrolls' => function ($query) {
-                    $query->with('EmployeeList');
-                }
-            ])->where('id', $payrollHeader->id)
-                ->get();
 
-            $employee_numbers = $payrolls->pluck('genPayrolls.*.EmployeeList.employee_number')->flatten();
-            $employee_profiles = EmployeeProfile::with(['employmentType'])
-                ->whereIn('employee_id', $employee_numbers) // Use whereIn() instead of where()
-                ->get();
 
-            $employee_total = [
-                'permanent_full_time' => 0,
-                'permanent_part_time' => 0,
-                'permanent_cti' => 0,
-                'temporary' => 0,
-                'job_order' => 0
-            ];
+    //         $payrolls = PayrollHeaders::with([
+    //             'genPayrolls' => function ($query) {
+    //                 $query->with('EmployeeList');
+    //             }
+    //         ])->where('id', $payrollHeader->id)
+    //             ->get();
 
-            foreach ($employee_profiles as $employee) {
-                switch ($employee->employmentType->name) {
-                    case 'Permanent Full-time':
-                        $employee_total['permanent_full_time']++;
-                        break;
-                    case 'Permanent Part-time':
-                        $employee_total['permanent_part_time']++;
-                        break;
-                    case 'Permanent CTI':
-                        $employee_total['permanent_cti']++;
-                        break;
-                    case 'Temporary':
-                        $employee_total['temporary']++;
-                        break;
-                    case 'Job Order':
-                        $employee_total['job_order']++;
-                        break;
-                }
-            }
+    //         $employee_numbers = $payrolls->pluck('genPayrolls.*.EmployeeList.employee_number')->flatten();
+    //         $employee_profiles = EmployeeProfile::with(['employmentType'])
+    //             ->whereIn('employee_id', $employee_numbers) // Use whereIn() instead of where()
+    //             ->get();
 
-            $totals = [
-                'month' => null,
-                'year' => null,
-                'pera' => 0,
-                'hazard' => 0,
-                'representation' => 0,
-                'transportation' => 0,
-                'cellphone' => 0,
-                'total_base_salary' => 0,
-                'total_net_pay' => 0,
-                'total_gross_pay' => 0,
-                'total_net_salary_first_half' => 0,
-                'total_net_salary_second_half' => 0,
-                'total_net_total_salary' => 0,
-            ];
+    //         $employee_total = [
+    //             'permanent_full_time' => 0,
+    //             'permanent_part_time' => 0,
+    //             'permanent_cti' => 0,
+    //             'temporary' => 0,
+    //             'job_order' => 0
+    //         ];
 
-            foreach ($payrolls as $payroll) {
-                $totals['month'] = date('F', mktime(0, 0, 0, $payroll->month, 10));
-                $totals['year'] = $payroll->year;
+    //         foreach ($employee_profiles as $employee) {
+    //             switch ($employee->employmentType->name) {
+    //                 case 'Permanent Full-time':
+    //                     $employee_total['permanent_full_time']++;
+    //                     break;
+    //                 case 'Permanent Part-time':
+    //                     $employee_total['permanent_part_time']++;
+    //                     break;
+    //                 case 'Permanent CTI':
+    //                     $employee_total['permanent_cti']++;
+    //                     break;
+    //                 case 'Temporary':
+    //                     $employee_total['temporary']++;
+    //                     break;
+    //                 case 'Job Order':
+    //                     $employee_total['job_order']++;
+    //                     break;
+    //             }
+    //         }
 
-                foreach ($payroll->genPayrolls as $genPayroll) {
-                    // Decode employee_receivables JSON
-                    $receivables = json_decode($genPayroll['employee_receivables'], true);
-                    foreach ($receivables as $receivable) {
-                        if ($receivable['receivable']['code'] === 'PERA') {
-                            $totals['pera'] += $receivable['amount'];
-                        }
+    //         $totals = [
+    //             'month' => null,
+    //             'year' => null,
+    //             'pera' => 0,
+    //             'hazard' => 0,
+    //             'representation' => 0,
+    //             'transportation' => 0,
+    //             'cellphone' => 0,
+    //             'total_base_salary' => 0,
+    //             'total_net_pay' => 0,
+    //             'total_gross_pay' => 0,
+    //             'total_net_salary_first_half' => 0,
+    //             'total_net_salary_second_half' => 0,
+    //             'total_net_total_salary' => 0,
+    //         ];
 
-                        if ($receivable['receivable']['code'] === 'HAZARD') {
-                            $totals['hazard'] += $receivable['amount'];
-                        }
+    //         foreach ($payrolls as $payroll) {
+    //             $totals['month'] = date('F', mktime(0, 0, 0, $payroll->month, 10));
+    //             $totals['year'] = $payroll->year;
 
-                        if ($receivable['receivable']['code'] === 'RA') {
-                            $totals['representation'] += $receivable['amount'];
-                        }
+    //             foreach ($payroll->genPayrolls as $genPayroll) {
+    //                 // Decode employee_receivables JSON
+    //                 $receivables = json_decode($genPayroll['employee_receivables'], true);
+    //                 foreach ($receivables as $receivable) {
+    //                     if ($receivable['receivable']['code'] === 'PERA') {
+    //                         $totals['pera'] += $receivable['amount'];
+    //                     }
 
-                        if ($receivable['receivable']['code'] === 'TA') {
-                            $totals['transportation'] += $receivable['amount'];
-                        }
+    //                     if ($receivable['receivable']['code'] === 'HAZARD') {
+    //                         $totals['hazard'] += $receivable['amount'];
+    //                     }
 
-                        if ($receivable['receivable']['code'] === 'CELL') {
-                            $totals['cellphone'] += $receivable['amount'];
-                        }
-                    }
+    //                     if ($receivable['receivable']['code'] === 'RA') {
+    //                         $totals['representation'] += $receivable['amount'];
+    //                     }
 
-                    $totals['total_base_salary'] += decrypt($genPayroll->base_salary);
-                    $totals['total_net_pay'] += decrypt($genPayroll->net_pay);
-                    $totals['total_gross_pay'] += decrypt($genPayroll->gross_pay);
-                    $totals['total_net_salary_first_half'] += decrypt($genPayroll->net_salary_first_half);
-                    $totals['total_net_salary_second_half'] += decrypt($genPayroll->net_salary_second_half);
-                    $totals['total_net_total_salary'] += decrypt($genPayroll->net_total_salary);
-                }
-            }
+    //                     if ($receivable['receivable']['code'] === 'TA') {
+    //                         $totals['transportation'] += $receivable['amount'];
+    //                     }
 
-            // Retrieve deductions
-            $deductionData = DeductionGroup::with([
-                'deductions' => function ($query) use ($payrolls) {
-                    $query->with([
-                        'employeeDeductions' => function ($query) use ($payrolls) {
-                            $query->whereHas('EmployeeList.getGeneralPayrolls', function ($query) use ($payrolls) {
-                                $query->where('payroll_headers_id', $payrolls->pluck('id'));
-                            });
-                        }
-                    ]);
-                }
-            ])->get();
+    //                     if ($receivable['receivable']['code'] === 'CELL') {
+    //                         $totals['cellphone'] += $receivable['amount'];
+    //                     }
+    //                 }
 
-            $deductions = $deductionData->map(function ($group) {
-                $deductionGroup = [
-                    'deduction_group_id' => $group->id,
-                    'name' => $group->name,
-                    'code' => strtoupper($group->code),
-                    'deductions' => [],
-                    'total_deductions' => 0
-                ];
+    //                 $totals['total_base_salary'] += decrypt($genPayroll->base_salary);
+    //                 $totals['total_net_pay'] += decrypt($genPayroll->net_pay);
+    //                 $totals['total_gross_pay'] += decrypt($genPayroll->gross_pay);
+    //                 $totals['total_net_salary_first_half'] += decrypt($genPayroll->net_salary_first_half);
+    //                 $totals['total_net_salary_second_half'] += decrypt($genPayroll->net_salary_second_half);
+    //                 $totals['total_net_total_salary'] += decrypt($genPayroll->net_total_salary);
+    //             }
+    //         }
 
-                foreach ($group->deductions as $deduction) {
-                    $totalAmount = $deduction->employeeDeductions->sum('amount');
+    //         // Retrieve deductions
+    //         $deductionData = DeductionGroup::with([
+    //             'deductions' => function ($query) use ($payrolls) {
+    //                 $query->with([
+    //                     'employeeDeductions' => function ($query) use ($payrolls) {
+    //                         $query->whereHas('EmployeeList.getGeneralPayrolls', function ($query) use ($payrolls) {
+    //                             $query->where('payroll_headers_id', $payrolls->pluck('id'));
+    //                         });
+    //                     }
+    //                 ]);
+    //             }
+    //         ])->get();
 
-                    if ($totalAmount > 0) {
-                        $deductionGroup['deductions'][] = [
-                            'deduction_group_id' => $group->id,
-                            'deduction_id' => $deduction->id,
-                            'deduction_name' => $deduction->name,
-                            'code' => $deduction->code,
-                            'amount' => $totalAmount
-                        ];
-                    }
-                }
+    //         $deductions = $deductionData->map(function ($group) {
+    //             $deductionGroup = [
+    //                 'deduction_group_id' => $group->id,
+    //                 'name' => $group->name,
+    //                 'code' => strtoupper($group->code),
+    //                 'deductions' => [],
+    //                 'total_deductions' => 0
+    //             ];
 
-                $deductionGroup['total_deductions'] = collect($deductionGroup['deductions'])->sum('amount');
+    //             foreach ($group->deductions as $deduction) {
+    //                 $totalAmount = $deduction->employeeDeductions->sum('amount');
 
-                return !empty($deductionGroup['deductions']) ? $deductionGroup : null;
-            })->filter()->values();
+    //                 if ($totalAmount > 0) {
+    //                     $deductionGroup['deductions'][] = [
+    //                         'deduction_group_id' => $group->id,
+    //                         'deduction_id' => $deduction->id,
+    //                         'deduction_name' => $deduction->name,
+    //                         'code' => $deduction->code,
+    //                         'amount' => $totalAmount
+    //                     ];
+    //                 }
+    //             }
 
-            $data[] = array_merge($totals, $employee_total, ['deduction_group' => $deductions]);
+    //             $deductionGroup['total_deductions'] = collect($deductionGroup['deductions'])->sum('amount');
 
-            return response()->json(['responseData' => $data], Response::HTTP_OK);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
+    //             return !empty($deductionGroup['deductions']) ? $deductionGroup : null;
+    //         })->filter()->values();
+
+    //         $data[] = array_merge($totals, $employee_total, ['deduction_group' => $deductions]);
+
+    //         return response()->json(['responseData' => $data], Response::HTTP_OK);
+    //     } catch (\Throwable $th) {
+    //         throw $th;
+    //     }
+    // }
+
 
     public function index(Request $request)
     {
