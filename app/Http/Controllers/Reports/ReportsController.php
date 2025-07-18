@@ -9,6 +9,7 @@ use App\Http\Resources\EmployeePayrollReportsResource;
 use App\Http\Resources\EmployeePayrollResource;
 use App\Http\Resources\GeneralPayrollResources;
 use App\Http\Resources\PayrollReportResource;
+use App\Models\Deduction;
 use App\Models\DeductionGroup;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeList;
@@ -18,6 +19,7 @@ use App\Models\EmployeeSalary;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollHeaders;
 use App\Models\PayrollPeriod;
+use App\Models\Receivable;
 use App\Models\UMIS\EmployeeProfile;
 use App\Models\UMIS\EmploymentType;
 use Illuminate\Http\Request;
@@ -359,6 +361,9 @@ class ReportsController extends Controller
             return $this->payroll($request);
         }
 
+        if ($request->report_type === 'summary') {
+            return $this->summary($request);
+        }
     }
 
     public function payroll(Request $request)
@@ -369,26 +374,6 @@ class ReportsController extends Controller
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
             ->first();
-
-        // $general_payroll = GeneralPayroll::with([
-        //     'payrollPeriod' => function ($query) use ($payroll_period) {
-        //         $query->with([
-        //             'employeeTimeRecords' => function ($q) use ($payroll_period) {
-        //                 $q->with([
-        //                     'employee' => function ($q) use ($payroll_period) {
-        //                         $q->with([
-        //                             'employeeDeductions' => function ($q) use ($payroll_period) {
-        //                                 $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
-        //                             }
-        //                         ]);
-        //                     },
-        //                     'employeeComputedSalary'
-        //                 ])->where('status', 'included');
-        //             }
-        //         ]);
-        //     }
-        // ])->where('payroll_period_id', $payroll_period->id)->first();
-
 
         $employee_payroll = EmployeePayroll::with([
             'employee',
@@ -419,5 +404,145 @@ class ReportsController extends Controller
             'statusCode' => 200,
             'responseData' => EmployeePayrollReportsResource::collection($employee_payroll),
         ], Response::HTTP_OK);
+    }
+
+    public function summary(Request $request)
+    {
+        $payroll_period = PayrollPeriod::whereNull('locked_at')
+            ->where('employment_type', $request->employment_type)
+            ->where('period_type', $request->period_type)
+            ->where('month', $request->month_of)
+            ->where('year', $request->year_of)
+            ->first();
+
+        $general_payroll = GeneralPayroll::with([
+            'payrollPeriod' => function ($query) use ($payroll_period) {
+                $query->with([
+                    'employeePayroll' => function ($q) use ($payroll_period) {
+                        $q->with([
+                            'employeeTimeRecord' => function ($q) use ($payroll_period) {
+                                $q->with([
+                                    'employee' => function ($q) use ($payroll_period) {
+                                        $q->with([
+                                            'employeeSalary',
+                                            'employeeDeductions' => function ($q) use ($payroll_period) {
+                                                $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
+                                            },
+                                            'employeeReceivables' => function ($q) use ($payroll_period) {
+                                                $q->with(['receivables'])->where('payroll_period_id', $payroll_period->id);
+                                            }
+                                        ]);
+                                    },
+                                    'employeeComputedSalary'
+                                ])->where('status', 'included');
+                            }
+                        ]);
+                    },
+                ]);
+            }
+        ])->where('payroll_period_id', $payroll_period->id)->first();
+
+        // Process Receivables
+        $receivables = collect($general_payroll->payrollPeriod->employeePayroll)
+            ->pluck('employeeTimeRecord.employee.employeeReceivables')
+            ->flatten(1)
+            ->groupBy('receivables.id');  // Group by receivable ID
+
+        $pera = $receivables->get(1)?->sum('amount') ?? 0;
+        $hazard = $receivables->get(2)?->sum('amount') ?? 0;
+        $representation = $receivables->get(3)?->sum('amount') ?? 0;
+        $transportation = $receivables->get(4)?->sum('amount') ?? 0;
+        $cellphone = $receivables->get(5)?->sum('amount') ?? 0;
+
+        $formattedReceivables = $receivables->map(function ($items) {
+            $firstItem = $items->first();
+            return [
+                'id' => $firstItem['receivables']['id'],
+                'name' => $firstItem['receivables']['name'],
+                'code' => $firstItem['receivables']['code'],
+                'total' => round($items->sum('amount'), 2)
+            ];
+        })->values();
+
+        // Process Deductions
+        $deductions = collect($general_payroll->payrollPeriod->employeePayroll)
+            ->pluck('employeeTimeRecord.employee.employeeDeductions')
+            ->flatten(1)
+            ->groupBy('deductions.id');
+
+        $formattedDeductions = $deductions->map(function ($items) {
+            $firstItem = $items->first();
+            return [
+                'id' => $firstItem['deductions']['id'],
+                'name' => $firstItem['deductions']['name'],
+                'code' => $firstItem['deductions']['code'],
+                'total' => round($items->sum('amount'), 2),
+                'deduction_group' => [
+                    'id' => $firstItem['deductions']['deductionGroup']['id'],
+                    'name' => $firstItem['deductions']['deductionGroup']['name'],
+                    'code' => $firstItem['deductions']['deductionGroup']['code']
+                ]
+            ];
+        })->values();
+
+        // Separate deductions by type with full details
+        $gsis_deductions = $formattedDeductions
+            ->filter(fn($item) => $item['deduction_group']['code'] === 'GSIS')
+            ->values();
+
+        $pagibig_deductions = $formattedDeductions
+            ->filter(fn($item) => $item['deduction_group']['code'] === 'PAGIBIG')
+            ->values();
+
+        $other_deductions = $formattedDeductions
+            ->filter(fn($item) => !in_array($item['deduction_group']['code'], ['GSIS', 'PAGIBIG']))
+            ->values();
+
+        // Calculate totals
+        $gsis_total = $gsis_deductions->sum('total');
+        $pagibig_total = $pagibig_deductions->sum('total');
+        $other_total = $other_deductions->sum('total');
+
+        // Calculate Salary Totals
+        $totalBaseSalary = collect($general_payroll->payrollPeriod->employeePayroll)
+            ->sum(function ($payroll) {
+                return $payroll->employeeTimeRecord->employeeComputedSalary->computed_salary ?? 0;
+            });
+
+        $totalNetPay = collect($general_payroll->payrollPeriod->employeePayroll)
+            ->sum('net_pay');
+
+        $totalGrossPay = collect($general_payroll->payrollPeriod->employeePayroll)
+            ->sum('gross_salary');
+
+        $exactHalf = $totalNetPay / 2;
+        $totalNetFirstHalf = floor($exactHalf);
+        $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
+
+        return [
+            'month' => $general_payroll->month,
+            'year' => $general_payroll->year,
+            'receivables' => $formattedReceivables,
+            'deductions' => $formattedDeductions,
+            'pera' => $pera,
+            'hazard' => $hazard,
+            'representation' => $representation,
+            'transportation' => $transportation,
+            'cellphone' => $cellphone,
+            'gsis_deductions' => $gsis_deductions,
+            'total_gsis_deductions' => round($gsis_total, 2),
+            'pagibig_deductions' => $pagibig_deductions,
+            'total_pagibig_deductions' => round($pagibig_total, 2),
+            'other_deductions' => $other_deductions,
+            'total_other_deductions' => round($other_total, 2),
+            'total_receivables' => round($formattedReceivables->sum('total'), 2),
+            'total_deductions' => round($formattedDeductions->sum('total'), 2),
+            'total_base_salary' => round($totalBaseSalary, 2),
+            'total_net_pay' => round($totalNetPay, 2),
+            'total_gross_pay' => round($totalGrossPay, 2),
+            'total_net_salary_first_half' => $totalNetFirstHalf,
+            'total_net_salary_second_half' => round($totalNetSecondHalf, 2),
+            'total_net_total_salary' => round($totalNetPay, 2),
+        ];
     }
 }
