@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Authentication\AuthenticationController;
 use App\Http\Controllers\Authentication\LoginController;
+use App\Http\Controllers\Employee\EmployeeAdjustmentController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Employee\EmployeeDeductionController;
 use App\Http\Controllers\Employee\EmployeeReceivableController;
@@ -53,6 +54,7 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('employee-deductions', EmployeeDeductionController::class);
     Route::apiResource('employee-receivables', EmployeeReceivableController::class);
     Route::apiResource('employee-time-records', EmployeeTimeRecordController::class);
+    Route::apiResource('employee-adjustments', EmployeeAdjustmentController::class)->only(['index', 'store', 'show']);
 
 
     //Payroll Period
@@ -67,4 +69,3 @@ Route::middleware('auth.token')->group(function () {
     //Report
     Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);
 });
-

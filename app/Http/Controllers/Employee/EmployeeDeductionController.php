@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Services\EmployeeAdjustmentService;
 use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Imports\ImportEmployeeDeduction;
@@ -16,6 +17,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeDeductionController extends Controller
 {
+    public function __construct(
+        private EmployeeAdjustmentService $employeeAdjustmentService
+    ) {
+        //nothing
+    }
+
     public function index(Request $request)
     {
         if ($request->pagination) {
@@ -102,6 +109,8 @@ class EmployeeDeductionController extends Controller
                     'deduction_id' => $deduction->id,
                     'amount' => $data['amount'],
                     'frequency' => $deduction->billing_cycle,
+                    'total_term' => $data['total_term'],
+                    'total_paid' => $data['total_paid'],
                     'willDeduct' => $data['will_deduct'] ?? null,
                     'with_terms' => 0,
                     'is_default' => $deduction->amount === $data['amount'] ? 1 : 0
@@ -159,8 +168,8 @@ class EmployeeDeductionController extends Controller
             'payroll_period_id' => $request->payroll_period_id,
             'employee_id' => $request->employee_id,
             'deduction_id' => $request->deduction_id,
-            'amount' => $request->amount,
-            'percentage' => $request->percentage,
+            'amount' => $request->amount === 0 ? null : $request->amount,
+            'percentage' => $request->percentage === 0 ? null : $request->percentage,
             'frequency' => $request->frequency,
             'date_from' => $request->date_from,
             'date_to' => $request->date_to,
@@ -273,6 +282,18 @@ class EmployeeDeductionController extends Controller
         ];
 
         $data->update($request_data);
+
+        $requestEmployeeAdjustmentData = [
+            'action_by' => $data->action_by,
+            'payroll_period_id' => $data->payroll_period_id,
+            'employee_deduction_id' => $data->employee_deduction_id,
+            'employee_receivable_id' => $data->employee_receivable_id,
+            'amount' => $data->amount,
+            'amount_to_pay' => $data->amount_to_pay,
+            'amount_balance' => $data->amount_balance,
+            'reason' => $data->reason,
+        ];
+
         return response()->json([
             'message' => 'Employee deduction updated successfully.',
             'statusCode' => 200,

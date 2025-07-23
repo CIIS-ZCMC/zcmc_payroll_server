@@ -2,29 +2,13 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\GeneralPayroll\PayrollController;
 use App\Http\Resources\EmployeePayrollReportsResource;
-use App\Http\Resources\EmployeePayrollResource;
-use App\Http\Resources\GeneralPayrollResources;
-use App\Http\Resources\PayrollReportResource;
-use App\Models\Deduction;
-use App\Models\DeductionGroup;
-use App\Models\EmployeeDeduction;
-use App\Models\EmployeeList;
 use App\Models\EmployeePayroll;
-use App\Models\EmployeeReceivable;
-use App\Models\EmployeeSalary;
 use App\Models\GeneralPayroll;
-use App\Models\PayrollHeaders;
 use App\Models\PayrollPeriod;
-use App\Models\Receivable;
-use App\Models\UMIS\EmployeeProfile;
-use App\Models\UMIS\EmploymentType;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Crypt;
 
 class ReportsController extends Controller
 {
@@ -409,7 +393,7 @@ class ReportsController extends Controller
 
     public function summary(Request $request)
     {
-        $payroll_period = PayrollPeriod::whereNull('locked_at')
+        $payroll_period = PayrollPeriod::whereNotNull('locked_at')
             ->where('employment_type', $request->employment_type)
             ->where('period_type', $request->period_type)
             ->where('month', $request->month_of)
@@ -521,8 +505,10 @@ class ReportsController extends Controller
         $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
 
         return [
+            'id' => $general_payroll->id,
             'month' => $general_payroll->month,
             'year' => $general_payroll->year,
+
             'receivables' => $formattedReceivables,
             'deductions' => $formattedDeductions,
             'pera' => $pera,
@@ -530,14 +516,19 @@ class ReportsController extends Controller
             'representation' => $representation,
             'transportation' => $transportation,
             'cellphone' => $cellphone,
+
             'gsis_deductions' => $gsis_deductions,
             'total_gsis_deductions' => round($gsis_total, 2),
+
             'pagibig_deductions' => $pagibig_deductions,
             'total_pagibig_deductions' => round($pagibig_total, 2),
+
             'other_deductions' => $other_deductions,
             'total_other_deductions' => round($other_total, 2),
+
             'total_receivables' => round($formattedReceivables->sum('total'), 2),
             'total_deductions' => round($formattedDeductions->sum('total'), 2),
+
             'total_base_salary' => round($totalBaseSalary, 2),
             'total_net_pay' => round($totalNetPay, 2),
             'total_gross_pay' => round($totalGrossPay, 2),

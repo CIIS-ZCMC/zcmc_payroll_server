@@ -104,6 +104,7 @@ class EmployeeController extends Controller
         $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
+            ->where('period_type', $request->period_type)
             ->first();
 
         if (!$payroll_period) {
