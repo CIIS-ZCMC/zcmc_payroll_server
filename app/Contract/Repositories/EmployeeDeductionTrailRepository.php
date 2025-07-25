@@ -25,6 +25,11 @@ class EmployeeDeductionTrailRepository implements EmployeeDeductionTrailInterfac
         return $this->model->paginate($perPage, ['*'], 'page', $page);
     }
 
+    public function create(array $data): EmployeeDeductionTrail
+    {
+        return $this->model->create($data);
+    }
+
     public function find(int $id): ?EmployeeDeductionTrail
     {
         return $this->model->with('employeeDeduction')->find($id);
