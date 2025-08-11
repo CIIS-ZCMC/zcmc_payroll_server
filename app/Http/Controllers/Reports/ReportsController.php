@@ -393,12 +393,20 @@ class ReportsController extends Controller
 
     public function summary(Request $request)
     {
+        $data = [];
         $payroll_period = PayrollPeriod::whereNotNull('locked_at')
             ->where('employment_type', $request->employment_type)
             ->where('period_type', $request->period_type)
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
             ->first();
+
+        if (!$payroll_period) {
+            return response()->json([
+                'message' => 'Please lock the payroll period first.',
+                'statusCode' => 404,
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         $general_payroll = GeneralPayroll::with([
             'payrollPeriod' => function ($query) use ($payroll_period) {
@@ -504,7 +512,7 @@ class ReportsController extends Controller
         $totalNetFirstHalf = floor($exactHalf);
         $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
 
-        return [
+        $data = [
             'id' => $general_payroll->id,
             'month' => $general_payroll->month,
             'year' => $general_payroll->year,
@@ -536,5 +544,11 @@ class ReportsController extends Controller
             'total_net_salary_second_half' => round($totalNetSecondHalf, 2),
             'total_net_total_salary' => round($totalNetPay, 2),
         ];
+
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'Data' => $data,
+        ], Response::HTTP_OK);
     }
 }
