@@ -353,7 +353,7 @@ class ReportsController extends Controller
 
     public function payroll(Request $request)
     {
-        $payroll_period = PayrollPeriod::whereNull('locked_at')
+        $payroll_period = PayrollPeriod::whereNotNull('locked_at')
             ->where('employment_type', $request->employment_type)
             ->where('period_type', $request->period_type)
             ->where('month', $request->month_of)
@@ -498,7 +498,7 @@ class ReportsController extends Controller
 
         // Calculate Salary Totals
         $totalBaseSalary = collect($general_payroll->payrollPeriod->employeePayroll)
-            ->sum(function ($payroll) {
+            ->sum(callback: function ($payroll) {
                 return $payroll->employeeTimeRecord->employeeComputedSalary->computed_salary ?? 0;
             });
 
@@ -511,6 +511,18 @@ class ReportsController extends Controller
         $exactHalf = $totalNetPay / 2;
         $totalNetFirstHalf = floor($exactHalf);
         $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
+
+        $employeePayrolls = $general_payroll->payrollPeriod->employeePayroll ?? collect();
+
+        $employmentTypes = $employeePayrolls->pluck('employeeTimeRecord.employee.employeeSalary.employment_type');
+
+        $permanentPartTimeCount = $employmentTypes->filter(function ($type) {
+            return str_contains(strtolower($type), 'permanent part-time');
+        })->count();
+
+        $permanentFullTimeCount = $employmentTypes->filter(function ($type) {
+            return str_contains(strtolower($type), 'permanent full-time');
+        })->count();
 
         $data = [
             'id' => $general_payroll->id,
@@ -543,6 +555,9 @@ class ReportsController extends Controller
             'total_net_salary_first_half' => $totalNetFirstHalf,
             'total_net_salary_second_half' => round($totalNetSecondHalf, 2),
             'total_net_total_salary' => round($totalNetPay, 2),
+
+            'total_permanent_part_time' => $permanentPartTimeCount,
+            'total_permanent_full_time' => $permanentFullTimeCount,
         ];
 
         return response()->json([
