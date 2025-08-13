@@ -552,8 +552,8 @@ class ReportsController extends Controller
             'other_deductions' => $other_deductions,
             'total_other_deductions' => round($other_total, 2),
 
-            'total_receivables' => round($formattedReceivables->sum('total'), 2),
-            'total_deductions' => round($formattedDeductions->sum('total'), 2),
+            'total_receivables' => round($formattedReceivables->sum('amount'), 2),
+            'total_deductions' => round($formattedDeductions->sum('amount'), 2),
 
             'total_base_salary' => round($totalBaseSalary, 2),
             'total_net_pay' => round($totalNetPay, 2),
