@@ -53,7 +53,7 @@ class DeductionSeeder extends Seeder
             'deduction_uuid' => "D-" . substr(preg_replace('/[^0-9]/', '', Str::uuid()), 0, 10),
             'deduction_group_id' => $PagIbig,
             'name' => 'Pag-Ibig Premium',
-            'code' => ' PPREM.',
+            'code' => 'PPREM.',
             'type' => 'fixed',
             'fixed_amount' => 200,
         ]);

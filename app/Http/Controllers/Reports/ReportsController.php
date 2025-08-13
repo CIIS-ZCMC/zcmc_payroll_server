@@ -469,7 +469,7 @@ class ReportsController extends Controller
                 'id' => $firstItem['deductions']['id'],
                 'name' => $firstItem['deductions']['name'],
                 'code' => $firstItem['deductions']['code'],
-                'total' => round($items->sum('amount'), 2),
+                'amount' => round($items->sum('amount'), 2),
                 'deduction_group' => [
                     'id' => $firstItem['deductions']['deductionGroup']['id'],
                     'name' => $firstItem['deductions']['deductionGroup']['name'],
@@ -484,17 +484,17 @@ class ReportsController extends Controller
             ->values();
 
         $pagibig_deductions = $formattedDeductions
-            ->filter(fn($item) => $item['deduction_group']['code'] === 'PAGIBIG')
+            ->filter(fn($item) => $item['deduction_group']['code'] === 'Pag-Ibig')
             ->values();
 
         $other_deductions = $formattedDeductions
-            ->filter(fn($item) => !in_array($item['deduction_group']['code'], ['GSIS', 'PAGIBIG']))
+            ->filter(fn($item) => !in_array($item['deduction_group']['code'], ['GSIS', 'Pag-Ibig']))
             ->values();
 
         // Calculate totals
-        $gsis_total = $gsis_deductions->sum('total');
-        $pagibig_total = $pagibig_deductions->sum('total');
-        $other_total = $other_deductions->sum('total');
+        $gsis_total = $gsis_deductions->sum('amount');
+        $pagibig_total = $pagibig_deductions->sum('amount');
+        $other_total = $other_deductions->sum('amount');
 
         // Calculate Salary Totals
         $totalBaseSalary = collect($general_payroll->payrollPeriod->employeePayroll)
