@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\ExportEmployeePayroll;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeePayrollReportsResource;
 use App\Models\EmployeePayroll;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
 class ReportsController extends Controller
@@ -349,6 +351,10 @@ class ReportsController extends Controller
         if ($request->report_type === 'summary') {
             return $this->summary($request);
         }
+
+        if ($request->report_type === 'export') {
+            return $this->export($request);
+        }
     }
 
     public function payroll(Request $request)
@@ -565,5 +571,43 @@ class ReportsController extends Controller
             'statusCode' => 200,
             'Data' => $data,
         ], Response::HTTP_OK);
+    }
+
+    public function export(Request $request)
+    {
+        $payroll_period = PayrollPeriod::whereNotNull('locked_at')
+            ->where('employment_type', $request->employment_type)
+            ->where('period_type', $request->period_type)
+            ->where('month', $request->month_of)
+            ->where('year', $request->year_of)
+            ->first();
+
+        $employee_payroll = EmployeePayroll::with([
+            'employee',
+            'payrollPeriod',
+            'employeeTimeRecord' => function ($q) use ($payroll_period) {
+                $q->with([
+                    'employee' => function ($q) use ($payroll_period) {
+                        $q->with([
+                            'employeeReceivables' => function ($q) use ($payroll_period) {
+                                $q->with(['receivables'])->where('payroll_period_id', $payroll_period->id);
+                            },
+                            'employeeDeductions' => function ($q) use ($payroll_period) {
+                                $q->with(['deductions.deductionGroup', 'deductions.deductionGroup.deductions'])->where('payroll_period_id', $payroll_period->id);
+                            }
+                        ]);
+                    },
+                    'employeeComputedSalary'
+                ])->where('status', 'included');
+            },
+            'employee.employeeSalary',
+            'employee.employeeComputedSalaries' => function ($q) {
+
+            }
+        ])->where('payroll_period_id', $payroll_period->id)->get();
+
+        $data = EmployeePayrollReportsResource::collection($employee_payroll);
+
+        return Excel::download(new ExportEmployeePayroll($data), 'EmployeePayroll.xlsx');
     }
 }
