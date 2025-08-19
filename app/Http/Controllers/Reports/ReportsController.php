@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Exports\ExportEmployeePayroll;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeePayrollReportsResource;
 use App\Models\EmployeePayroll;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -605,7 +603,7 @@ class ReportsController extends Controller
             'employee.employeeComputedSalaries' => function ($q) {
 
             }
-        ])->where('payroll_period_id', $payroll_period->id)->limit(2)->get();
+        ])->where('payroll_period_id', $payroll_period->id)->get();
 
         $data = EmployeePayrollReportsResource::collection($employee_payroll)->resolve();
 
@@ -623,10 +621,11 @@ class ReportsController extends Controller
         $styleArray = [
             'borders' => [
                 'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DASHED,
                     'color' => ['rgb' => '000000']
                 ]
             ],
+
             'alignment' => [
                 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
@@ -635,11 +634,11 @@ class ReportsController extends Controller
         ];
 
         // Apply to all data cells
-        $sheet->getStyle("B{$startRow}:{$lastColumn}" . ($startRow + (count($data) * $blockHeight) - 1))
+        $sheet->getStyle("A{$startRow}:{$lastColumn}" . ($startRow + (count($data) * $blockHeight) - 1))
             ->applyFromArray($styleArray);
 
         // Left align specific columns
-        $leftAlignColumns = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'V', 'W', 'X', 'Y'];
+        $leftAlignColumns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'V', 'W', 'X', 'Y'];
         foreach ($leftAlignColumns as $col) {
             $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
                 ->getAlignment()
@@ -654,66 +653,78 @@ class ReportsController extends Controller
                 ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
         }
 
-
+        $i = 0;
         foreach ($data as $index => $employee) {
+            $i++;
+
             $currentRow = $startRow + ($index * $blockHeight);
 
-            //Name Column
-            $sheet->mergeCells("B{$currentRow}:E{$currentRow}"); //Employee Number
+            $sheet->mergeCells("A" . ($currentRow) . ":A" . ($currentRow + 8)); // Row numer
+            $sheet->mergeCells("B" . ($currentRow) . ":E" . ($currentRow)); //Employee Number
             $sheet->mergeCells("B" . ($currentRow + 1) . ":E" . ($currentRow + 1)); //Employee Name
-
             $sheet->mergeCells("B" . ($currentRow + 2) . ":C" . ($currentRow + 2)); //space
             $sheet->mergeCells("B" . ($currentRow + 3) . ":C" . ($currentRow + 3)); //space
             $sheet->mergeCells("B" . ($currentRow + 4) . ":C" . ($currentRow + 4)); //space
-
             $sheet->mergeCells("B" . ($currentRow + 5) . ":C" . ($currentRow + 5)); //Basic word
             $sheet->mergeCells("B" . ($currentRow + 6) . ":C" . ($currentRow + 6)); //Pera word
             $sheet->mergeCells("B" . ($currentRow + 7) . ":C" . ($currentRow + 7)); //Hazard word
-
             $sheet->mergeCells("D" . ($currentRow + 5) . ":E" . ($currentRow + 5)); //Basic
             $sheet->mergeCells("D" . ($currentRow + 6) . ":E" . ($currentRow + 6)); //Pera
             $sheet->mergeCells("D" . ($currentRow + 7) . ":E" . ($currentRow + 7)); //Hazard
-
-            // Designation
             $sheet->mergeCells("F" . ($currentRow) . ":F" . ($currentRow + 8)); //Designation
             $sheet->mergeCells("G" . ($currentRow) . ":G" . ($currentRow + 8)); //Basic
-
             $sheet->mergeCells("L" . ($currentRow) . ":L" . ($currentRow + 8)); //Gross Pay
-
             $sheet->mergeCells("M" . ($currentRow) . ":M" . ($currentRow + 3)); //Wtax
             $sheet->mergeCells("M" . ($currentRow + 4) . ":M" . ($currentRow + 7)); //Philhealth
-
             $sheet->mergeCells("H" . ($currentRow + 8) . ":K" . ($currentRow + 8)); //Total Receivable
             $sheet->mergeCells("N" . ($currentRow + 8) . ":Q" . ($currentRow + 8)); //Total GSIS
             $sheet->mergeCells("R" . ($currentRow + 8) . ":U" . ($currentRow + 8)); //Total Pagibig
             $sheet->mergeCells("V" . ($currentRow + 8) . ":Y" . ($currentRow + 8)); //Total Other
-
             $sheet->mergeCells("Z" . ($currentRow) . ":Z" . ($currentRow + 8)); // Total Employee Deduction
             $sheet->mergeCells("AA" . ($currentRow) . ":AA" . ($currentRow + 3)); //Net Salary First Half
             $sheet->mergeCells("AA" . ($currentRow + 4) . ":AA" . ($currentRow + 7)); //Net Salary Second Half
-
             $sheet->mergeCells("AB" . ($currentRow) . ":AB" . ($currentRow + 3)); //First Period
             $sheet->mergeCells("AB" . ($currentRow + 4) . ":AB" . ($currentRow + 7)); //Second Period
-
             $sheet->mergeCells("AC" . ($currentRow) . ":AC" . ($currentRow + 8)); // Remarks
             $sheet->mergeCells("AD" . ($currentRow) . ":AD" . ($currentRow + 8)); // Number Of Absents
 
+
             //Values or Data 
-            $sheet->setCellValue("B{$currentRow}", $employee['employee_number']);
-            $sheet->setCellValue("B" . ($currentRow + 1), $employee['employee_name']);
             $sheet->setCellValue("B" . ($currentRow + 5), 'BASIC');
             $sheet->setCellValue("B" . ($currentRow + 6), 'PERA');
             $sheet->setCellValue("B" . ($currentRow + 7), 'HAZARD');
+            $sheet->setCellValue("B" . ($currentRow + 8), 'Grade');
+            $sheet->setCellValue("D" . ($currentRow + 8), 'Salary');
+            $sheet->setCellValue("M" . ($currentRow + 5), 'TOTAL');
+            $sheet->setCellValue("AA" . ($currentRow + 5), '');
+            $sheet->setCellValue("AB" . ($currentRow + 5), '');
+
+            $sheet->setCellValue("A" . ($currentRow), $i);
+            $sheet->setCellValue("B" . ($currentRow), $employee['employee_number']);
+            $sheet->setCellValue("B" . ($currentRow + 1), $employee['employee_name']);
             $sheet->setCellValue("D" . ($currentRow + 5), $employee['base_salary']);
             $sheet->setCellValue("D" . ($currentRow + 6), $employee['pera']);
             $sheet->setCellValue("D" . ($currentRow + 7), $employee['hazard']);
-            $sheet->setCellValue("B" . ($currentRow + 8), 'Grade');
-            $sheet->setCellValue("D" . ($currentRow + 8), 'Salary');
             $sheet->setCellValue("C" . ($currentRow + 8), $employee['salary_grade']);
             $sheet->setCellValue("E" . ($currentRow + 8), $employee['salary_step']);
+            $sheet->setCellValue("F" . ($currentRow), $employee['designation']);
+            $sheet->setCellValue("G" . ($currentRow), $employee['basic_pay']);
+            $sheet->setCellValue("L" . ($currentRow), $employee['gross_pay']);
+            $sheet->setCellValue("M" . ($currentRow), $employee['wtax']);
+            $sheet->setCellValue("M" . ($currentRow + 4), $employee['philhealth_deductions']);
+            $sheet->setCellValue("H" . ($currentRow + 8), $employee['total_employee_receivables']);
+            $sheet->setCellValue("N" . ($currentRow + 8), $employee['total_gsis_deduction']);
+            $sheet->setCellValue("R" . ($currentRow + 8), $employee['total_pagibig_deduction']);
+            $sheet->setCellValue("V" . ($currentRow + 8), $employee['total_other_deduction']);
+            $sheet->setCellValue("Z" . ($currentRow), $employee['total_employee_deductions']);
+            $sheet->setCellValue("AA" . ($currentRow), $employee['net_pay_first_half']);
+            $sheet->setCellValue("AA" . ($currentRow + 4), $employee['net_pay_second_half']);
 
-            $sheet->setCellValue("F{$currentRow}", $employee['designation']);
-            $sheet->setCellValue("G{$currentRow}", $employee['basic_pay']);
+            $sheet->setCellValue("AB" . ($currentRow), $employee['first_period']);
+            $sheet->setCellValue("AB" . ($currentRow + 4), $employee['second_period']);
+
+            $sheet->setCellValue("AC" . ($currentRow), $employee['remarks']);
+            $sheet->setCellValue("AD" . ($currentRow), $employee['days_of_absent']);
 
             $receivableRow = $currentRow;
             foreach ($employee['employee_receivables'] as $rec) {
@@ -725,12 +736,6 @@ class ReportsController extends Controller
                 $sheet->setCellValue("J{$receivableRow}", $rec['amount']);
                 $receivableRow++;
             }
-            $sheet->setCellValue("H" . ($currentRow + 8), $employee['total_employee_receivables']);
-
-            $sheet->setCellValue("L" . ($currentRow), $employee['gross_pay']);
-            $sheet->setCellValue("M" . ($currentRow), $employee['wtax']);
-            $sheet->setCellValue("M" . ($currentRow + 4), $employee['philhealth_deductions']);
-            $sheet->setCellValue("M" . ($currentRow + 5), 'TOTAL');
 
             $gsisDeductionRow = $currentRow;
             foreach ($employee['gsis_deductions'] as $rec) {
@@ -742,7 +747,6 @@ class ReportsController extends Controller
                 $sheet->setCellValue("P{$gsisDeductionRow}", $rec['amount']);
                 $gsisDeductionRow++;
             }
-            $sheet->setCellValue("N" . ($currentRow + 8), $employee['total_gsis_deduction']);
 
             $pagibigDeductionRow = $currentRow;
             foreach ($employee['pagibig_deductions'] as $rec) {
@@ -754,7 +758,6 @@ class ReportsController extends Controller
                 $sheet->setCellValue("T{$pagibigDeductionRow}", $rec['amount']);
                 $pagibigDeductionRow++;
             }
-            $sheet->setCellValue("R" . ($currentRow + 8), $employee['total_pagibig_deduction']);
 
             $otherDeductionRow = $currentRow;
             foreach ($employee['other_deductions'] as $rec) {
@@ -766,20 +769,6 @@ class ReportsController extends Controller
                 $sheet->setCellValue("X{$otherDeductionRow}", $rec['amount']);
                 $otherDeductionRow++;
             }
-            $sheet->setCellValue("V" . ($currentRow + 8), $employee['total_other_deduction']);
-
-            $sheet->setCellValue("Z" . ($currentRow), $employee['total_employee_deductions']);
-
-            $sheet->setCellValue("AA" . ($currentRow), $employee['net_pay_first_half']);
-            $sheet->setCellValue("AA" . ($currentRow + 4), $employee['net_pay_second_half']);
-            $sheet->setCellValue("AA" . ($currentRow + 5), '');
-
-            $sheet->setCellValue("AB" . ($currentRow), $employee['first_period']);
-            $sheet->setCellValue("AB" . ($currentRow + 4), $employee['second_period']);
-            $sheet->setCellValue("AB" . ($currentRow + 5), '');
-
-            $sheet->setCellValue("AC" . ($currentRow), $employee['remarks']);
-            $sheet->setCellValue("AD" . ($currentRow), $employee['days_of_absent']);
         }
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

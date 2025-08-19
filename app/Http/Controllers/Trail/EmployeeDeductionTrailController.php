@@ -9,6 +9,8 @@ use App\Http\Resources\EmployeeDeductionTrailResource;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionTrail;
 use App\Models\EmployeeList;
+use App\Models\EmployeePayroll;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,6 +36,10 @@ class EmployeeDeductionTrailController extends Controller
     public function store(Request $request)
     {
         try {
+
+            if ($request->mode === "bulk") {
+                return $this->bulkStore($request);
+            }
 
             $employee_deduction = EmployeeDeduction::where('employee_list_id', $request->employee_id)
                 ->where('deduction_id', $request->deduction_id)
@@ -108,6 +114,44 @@ class EmployeeDeductionTrailController extends Controller
         } catch (\Throwable $th) {
 
             Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public function bulkStore(Request $request)
+    {
+        try {
+            $createdRecords = [];
+
+            $employeeDeduction = EmployeeDeduction::where('payroll_period_id', $request->payroll_period_id)->get();
+
+            foreach ($employeeDeduction as $employee) {
+                $total_term = $employee['total_term'];
+                $total_term_paid = $employee['total_paid'] + 1; // Increment total_paid by 1
+
+                $data = new EmployeeDeductionTrail;
+                $data->employee_deduction_id = $employee['id'];
+                $data->total_term = $total_term ?? 0;
+                $data->total_term_paid = $total_term_paid;
+                $data->amount_paid = $employee['amount'] ?? 0;
+                $data->date_paid = now();
+                $data->status = "Paid";
+                $data->is_last_payment = ($total_term_paid >= $total_term);
+                $data->is_adjustment = false;
+                $data->save();
+
+                $employee->total_paid = $total_term_paid;
+                $employee->save();
+
+                $createdRecords[] = $data;
+            }
+
+
+            return response()->json([
+                // 'responseData' => EmployeeDeductionTrailResource::collection($createdRecords),
+                'message' => "Successfully saved",
+                'statusCode' => Response::HTTP_OK
+            ]);
+        } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
