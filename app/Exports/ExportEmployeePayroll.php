@@ -82,41 +82,6 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
     public function headings(): array
     {
         return [
-            // First header row (descriptive names)
-            // [
-            //     'NAME OF EMPLOYEES',
-            //     'DESIGNATION',
-            //     'GROSS BASIC SALARY',
-            //     'NET BASIC',
-            //     'PERA',
-            //     'Hazard Pay',
-            //     'Representation Allowance',
-            //     'Transportation Allowance',
-            //     'Cellular Phone Allowance',
-            //     'GROSS INCOME',
-            //     'Withholding Tax',
-            //     'PHIC Premium',
-            //     'GSIS Premium',
-            //     'Pag-Ibig Premium',
-            //     'GSIS Conso Loan',
-            //     'GSIS Calamity Loan',
-            //     'GSIS Policy Loan',
-            //     'GSIS Computer Loan',
-            //     'GSIS GFAL Loan',
-            //     'GSIS MPL Loan',
-            //     'GSIS Edu Loan',
-            //     'Pag-Ibig MPL loan',
-            //     'Pag-Ibig Housing Loan',
-            //     'Pag-Ibig Calamity Loan',
-            //     'Pag-Ibig 2 Savings',
-            //     'Canteen Money Loan',
-            //     'Canteen Food Loan',
-            //     'Association Dues',
-            //     'Death',
-            //     'Chapel',
-            //     'DBP Loan'
-            // ],
-            // Second header row (codes)
             [
                 'NAME OF EMPLOYEES',
                 'DESIGNATION',
