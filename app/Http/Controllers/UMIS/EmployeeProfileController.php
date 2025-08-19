@@ -460,6 +460,7 @@ class EmployeeProfileController extends Controller
 
         // Find or create payroll period
         $payroll_period = PayrollPeriod::firstOrNew([
+            'payroll_type' => "General Payroll",
             'period_type' => $period_type,
             'employment_type' => $employment_type,
             'month' => $month_of,

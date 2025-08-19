@@ -66,6 +66,22 @@ class EmployeePayrollController extends Controller
         ], Response::HTTP_OK);
 
     }
+    private function processNightDifferential()
+    {
+        $payrollPeriod = new PayrollPeriodController();
+        $response = $payrollPeriod->index(request())->getData(true);
+        $activePeriod = PayrollPeriod::find($response['data']['id']);
+
+
+        foreach ($activePeriod->employeePayroll as $employee) {
+            $timeRecord = $employee->employeeTimeRecord;
+            $nightDifferential = $timeRecord->night_differential;
+            return $timeRecord;
+
+        }
+        return ;
+
+    }
 
     public function store(Request $request)
     {
@@ -75,9 +91,15 @@ class EmployeePayrollController extends Controller
         $payroll_period_id = $request->payroll_period_id;
         $payroll_period = PayrollPeriod::find($payroll_period_id);
 
+        if($request->payroll_type === "NightDifferential"){
+            return $this->processNightDifferential();
+        }
+
         if (!$payroll_period) {
             return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
         }
+
+      
 
         if ($payroll_period && $payroll_period->locked_at !== null) {
             return response()->json([

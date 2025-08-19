@@ -19,6 +19,7 @@ class PayrollPeriodResource extends JsonResource
             'id' => $this->id,
             'month' => $this->month,
             'year' => $this->year,
+            'payroll_type' => $this->payroll_type,
             'employment_type' => $this->employment_type,
             'period_type' => $this->period_type,
             'period_start' => $this->period_start,
