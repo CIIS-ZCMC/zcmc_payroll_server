@@ -20,12 +20,13 @@ use App\Services\EmployeeSalaryService;
 use App\Services\EmployeeService;
 use App\Services\EmployeeTimeRecordService;
 use App\Services\ExcludeEmployeeService;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cache;
-use Str;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+
 
 
 class EmployeeProfileController extends Controller
