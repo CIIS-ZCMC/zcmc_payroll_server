@@ -9,13 +9,13 @@ use App\Http\Resources\EmployeeDeductionTrailResource;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionTrail;
 use App\Models\EmployeeList;
+use App\Models\EmployeePayroll;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeDeductionTrailController extends Controller
 {
-
-
     /**
      * Display a listing of the resource.
      *
@@ -35,17 +35,22 @@ class EmployeeDeductionTrailController extends Controller
     {
         try {
 
-            $employee_deduction = EmployeeDeduction::where('employee_list_id', $request->employee_id)
+            if ($request->mode === "bulk") {
+                return $this->bulkStore($request);
+            }
+
+            $employee_deduction = EmployeeDeduction::where('payroll_period_id', $request->payroll_period_id)
+                ->where('employee_id', $request->employee_id)
                 ->where('deduction_id', $request->deduction_id)
-                ->where('status', 'Active')
                 ->first();
 
             if (!$employee_deduction) {
                 return response()->json(['message' => 'Employee deduction not found.'], Response::HTTP_NOT_FOUND);
             }
 
-            $total_term = $employee_deduction->total_term;
-            $total_term_paid = $employee_deduction->total_paid + 1; // Increment total_paid by 1
+            $total_term = $employee_deduction['total_term'] ?? 0;
+            $total_term_paid = $employee_deduction['total_paid'] + 1; // Increment total_paid by 1
+            $balance = $employee_deduction['amount'] - $request->amount_paid;
 
             $data = new EmployeeDeductionTrail;
             $data->employee_deduction_id = $employee_deduction->id;
@@ -53,19 +58,19 @@ class EmployeeDeductionTrailController extends Controller
             $data->total_term_paid = $total_term_paid;
             $data->amount_paid = $request->amount_paid;
             $data->date_paid = $request->date_paid;
+            $data->balance = $balance;
             $data->remarks = $request->remarks;
             $data->status = "Paid";
             $data->is_last_payment = false;
             $data->is_adjustment = $request->is_adjustment;
             $data->save();
 
+            $employee_deduction->amount = $request->amount_paid;
             $employee_deduction->total_paid = $total_term_paid;
             $employee_deduction->save();
 
             return response()->json(['data' => new EmployeeDeductionTrailResource($data), 'message' => "Successfully saved", 'statusCode' => Response::HTTP_OK]);
         } catch (\Throwable $th) {
-
-            Helpers::errorLog($this->CONTROLLER_NAME, 'store', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -80,12 +85,15 @@ class EmployeeDeductionTrailController extends Controller
     {
         try {
 
-            $data = EmployeeDeductionTrail::findOrFail($id);
+            $data = EmployeeDeductionTrail::whereHas('employeeDeduction', function ($query) use ($id, $request) {
+                $query->where('employee_id', $request->employee_id)->where('deduction_id', $id);
+            })
+                ->with('employeeDeduction')
+                ->get();
             return response()->json(['responseData' => EmployeeDeductionTrailResource::collection($data)], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
-            Helpers::errorLog($this->CONTROLLER_NAME, 'index', $th->getMessage());
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -102,12 +110,49 @@ class EmployeeDeductionTrailController extends Controller
             $data = EmployeeDeductionTrail::findOrFail($id);
             $data->delete();
 
-            // Helpers::registerSystemLogs($request, $id, true, 'Success in delete ' . $this->SINGULAR_MODULE_NAME . '.');
             return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
 
         } catch (\Throwable $th) {
 
-            Helpers::errorLog($this->CONTROLLER_NAME, 'destroy', $th->getMessage());
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function bulkStore(Request $request)
+    {
+        try {
+            $createdRecords = [];
+
+            $employeeDeduction = EmployeeDeduction::where('payroll_period_id', $request->payroll_period_id)->get();
+
+            foreach ($employeeDeduction as $employee) {
+                $total_term = $employee['total_term'];
+                $total_term_paid = $employee['total_paid'] + 1; // Increment total_paid by 1
+
+                $data = new EmployeeDeductionTrail;
+                $data->employee_deduction_id = $employee['id'];
+                $data->total_term = $total_term ?? 0;
+                $data->total_term_paid = $total_term_paid;
+                $data->amount_paid = $employee['amount'] ?? 0;
+                $data->date_paid = now();
+                $data->status = "Paid";
+                $data->is_last_payment = ($total_term_paid >= $total_term);
+                $data->is_adjustment = false;
+                $data->save();
+
+                $employee->total_paid = $total_term_paid;
+                $employee->save();
+
+                $createdRecords[] = $data;
+            }
+
+
+            return response()->json([
+                // 'responseData' => EmployeeDeductionTrailResource::collection($createdRecords),
+                'message' => "Successfully saved",
+                'statusCode' => Response::HTTP_OK
+            ]);
+        } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

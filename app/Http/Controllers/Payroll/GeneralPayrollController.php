@@ -81,4 +81,9 @@ class GeneralPayrollController extends Controller
             'statusCode' => 200,
         ], Response::HTTP_OK);
     }
+
+    public function export(Request $request)
+    {
+
+    }
 }
