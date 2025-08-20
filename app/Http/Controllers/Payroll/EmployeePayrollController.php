@@ -14,6 +14,7 @@ use App\Services\EmployeeTimeRecordService;
 use App\Services\PayrollPeriodService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 
 class EmployeePayrollController extends Controller
 {
@@ -71,22 +72,28 @@ class EmployeePayrollController extends Controller
         $payrollPeriod = new PayrollPeriodController();
         $response = $payrollPeriod->index(request())->getData(true);
         $activePeriod = PayrollPeriod::find($response['data']['id']);
-
-
         foreach ($activePeriod->employeePayroll as $employee) {
             $timeRecord = $employee->employeeTimeRecord;
-            $nightDifferential = $timeRecord->night_differential;
-            return $timeRecord;
+            $nightDifferential = json_decode($timeRecord->night_differentials);
+            $employeeInfo = $employee->employee;
+            if($nightDifferential){
+            return $employeeInfo;
 
+            //create new Payroll Period . for the current active month and year
+            //create generate payroll , total of night differential
+            //create employee employee payroll
+
+            }
         }
-        return ;
+      
 
     }
 
     public function store(Request $request)
     {
-        $user = $request->user;
-
+        try {
+          $user = $request->user;
+            
         $response = [];
         $payroll_period_id = $request->payroll_period_id;
         $payroll_period = PayrollPeriod::find($payroll_period_id);
@@ -95,7 +102,8 @@ class EmployeePayrollController extends Controller
             return $this->processNightDifferential();
         }
 
-        if (!$payroll_period) {
+       
+        if (!$payroll_period || !is_numeric($payroll_period_id) || $payroll_period_id < 0 || (int) $payroll_period_id !== $payroll_period_id) {
             return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
         }
 
@@ -176,7 +184,11 @@ class EmployeePayrollController extends Controller
             $response[] = $result;
         }
 
-        if ($response !== null) {
+        if ($response === null) {
+            return response()->json(['message' => 'Error occurred while processing the employees', 'statusCode' => 500], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+
             $totals = EmployeePayroll::where('payroll_period_id', $payroll_period->id)
                 ->selectRaw('COUNT(*) as total_employees,
                             SUM(total_deductions) as total_deductions,
@@ -206,13 +218,28 @@ class EmployeePayrollController extends Controller
                 GeneralPayroll::create($request_general_payroll);
             }
 
-        }
+        
 
         return response()->json([
             'responseData' => EmployeePayrollResource::collection($response),
             'message' => 'Data successfully saved.',
             'statusCode' => 200,
         ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            Log::channel("generate_payroll")->error(
+                sprintf(
+                    "storing of payroll Error: %s in %s on line %d\n%s",
+                    $th->getMessage(),
+                    $th->getFile(),
+                    $th->getLine(),
+                    $th->getTraceAsString()
+                )
+            );
+            return response()->json([
+                'message' => 'Error occurred while processing the employees',
+                'statusCode' => 500,
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function show($id)

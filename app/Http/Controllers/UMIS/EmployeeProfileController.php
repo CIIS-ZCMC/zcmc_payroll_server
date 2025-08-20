@@ -313,7 +313,15 @@ class EmployeeProfileController extends Controller
                 $outOfPayroll = $netPay <= $salaryLimit ? 'true' : 'false'; //if net_pay or less than salary limit, then out of payroll
 
                 $night_duties = $employee->nigthDuties;
-                $nightDiff = $night_duties->map(function ($duty) {
+                
+
+                //Applied filtering in night duties
+                $nightDiff = $night_duties
+                ->filter(function ($duty) use ($month_of, $year_of) {
+                    return (int)date("m", strtotime($duty->dtr_date)) === (int)$month_of
+                        && (int)date("Y", strtotime($duty->dtr_date)) === (int)$year_of;
+                })
+                ->map(function ($duty) {
                     return [
                         'biometric_id' => $duty->biometric_id,
                         'dtr_date' => $duty->dtr_date,
@@ -326,7 +334,10 @@ class EmployeeProfileController extends Controller
                         'undertime_minutes' => $duty->undertime_minutes ?? 0,
                         'overall_minutes_rendered' => $duty->overall_minutes_rendered,
                     ];
-                })->toArray();
+                })
+                ->values()
+                ->toArray();
+            
 
                 // Get the overall total working minutes of night duties
                 $overallNightDutyMinutes = $night_duties->sum('total_working_minutes');
@@ -400,7 +411,7 @@ class EmployeeProfileController extends Controller
                 ];
             });
 
-            $response_data = [
+                $response_data = [
                 "employment_type" => $employment_type,
                 "month_of" => $month_of,
                 "year_of" => $year_of,
@@ -411,6 +422,7 @@ class EmployeeProfileController extends Controller
                 "second_half" => $second_half,
                 "employees" => $data
             ];
+          
 
             $uuid = Str::uuid();
 
@@ -723,7 +735,7 @@ class EmployeeProfileController extends Controller
 
             $find_result = $find_employee_time_record->first();
 
-            $find_result === null
+            !$find_result
                 ? $result = $this->employeeTimeRecordService->create($employee_time_record_details)
                 : $result = $this->employeeTimeRecordService->update($find_result->id, $employee_time_record_details);
 
