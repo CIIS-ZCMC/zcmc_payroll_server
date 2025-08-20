@@ -95,12 +95,23 @@ class EmployeeProfile extends Model
     public function nigthDuties()
     {
         return $this->hasMany(DailyTimeRecords::class, 'biometric_id', 'biometric_id')
-            ->whereTime('first_in', '>=', '18:00') // Check if first_in is 6:00 PM or later
-            ->whereTime('first_out', '>=', '06:00') // Check if first_out is 6:00 AM or earlier
-            ->orWhere(function ($query) {
-                $query->whereTime('second_in', '>=', '18:00') // Check second_in for 6 PM
-                    ->whereTime('second_out', '>=', '06:00'); // Check second_out for 6 AM
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->whereTime('first_in', '>=', '18:00') // Check if first_in is 6:00 PM or later
+                        ->whereTime('first_out', '<=', '06:00'); // Check if first_out is 6:00 AM or earlier
+                })->orWhere(function ($q) {
+                    $q->whereTime('second_in', '>=', '18:00') // Check second_in for 6 PM
+                        ->whereTime('second_out', '<=', '06:00'); // Check second_out for 6 AM
+                });
             });
+
+        // return $this->hasMany(DailyTimeRecords::class, 'biometric_id', 'biometric_id')
+        //     ->whereTime('first_in', '>=', '18:00') // Check if first_in is 6:00 PM or later
+        //     ->whereTime('first_out', '>=', '06:00') // Check if first_out is 6:00 AM or earlier
+        //     ->orWhere(function ($query) {
+        //         $query->whereTime('second_in', '>=', '18:00') // Check second_in for 6 PM
+        //             ->whereTime('second_out', '>=', '06:00'); // Check second_out for 6 AM
+        //     });
     }
 
     public function getAbsentDates($year, $month)

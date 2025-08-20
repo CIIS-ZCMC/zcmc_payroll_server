@@ -175,7 +175,7 @@ class EmployeeProfileController extends Controller
                 });
             }
 
-            $employee_data = $employee_data->get();
+            $employee_data = $employee_data->where('employee_id', "2016110201")->get();
 
             $holiday = DB::connection('mysql2')->table('holidays')->whereRaw("LEFT(month_day, 2) = ?", [str_pad($month_of, 2, '0', STR_PAD_LEFT)])->get();
 
@@ -400,7 +400,7 @@ class EmployeeProfileController extends Controller
                 ];
             });
 
-            $response_data = [
+            return $response_data = [
                 "employment_type" => $employment_type,
                 "month_of" => $month_of,
                 "year_of" => $year_of,
