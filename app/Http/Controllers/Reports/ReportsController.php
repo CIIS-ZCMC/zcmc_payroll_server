@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reports;
 use App\Exports\ExportEmployeePayroll;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeePayrollReportsResource;
+use App\Models\Employee;
 use App\Models\EmployeePayroll;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
@@ -224,10 +225,13 @@ class ReportsController extends Controller
                 ])->where('status', 'included');
             },
             'employee.employeeSalary',
-            'employee.employeeComputedSalaries' => function ($q) {
-
-            }
-        ])->where('payroll_period_id', $payroll_period->id)->get();
+            'employee.employeeComputedSalaries'
+        ])->where('payroll_period_id', $payroll_period->id)
+            ->orderBy(
+                Employee::select('last_name')
+                    ->whereColumn('employees.id', 'employee_payrolls.employee_id')
+            )
+            ->get();
 
         return response()->json([
             'message' => 'Data retrieved successfully.',

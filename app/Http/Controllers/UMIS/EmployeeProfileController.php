@@ -108,10 +108,19 @@ class EmployeeProfileController extends Controller
                 'assignedArea' => function ($query) {
                     $query->with(['salaryGrade']);
                 },
-                'dailyTimeRecords' => function ($query) use ($year_of, $month_of) {
+                'dailyTimeRecords' => function ($query) use ($year_of, $month_of, $employment_type, $period_type) {
                     $query->whereYear('dtr_date', $year_of)
-                        ->whereMonth('dtr_date', $month_of)
-                        ->selectRaw('biometric_id, SUM(total_working_minutes) as total_working_minutes, 
+                        ->whereMonth('dtr_date', $month_of);
+
+                    if ($employment_type === 'job order' && $period_type) {
+                        if ($period_type === 'first_half') {
+                            $query->whereDay('dtr_date', '<=', 15);
+                        } else if ($period_type === 'second_half') {
+                            $query->whereDay('dtr_date', '>', 15);
+                        }
+                    }
+
+                    $query->selectRaw('biometric_id, SUM(total_working_minutes) as total_working_minutes, 
                                                SUM(overtime_minutes) as total_overtime_minutes,
                                                SUM(undertime_minutes) as total_undertime_minutes')
                         ->groupBy('biometric_id');
@@ -166,7 +175,7 @@ class EmployeeProfileController extends Controller
                 }
             ]);
 
-            if ($employment_type === 'Job Order') {
+            if ($employment_type === 'job order') {
                 $employee_data->whereHas('employmentType', function ($query) {
                     $query->where('name', 'Job Order');
                 });
@@ -176,7 +185,7 @@ class EmployeeProfileController extends Controller
                 });
             }
 
-            $employee_data = $employee_data->where('employee_id', "2016110201")->get();
+            $employee_data = $employee_data->get();
 
             $holiday = DB::connection('mysql2')->table('holidays')->whereRaw("LEFT(month_day, 2) = ?", [str_pad($month_of, 2, '0', STR_PAD_LEFT)])->get();
 
@@ -401,7 +410,7 @@ class EmployeeProfileController extends Controller
                 ];
             });
 
-            return $response_data = [
+            $response_data = [
                 "employment_type" => $employment_type,
                 "month_of" => $month_of,
                 "year_of" => $year_of,
