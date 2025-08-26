@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EmployeeSalaryRequest extends FormRequest
+class ExcludedEmployeeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,14 +24,14 @@ class EmployeeSalaryRequest extends FormRequest
     public function rules()
     {
         return [
-            'employee_list_id' => 'required|integer',
-            'employment_type' => 'required|string',
-            'basic_salary' => 'required|string',
-            'salary_grade' => 'required|integer',
-            'salary_step' => 'required|integer',
+            'employee_id' => 'required|integer',
+            'payroll_period_id' => 'required|integer',
             'month' => 'required|string',
             'year' => 'required|string',
-            'is_active' => 'required|boolean',
+            'period_start' => 'required|string',
+            'period_end' => 'required|string',
+            'reason' => 'required|string',
+            'is_removed' => 'required|boolean',
         ];
     }
 }
