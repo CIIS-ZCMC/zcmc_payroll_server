@@ -15,6 +15,8 @@ use App\Services\PayrollPeriodService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
+use DateTime;
+use DateInterval;
 
 class EmployeePayrollController extends Controller
 {
@@ -67,24 +69,180 @@ class EmployeePayrollController extends Controller
         ], Response::HTTP_OK);
 
     }
+    private function CalculateNightDifferential($totalNightDutyHours, $monthlyRate)
+    {
+        // $nightHours = $employeeList->getTimeRecords->total_night_duty_hours;
+        // $nd_Rate = floor($monthly_rate * 0.005682 * 100) / 100;
+        // $nd_Twenty_Percent = number_format($nd_Rate * 0.2, 2, '.', '');
+        // $Accumulated_Amount_Night_Differential = number_format($nightHours * $nd_Twenty_Percent, 2, '.', '');
+        // return Helpers::customRound($tempNetSalary + $Accumulated_Amount_Night_Differential);
+
+        $totalAccumulatedND = 0.00;
+        $nightdiffRate = floor($monthlyRate * 0.005682 * 100) / 100;
+        $nightDifferentialTwentyPercentRate = floor($nightdiffRate * 0.2 * 100) / 100;
+        $totalAccumulatedND = floor($totalNightDutyHours * $nightDifferentialTwentyPercentRate * 100) / 100;
+        
+
+        return $totalAccumulatedND;
+    }
+
+    public function getNightHours($dtrRecord, $scheduleStartHour =22, $scheduleEndHour = 6) {
+        /**
+         * Calculate hours within the given schedule
+         * 
+         * @param object $dtrRecord Object containing DTR information
+         * @param int $scheduleStartHour Starting hour of schedule
+         * @param int $scheduleEndHour Ending hour of schedule
+         * @return array Array with dtr_date and total_night_hours
+         */
+        
+        $results = [];
+        
+        if (!empty($dtrRecord->first_in) && !empty($dtrRecord->first_out)) {
+            $firstIn = new DateTime($dtrRecord->first_in);
+            $firstOut = new DateTime($dtrRecord->first_out);
+            
+            $shiftHours = $this->calculateHoursInSchedule($firstIn, $firstOut, $scheduleStartHour, $scheduleEndHour);
+            $results = array_merge($results, $shiftHours);
+        }
+        
+        if (!empty($dtrRecord->second_in) && !empty($dtrRecord->second_out)) {
+            $secondIn = new DateTime($dtrRecord->second_in);
+            $secondOut = new DateTime($dtrRecord->second_out);
+            $shiftHours = $this->calculateHoursInSchedule($secondIn, $secondOut, $scheduleStartHour, $scheduleEndHour);
+            $results = array_merge($results, $shiftHours);
+        }
+        
+        $combinedResults = [];
+        foreach ($results as $result) {
+            $date = $result['dtr_date'];
+            if (!isset($combinedResults[$date])) {
+                $combinedResults[$date] = [
+                    'dtr_date' => $date,
+                    'total_night_hours' => 0
+                ];
+            }
+            $combinedResults[$date]['total_night_hours'] += $result['total_night_hours'];
+        }
+        
+        return array_values($combinedResults);
+    }
+    
+    private function calculateHoursInSchedule($start, $end, $scheduleStartHour, $scheduleEndHour) {
+        $hoursByDate = [];
+        
+        $current = clone $start;
+        $interval = new DateInterval('PT1M'); 
+        
+        while ($current < $end) {
+            $currentDate = $current->format('Y-m-d');
+            $currentHour = (int)$current->format('H');
+            $isInSchedule = false;
+            
+            if ($scheduleStartHour < $scheduleEndHour) {
+                $isInSchedule = ($currentHour >= $scheduleStartHour && $currentHour < $scheduleEndHour);
+            } else {
+                $isInSchedule = ($currentHour >= $scheduleStartHour || $currentHour < $scheduleEndHour);
+            }
+            
+            if ($isInSchedule) {
+                if (!isset($hoursByDate[$currentDate])) {
+                    $hoursByDate[$currentDate] = [
+                        'dtr_date' => $currentDate,
+                        'total_night_hours' => 0
+                    ];
+                }
+                $hoursByDate[$currentDate]['total_night_hours'] += (1/60);
+            }
+            $current->add($interval);
+        }
+        foreach ($hoursByDate as &$entry) {
+            $entry['total_night_hours'] = round($entry['total_night_hours'], 2);
+        }
+        
+        return array_values($hoursByDate);
+    }
     private function processNightDifferential()
     {
         $payrollPeriod = new PayrollPeriodController();
         $response = $payrollPeriod->index(request())->getData(true);
         $activePeriod = PayrollPeriod::find($response['data']['id']);
+
+        $employees = [];
+
         foreach ($activePeriod->employeePayroll as $employee) {
             $timeRecord = $employee->employeeTimeRecord;
             $nightDifferential = json_decode($timeRecord->night_differentials);
             $employeeInfo = $employee->employee;
             if($nightDifferential){
-            return $employeeInfo;
-
+         
+            $employees[] = [
+                'EmployeeInfo'=>$employeeInfo,
+                'TimeRecord'=>$timeRecord,
+                'NightDifferential'=>$nightDifferential
+            ];
+            
             //create new Payroll Period . for the current active month and year
             //create generate payroll , total of night differential
             //create employee employee payroll
-
             }
         }
+
+        foreach ($employees as $employee) {
+            
+            $nightDiffRecord = [];
+            foreach ($employee['NightDifferential'] as $dtrRecord) {
+                $nightHours = $this->getNightHours($dtrRecord);
+                $nightDiffRecord = array_merge($nightDiffRecord, $nightHours);
+            }
+            return $nightDiffRecord;
+        
+            
+        }
+       
+        return $employees;
+        $user = request()->user;
+
+        // $payrollPeriod = PayrollPeriod::firstOrCreate([
+        //     'month' => $activePeriod->month,
+        //     'year' => $activePeriod->year,
+        //     'payroll_type' => 'Night Differential',
+        //     'employment_type' => $activePeriod->employment_type,
+        //     'period_type' => $activePeriod->period_type,
+        //     'period_start' => $activePeriod->period_start,
+        //     'period_end' => $activePeriod->period_end,
+        //     'days_of_duty' => $activePeriod->days_of_duty,
+        //     'is_special' => $activePeriod->is_special,
+        //     'posted_at' => $activePeriod->posted_at,
+        //     'last_generated_at' => $activePeriod->last_generated_at,
+        //     'locked_at' => $activePeriod->locked_at,
+        //     'is_active'=>1
+        // ]);
+
+        // $generalPayroll = GeneralPayroll::firstOrCreate([
+        //     'generated_by_id' => $user->employee_id,
+        //     'generated_by_name' => $user->name,
+        //     'payroll_period_id' => $payrollPeriod->id,
+        //     'total_employees' => count($employees),
+        //     'total_deductions' => 0,
+        //     'total_receivables' => 0,
+        //     'total_gross' => 0,
+        //     'total_net' => 0,
+        //     'month' => $activePeriod->month,
+        //     'year' => $activePeriod->year,
+        // ]);
+
+        // foreach ($employees as $employee) {
+        //     $EmployeeInfo = $employee['EmployeeInfo'];
+        //     $TimeRecord = $employee['TimeRecord'];
+        //     $NightDifferential = $employee['NightDifferential'];
+
+        //     $employee_id =$EmployeeInfo['id'];
+        //     $employee_time_record_id = $TimeRecord['id'];
+        //     $payroll_period_id = $payrollPeriod->id;
+
+        //   }
+
       
 
     }
@@ -99,7 +257,7 @@ class EmployeePayrollController extends Controller
         $payroll_period = PayrollPeriod::find($payroll_period_id);
 
         if($request->payroll_type === "NightDifferential"){
-            return $this->processNightDifferential();
+            return $this->processNightDifferential($payroll_period);
         }
 
        
