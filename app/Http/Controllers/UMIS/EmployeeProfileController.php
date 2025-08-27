@@ -176,7 +176,7 @@ class EmployeeProfileController extends Controller
                 });
             }
 
-            $employee_data = $employee_data->where('employee_id', "2016110201")->get();
+            $employee_data = $employee_data->get();
 
             $holiday = DB::connection('mysql2')->table('holidays')->whereRaw("LEFT(month_day, 2) = ?", [str_pad($month_of, 2, '0', STR_PAD_LEFT)])->get();
 
@@ -314,31 +314,31 @@ class EmployeeProfileController extends Controller
                 $outOfPayroll = $netPay <= $salaryLimit ? 'true' : 'false'; //if net_pay or less than salary limit, then out of payroll
 
                 $night_duties = $employee->nigthDuties;
-                
+
 
                 //Applied filtering in night duties
                 $nightDiff = $night_duties
-                ->filter(function ($duty) use ($month_of, $year_of) {
-                    return (int)date("m", strtotime($duty->dtr_date)) === (int)$month_of
-                        && (int)date("Y", strtotime($duty->dtr_date)) === (int)$year_of;
-                })
-                ->map(function ($duty) {
-                    return [
-                        'biometric_id' => $duty->biometric_id,
-                        'dtr_date' => $duty->dtr_date,
-                        'first_in' => $duty->first_in,
-                        'first_out' => $duty->first_out,
-                        'second_in' => $duty->second_in,
-                        'second_out' => $duty->second_out,
-                        'total_working_minutes' => $duty->total_working_minutes,
-                        'overtime_minutes' => $duty->overtime_minutes ?? 0,
-                        'undertime_minutes' => $duty->undertime_minutes ?? 0,
-                        'overall_minutes_rendered' => $duty->overall_minutes_rendered,
-                    ];
-                })
-                ->values()
-                ->toArray();
-            
+                    ->filter(function ($duty) use ($month_of, $year_of) {
+                        return (int) date("m", strtotime($duty->dtr_date)) === (int) $month_of
+                            && (int) date("Y", strtotime($duty->dtr_date)) === (int) $year_of;
+                    })
+                    ->map(function ($duty) {
+                        return [
+                            'biometric_id' => $duty->biometric_id,
+                            'dtr_date' => $duty->dtr_date,
+                            'first_in' => $duty->first_in,
+                            'first_out' => $duty->first_out,
+                            'second_in' => $duty->second_in,
+                            'second_out' => $duty->second_out,
+                            'total_working_minutes' => $duty->total_working_minutes,
+                            'overtime_minutes' => $duty->overtime_minutes ?? 0,
+                            'undertime_minutes' => $duty->undertime_minutes ?? 0,
+                            'overall_minutes_rendered' => $duty->overall_minutes_rendered,
+                        ];
+                    })
+                    ->values()
+                    ->toArray();
+
 
                 // Get the overall total working minutes of night duties
                 $overallNightDutyMinutes = $night_duties->sum('total_working_minutes');
@@ -412,7 +412,7 @@ class EmployeeProfileController extends Controller
                 ];
             });
 
-                $response_data = [
+            $response_data = [
                 "employment_type" => $employment_type,
                 "month_of" => $month_of,
                 "year_of" => $year_of,
@@ -423,7 +423,7 @@ class EmployeeProfileController extends Controller
                 "second_half" => $second_half,
                 "employees" => $data
             ];
-          
+
 
             $uuid = Str::uuid();
 
