@@ -93,7 +93,6 @@ class ComputationService
         return $amount;
     }
 
-
     private function getHazardPayPercentage($salary_grade)
     {
         // 2016 rules simplified percentage table (section 3.3)

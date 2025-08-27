@@ -16,16 +16,6 @@ class EmployeeAdjustmentService
         //nothing
     }
 
-    public function getAll(): Collection
-    {
-        return $this->interface->getAll();
-    }
-
-    public function getAllPagination(int $perPage): LengthAwarePaginator
-    {
-        return $this->interface->getAllPagination($perPage);
-    }
-
     public function create(EmployeeAdjustmentData $data): EmployeeAdjustment
     {
         return $this->interface->create([

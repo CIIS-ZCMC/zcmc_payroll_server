@@ -5,7 +5,7 @@ namespace App\Data;
 use Illuminate\Http\Request;
 use Spatie\LaravelData\Data;
 
-class EmployeeTimeRecordDTO extends Data
+class EmployeeTimeRecordData extends Data
 {
     public function __construct(
         public int $employee_id,
@@ -44,12 +44,13 @@ class EmployeeTimeRecordDTO extends Data
         public ?string $to,
         public bool $is_night_shift,
         public bool $is_active,
-        public ?string $status,  
-    ){}
+        public ?string $status,
+    ) {
+    }
 
-    public static function fromRequest(Request $request) : self
+    public static function fromRequest(Request $request): self
     {
-       return new self(
+        return new self(
             $request['employee_id'],
             $request['payroll_period_id'],
             $request['minutes'],
@@ -87,7 +88,7 @@ class EmployeeTimeRecordDTO extends Data
             $request['is_night_shift'],
             $request['is_active'],
             $request['status'] ?? null,
-       );
+        );
     }
 
     public function toArray(): array

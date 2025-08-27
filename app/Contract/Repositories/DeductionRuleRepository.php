@@ -2,17 +2,17 @@
 
 namespace App\Contract\Repositories;
 
-use App\Contract\DeductionGroupInterface;
-use App\Models\DeductionGroup;
+use App\Contract\DeductionRuleInterface;
+use App\Models\DeductionRule;
 
-class DeductionGroupRepository implements DeductionGroupInterface
+class DeductionRuleRepository implements DeductionRuleInterface
 {
-    public function __construct(private DeductionGroup $model)
+    public function __construct(private DeductionRule $model)
     {
         //
     }
 
-    public function create(array $data): DeductionGroup
+    public function create(array $data): DeductionRule
     {
         return $this->model->create($data);
     }
@@ -22,9 +22,9 @@ class DeductionGroupRepository implements DeductionGroupInterface
         return $this->model->update($data);
     }
 
-    public function find(int $id): ?DeductionGroup
+    public function find(int $id): ?DeductionRule
     {
-        return $this->model->with(['deductions'])->find($id);
+        return $this->model->find($id);
     }
 
     public function delete(int $id): bool
@@ -32,5 +32,4 @@ class DeductionGroupRepository implements DeductionGroupInterface
         $model = $this->model->find($id);
         return $model->delete();
     }
-
 }
