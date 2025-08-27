@@ -21,7 +21,7 @@ class AuthenticateToken
     public function handle(Request $request, Closure $next)
     {
         try {
-           return $next($request);
+         //  return $next($request);
             $token = $this->extractToken($request);
 
             if (!$token) {

@@ -44,6 +44,7 @@ class EmployeeTimeRecord extends Model
         'no_of_schedule',
         'night_differentials',
         'absent_dates',
+        'schedules',
         'month',
         'year',
         'from',

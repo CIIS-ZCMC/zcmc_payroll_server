@@ -126,6 +126,13 @@ return [
             'level' => 'error',
         ],
 
+        
+        'fetch_payroll_log' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/fetch_payroll_data.log'),
+            'level' => 'debug',
+        ],
+
         'code' => [
             'driver' => 'single',
             'path' => storage_path('logs/Error.log'),

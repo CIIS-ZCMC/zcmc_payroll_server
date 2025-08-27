@@ -47,6 +47,7 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->double('no_of_schedule');
             $table->longText('night_differentials');
             $table->longText('absent_dates');
+            $table->longText('schedules');
             $table->string('month');
             $table->string('year');
             $table->string('from')->nullable()->comment('period from , ex.1-15');
