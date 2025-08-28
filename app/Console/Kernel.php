@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(CheckEmployeeDeductions::class)->dailyAt('00:00');
         $schedule->command(SuspendDeductions::class)->dailyAt('00:00');
         $schedule->command(SuspendReceivables::class)->dailyAt('00:00');
-        $schedule->command(FetchPayrollData::class)->dailyAt('00:00');
+        $schedule->command(FetchPayrollData::class)->everyMinute();
     }
 
     /**

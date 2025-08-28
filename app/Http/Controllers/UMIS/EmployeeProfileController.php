@@ -26,7 +26,8 @@ use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cache;
 use Str;
-
+use App\Http\Controllers\Payroll\PayrollPeriodController;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeProfileController extends Controller
 {
@@ -55,6 +56,128 @@ class EmployeeProfileController extends Controller
         $this->employeeSalaryService = $employeeSalaryService;
         $this->employeeTimeRecordService = $employeeTimeRecordService;
         $this->computationService = $computationService;
+    }
+
+    public function validatePayrollData($year, $month, $employmentType, $periodType)
+    {
+  
+      
+            $payrollPeriod = new PayrollPeriodController();
+            $response = $payrollPeriod->index(request())->getData(true);
+         
+            if(!isset($response['data']['id'])){
+                return response()->json([
+                    'allow_adding' => true,
+                    'is_active' => true,
+                ]);
+            }
+            $activePeriod = PayrollPeriod::find($response['data']['id']);
+
+              //If No active period found, allow adding new data and set active
+              if(!$activePeriod){
+                //Allow adding new data and is_active = 1
+
+                return response()->json([
+                    'allow_adding' => true,
+                    'is_active' => true,
+                ]);
+            
+           }
+            
+            if($activePeriod->year == $year && $activePeriod->month == $month ){
+                //Allow adding new data and is_active = 1
+                //check period Type
+                if($activePeriod->period_type !== $periodType){
+                    //check if locked
+                    if($activePeriod->locked_at != null  && $activePeriod->locked_at != ''){
+                        return response()->json([
+                            'allow_adding' => true,
+                            'is_active' => true,
+                            'period_type' => $activePeriod->period_type
+                        ]);
+                    }
+
+                    Log::channel('fetch_payroll_log')->error("Could not process new payroll for $year-$month | $periodType as Current active payroll is not yet locked");
+                    return response()->json([
+                        'allow_adding' => false,
+                        'is_active' => false,
+                        'period_type' => $activePeriod->period_type
+                    ]);
+                }
+                return response()->json([
+                    'allow_adding' => true,
+                    'is_active' => true,
+                ]);
+            } 
+        
+            //Compare year  
+            if($activePeriod->year >= $year){ 
+               
+                //locked_at
+                //Compare months
+                if($activePeriod->month  > $month ){ //7 > 6
+                     //check if the previous payroll period is locked
+
+                     $previousPeriod = PayrollPeriod::where('year', $year)->where('month', $month)
+                     ->where('employment_type', $employmentType)
+                     ->where('period_type', $periodType)
+                     ->first();
+
+                     if(!$previousPeriod){
+                        return response()->json([
+                            'allow_adding' => true,
+                            'is_active' => false,
+                        ]);
+                     }
+                    //if locked then no action
+                    if($previousPeriod->locked_at != null  && $previousPeriod->locked_at != ''){
+                        Log::channel('fetch_payroll_log')->error("Could not process payroll as previous payroll is locked");
+                        return response()->json([
+                            'allow_adding' => false,
+                            'is_active' => false,
+                            ">" => "locked"
+                        ]);
+                    }
+                    //if not locked then allow adding/updating and do not allow to set active. // to update current data
+                    return response()->json([
+                        'allow_adding' => true,
+                        'is_active' => false,
+                         ">" => "not locked"
+                    ]);
+                }
+
+                if($activePeriod->month  < $month ){ //7 < 8
+                    //check if the active payroll period is locked
+                 
+                    //if locked then allow adding and set active.
+                    if($activePeriod->locked_at != null  && $activePeriod->locked_at != ''){
+                        return response()->json([
+                            'allow_adding' => true,
+                            'is_active' => true,
+                              "<" => "locked"
+                        ]);
+                    }
+
+                    //if not locked then allow adding and do not allow to set active. // to update current data
+                    return response()->json([
+                        'allow_adding' => true,
+                        'is_active' => false,
+                          "<" => "not locked"
+                    ]);
+                }
+              
+            }
+            //Year not equal
+            if($activePeriod->year < $year){
+                //Allow adding new data and is_active = 1
+                return response()->json([
+                    'allow_adding' => true,
+                    'is_active' => true,
+                      "over year" => "over years"
+                ]);
+            }
+     
+       
     }
 
     // Step 1 (Complete)
@@ -518,7 +641,7 @@ class EmployeeProfileController extends Controller
             'period_start' => $period_start,
             'period_end' => $period_end,
             'days_of_duty' => $this->Working_Days,
-            'is_active' => true
+            'is_active' => $request->is_active ?? true
         ];
 
         // Create/update payroll period
@@ -535,7 +658,10 @@ class EmployeeProfileController extends Controller
         }
 
         // Deactivate other periods
-        PayrollPeriod::where('id', '!=', $payroll_period->id)->update(['is_active' => false]);
+        if($request->is_active){
+            PayrollPeriod::where('id', '!=', $payroll_period->id)->update(['is_active' => false]);
+        }
+       // 
 
         $period_id = $payroll_period->id;
         $period_type = $payroll_period->period_type;

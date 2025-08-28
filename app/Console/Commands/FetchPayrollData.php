@@ -14,7 +14,8 @@ class FetchPayrollData extends Command
      *
      * @var string
      */
-    protected $signature = 'fetch:payroll-data';
+    protected $signature = 'fetch:payroll-data {employmentType?} {periodType?} {year?} {month?}';
+
 
     /**
      * The console command description.
@@ -43,16 +44,33 @@ class FetchPayrollData extends Command
      */
     public function handle()
     {   
-        $year = 2024;
-        $month = 7;
+        $year = intval($this->argument('year') ?? 2024);
+        $month = (int) ($this->argument('month') ?? 7);
+        $employmentType = $this->argument('employmentType') ?? 'permanent';
+        $periodType = $this->argument('periodType') ?? 'first_half';
+
+        $validator = $this->employeeProfileController->validatePayrollData($year, $month, $employmentType, $periodType);
+       
+        $responseValidator = $validator->getData();
+
+        // $this->info(json_encode($responseValidator));
+        // return;
+
+        if(!$responseValidator->allow_adding){
+            $this->error("Payroll Data for $year-$month is not allowed to be added");
+            Log::channel('fetch_payroll_log')->error("Payroll Data for $year-$month is not allowed to be added");
+            return;
+        }
+
+       
         Log::channel('fetch_payroll_log')->info("---------------------------------------------------FETCHING PAYROLL DATA for $year-$month-----------------------------------------------------------");
         $response = $this->employeeProfileController->fetchStep1(new Request([
             'year_of' => $year,
             'month_of' => $month,
-            'period_type' => 'first_half',
+            'period_type' => $periodType,
             'first_half' => null,
             'second_half' => null,
-            'employment_type' => 'permanent',
+            'employment_type' => $employmentType,
             'console'=>$this
         ]));
         $responseData = $response->getData();
@@ -63,7 +81,8 @@ class FetchPayrollData extends Command
        
         $response = $this->employeeProfileController->fetchStep2(new Request([
             'uuid' => $uuid,
-            'console'=>$this
+            'console'=>$this,
+            'is_active'=>$responseValidator->is_active
         ]));
         $responseData = $response->getData();
         $uuid = property_exists($responseData, 'data') && property_exists($responseData->data, 'uuid') ? $responseData->data->uuid : null;
