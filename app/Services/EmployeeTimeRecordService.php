@@ -2,11 +2,17 @@
 
 namespace App\Services;
 
+use App\Contract\EmployeeTimeRecordInterface;
 use App\Models\EmployeeTimeRecord;
 
 
 class EmployeeTimeRecordService
 {
+    public function __construct(private EmployeeTimeRecordInterface $interface)
+    {
+        //Nothing
+    }
+
     public function get($payroll_period)
     {
         $data = EmployeeTimeRecord::with([
@@ -32,16 +38,11 @@ class EmployeeTimeRecordService
 
     public function create(array $data)
     {
-        return EmployeeTimeRecord::create($data);
+        return $this->interface->create($data);
     }
 
     public function update($id, array $data)
     {
-        $model = EmployeeTimeRecord::find($id);
-        if ($model) {
-            $model->update($data);
-            return $model;
-        }
-        return null;
+        return $this->interface->update($id, $data);
     }
 }

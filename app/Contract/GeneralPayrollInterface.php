@@ -7,5 +7,5 @@ use App\Models\GeneralPayroll;
 interface GeneralPayrollInterface
 {
     public function create(array $data): GeneralPayroll;
-    public function update(array $data): bool;
+    public function update(int $id, array $data): bool;
 }

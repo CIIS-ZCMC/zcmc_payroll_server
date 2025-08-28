@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Contract\EmployeeSalaryInterface;
-use App\Models\EmployeeSalary;
+use App\Contract\ReceivableInterface;
 
-class EmployeeSalaryService
+class ReceivableService
 {
-    public function __construct(private EmployeeSalaryInterface $interface)
+    public function __construct(private ReceivableInterface $interface)
     {
         //Nothing
     }
@@ -20,5 +19,10 @@ class EmployeeSalaryService
     public function update($id, array $data)
     {
         return $this->interface->update($id, $data);
+    }
+
+    public function delete($id)
+    {
+        return $this->interface->delete($id);
     }
 }

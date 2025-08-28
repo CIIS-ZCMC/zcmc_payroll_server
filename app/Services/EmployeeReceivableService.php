@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Contract\ExcludedEmployeeInterface;
-use App\Models\ExcludedEmployee;
+use App\Contract\EmployeeReceivableInterface;
 
-class ExcludeEmployeeService
+class EmployeeReceivableService
 {
-    public function __construct(private ExcludedEmployeeInterface $interface)
+    public function __construct(private EmployeeReceivableInterface $interface)
     {
         //Nothing
     }
@@ -25,5 +24,15 @@ class ExcludeEmployeeService
     public function delete($id)
     {
         return $this->interface->delete($id);
+    }
+
+    public function complete($id)
+    {
+        return $this->interface->complete($id);
+    }
+
+    public function stop($id)
+    {
+        return $this->interface->stop($id);
     }
 }

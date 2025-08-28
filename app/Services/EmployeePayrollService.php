@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Contract\EmployeeSalaryInterface;
-use App\Models\EmployeeSalary;
+use App\Contract\EmployeePayrollInterface;
 
-class EmployeeSalaryService
+class EmployeePayrollService
 {
-    public function __construct(private EmployeeSalaryInterface $interface)
+    public function __construct(private EmployeePayrollInterface $interface)
     {
         //Nothing
     }

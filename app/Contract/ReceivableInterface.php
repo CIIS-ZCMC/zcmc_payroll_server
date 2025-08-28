@@ -8,6 +8,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface ReceivableInterface
 {
     public function create(array $data): Receivable;
-    public function update(array $data): bool;
+    public function update(int $id, array $data): bool;
     public function delete(int $id): bool;
 }

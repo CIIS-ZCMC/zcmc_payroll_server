@@ -2,38 +2,29 @@
 
 namespace App\Services;
 
+use App\Contract\PayrollPeriodInterface;
 use App\Models\PayrollPeriod;
 
 class PayrollPeriodService
 {
-    public function index()
+    public function __construct(private PayrollPeriodInterface $interface)
     {
-        return PayrollPeriod::all();
+        //Nothing
     }
 
     public function create(array $data)
     {
-        return PayrollPeriod::create($data);
+        return $this->interface->create($data);
     }
 
     public function update($id, array $data)
     {
-        $model = PayrollPeriod::find($id);
-        if ($model) {
-            $model->update($data);
-            return $model;
-        }
-        return null;
+        return $this->interface->update($id, $data);
     }
 
-    public function delete($id)
+    public function lock($id)
     {
-        $model = PayrollPeriod::find($id);
-        if ($model) {
-            $model->delete();
-            return true;
-        }
-        return false;
+        return $this->interface->lock($id);
     }
 
     public function find($id)

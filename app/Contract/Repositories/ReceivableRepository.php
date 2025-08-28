@@ -17,9 +17,10 @@ class ReceivableRepository implements ReceivableInterface
         return $this->model->create($data);
     }
 
-    public function update(array $data): bool
+    public function update(int $id, array $data): bool
     {
-        return $this->model->update($data);
+        $model = $this->model->find($id);
+        return $model->update($data);
     }
 
     public function delete(int $id): bool

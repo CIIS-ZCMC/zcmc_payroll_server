@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Contract\EmployeeAdjustmentInterface;
 use App\Data\EmployeeAdjustmentData;
 use App\Models\EmployeeAdjustment;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class EmployeeAdjustmentService
 {

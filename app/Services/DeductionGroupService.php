@@ -5,19 +5,14 @@ namespace App\Services;
 use App\Contract\DeductionGroupInterface;
 use App\Data\DeductionGroupData;
 use App\Models\DeductionGroup;
-use Illuminate\Support\Collection;
+
 class DeductionGroupService
 {
-    public function __construct(
-        private DeductionGroupInterface $interface
-    ) {
+    public function __construct(private DeductionGroupInterface $interface)
+    {
         //nothing
     }
 
-    public function getAll(int $page, int $perPage)
-    {
-        return $this->interface->getAll($page, $perPage);
-    }
 
     public function create(DeductionGroupData $data): DeductionGroup
     {

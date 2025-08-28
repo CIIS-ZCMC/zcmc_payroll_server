@@ -17,8 +17,9 @@ class EmployeeRepository implements EmployeeInterface
         return $this->model->create($data);
     }
 
-    public function update(array $data): bool
+    public function update(int $id, array $data): bool
     {
-        return $this->model->update($data);
+        $model = $this->model->find($id);
+        return $model->update($data);
     }
 }
