@@ -45,7 +45,7 @@ class FetchPayrollData extends Command
     public function handle()
     {   
         $year = intval($this->argument('year') ?? 2024);
-        $month = (int) ($this->argument('month') ?? 7);
+        $month = (int) ($this->argument('month') ?? 9);
         $employmentType = $this->argument('employmentType') ?? 'permanent';
         $periodType = $this->argument('periodType') ?? 'first_half';
 

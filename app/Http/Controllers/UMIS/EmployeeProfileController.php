@@ -450,7 +450,7 @@ class EmployeeProfileController extends Controller
                     $outOfPayroll = $netPay <= $salaryLimit ? 'true' : 'false'; //if net_pay or less than salary limit, then out of payroll
     
                     $night_duties = $employee->nigthDuties;
-                    
+               
     
                     //Applied filtering in night duties
                     $nightDiff = $night_duties

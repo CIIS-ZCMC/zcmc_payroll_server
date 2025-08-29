@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
 use DateTime;
 use DateInterval;
+use Carbon\Carbon;
 
 class EmployeePayrollController extends Controller
 {
@@ -97,6 +98,8 @@ class EmployeePayrollController extends Controller
          */
         
         $results = [];
+
+       
         
         if (!empty($dtrRecord->first_in) && !empty($dtrRecord->first_out)) {
             $firstIn = new DateTime($dtrRecord->first_in);
@@ -167,83 +170,127 @@ class EmployeePayrollController extends Controller
         $payrollPeriod = new PayrollPeriodController();
         $response = $payrollPeriod->index(request())->getData(true);
         $activePeriod = PayrollPeriod::find($response['data']['id']);
-
         $employees = [];
-
+        $nightDifferentialAmount = 0;
         foreach ($activePeriod->employeePayroll as $employee) {
             $timeRecord = $employee->employeeTimeRecord;
             $nightDifferential = json_decode($timeRecord->night_differentials);
             $employeeInfo = $employee->employee;
+            //Processing only employees with night differential
             if($nightDifferential){
-         
+
+            $schedule = json_decode($timeRecord->schedules);
+            $nightDiffRecord = [];
+
+            foreach ($nightDifferential as $dtrRecord) {
+                $timeshifts = collect(array_values(array_filter($schedule, function($schedule) use($dtrRecord){
+                    return $schedule->date == $dtrRecord->dtr_date;
+                })))->first();
+
+                if($timeshifts){
+                    $timeshift = $timeshifts->time_shift;
+                    $nightHours = $this->getNightHours(
+                        $dtrRecord ,
+                        Carbon::createFromFormat('H:i:s', $timeshift->first_in)->hour,
+                        Carbon::createFromFormat('H:i:s', $timeshift->first_out)->hour
+                    );
+                    $nightDiffRecord = array_merge($nightDiffRecord, $nightHours);
+                }
+
+            }
+
+              $totalNightHours = array_reduce($nightDiffRecord, function($carry, $item){
+                return $carry + $item['total_night_hours'];
+            }, 0);
+
+            $nightDifferentialAmount = $this->CalculateNightDifferential($totalNightHours, decrypt($employeeInfo->employeeSalary->base_salary));  
+
             $employees[] = [
-                'EmployeeInfo'=>$employeeInfo,
-                'TimeRecord'=>$timeRecord,
-                'NightDifferential'=>$nightDifferential
+                'EmployeeInfo' => $employeeInfo,
+                'TimeRecordID'=>$timeRecord->id,
+                'NightDifferentialAmount' => $nightDifferentialAmount
             ];
-            
+            //Return list here for employee's with night differential
+
+            }
+        }
+
+      
             //create new Payroll Period . for the current active month and year
             //create generate payroll , total of night differential
             //create employee employee payroll
-            }
-        }
-
-        foreach ($employees as $employee) {
-            
-            $nightDiffRecord = [];
-            foreach ($employee['NightDifferential'] as $dtrRecord) {
-                $nightHours = $this->getNightHours($dtrRecord);
-                $nightDiffRecord = array_merge($nightDiffRecord, $nightHours);
-            }
-            return $nightDiffRecord;
-        
-            
-        }
        
-        return $employees;
-        $user = request()->user;
+       
+        // $user = request()->user;
+        $user = (object)['employee_id'=>2022090251, 'name'=>'Reenjay Caimor'];
 
-        // $payrollPeriod = PayrollPeriod::firstOrCreate([
-        //     'month' => $activePeriod->month,
-        //     'year' => $activePeriod->year,
-        //     'payroll_type' => 'Night Differential',
-        //     'employment_type' => $activePeriod->employment_type,
-        //     'period_type' => $activePeriod->period_type,
-        //     'period_start' => $activePeriod->period_start,
-        //     'period_end' => $activePeriod->period_end,
-        //     'days_of_duty' => $activePeriod->days_of_duty,
-        //     'is_special' => $activePeriod->is_special,
-        //     'posted_at' => $activePeriod->posted_at,
-        //     'last_generated_at' => $activePeriod->last_generated_at,
-        //     'locked_at' => $activePeriod->locked_at,
-        //     'is_active'=>1
-        // ]);
+        $payrollPeriod = PayrollPeriod::firstOrCreate([
+            'month' => $activePeriod->month,
+            'year' => $activePeriod->year,
+            'payroll_type' => 'Night Differential',
+            'employment_type' => $activePeriod->employment_type,
+            'period_type' => $activePeriod->period_type,
+            'period_start' => $activePeriod->period_start,
+            'period_end' => $activePeriod->period_end,
+            'days_of_duty' => $activePeriod->days_of_duty,
+            'is_special' => $activePeriod->is_special,
+            'posted_at' => $activePeriod->posted_at,
+            'last_generated_at' => $activePeriod->last_generated_at,
+            'locked_at' => $activePeriod->locked_at,
+            'is_active'=>0
+        ]);
 
-        // $generalPayroll = GeneralPayroll::firstOrCreate([
-        //     'generated_by_id' => $user->employee_id,
-        //     'generated_by_name' => $user->name,
-        //     'payroll_period_id' => $payrollPeriod->id,
-        //     'total_employees' => count($employees),
-        //     'total_deductions' => 0,
-        //     'total_receivables' => 0,
-        //     'total_gross' => 0,
-        //     'total_net' => 0,
-        //     'month' => $activePeriod->month,
-        //     'year' => $activePeriod->year,
-        // ]);
-
-        // foreach ($employees as $employee) {
-        //     $EmployeeInfo = $employee['EmployeeInfo'];
-        //     $TimeRecord = $employee['TimeRecord'];
-        //     $NightDifferential = $employee['NightDifferential'];
-
-        //     $employee_id =$EmployeeInfo['id'];
-        //     $employee_time_record_id = $TimeRecord['id'];
-        //     $payroll_period_id = $payrollPeriod->id;
-
-        //   }
-
+        $total_Gross_ND = array_reduce($employees, function($carry, $item){
+            return $carry + $item['NightDifferentialAmount'];
+        }, 0);
       
+        $generalPayroll = GeneralPayroll::updateOrCreate(
+            [
+                'payroll_period_id' => $payrollPeriod->id,
+                'month' => $activePeriod->month,
+                'year' => $activePeriod->year,
+                'generated_by_id' => $user->employee_id,
+                'generated_by_name' => $user->name,
+            ],
+            [
+            'payroll_period_id' => $payrollPeriod->id,
+            'total_employees' => count($employees),
+            'total_deductions' => 0,
+            'total_receivables' => 0,
+            'total_gross' => $total_Gross_ND,
+            'total_net' => $total_Gross_ND,
+        ]);
+        //Employee Payroll - Night Differential
+        foreach ($employees as $employee) {
+            $EmployeeInfo = $employee['EmployeeInfo'];
+            $employee_time_record_id = $employee['TimeRecordID'];
+            $NightDifferentialAmount = $employee['NightDifferentialAmount'];
+            $employee_id =$EmployeeInfo['id'];
+            $payroll_period_id = $payrollPeriod->id;
+
+            EmployeePayroll::updateOrCreate(
+                [
+                    'employee_id' => $employee_id,
+                    'payroll_period_id' => $payroll_period_id,
+                    'employee_time_record_id' => $employee_time_record_id,
+                ],
+                [
+                    'month'=>$activePeriod->month,
+                    'year'=>$activePeriod->year,
+                    'gross_salary'=>$NightDifferentialAmount,
+                    'total_deductions'=>0,
+                    'total_receivables'=>0,
+                    'net_pay'=>$NightDifferentialAmount,
+                    'deleted_at'=>null,
+                ]
+            );
+
+          }
+
+          return response()->json([
+            'message' => 'Night Differential processed successfully',
+            'statusCode' => 200
+        ]);
 
     }
 
