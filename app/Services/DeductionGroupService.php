@@ -23,10 +23,9 @@ class DeductionGroupService
         ]);
     }
 
-    public function update(int $id, DeductionGroupData $data): bool
+    public function update(int $id, DeductionGroupData $data): DeductionGroup
     {
         return $this->interface->update($id, [
-            'deduction_group_uuid' => $data->deduction_group_uuid,
             'name' => $data->name,
             'code' => $data->code
         ]);

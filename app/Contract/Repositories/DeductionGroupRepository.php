@@ -17,10 +17,11 @@ class DeductionGroupRepository implements DeductionGroupInterface
         return $this->model->create($data);
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data): DeductionGroup
     {
         $model = $this->model->find($id);
-        return $model->update($data);
+        $model->update($data);
+        return $model;
     }
 
     public function find(int $id): ?DeductionGroup

@@ -7,5 +7,5 @@ use App\Models\EmployeeTimeRecord;
 interface EmployeeTimeRecordInterface
 {
     public function create(array $data): EmployeeTimeRecord;
-    public function update(int $id, array $data): bool;
+    public function update(int $id, array $data): EmployeeTimeRecord;
 }

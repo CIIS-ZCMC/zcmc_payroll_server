@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeductionRequest extends FormRequest
+class DeductionRuleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,13 +24,12 @@ class DeductionRequest extends FormRequest
     public function rules()
     {
         return [
-            'deduction_group_id' => 'required',
-            'name' => 'required|string',
-            'code' => 'required|string|unique:deductions,code',
-            'type' => 'required|string',
-            'percent_value' => 'nullable|string',
-            'fixed_amount' => 'nullable|string',
-            'billing_cycle' => 'required|string',
+            'deduction_id' => 'required',
+            'min_salary' => 'nullable',
+            'max_salary' => 'nullable',
+            'apply_type' => 'required',
+            'value' => 'required',
+            'effective_date' => 'required',
         ];
     }
 }

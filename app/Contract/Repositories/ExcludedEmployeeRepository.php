@@ -17,10 +17,11 @@ class ExcludedEmployeeRepository implements ExcludedEmployeeInterface
         return $this->model->create($data);
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data): ExcludedEmployee
     {
         $model = $this->model->find($id);
-        return $model->update($data);
+        $model->update($data);
+        return $model->fresh();
     }
 
     public function delete(int $id): bool

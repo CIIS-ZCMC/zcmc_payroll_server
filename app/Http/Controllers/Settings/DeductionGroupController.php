@@ -2,50 +2,49 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Data\DeductionGroupData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeductionGroupRequest;
 use App\Http\Resources\DeductionGroupResource;
 use App\Models\Deduction;
 use App\Models\DeductionGroup;
+use App\Services\DeductionGroupService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeductionGroupController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct(private DeductionGroupService $service)
+    {
+        //nothing
+    }
+
     public function index(Request $request)
     {
-        if ($request->import_selection) {
-            return $this->importSelection($request);
-        }
+        $perPage = $request->per_page ?? 15;
+        $page = $request->page ?? 1;
+
+        $data = DeductionGroup::whereNull('deleted_at')->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
-            'data' => DeductionGroupResource::collection(DeductionGroup::whereNull('deleted_at')->get()),
+            'responseData' => [
+                'data' => DeductionGroupResource::collection($data),
+                'meta' => [
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'per_page' => $data->perPage(),
+                    'total' => $data->total(),
+                ]
+            ],
             'message' => "Data Successfully retrieved",
             'statusCode' => 200
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(DeductionGroupRequest $request)
     {
-        $validate = $request->validated();
-        $validate_code = DeductionGroup::whereNull('deleted_at')->where('code', $validate['code'])->first();
-
-        if ($validate_code) {
-            return response()->json(['message' => 'Code already exist'], Response::HTTP_FOUND);
-        }
-
-        $data = DeductionGroup::create($validate);
+        $dto = DeductionGroupData::fromRequest($request);
+        $data = $this->service->create($dto);
 
         return response()->json([
             'data' => new DeductionGroupResource($data),
@@ -54,12 +53,6 @@ class DeductionGroupController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $data = DeductionGroup::findOrFail($id);
@@ -78,41 +71,15 @@ class DeductionGroupController extends Controller
         ], Response::HTTP_OK);
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        $data = DeductionGroup::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string',
+            'code' => 'required|string|unique:deduction_groups,code,' . $id
+        ]);
 
-        if (!$data) {
-            return response()->json([
-                'message' => "Data not found",
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        // Check if code already exists in other deductions group
-        if ($request->has('code')) {
-            $existing = DeductionGroup::whereNull('deleted_at')
-                ->where('code', $request->input('code'))
-                ->where('id', '!=', $id)
-                ->first();
-
-            if ($existing) {
-                return response()->json([
-                    'message' => 'Code already exist',
-                    'statusCode' => 302
-                ], Response::HTTP_FOUND);
-            }
-        }
-
-        $data->update($request->all());
+        $dto = DeductionGroupData::fromRequest($request);
+        $data = $this->service->update($id, $dto);
 
         return response()->json([
             'data' => new DeductionGroupResource($data),
@@ -121,23 +88,9 @@ class DeductionGroupController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $data = DeductionGroup::findOrFail($id);
-
-        if (!$data) {
-            return response()->json([
-                'message' => 'No record found.'
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data->delete();
+        $this->service->delete($id);
 
         return response()->json([
             'message' => "Data Successfully deleted",

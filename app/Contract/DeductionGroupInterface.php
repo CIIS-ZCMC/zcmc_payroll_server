@@ -7,7 +7,7 @@ use App\Models\DeductionGroup;
 interface DeductionGroupInterface
 {
     public function create(array $data): DeductionGroup;
-    public function update(int $id, array $data): bool;
+    public function update(int $id, array $data): DeductionGroup;
     public function find(int $id): ?DeductionGroup;
     public function delete(int $id): bool;
 }

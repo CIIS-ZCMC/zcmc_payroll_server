@@ -17,10 +17,11 @@ class EmployeeReceivableRepository implements EmployeeReceivableInterface
         return $this->model->create($data);
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data): EmployeeReceivable
     {
         $model = $this->model->find($id);
-        return $model->update($data);
+        $model->update($data);
+        return $model;
     }
 
     public function delete(int $id): bool
@@ -29,15 +30,17 @@ class EmployeeReceivableRepository implements EmployeeReceivableInterface
         return $model->delete();
     }
 
-    public function complete(int $id): bool
+    public function complete(int $id): EmployeeReceivable
     {
         $model = $this->model->find($id);
-        return $model->update(['status' => 'completed', 'completed_at' => now()]);
+        $model->update(['status' => 'completed', 'completed_at' => now()]);
+        return $model;
     }
 
-    public function stop(int $id): bool
+    public function stop(int $id): EmployeeReceivable
     {
         $model = $this->model->find($id);
-        return $model->update(['status' => 'stopped', 'stopped_at' => now()]);
+        $model->update(['status' => 'stopped', 'stopped_at' => now()]);
+        return $model;
     }
 }

@@ -25,7 +25,7 @@ class DeductionRuleService
         ]);
     }
 
-    public function update(int $id, DeductionRuleData $data): bool
+    public function update(int $id, DeductionRuleData $data): DeductionRule
     {
         return $this->interface->update($id, [
             'deduction_id' => $data->deduction_id,

@@ -26,9 +26,10 @@ class EmployeeDeductionData extends Data
         public ?string $willDeduct,
         public ?string $stopped_at,
         public ?string $completed_at,
-    ) {}
+    ) {
+    }
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(array $request): self
     {
         return new self(
             $request['payroll_period_id'],

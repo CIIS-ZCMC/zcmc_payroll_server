@@ -5,12 +5,25 @@ namespace App\Services;
 use App\Contract\DeductionInterface;
 use App\Data\DeductionData;
 use App\Models\Deduction;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class DeductionService
 {
     public function __construct(private DeductionInterface $interface)
     {
         //nothing
+    }
+
+    public function index(): Collection
+    {
+        return $this->interface->getAll();
+    }
+
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->interface->paginate($perPage, $page);
     }
 
     public function create(DeductionData $data): Deduction
@@ -33,7 +46,7 @@ class DeductionService
         ]);
     }
 
-    public function update(int $id, DeductionData $data): bool
+    public function update(int $id, DeductionData $data): Deduction
     {
         return $this->interface->update($id, [
             'name' => $data->name,

@@ -17,16 +17,18 @@ class PayrollPeriodRepository implements PayrollPeriodInterface
         return $this->model->create($data);
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data): PayrollPeriod
     {
         $model = $this->model->find($id);
-        return $model->update($data);
+        $model->update($data);
+        return $model->fresh();
     }
 
-    public function lock(int $id): bool
+    public function lock(int $id): PayrollPeriod
     {
         $model = $this->model->find($id);
-        return $model->update(['locked_at' => now()]);
+        $model->update(['locked_at' => now()]);
+        return $model->fresh();
     }
 
 }

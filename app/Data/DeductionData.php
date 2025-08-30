@@ -2,12 +2,13 @@
 
 namespace App\Data;
 
+use App\Models\Deduction;
 use Illuminate\Http\Request;
 use Spatie\LaravelData\Data;
 
 class DeductionData extends Data
 {
-    
+
     public function __construct(
         public string $deduction_uuid,
         public string $deduction_group_id,
@@ -23,12 +24,13 @@ class DeductionData extends Data
         public ?float $fixed_amount,
         public string $billing_cycle,
         public string $status,
-    ) {}
+    ) {
+    }
 
     public static function fromRequest(Request $request): self
     {
         return new self(
-            $request['deduction_uuid'],
+            $request['deduction_uuid'] ?? self::generateUuid(),
             $request['deduction_group_id'],
             $request['name'],
             $request['code'],
@@ -63,5 +65,19 @@ class DeductionData extends Data
             'billing_cycle' => $this->billing_cycle,
             'status' => $this->status,
         ];
+    }
+
+    protected static function generateUuid(): string
+    {
+        $lastCode = Deduction::orderBy('id', 'desc')->value('deduction_uuid');
+
+        if (!$lastCode) {
+            return 'D-00001';
+        }
+
+        $number = (int) substr($lastCode, 3);
+        $nextNumber = $number + 1;
+
+        return 'D-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
 }

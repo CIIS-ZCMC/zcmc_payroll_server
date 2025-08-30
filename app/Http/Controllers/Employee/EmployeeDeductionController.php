@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Employee;
 
+use App\Data\EmployeeDeductionData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EmployeeDeductionRequest;
 use App\Services\EmployeeAdjustmentService;
+use App\Services\EmployeeDeductionService;
 use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Imports\ImportEmployeeDeduction;
@@ -18,7 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 class EmployeeDeductionController extends Controller
 {
     public function __construct(
-        private EmployeeAdjustmentService $employeeAdjustmentService
+        private EmployeeAdjustmentService $employeeAdjustmentService,
+        private EmployeeDeductionService $service
     ) {
         //nothing
     }
@@ -71,64 +75,84 @@ class EmployeeDeductionController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function store(Request $request)
+    // public function store(Request $request)
+    // {
+    //     $PayrollPeriod = PayrollPeriod::find($request->payroll_period_id);
+
+    //     if ($PayrollPeriod && $PayrollPeriod->locked_at !== null) {
+    //         return response()->json([
+    //             'message' => "Payroll is already locked",
+    //             'statusCode' => 403
+    //         ], Response::HTTP_FORBIDDEN);
+    //     }
+
+    //     if ($request->mode === 'single') {
+    //         return $this->create($request);
+    //     }
+
+    //     if ($request->mode === 'bulk') {
+    //         return $this->import($request);
+    //     }
+
+    //     $response = [];
+    //     $employee_deductions = $request->records;
+    //     foreach ($employee_deductions as $data) {
+    //         $payroll_period = PayrollPeriod::find($data['payroll_period_id']);
+    //         $employee = Employee::where('employee_number', $data['employee_number'])->first();
+    //         $deduction = Deduction::find($data['deduction_id']);
+
+    //         if ($payroll_period && $employee && $deduction) {
+    //             $existing = EmployeeDeduction::where('payroll_period_id', $payroll_period->id)
+    //                 ->where('employee_id', $employee->id)
+    //                 ->where('deduction_id', $deduction->id)
+    //                 ->first();
+
+    //             $request_data = [
+    //                 'payroll_period_id' => $payroll_period->id,
+    //                 'employee_id' => $employee->id,
+    //                 'deduction_id' => $deduction->id,
+    //                 'amount' => $data['amount'],
+    //                 'frequency' => $deduction->billing_cycle,
+    //                 'total_term' => $data['total_term'],
+    //                 'total_paid' => $data['total_paid'],
+    //                 'willDeduct' => $data['will_deduct'] ?? null,
+    //                 'with_terms' => 0,
+    //                 'is_default' => $deduction->amount === $data['amount'] ? 1 : 0
+    //             ];
+
+    //             if ($existing === null) {
+    //                 $result = EmployeeDeduction::create($request_data);
+    //             } else {
+    //                 $existing->update($request_data);
+    //                 $result = $existing;
+    //             }
+
+    //             $response[] = $result;
+    //         }
+    //     }
+
+    //     return response()->json([
+    //         'responseData' => EmployeeDeductionResource::collection($response),
+    //         'message' => 'Data successfully saved.',
+    //         'statusCode' => 200,
+    //     ], Response::HTTP_CREATED);
+    // }
+
+
+    public function store(EmployeeDeductionRequest $request)
     {
-        $PayrollPeriod = PayrollPeriod::find($request->payroll_period_id);
-
-        if ($PayrollPeriod && $PayrollPeriod->locked_at !== null) {
-            return response()->json([
-                'message' => "Payroll is already locked",
-                'statusCode' => 403
-            ], Response::HTTP_FORBIDDEN);
+        if ($request->has('deductions')) {
+            $dtos = array_map(
+                fn($data) => EmployeeDeductionData::fromRequest($data),
+                $request->input('deductions')
+            );
+        } else {
+            $dtos = [EmployeeDeductionData::fromRequest($request->validated())];
         }
 
-        if ($request->mode === 'single') {
-            return $this->create($request);
-        }
-
-        if ($request->mode === 'bulk') {
-            return $this->import($request);
-        }
-
-        $response = [];
-        $employee_deductions = $request->records;
-        foreach ($employee_deductions as $data) {
-            $payroll_period = PayrollPeriod::find($data['payroll_period_id']);
-            $employee = Employee::where('employee_number', $data['employee_number'])->first();
-            $deduction = Deduction::find($data['deduction_id']);
-
-            if ($payroll_period && $employee && $deduction) {
-                $existing = EmployeeDeduction::where('payroll_period_id', $payroll_period->id)
-                    ->where('employee_id', $employee->id)
-                    ->where('deduction_id', $deduction->id)
-                    ->first();
-
-                $request_data = [
-                    'payroll_period_id' => $payroll_period->id,
-                    'employee_id' => $employee->id,
-                    'deduction_id' => $deduction->id,
-                    'amount' => $data['amount'],
-                    'frequency' => $deduction->billing_cycle,
-                    'total_term' => $data['total_term'],
-                    'total_paid' => $data['total_paid'],
-                    'willDeduct' => $data['will_deduct'] ?? null,
-                    'with_terms' => 0,
-                    'is_default' => $deduction->amount === $data['amount'] ? 1 : 0
-                ];
-
-                if ($existing === null) {
-                    $result = EmployeeDeduction::create($request_data);
-                } else {
-                    $existing->update($request_data);
-                    $result = $existing;
-                }
-
-                $response[] = $result;
-            }
-        }
+        $this->service->store($dtos);
 
         return response()->json([
-            'responseData' => EmployeeDeductionResource::collection($response),
             'message' => 'Data successfully saved.',
             'statusCode' => 200,
         ], Response::HTTP_CREATED);

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contract\EmployeeDeductionInterface;
 use App\Data\EmployeeDeductionData;
 use App\Models\EmployeeDeduction;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeDeductionService
 {
@@ -37,7 +38,22 @@ class EmployeeDeductionService
         ]);
     }
 
-    public function update(int $id, EmployeeDeductionData $data): bool
+    public function upsert(array $data): int
+    {
+        $records = array_map(fn(EmployeeDeductionData $data) => $data->toArray(), $data);
+        return $this->interface->upsert($records);
+    }
+
+    public function store(array $dtos)
+    {
+        if (count($dtos) === 1) {
+            return $this->create($dtos[0]);
+        }
+
+        return $this->upsert($dtos);
+    }
+
+    public function update(int $id, EmployeeDeductionData $data): EmployeeDeduction
     {
         return $this->interface->update($id, [
             'payroll_period_id' => $data->payroll_period_id,
@@ -66,12 +82,12 @@ class EmployeeDeductionService
         return $this->interface->delete($id);
     }
 
-    public function complete(int $id): bool
+    public function complete(int $id): EmployeeDeduction
     {
         return $this->interface->complete($id);
     }
 
-    public function stop(int $id): bool
+    public function stop(int $id): EmployeeDeduction
     {
         return $this->interface->stop($id);
     }
