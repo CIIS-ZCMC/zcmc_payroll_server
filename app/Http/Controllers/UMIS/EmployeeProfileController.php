@@ -192,31 +192,37 @@ class EmployeeProfileController extends Controller
             $first_half = $request->first_half ?? null;
             $second_half = $request->second_half ?? null;
 
-           // $request->console->info("Fetching payroll data...");
-
+        // $request->console->info("Fetching payroll data...");
+            
             $employment_type = $request->employment_type;
 
-            $currentyear = date('Y');
-            $currentMonth = date('m');
+            // $currentyear = date('Y');
+            // $currentMonth = date('m');
+            
+           
 
             //Payroll Headers Validation
-            if (!$first_half && !$second_half) {
-                if ($currentyear == $year_of && $currentMonth == $month_of) {
-                    return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records", 'statusCode' => 500]);
-                }
+            // if (!$first_half && !$second_half) {
+            //     $request->console->info("here");
+            //     if ($currentyear == $year_of && $currentMonth == $month_of) {
+            //         return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records", 'statusCode' => 500]);
+            //     }
 
-                if ($currentyear == $year_of && $currentMonth < $month_of) {
-                    return response()->json(['error' => 'Generation failed', 'message' => "Could not generate future months", 'statusCode' => 500]);
-                }
+            //     if ($currentyear == $year_of && $currentMonth < $month_of) {
+            //         return response()->json(['error' => 'Generation failed', 'message' => "Could not generate future months", 'statusCode' => 500]);
+            //     }
 
-                if ($currentMonth > $month_of) {
-                    if (($currentMonth - $month_of) == 1) {
-                        if (floor(date('d', strtotime($year_of . "-" . $month_of . "-" . date('d')))) <= 11) {
-                            return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records", 'statusCode' => 500]);
-                        }
-                    }
-                }
-            }
+            //     if ($currentMonth > $month_of) {
+            //         if (($currentMonth - $month_of) == 1) {
+            //             if (floor(date('d', strtotime($year_of . "-" . $month_of . "-" . date('d')))) <= 11) {
+            //                 return response()->json(['error' => 'Generation failed', 'message' => "Could not generate latest records", 'statusCode' => 500]);
+            //             }
+            //         }
+            //     }
+            // }
+            // $request->console->info("yes");
+
+            // return;
 
             //Employee Fetching Function Start Here
             $totalDaysInMonth = Carbon::createFromDate($year_of, $month_of, 1)->daysInMonth;
@@ -314,9 +320,15 @@ class EmployeeProfileController extends Controller
                     $NoOfInvalidEntry = [];
                     $nightDifferentials = [];
 
-                    if(count($employee->dailyTimeRecords) == 0){
-                       continue;
+                    if (
+                        count($employee->dailyTimeRecords) == 0
+                        && count($employee->approvedOB) == 0
+                        && count($employee->approvedOT) == 0
+                        && count($employee->receivedLeave) == 0
+                    ) {
+                        continue;
                     }
+                    
 
                     $request->console->line("Processing employee ID: {$employee->id}");
                     

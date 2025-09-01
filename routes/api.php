@@ -62,6 +62,7 @@ Route::middleware('auth.token')->group(function () {
 
     //Payroll Period
     Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);
+    Route::get("payroll-period-lists", [PayrollPeriodController::class, 'payrollPeriodList']);
 
     //Employee Payroll
     Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);

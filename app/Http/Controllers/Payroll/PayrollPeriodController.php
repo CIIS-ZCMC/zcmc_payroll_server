@@ -8,6 +8,7 @@ use App\Http\Resources\PayrollPeriodResource;
 use App\Models\EmployeeTimeRecord;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class PayrollPeriodController extends Controller
@@ -45,5 +46,28 @@ class PayrollPeriodController extends Controller
             'data' => new PayrollPeriodResource($payroll_period),
             'statusCode' => 200,
         ], Response::HTTP_OK);
+    }
+
+    public function payrollPeriodList(Request $request)
+    {
+
+        Cache::forget('payroll-period-list');
+
+        return Cache::remember('payroll-period-list', 30 * 60, function () {
+            $payroll_period = PayrollPeriod::all();
+
+            if (!$payroll_period) {
+                return response()->json([
+                    'message' => 'No payroll period found for the given criteria.',
+                    'statusCode' => 404,
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json([
+                'message' => 'Payroll period retrieved successfully.',
+                'responseData' => PayrollPeriodResource::collection($payroll_period),
+                'statusCode' => 200,
+            ], Response::HTTP_OK);
+        });
     }
 }

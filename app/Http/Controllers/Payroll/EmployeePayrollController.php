@@ -221,15 +221,15 @@ class EmployeePayrollController extends Controller
             //create employee employee payroll
        
        
-        // $user = request()->user;
-        $user = (object)['employee_id'=>2022090251, 'name'=>'Reenjay Caimor'];
+         $user = request()->user;
+       // $user = (object)['employee_id'=>2022090251, 'name'=>'Reenjay Caimor'];
 
         $payrollPeriod = PayrollPeriod::firstOrCreate([
             'month' => $activePeriod->month,
             'year' => $activePeriod->year,
             'payroll_type' => 'Night Differential',
             'employment_type' => $activePeriod->employment_type,
-            'period_type' => $activePeriod->period_type,
+            'period_type' => "full_month",
             'period_start' => $activePeriod->period_start,
             'period_end' => $activePeriod->period_end,
             'days_of_duty' => $activePeriod->days_of_duty,
