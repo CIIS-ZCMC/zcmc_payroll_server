@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Models\DeductionGroup;
+use App\Models\Receivable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -15,10 +17,19 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles, WithColumnWidths
 {
     protected $data;
+    protected $deductionGroups;
+    protected $receivableGroups;
+
 
     public function __construct($data)
     {
         $this->data = $data;
+
+        $this->deductionGroups = DeductionGroup::with('deductions')
+            ->whereHas('deductions')
+            ->get();
+
+        $this->receivableGroups = Receivable::all();
     }
 
     /**
@@ -38,40 +49,58 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
                 $employee['designation'] ?? '',
                 $employee['base_salary'] ?? 0,
                 $employee['basic_pay'] ?? 0,
-                $employee['pera'] ?? 0,
-                $employee['hazard'] ?? 0,
-                $this->getReceivableAmount($employee['receivables'] ?? [], 'RA'), // Representation Allowance (RA)
-                $this->getReceivableAmount($employee['receivables'] ?? [], 'TA'), // Transportation Allowance (TA)
-                $this->getReceivableAmount($employee['receivables'] ?? [], 'CELL'), // Cellular Phone Allowance (CELL)
+            ];
+
+            if ($receivables = $this->receivableGroups) {
+                foreach ($receivables as $receivable) {
+                    $row[] = $this->getReceivableAmount($employee['employee_receivables'] ?? [], $receivable->code);
+                }
+            }
+
+            $row = array_merge($row, [
                 $employee['gross_pay'] ?? 0,
                 $employee['wtax'] ?? 0,
                 $employee['philhealth_deductions'] ?? 0,
+            ]);
 
-                // GSIS Deductions
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GSIS L & R'),
-                $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], 'PPREM.'),
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GCONSO'),
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GCAL'),
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GPOL'),
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GCOM'),
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GFAL'),
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GMPL'),
-                $this->getDeductionAmount($employee['gsis_deductions'] ?? [], 'GEDU'),
 
-                // Pag-ibig Deductions
-                $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], 'PMPL'),
-                $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], 'PHL'),
-                $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], 'PCAL'),
-                $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], 'PAG2'),
+            // Add GSIS Deductions Data
+            if ($gsisGroup = $this->deductionGroups->where('code', 'GSIS')->first()) {
+                foreach ($gsisGroup->deductions as $deduction) {
+                    $row[] = $this->getDeductionAmount($employee['gsis_deductions'] ?? [], $deduction->code);
+                }
+            }
+            $row = array_merge($row, [
+                $employee['total_gsis_deduction'] ?? 0,
+            ]);
 
-                // Other Deductions
-                $this->getDeductionAmount($employee['other_deductions'] ?? [], 'CML'),
-                $this->getDeductionAmount($employee['other_deductions'] ?? [], 'CFL'),
-                $this->getDeductionAmount($employee['other_deductions'] ?? [], 'ADUES'),
-                $this->getDeductionAmount($employee['other_deductions'] ?? [], 'DEATH'),
-                $this->getDeductionAmount($employee['other_deductions'] ?? [], 'CHAPEL'),
-                $this->getDeductionAmount($employee['other_deductions'] ?? [], 'DBP'),
-            ];
+            // Add Pag-IBIG Deductions Data
+            if ($pagibigGroup = $this->deductionGroups->where('code', 'Pag-Ibig')->first()) {
+                foreach ($pagibigGroup->deductions as $deduction) {
+                    $row[] = $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], $deduction->code);
+                }
+            }
+            $row = array_merge($row, [
+                $employee['total_pagibig_deduction'] ?? 0,
+            ]);
+
+            // Add Other Deductions Data
+            if ($otherGroup = $this->deductionGroups->where('code', 'Others')->first()) {
+                foreach ($otherGroup->deductions as $deduction) {
+                    $row[] = $this->getDeductionAmount($employee['other_deductions'] ?? [], $deduction->code);
+                }
+            }
+
+            $row = array_merge($row, [
+                $employee['total_other_deduction'] ?? 0,
+                $employee['total_employee_deductions'] ?? 0,
+                $employee['net_pay_first_half'] ?? 0,
+                $employee['net_pay_second_half'] ?? 0,
+                $employee['net_pay'] ?? 0,
+                $employee['remarks'] ?? 0,
+                $employee['days_of_absent'] ?? 0,
+            ]);
+
 
             $rows[] = $row;
         }
@@ -81,59 +110,83 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
 
     public function headings(): array
     {
-        return [
-            [
-                'NAME OF EMPLOYEES',
-                'DESIGNATION',
-                'GROSS BASIC SALARY',
-                'NET BASIC',
-                'PERA',
-                'Hazard Pay',
-                'RA',
-                'TA',
-                'CELL',
-                'GROSS INCOME',
-                'TAX',
-                'PHIC',
-                'GSIS L & R',
-                'PPREM.',
-                'GCONSO',
-                'GCAL',
-                'GPOL',
-                'GCOM',
-                'GFAL',
-                'GMPL',
-                'GEDU',
-                'PMPL',
-                'PHL',
-                'PCAL',
-                'PAG2',
-                'CML',
-                'CFL',
-                'ADUES',
-                'DEATH',
-                'CHAPEL',
-                'DBP'
-            ]
+        $headings = [
+            'NAME OF EMPLOYEES',
+            'DESIGNATION',
+            'GROSS BASIC SALARY',
+            'NET BASIC',
         ];
+
+        if ($receivables = $this->receivableGroups) {
+            foreach ($receivables as $receivable) {
+                $headings[] = $receivable->code;
+            }
+        }
+
+        $headings = array_merge($headings, [
+            'GROSS INCOME',
+            'TAX',
+            'PHIC',
+        ]);
+
+        // Add GSIS Deductions Headings
+        if ($gsisGroup = $this->deductionGroups->where('code', 'GSIS')->first()) {
+            foreach ($gsisGroup->deductions as $deduction) {
+                $headings[] = $deduction->code;
+            }
+        }
+
+        $headings = array_merge($headings, [
+            'TOTAL GSIS',
+        ]);
+
+        // Add Pag-IBIG Deductions Headings
+        if ($pagibigGroup = $this->deductionGroups->where('code', 'Pag-Ibig')->first()) {
+            foreach ($pagibigGroup->deductions as $deduction) {
+                $headings[] = $deduction->code;
+            }
+        }
+        $headings = array_merge($headings, [
+            'TOTAL PAG-IBIG',
+        ]);
+        // Add Other Deductions Headings
+        if ($otherGroup = $this->deductionGroups->where('code', 'Others')->first()) {
+            foreach ($otherGroup->deductions as $deduction) {
+                $headings[] = $deduction->code;
+            }
+        }
+        $headings = array_merge($headings, [
+            'TOTAL OTHERS',
+            'TOTAL EMPLOYEE DEDUCTIONS',
+            'FIRST HALF',
+            'SECOND HALF',
+            'NET PAY',
+            'REMARKS',
+            'DAYS OF ABSENT',
+        ]);
+
+        return [$headings];
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
-            // Style the first two header rows
-            // '1:2' => [
-            //     'font' => ['bold' => true],
-            //     'alignment' => ['horizontal' => 'center', 'vertical' => 'center']
-            // ],
+
 
             '1' => [
-                'font' => ['bold' => true],
-                'alignment' => ['horizontal' => 'center', 'vertical' => 'center']
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF']
+                ],
+                'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '347433']
+                ]
             ],
 
             // Format all numeric columns
-            'D:AE' => [
+            'C:BD' => [
                 'numberFormat' => [
                     'formatCode' => '#,##0.00'
                 ]

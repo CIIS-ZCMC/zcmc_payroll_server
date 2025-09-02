@@ -64,6 +64,7 @@ class EmployeeProfileController extends Controller
         try {
             $year_of = $request->year_of;
             $month_of = $request->month_of;
+            $previous_month = $month_of - 1;
 
             $period_type = $request->period_type;
             $first_half = $request->first_half ?? null;
@@ -180,7 +181,7 @@ class EmployeeProfileController extends Controller
 
             $holiday = DB::connection('mysql2')->table('holidays')->whereRaw("LEFT(month_day, 2) = ?", [str_pad($month_of, 2, '0', STR_PAD_LEFT)])->get();
 
-            $data = $employee_data->map(function ($employee) use ($year_of, $month_of, $totalDaysInMonth, $request, $expectedMinutesPerDay, $holiday, $helper) {
+            $data = $employee_data->map(function ($employee) use ($year_of, $month_of, $previous_month, $totalDaysInMonth, $request, $expectedMinutesPerDay, $holiday, $helper) {
 
                 $biometric_id = $employee->biometric_id;
 
