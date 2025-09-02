@@ -224,6 +224,26 @@ class EmployeePayrollController extends Controller
          $user = request()->user;
        // $user = (object)['employee_id'=>2022090251, 'name'=>'Reenjay Caimor'];
 
+       // To do . check for existing payroll period if its locked , then do not allow to proceed 
+
+       
+
+       $existingNDFPayrollPeriod = PayrollPeriod::where('month', $activePeriod->month)
+       ->where('year', $activePeriod->year)
+       ->where('employment_type','permanent')
+       ->where('period_type','full_month')
+       ->where('payroll_type','Night Differential')
+       ->whereNotNull('locked_at')
+       ->first();
+       
+
+       if($existingNDFPayrollPeriod){
+           return response()->json([
+               'message' => 'Payroll period already locked.',
+               'statusCode' => 400,
+           ], Response::HTTP_BAD_REQUEST);
+       }
+
         $payrollPeriod = PayrollPeriod::firstOrCreate([
             'month' => $activePeriod->month,
             'year' => $activePeriod->year,
@@ -237,13 +257,15 @@ class EmployeePayrollController extends Controller
             'posted_at' => $activePeriod->posted_at,
             'last_generated_at' => $activePeriod->last_generated_at,
             'locked_at' => $activePeriod->locked_at,
+        ],[
             'is_active'=>0
         ]);
 
         $total_Gross_ND = array_reduce($employees, function($carry, $item){
             return $carry + $item['NightDifferentialAmount'];
         }, 0);
-      
+
+     
         $generalPayroll = GeneralPayroll::updateOrCreate(
             [
                 'payroll_period_id' => $payrollPeriod->id,
@@ -289,6 +311,7 @@ class EmployeePayrollController extends Controller
 
           return response()->json([
             'message' => 'Night Differential processed successfully',
+            'payrollID'=>$payroll_period_id,
             'statusCode' => 200
         ]);
 
