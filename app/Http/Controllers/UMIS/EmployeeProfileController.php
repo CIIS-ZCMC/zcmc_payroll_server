@@ -108,61 +108,61 @@ class EmployeeProfileController extends Controller
                 'assignedArea' => function ($query) {
                     $query->with(['salaryGrade']);
                 },
-                'dailyTimeRecords' => function ($query) use ($year_of, $month_of) {
+                'dailyTimeRecords' => function ($query) use ($year_of, $previous_month) {
                     $query->whereYear('dtr_date', $year_of)
-                        ->whereMonth('dtr_date', $month_of)
+                        ->whereMonth('dtr_date', $previous_month)
                         ->selectRaw('biometric_id, SUM(total_working_minutes) as total_working_minutes, 
                                                SUM(overtime_minutes) as total_overtime_minutes,
                                                SUM(undertime_minutes) as total_undertime_minutes')
                         ->groupBy('biometric_id');
                 },
-                'approvedOB' => function ($query) use ($year_of, $month_of, $expectedMinutesPerDay) {
+                'approvedOB' => function ($query) use ($year_of, $previous_month, $expectedMinutesPerDay) {
                     $query->whereYear('date_from', $year_of)
-                        ->whereMonth('date_from', $month_of)
+                        ->whereMonth('date_from', $previous_month)
                         ->where('status', 'approved')
                         ->selectRaw('employee_profile_id, SUM(DATEDIFF(date_to, date_from) + 1) * ? as total_ob_minutes', [$expectedMinutesPerDay])
                         ->groupBy('employee_profile_id');
                 },
-                'approvedOT' => function ($query) use ($year_of, $month_of, $expectedMinutesPerDay) {
+                'approvedOT' => function ($query) use ($year_of, $previous_month, $expectedMinutesPerDay) {
                     $query->whereYear('date_from', $year_of)
-                        ->whereMonth('date_from', $month_of)
+                        ->whereMonth('date_from', $previous_month)
                         ->where('status', 'approved')
                         ->selectRaw('employee_profile_id, SUM(DATEDIFF(date_to, date_from) + 1) * ? as total_ot_minutes', [$expectedMinutesPerDay])
                         ->groupBy('employee_profile_id');
                 },
-                'receivedLeave' => function ($query) use ($year_of, $month_of, $expectedMinutesPerDay) {
+                'receivedLeave' => function ($query) use ($year_of, $previous_month, $expectedMinutesPerDay) {
                     $query->whereYear('date_from', $year_of)
-                        ->whereMonth('date_from', $month_of)
+                        ->whereMonth('date_from', $previous_month)
                         ->where('status', 'received')
                         ->selectRaw('employee_profile_id, SUM(DATEDIFF(date_to, date_from) + 1) * ? as total_leave_minutes', [$expectedMinutesPerDay])
                         ->groupBy('employee_profile_id');
                 },
-                'dtrInvalidEntry' => function ($query) use ($year_of, $month_of) {
+                'dtrInvalidEntry' => function ($query) use ($year_of, $previous_month) {
                     $query->whereYear('dtr_date', $year_of)
-                        ->whereMonth('dtr_date', $month_of);
+                        ->whereMonth('dtr_date', $previous_month);
                 },
-                'schedule' => function ($query) use ($year_of, $month_of) {
+                'schedule' => function ($query) use ($year_of, $previous_month) {
                     $query->whereYear('date', $year_of)
-                        ->whereMonth('date', $month_of);
+                        ->whereMonth('date', $previous_month);
                 },
-                'employeeDtr' => function ($query) use ($year_of, $month_of) {
+                'employeeDtr' => function ($query) use ($year_of, $previous_month) {
                     $query->whereYear('dtr_date', $year_of)
-                        ->whereMonth('dtr_date', $month_of);
+                        ->whereMonth('dtr_date', $previous_month);
                 },
-                'leaveApplications' => function ($query) use ($year_of, $month_of) {
-                    $query->where(function ($query) use ($year_of, $month_of) {
+                'leaveApplications' => function ($query) use ($year_of, $previous_month) {
+                    $query->where(function ($query) use ($year_of, $previous_month) {
                         // Include records where the leave period starts or ends within the month
                         $query->whereYear('date_from', $year_of)
-                            ->whereMonth('date_from', $month_of)
-                            ->orWhere(function ($query) use ($year_of, $month_of) {
+                            ->whereMonth('date_from', $previous_month)
+                            ->orWhere(function ($query) use ($year_of, $previous_month) {
                             $query->whereYear('date_to', $year_of)
-                                ->whereMonth('date_to', $month_of);
+                                ->whereMonth('date_to', $previous_month);
                         });
                     })->where('status', 'received');
                 },
-                'nigthDuties' => function ($query) use ($year_of, $month_of) {
+                'nigthDuties' => function ($query) use ($year_of, $previous_month) {
                     $query->whereYear('dtr_date', $year_of)
-                        ->whereMonth('dtr_date', $month_of);
+                        ->whereMonth('dtr_date', $previous_month);
                 }
             ]);
 
@@ -228,7 +228,7 @@ class EmployeeProfileController extends Controller
                 $noOfLeaveWPay = round($leaveWPayMinutes / $expectedMinutesPerDay, 1);
 
                 // Absence and day-off calculations
-                $absences = $employee->getAbsentDates($year_of, $month_of);
+                $absences = $employee->getAbsentDates($year_of, $previous_month);
                 $noOfAbsences = $absences['count'];
                 $noOfDayOff = $totalDaysInMonth - $scheduleCount;
 
@@ -783,8 +783,9 @@ class EmployeeProfileController extends Controller
             $employment_type = $data['employee']['salary']['employment_type'];
             $salary_grade = $data['employee']['salary']['salary_grade'];
             $basic_salary = $data['employee']['salary']['base_salary'];
-            $no_of_present_days = ['no_of_present_days']; //without leave, ob and ot , also holiday not included
-            $no_of_present_days_with_leave = ['no_of_present_days_with_leave'];
+            $initial_salary = $data['initial_net_pay'];
+            $no_of_present_days = $data['no_of_present_days']; //without leave, ob and ot , also holiday not included
+            $no_of_present_days_with_leave = $data['no_of_present_days_with_leave'];
             $no_of_absences = $data['no_of_absences'];
             $no_of_leave_wo_pay = $data['no_of_leave_wo_pay'];
             $no_of_leave_w_pay = $data['no_of_leave_w_pay'];
@@ -810,7 +811,8 @@ class EmployeeProfileController extends Controller
                     $no_of_present_days_with_leave,
                     $employment_type,
                     22,
-                    $no_of_absences
+                    $no_of_absences,
+                    $initial_salary
                 );
                 // $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
                 $deduction = $this->computationService->employeeDeduction(
