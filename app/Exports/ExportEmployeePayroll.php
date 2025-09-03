@@ -63,16 +63,12 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
                 $employee['philhealth_deductions'] ?? 0,
             ]);
 
-
             // Add GSIS Deductions Data
             if ($gsisGroup = $this->deductionGroups->where('code', 'GSIS')->first()) {
                 foreach ($gsisGroup->deductions as $deduction) {
                     $row[] = $this->getDeductionAmount($employee['gsis_deductions'] ?? [], $deduction->code);
                 }
             }
-            $row = array_merge($row, [
-                $employee['total_gsis_deduction'] ?? 0,
-            ]);
 
             // Add Pag-IBIG Deductions Data
             if ($pagibigGroup = $this->deductionGroups->where('code', 'Pag-Ibig')->first()) {
@@ -80,9 +76,6 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
                     $row[] = $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], $deduction->code);
                 }
             }
-            $row = array_merge($row, [
-                $employee['total_pagibig_deduction'] ?? 0,
-            ]);
 
             // Add Other Deductions Data
             if ($otherGroup = $this->deductionGroups->where('code', 'Others')->first()) {
@@ -92,7 +85,6 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
             }
 
             $row = array_merge($row, [
-                $employee['total_other_deduction'] ?? 0,
                 $employee['total_employee_deductions'] ?? 0,
                 $employee['net_pay_first_half'] ?? 0,
                 $employee['net_pay_second_half'] ?? 0,
@@ -136,19 +128,13 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
             }
         }
 
-        $headings = array_merge($headings, [
-            'TOTAL GSIS',
-        ]);
-
         // Add Pag-IBIG Deductions Headings
         if ($pagibigGroup = $this->deductionGroups->where('code', 'Pag-Ibig')->first()) {
             foreach ($pagibigGroup->deductions as $deduction) {
                 $headings[] = $deduction->code;
             }
         }
-        $headings = array_merge($headings, [
-            'TOTAL PAG-IBIG',
-        ]);
+
         // Add Other Deductions Headings
         if ($otherGroup = $this->deductionGroups->where('code', 'Others')->first()) {
             foreach ($otherGroup->deductions as $deduction) {
@@ -156,8 +142,7 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
             }
         }
         $headings = array_merge($headings, [
-            'TOTAL OTHERS',
-            'TOTAL EMPLOYEE DEDUCTIONS',
+            'TOTAL DEDUCTIONS',
             'FIRST HALF',
             'SECOND HALF',
             'NET PAY',
