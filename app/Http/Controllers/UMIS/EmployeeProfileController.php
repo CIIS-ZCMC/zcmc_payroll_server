@@ -793,8 +793,9 @@ class EmployeeProfileController extends Controller
             $employment_type = $data['employee']['salary']['employment_type'];
             $salary_grade = $data['employee']['salary']['salary_grade'];
             $basic_salary = $data['employee']['salary']['base_salary'];
-            $no_of_present_days = ['no_of_present_days']; //without leave, ob and ot , also holiday not included
-            $no_of_present_days_with_leave = ['no_of_present_days_with_leave'];
+            $initial_salary = $data['initial_net_pay'];
+            $no_of_present_days = $data['no_of_present_days']; //without leave, ob and ot , also holiday not included
+            $no_of_present_days_with_leave = $data['no_of_present_days_with_leave'];
             $no_of_absences = $data['no_of_absences'];
             $no_of_leave_wo_pay = $data['no_of_leave_wo_pay'];
             $no_of_leave_w_pay = $data['no_of_leave_w_pay'];
@@ -820,7 +821,8 @@ class EmployeeProfileController extends Controller
                     $no_of_present_days_with_leave,
                     $employment_type,
                     22,
-                    $no_of_absences
+                    $no_of_absences,
+                    $initial_salary
                 );
                 // $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
                 $deduction = $this->computationService->employeeDeduction(
