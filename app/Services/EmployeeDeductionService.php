@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Contract\EmployeeDeductionInterface;
 use App\Data\EmployeeDeductionData;
 use App\Models\EmployeeDeduction;
-use Illuminate\Support\Facades\DB;
+use App\Models\EmployeeTimeRecord;
+use App\Models\PayrollPeriod;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class EmployeeDeductionService
 {
@@ -14,15 +17,38 @@ class EmployeeDeductionService
         //nothing
     }
 
+    public function index(): Collection
+    {
+        return $this->interface->getAll();
+    }
+
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->interface->paginate($perPage, $page);
+    }
+
     public function create(EmployeeDeductionData $data): EmployeeDeduction
     {
+        $amount = $data->amount;
+        $percentage = $data->percentage;
+
+        if ($percentage > 0) {
+            $base_salary = EmployeeTimeRecord::where('payroll_period_id', $data->payroll_period_id)
+                ->where('employee_id', $data->employee_id)
+                ->first()
+                ->base_salary ?? 0;
+
+            $percentageValue = $percentage / 100;
+            $amount = round($base_salary * $percentageValue, 2);
+        }
+
         return $this->interface->create([
             'payroll_period_id' => $data->payroll_period_id,
             'employee_id' => $data->employee_id,
             'deduction_id' => $data->deduction_id,
             'frequency' => $data->frequency,
-            'amount' => $data->amount,
-            'percentage' => $data->percentage,
+            'amount' => $amount,
+            'percentage' => $percentage,
             'date_from' => $data->date_from,
             'date_to' => $data->date_to,
             'with_terms' => $data->with_terms,
@@ -53,27 +79,29 @@ class EmployeeDeductionService
         return $this->upsert($dtos);
     }
 
-    public function update(int $id, EmployeeDeductionData $data): EmployeeDeduction
+    public function update(int $id, array $data): EmployeeDeduction
     {
+        $amount = $data['amount'];
+        $percentage = $data['percentage'];
+
+        if ($percentage > 0) {
+            $base_salary = EmployeeTimeRecord::where('payroll_period_id', $data['payroll_period_id'])
+                ->where('employee_id', $data['employee_id'])
+                ->first()
+                ->base_salary ?? 0;
+
+            $percentageValue = $percentage / 100;
+            $amount = round($base_salary * $percentageValue, 2);
+        }
+
         return $this->interface->update($id, [
-            'payroll_period_id' => $data->payroll_period_id,
-            'employee_id' => $data->employee_id,
-            'deduction_id' => $data->deduction_id,
-            'frequency' => $data->frequency,
-            'amount' => $data->amount,
-            'percentage' => $data->percentage,
-            'date_from' => $data->date_from,
-            'date_to' => $data->date_to,
-            'with_terms' => $data->with_terms,
-            'total_term' => $data->total_term,
-            'total_paid' => $data->total_paid,
-            'is_default' => $data->is_default,
-            'isDifferential' => $data->isDifferential,
-            'reason' => $data->reason,
-            'status' => $data->status,
-            'willDeduct' => $data->willDeduct,
-            'stopped_at' => $data->stopped_at,
-            'completed_at' => $data->completed_at,
+            'frequency' => $data['frequency'],
+            'amount' => $amount,
+            'percentage' => $percentage,
+            'with_terms' => $data['with_terms'],
+            'total_term' => $data['total_term'],
+            'is_default' => $data['is_default'],
+            'reason' => $data['reason'],
         ]);
     }
 
@@ -90,5 +118,33 @@ class EmployeeDeductionService
     public function stop(int $id): EmployeeDeduction
     {
         return $this->interface->stop($id);
+    }
+
+    private function checkPayrollPeriodLock(): array
+    {
+        $payrollPeriod = PayrollPeriod::where('is_active', 1)->first();
+
+        if ($payrollPeriod && $payrollPeriod->locked_at !== null) {
+            throw new \Exception("Payroll is already locked", 403);
+        }
+
+        return ['payroll_period_id' => $payrollPeriod->id];
+    }
+
+    public function handleUpdate(int $id, array $data, string $mode): EmployeeDeduction
+    {
+        $payrollPeriod = $this->checkPayrollPeriodLock();
+
+        switch ($mode) {
+            case 'complete':
+                return $this->complete($id);
+
+            case 'stop':
+                return $this->stop($id);
+
+            default:
+                $dto = array_merge($data, $payrollPeriod);
+                return $this->update($id, $dto);
+        }
     }
 }

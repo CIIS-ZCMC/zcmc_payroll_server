@@ -23,7 +23,21 @@ class EmployeeDeductionRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
+        // If we're handling multiple records
+        if ($this->has('deductions')) {
+            return [
+                'payroll_period_id' => 'required|integer',
+                'deductions' => 'required|array|min:1',
+                'deductions.*' => 'array',
+                'deductions.*.employee_number' => 'required|string',
+                'deductions.*.deduction_id' => 'required|integer',
+                'deductions.*.amount' => 'nullable|numeric',
+                'deductions.*.total_term' => 'nullable|integer',
+                'deductions.*.total_paid' => 'nullable|integer',
+            ];
+        }
+
+        return [
             'payroll_period_id' => 'required|integer',
             'employee_id' => 'required|integer',
             'deduction_id' => 'required|integer',
@@ -43,33 +57,5 @@ class EmployeeDeductionRequest extends FormRequest
             'stopped_at' => 'nullable|date',
             'completed_at' => 'nullable|date',
         ];
-
-        // If we're handling multiple records
-        if (is_array($this->input('deductions'))) {
-            return [
-                'deductions' => 'required|array|min:1',
-                'deductions.*' => 'array',
-                'deductions.*.payroll_period_id' => $rules['payroll_period_id'],
-                'deductions.*.employee_id' => $rules['employee_id'],
-                'deductions.*.deduction_id' => $rules['deduction_id'],
-                'deductions.*.frequency' => $rules['frequency'],
-                'deductions.*.amount' => $rules['amount'],
-                'deductions.*.percentage' => $rules['percentage'],
-                'deductions.*.date_from' => $rules['date_from'],
-                'deductions.*.date_to' => $rules['date_to'],
-                'deductions.*.with_terms' => $rules['with_terms'],
-                'deductions.*.total_term' => $rules['total_term'],
-                'deductions.*.total_paid' => $rules['total_paid'],
-                'deductions.*.is_default' => $rules['is_default'],
-                'deductions.*.isDifferential' => $rules['isDifferential'],
-                'deductions.*.reason' => $rules['reason'],
-                'deductions.*.status' => $rules['status'],
-                'deductions.*.willDeduct' => $rules['willDeduct'],
-                'deductions.*.stopped_at' => $rules['stopped_at'],
-                'deductions.*.completed_at' => $rules['completed_at'],
-            ];
-        }
-
-        return $rules;
     }
 }

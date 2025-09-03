@@ -2,15 +2,16 @@
 
 namespace App\Data;
 
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Spatie\LaravelData\Data;
 
 class EmployeeDeductionData extends Data
 {
     public function __construct(
-        public string $payroll_period_id,
-        public string $employee_id,
-        public string $deduction_id,
+        public int $payroll_period_id,
+        public int $employee_id,
+        public int $deduction_id,
         public string $frequency,
         public ?float $amount,
         public ?float $percentage,
@@ -31,19 +32,36 @@ class EmployeeDeductionData extends Data
 
     public static function fromRequest(array $request): self
     {
+        $employeeId = $request['employee_id'] ?? null;
+        $withTerms = $request['with_terms'] ?? false;
+
+        if (isset($request['employee_number']) && !$employeeId) {
+            $employee = Employee::where('employee_number', $request['employee_number'])->first();
+            if ($employee) {
+                $employeeId = $employee->id;
+            } else {
+                throw new \InvalidArgumentException("Employee with number {$request['employee_number']} not found");
+            }
+        }
+
+        if (isset($request['total_term']) && $request['total_term'] > 0) {
+            $withTerms = true;
+        }
+
+
         return new self(
             $request['payroll_period_id'],
-            $request['employee_id'],
+            $employeeId,
             $request['deduction_id'],
-            $request['frequency'],
+            $request['frequency'] ?? 'monthly',
             $request['amount'] ?? null,
             $request['percentage'] ?? null,
             $request['date_from'] ?? null,
             $request['date_to'] ?? null,
-            $request['with_terms'],
+            $withTerms,
             $request['total_term'] ?? null,
             $request['total_paid'] ?? null,
-            $request['is_default'],
+            $request['is_default'] ?? false,
             $request['isDifferential'] ?? null,
             $request['reason'] ?? null,
             $request['status'] ?? null,
