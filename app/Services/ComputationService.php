@@ -194,15 +194,13 @@ class ComputationService
             }
 
             $amount = null;
-            // if ($absences >= 1) {
-            //     $deduct = floor($pera_amount / $required_duty_days * $absences * 100) / 100;
-            //     $amount = floor(num: ($pera_amount - $deduct) * 100) / 100;
-            // } else {
-            //     $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
-            // }
-
-            $amount = round(($no_of_present_days / $required_duty_days) * $inital_salary, 2);
-
+            if ($absences >= 1) {
+                $deduct = round($pera_amount / $required_duty_days, 2); //90.91 Full Time , 45.45 Part Time;
+                $absent_deduction = $deduct * $absences;
+                $amount = $pera_amount - $absent_deduction;
+            } else {
+                $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
+            }
             if ($payroll_period_id !== null && $employee_id !== null) {
                 $find = EmployeeReceivable::where('payroll_period_id', $payroll_period_id)
                     ->where('employee_id', $employee_id)
