@@ -92,6 +92,7 @@ class EmployeeProfileController extends Controller
                     if($activePeriod->locked_at != null  && $activePeriod->locked_at != ''){
                         return response()->json([
                             'allow_adding' => true,
+                            'allow_secondhalf' => true,
                             'is_active' => true,
                             'period_type' => $activePeriod->period_type
                         ]);
@@ -104,9 +105,22 @@ class EmployeeProfileController extends Controller
                         'period_type' => $activePeriod->period_type
                     ]);
                 }
+
+                //same periodType. and same year and month
+
+                if($activePeriod->locked_at != null  && $activePeriod->locked_at != ''){
+                    return response()->json([
+                        'allow_adding' => false,
+                        'is_active' => true,
+                        'period_type' => $activePeriod->period_type
+                    ]);
+                }
+
+
                 return response()->json([
                     'allow_adding' => true,
                     'is_active' => true,
+                    'non' => 'non'
                 ]);
             } 
         

@@ -44,8 +44,8 @@ class FetchPayrollData extends Command
      */
     public function handle()
     {   
-        $year = intval($this->argument('year') ?? 2024);
-        $month = (int) ($this->argument('month') ?? 9);
+        $year = intval($this->argument('year') ?? date('Y'));
+        $month = (int) ($this->argument('month') ?? date('m'));
         $employmentType = $this->argument('employmentType') ?? 'permanent';
         $periodType = $this->argument('periodType') ?? 'first_half';
 
@@ -53,16 +53,18 @@ class FetchPayrollData extends Command
        
         $responseValidator = $validator->getData();
 
-        // $this->info(json_encode($responseValidator));
-        // return;
-
         if(!$responseValidator->allow_adding){
             $this->error("Payroll Data for $year-$month is not allowed to be added");
             Log::channel('fetch_payroll_log')->error("Payroll Data for $year-$month is not allowed to be added");
             return;
         }
 
-       
+        if(isset($responseValidator->allow_secondhalf) && $responseValidator->allow_secondhalf){
+            $periodType = 'second_half';
+        }
+
+        // you can add here the process of fetching the payroll data of job orders
+
         Log::channel('fetch_payroll_log')->info("---------------------------------------------------FETCHING PAYROLL DATA for $year-$month-----------------------------------------------------------");
         $response = $this->employeeProfileController->fetchStep1(new Request([
             'year_of' => $year,

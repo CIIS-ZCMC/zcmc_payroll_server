@@ -11,6 +11,7 @@ use \App\Helpers\Token;
 use \App\Helpers\Logging;
 use \App\Models\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Cache;
 
 class LoginController extends Controller
 {
@@ -89,10 +90,10 @@ class LoginController extends Controller
 
     public function destroy(Request $request)
     {
-
+        Cache::forget('payroll-period-list');
         return response()->json([
             'message' => "Successfully signout."
-        ], Response::HTTP_NO_CONTENT)->cookie(env("COOKIE_NAME"), '', -1);
-        ;
+        ], Response::HTTP_OK)->cookie(env("COOKIE_NAME"), '', -1);
+        
     }
 }

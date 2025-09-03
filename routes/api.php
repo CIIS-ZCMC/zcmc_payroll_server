@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\Route;
 
 //Version 2 Api's
 Route::post('sign-in', [LoginController::class, 'store']);
-
+Route::post('sign-out', [LoginController::class, 'destroy']);
 Route::middleware('auth.token')->group(function () {
     //Authentication
     Route::get('authentications', [AuthenticationController::class, 'index']);

@@ -311,7 +311,7 @@ class EmployeePayrollController extends Controller
 
           return response()->json([
             'message' => 'Night Differential processed successfully',
-            'payrollID'=>$payroll_period_id,
+            'payrollID'=>$payrollPeriod->id,
             'statusCode' => 200
         ]);
 
@@ -325,8 +325,10 @@ class EmployeePayrollController extends Controller
         $response = [];
         $payroll_period_id = $request->payroll_period_id;
         $payroll_period = PayrollPeriod::find($payroll_period_id);
+        
 
-        if($request->payroll_type === "NightDifferential"){
+       
+        if(isset($request->payroll_type) && $request->payroll_type === "NightDifferential"){
             return $this->processNightDifferential($payroll_period);
         }
 
