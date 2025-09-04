@@ -184,7 +184,7 @@ class ReportsController extends Controller
             ->sum('gross_salary');
 
         $exactHalf = $totalNetPay / 2;
-        $totalNetFirstHalf = floor($exactHalf);
+        $totalNetFirstHalf = floor($exactHalf) + 10;
         $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
 
         $employeePayrolls = $general_payroll->payrollPeriod->employeePayroll ?? collect();

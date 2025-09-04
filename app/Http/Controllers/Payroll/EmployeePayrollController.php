@@ -87,6 +87,16 @@ class EmployeePayrollController extends Controller
         }
 
         $selected_employee = $request->selected_employees;
+        $selected_employee_ids = collect($selected_employee)->pluck('employee_number')->toArray();
+
+        // Get existing employee payroll records for this period
+        $existing_payrolls = EmployeePayroll::where('payroll_period_id', $payroll_period_id)
+            ->whereNotIn('employee_id', function ($query) use ($selected_employee_ids) {
+                $query->select('id')
+                    ->from('employees')
+                    ->whereIn('employee_number', $selected_employee_ids);
+            })->delete();
+
         foreach ($selected_employee as $data) {
             $employee = Employee::where('employee_number', $data['employee_number'])->first();
 
