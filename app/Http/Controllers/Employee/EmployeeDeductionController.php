@@ -9,10 +9,7 @@ use App\Services\EmployeeDeductionService;
 use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Imports\ImportEmployeeDeduction;
-use App\Models\Deduction;
-use App\Models\Employee;
 use App\Models\EmployeeDeduction;
-use App\Models\EmployeeTimeRecord;
 use App\Models\PayrollPeriod;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,28 +23,7 @@ class EmployeeDeductionController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->mode === 'paginate') {
-            $perPage = $request->per_page ?? 15;
-            $page = $request->page ?? 1;
-
-            $data = $this->service->paginate($perPage, $page);
-
-            return response()->json([
-                'responseData' => [
-                    'data' => EmployeeDeductionResource::collection($data),
-                    'meta' => [
-                        'current_page' => $data->currentPage(),
-                        'last_page' => $data->lastPage(),
-                        'per_page' => $data->perPage(),
-                        'total' => $data->total(),
-                    ]
-                ],
-                'message' => "Data Successfully retrieved",
-                'statusCode' => 200
-            ], Response::HTTP_OK);
-        }
-
-        $data = $this->service->index();
+        $data = $this->service->index($request);
 
         return response()->json([
             'message' => 'Data retrieved successfully.',
@@ -55,7 +31,6 @@ class EmployeeDeductionController extends Controller
             'responseData' => EmployeeDeductionResource::collection($data),
         ], Response::HTTP_OK);
     }
-
 
     public function store(EmployeeDeductionRequest $request)
     {
@@ -135,8 +110,9 @@ class EmployeeDeductionController extends Controller
     public function update($id, Request $request)
     {
         $array = $request->validate([
-            'mode' => 'nullable|string',
-            'employee_deduction_id' => 'nullable|integer',
+            'mode' => 'required|string',
+            'payroll_period_id' => 'required|integer',
+            'employee_id' => 'required|integer',
             'amount' => 'nullable|numeric',
             'percentage' => 'nullable|numeric',
             'frequency' => 'required|string',

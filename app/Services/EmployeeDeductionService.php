@@ -7,6 +7,7 @@ use App\Data\EmployeeDeductionData;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeTimeRecord;
 use App\Models\PayrollPeriod;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -17,7 +18,7 @@ class EmployeeDeductionService
         //nothing
     }
 
-    public function index(): Collection
+    public function getAll(): Collection
     {
         return $this->interface->getAll();
     }
@@ -25,6 +26,16 @@ class EmployeeDeductionService
     public function paginate(int $perPage, int $page): LengthAwarePaginator
     {
         return $this->interface->paginate($perPage, $page);
+    }
+
+    public function index(Request $request): Collection|LengthAwarePaginator
+    {
+        $mode = $request->mode;
+        if ($mode === 'paginate') {
+            return $this->paginate($request->perPage, $request->page);
+        }
+
+        return $this->getAll();
     }
 
     public function create(EmployeeDeductionData $data): EmployeeDeduction
