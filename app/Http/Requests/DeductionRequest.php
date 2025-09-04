@@ -28,6 +28,8 @@ class DeductionRequest extends FormRequest
             'name' => 'required|string',
             'code' => 'required|string|unique:deductions,code',
             'type' => 'required|string',
+            'condition_operator' => 'nullable|string',
+            'condition_value' => 'nullable|string',
             'percent_value' => 'nullable|string',
             'fixed_amount' => 'nullable|string',
             'billing_cycle' => 'required|string',

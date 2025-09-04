@@ -16,11 +16,9 @@ class EmployeeDeductionRepository implements EmployeeDeductionInterface
 
     public function getAll(): Collection
     {
-        return $this->model->with([
-            'employee',
-            'payrollPeriod',
-            'deductions'
-        ])->get();
+        return $this->model->where('deleted_at', null)
+            ->with(['employee', 'payrollPeriod', 'deductions'])
+            ->get();
     }
 
     public function paginate(int $perPage, int $page): LengthAwarePaginator

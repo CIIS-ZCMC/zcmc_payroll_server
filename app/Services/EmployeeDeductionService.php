@@ -31,8 +31,11 @@ class EmployeeDeductionService
     public function index(Request $request): Collection|LengthAwarePaginator
     {
         $mode = $request->mode;
+        $perPage = $request->per_page ?? 15;
+        $page = $request->page ?? 1;
+
         if ($mode === 'paginate') {
-            return $this->paginate($request->perPage, $request->page);
+            return $this->paginate($perPage, $page);
         }
 
         return $this->getAll();

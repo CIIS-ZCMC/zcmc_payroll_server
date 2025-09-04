@@ -16,12 +16,12 @@ class DeductionRepository implements DeductionInterface
 
     public function getAll(): Collection
     {
-        return $this->model->all();
+        return $this->model->where('deleted_at', null)->get();
     }
 
     public function paginate(int $perPage, int $page): LengthAwarePaginator
     {
-        return $this->model->paginate($perPage, ['*'], 'page', $page);
+        return $this->model->where('deleted_at', null)->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function create(array $data): Deduction

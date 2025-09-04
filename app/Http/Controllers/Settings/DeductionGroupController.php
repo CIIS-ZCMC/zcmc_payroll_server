@@ -21,24 +21,27 @@ class DeductionGroupController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->per_page ?? 15;
-        $page = $request->page ?? 1;
+        $data = $this->service->index($request);
 
-        $data = DeductionGroup::whereNull('deleted_at')->paginate($perPage, ['*'], 'page', $page);
-
-        return response()->json([
+        $response = [
             'responseData' => [
                 'data' => DeductionGroupResource::collection($data),
-                'meta' => [
-                    'current_page' => $data->currentPage(),
-                    'last_page' => $data->lastPage(),
-                    'per_page' => $data->perPage(),
-                    'total' => $data->total(),
-                ]
             ],
             'message' => "Data Successfully retrieved",
             'statusCode' => 200
-        ], Response::HTTP_OK);
+        ];
+
+        // Only add meta if it's a paginated result
+        if ($data instanceof LengthAwarePaginator) {
+            $response['responseData']['meta'] = [
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+            ];
+        }
+
+        return response()->json($response, Response::HTTP_OK);
     }
 
     public function store(DeductionGroupRequest $request)

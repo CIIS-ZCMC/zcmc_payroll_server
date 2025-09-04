@@ -2,7 +2,6 @@
 
 namespace App\Data;
 
-use Illuminate\Http\Request;
 use Spatie\LaravelData\Data;
 
 class EmployeeReceivableData extends Data
@@ -22,9 +21,10 @@ class EmployeeReceivableData extends Data
         public ?string $status,
         public ?string $stopped_at,
         public ?string $completed_at,
-    ) {}
+    ) {
+    }
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(array $request): self
     {
         return new self(
             $request['payroll_period_id'],

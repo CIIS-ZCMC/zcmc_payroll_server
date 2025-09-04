@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Contract\DeductionGroupInterface;
 use App\Data\DeductionGroupData;
 use App\Models\DeductionGroup;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class DeductionGroupService
 {
@@ -12,7 +15,28 @@ class DeductionGroupService
     {
         //nothing
     }
+    public function getAll(): Collection
+    {
+        return $this->interface->getAll();
+    }
 
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->interface->paginate($perPage, $page);
+    }
+
+    public function index(Request $request): Collection|LengthAwarePaginator
+    {
+        $mode = $request->mode;
+        $perPage = $request->per_page ?? 15;
+        $page = $request->page ?? 1;
+
+        if ($mode === 'paginate') {
+            return $this->paginate($perPage, $page);
+        }
+
+        return $this->getAll();
+    }
 
     public function create(DeductionGroupData $data): DeductionGroup
     {

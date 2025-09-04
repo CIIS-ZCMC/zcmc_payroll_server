@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeePayrollReportsResource;
 use App\Models\Employee;
 use App\Models\EmployeePayroll;
+use App\Models\EmployeeReceivable;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
@@ -110,7 +111,21 @@ class ReportsController extends Controller
             }
         ])->where('payroll_period_id', $payroll_period->id)->first();
 
-        // Process Receivables
+        //     $receivables = collect($general_payroll->payrollPeriod->employeePayroll)
+        //     ->pluck('employeeTimeRecord.employee.employeeReceivables')
+        //     ->flatten(1)
+        //     ->groupBy('receivables.id')
+        //     ->map(function ($group) {
+        //         return [
+        //             'receivable_id' => $group->first()->receivables->id,
+        //             'receivable_name' => $group->first()->receivables->name,
+        //             'receivable_code' => $group->first()->receivables->code,
+        //             'total_amount' => $group->sum('amount')
+        //         ];
+        //     })
+        //     ->values();
+
+
         $receivables = collect($general_payroll->payrollPeriod->employeePayroll)
             ->pluck('employeeTimeRecord.employee.employeeReceivables')
             ->flatten(1)
@@ -184,7 +199,7 @@ class ReportsController extends Controller
             ->sum('gross_salary');
 
         $exactHalf = $totalNetPay / 2;
-        $totalNetFirstHalf = floor($exactHalf);
+        $totalNetFirstHalf = floor($exactHalf) + 10;
         $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
 
         $employeePayrolls = $general_payroll->payrollPeriod->employeePayroll ?? collect();

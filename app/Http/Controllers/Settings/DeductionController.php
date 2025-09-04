@@ -17,49 +17,34 @@ class DeductionController extends Controller
     {
         //nothing
     }
+
     public function index(Request $request)
     {
-        if ($request->mode === 'paginate') {
-            $perPage = $request->per_page ?? 15;
-            $page = $request->page ?? 1;
+        $data = $this->service->index($request);
 
-            $data = $this->service->paginate($perPage, $page);
-
-            return response()->json([
-                'responseData' => [
-                    'data' => DeductionResource::collection($data),
-                    'meta' => [
-                        'current_page' => $data->currentPage(),
-                        'last_page' => $data->lastPage(),
-                        'per_page' => $data->perPage(),
-                        'total' => $data->total(),
-                    ]
-                ],
-                'message' => "Data Successfully retrieved",
-                'statusCode' => 200
-            ], Response::HTTP_OK);
-        }
-
-        $data = $this->service->index();
-
-        return response()->json([
-            'responseData' => DeductionResource::collection($data),
+        $response = [
+            'responseData' => [
+                'data' => DeductionResource::collection($data),
+            ],
             'message' => "Data Successfully retrieved",
             'statusCode' => 200
-        ], Response::HTTP_OK);
+        ];
+
+        // Only add meta if it's a paginated result
+        if ($data instanceof LengthAwarePaginator) {
+            $response['responseData']['meta'] = [
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+            ];
+        }
+
+        return response()->json($response, Response::HTTP_OK);
     }
 
     public function store(DeductionRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'code' => 'required|string|unique:deductions,code',
-            'deduction_group_id' => 'required|exists:deduction_groups,id',
-            'amount' => 'required|numeric',
-            'payroll_period_id' => 'required|exists:payroll_periods,id',
-            'employee_id' => 'required|exists:employees,id',
-        ]);
-
         $dto = DeductionData::fromRequest($request);
         $data = $this->service->create($dto);
 

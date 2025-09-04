@@ -4,12 +4,24 @@ namespace App\Contract\Repositories;
 
 use App\Contract\DeductionGroupInterface;
 use App\Models\DeductionGroup;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DeductionGroupRepository implements DeductionGroupInterface
 {
     public function __construct(private DeductionGroup $model)
     {
         //
+    }
+
+    public function getAll(): Collection
+    {
+        return $this->model->where('deleted_at', null)->get();
+    }
+
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->model->where('deleted_at', null)->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function create(array $data): DeductionGroup

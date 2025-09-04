@@ -4,12 +4,28 @@ namespace App\Contract\Repositories;
 
 use App\Contract\EmployeeReceivableInterface;
 use App\Models\EmployeeReceivable;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class EmployeeReceivableRepository implements EmployeeReceivableInterface
 {
     public function __construct(private EmployeeReceivable $model)
     {
         //nothing
+    }
+
+    public function getAll(): Collection
+    {
+        return $this->model->where('deleted_at', null)
+            ->with(['employee', 'payrollPeriod', 'receivables'])
+            ->get();
+    }
+
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->model->where('deleted_at', null)
+            ->with(['employee', 'payrollPeriod', 'receivables'])
+            ->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function create(array $data): EmployeeReceivable
