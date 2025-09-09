@@ -44,6 +44,7 @@ class FetchPayrollData extends Command
      */
     public function handle()
     {   
+      try {
         $year = intval($this->argument('year') ?? date('Y'));
         $month = (int) ($this->argument('month') ?? date('m'));
         $employmentType = $this->argument('employmentType') ?? 'permanent';
@@ -112,13 +113,10 @@ class FetchPayrollData extends Command
         
         Log::channel('fetch_payroll_log')->info("---------------------------------------------------PAYROLL-DATA FETCHED for $year-$month-----------------------------------------------------------");
 
-        // $this->line('Step 1: connecting to UMIS');
-
-        // $this->error('Something went wrong!');
-       // Log::channel('fetch_payroll_log')->info('Fetching payroll data');
-        
-        // Add your payroll data fetching logic here
-        
+    
+      } catch (\Throwable $th) {
+        Log::channel('fetch_payroll_log')->error("Error: " . $th->getMessage());
+      }
         
     }
 }

@@ -12,6 +12,7 @@ use \App\Helpers\Logging;
 use \App\Models\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -86,6 +87,24 @@ class LoginController extends Controller
                 env("SESSION_DOMAIN"),
                 false
             );
+    }
+
+    public function checkServerDatabaseConnection(Request $request)
+    {
+       
+        $database = DB::connection()->getDatabaseName();
+
+        if ($database) {
+            return response()->json([
+                'message' => 'Connection check successful.',
+                'statusCode' => Response::HTTP_OK,
+            ], Response::HTTP_OK);
+        }
+
+        return response()->json([
+            'message' => 'Connection check failed.',
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+        ], Response::HTTP_BAD_REQUEST);
     }
 
     public function destroy(Request $request)

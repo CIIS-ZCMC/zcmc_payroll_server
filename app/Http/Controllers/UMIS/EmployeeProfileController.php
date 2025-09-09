@@ -344,7 +344,7 @@ class EmployeeProfileController extends Controller
                     }
                     
 
-                    $request->console->line("Processing employee ID: {$employee->id}");
+                    $request->console->line("Processing employee ID: {$employee->employee_id}");
                     
     
                    
@@ -511,7 +511,7 @@ class EmployeeProfileController extends Controller
     
                     $is_inactive = InActiveEmployee::where('employee_id', $employee->employee_id)->exists();
                     
-                    $request->console->info(" OK : {$employee->id}");
+                    $request->console->info(" Added on list ----------------------------------- {$employee->employee_id}");
                  
                     $data->push([
                         'employee_profile_id' => $employee->id,
@@ -603,11 +603,11 @@ class EmployeeProfileController extends Controller
 
             $uuid = Str::uuid();
           
-            $request->console->info("SAVING TO CACHE ...");
+            $request->console->info("Initializing payroll step 1 ...");
 
             Cache::put($uuid, json_encode($response_data));
 
-            $request->console->info("PAYROLL PROCESSED STEP 1");
+            $request->console->info("Step 1 => OK");
 
             return response()->json([
                 'data' => ['uuid' => $uuid],
@@ -624,191 +624,198 @@ class EmployeeProfileController extends Controller
     // Step 2 (Complete)
     public function fetchStep2(Request $request)
     {
-        $cache_data = json_decode(Cache::get($request->uuid), true);
+        try {
+            $cache_data = json_decode(Cache::get($request->uuid), true);
        
-        $request->console->info("Starting payroll step 2");
-        $request->console->info("--------------------------------------------------------------");
-        $employees = $cache_data['employees'];
-        $employment_type = $cache_data['employment_type'];
-        $month_of = $cache_data['month_of'];
-        $year_of = $cache_data['year_of'];
-        $period_type = $cache_data['period_type'];
-        $period_start = $cache_data['period_start'];
-        $period_end = $cache_data['period_end'];
-        $first_half = $cache_data['first_half'];
-        $second_half = $cache_data['second_half'];
+            $request->console->info("Starting payroll step 2");
+            $request->console->info("--------------------------------------------------------------");
+                
 
-        if ($period_type === 'second_half') {
-            $firstHalf = PayrollPeriod::where('period_type', 'first_half')
-                ->where('employment_type', $employment_type)
-                ->where('month', $month_of)
-                ->where('year', $year_of)
-                ->first();
-
-            if ($firstHalf && !$firstHalf->locked_at) {
-                return response()->json([
-                    'message' => "First half payroll period must be locked before creating second half",
-                    'statusCode' => 403
-                ], 403);
-            }
-        }
-
-        // Find or create payroll period
-        $payroll_period = PayrollPeriod::firstOrNew([
-            'payroll_type' => "General Payroll",
-            'period_type' => $period_type,
-            'employment_type' => $employment_type,
-            'month' => $month_of,
-            'year' => $year_of
-        ]);
-
-        // Prepare update data
-        $payrollData = [
-            'period_start' => $period_start,
-            'period_end' => $period_end,
-            'days_of_duty' => $this->Working_Days,
-            'is_active' => $request->is_active ?? true
-        ];
-
-        // Create/update payroll period
-        if ($payroll_period->exists) {
-            if ($payroll_period->locked_at) {
-                return response()->json([
-                    'message' => "Payroll is already locked",
-                    'statusCode' => 403
-                ], 403);
-            }
-            $payroll_period->update($payrollData);
-        } else {
-            $payroll_period->fill($payrollData)->save();
-        }
-
-        // Deactivate other periods
-        if($request->is_active){
-            PayrollPeriod::where('id', '!=', $payroll_period->id)->update(['is_active' => false]);
-        }
-       // 
-
-        $period_id = $payroll_period->id;
-        $period_type = $payroll_period->period_type;
-
-        $employee_data = [];
-        foreach ($employees as $data) {
-            if (is_array($data)) {
-                $request->console->info("Processing employee: {$data['employee_number']}");
-                $find_employee = Employee::where('employee_number', $data['employee_number'])->first();
-
-                $employee_details = [
-                    'employee_profile_id' => $data['employee_profile_id'],
-                    'employee_number' => $data['employee_number'],
-                    'first_name' => $data['personal_information']['first_name'],
-                    'middle_name' => $data['personal_information']['middle_name'],
-                    'last_name' => $data['personal_information']['last_name'],
-                    'extension_name' => $data['personal_information']['name_extension'],
-                    'designation' => $data['designation']['name'],
-                    'assigned_area' => json_encode($data['assigned_area']),
-                    'is_newly_hired' => false,
-                    'is_excluded' => $data['time_record']['is_out'] === 'true' ? 1 : 0,
-                    'is_resigned' => false,
-                    'status' => $data['is_inactive'] === false ? true : false,
-                ];
-
-                $employee = $find_employee !== null
-                    ? $this->employeeService->update($find_employee->id, $employee_details)
-                    : $this->employeeService->create($employee_details);
-
-                $excluded_employee_details = [
-                    'employee_id' => $employee->id,
-                    'payroll_period_id' => $period_id,
-                    'month' => $month_of,
-                    'year' => $year_of,
-                    'period_start' => $payroll_period->period_start,
-                    'period_end' => $payroll_period->period_end,
-                    'reason' => $this->getExclusionReason($data),
-                    'is_removed' => false,
-                ];
-
-                $employee_salary_details = [
-                    'employee_id' => $employee->id,
-                    'payroll_period_id' => $period_id,
-                    'employment_type' => $data['employment_type']['name'],
-                    'base_salary' => encrypt($data['time_record']['base_salary']),
-                    'salary_grade' => $data['salary_grade'],
-                    'salary_step' => $data['salary_step'],
-                    'month' => $data['payroll']['month'],
-                    'year' => $data['payroll']['year'],
-                    'is_active' => true,
-                ];
-
-                // Handle ExcludedEmployee if out of payroll
-                if ($data['time_record']['is_out'] === 'true') {
-                    $find_excluded_employee = ExcludedEmployee::where('employee_id', $employee->id)
-                        ->where('month', $month_of)
-                        ->where('year', $year_of)
-                        ->first();
-
-                    $find_excluded_employee === null
-                        ? $this->excludedEmployeeService->create($excluded_employee_details)
-                        : $this->excludedEmployeeService->update($find_excluded_employee->id, $excluded_employee_details);
-                }
-
-                // Handle EmployeeSalary
-                $find_employee_salary = EmployeeSalary::where('employee_id', $employee->id)
+            $employees = $cache_data['employees'];
+            $employment_type = $cache_data['employment_type'];
+            $month_of = $cache_data['month_of'];
+            $year_of = $cache_data['year_of'];
+            $period_type = $cache_data['period_type'];
+            $period_start = $cache_data['period_start'];
+            $period_end = $cache_data['period_end'];
+            $first_half = $cache_data['first_half'];
+            $second_half = $cache_data['second_half'];
+    
+            if ($period_type === 'second_half') {
+                $firstHalf = PayrollPeriod::where('period_type', 'first_half')
+                    ->where('employment_type', $employment_type)
                     ->where('month', $month_of)
                     ->where('year', $year_of)
                     ->first();
-
-                if ($find_employee_salary === null) {
-                    $this->employeeSalaryService->create($employee_salary_details);
-                } elseif ($find_employee_salary->employment_type !== $data['employment_type']['name']) {
-                    $find_employee_salary->update(['is_active', false]);
-                    $this->employeeSalaryService->create($employee_salary_details);
-                } else {
-                    $this->employeeSalaryService->update($find_employee_salary->id, $employee_salary_details);
+    
+                if ($firstHalf && !$firstHalf->locked_at) {
+                    return response()->json([
+                        'message' => "First half payroll period must be locked before creating second half",
+                        'statusCode' => 403
+                    ], 403);
                 }
-                $request->console->info("OK step2: $employee->employee_number");
-
-                $employee_data[] = array_merge($employee->toArray(), $data);
             }
+    
+            // Find or create payroll period
+            $payroll_period = PayrollPeriod::firstOrNew([
+                'payroll_type' => "General Payroll",
+                'period_type' => $period_type,
+                'employment_type' => $employment_type,
+                'month' => $month_of,
+                'year' => $year_of
+            ]);
+    
+            // Prepare update data
+            $payrollData = [
+                'period_start' => $period_start,
+                'period_end' => $period_end,
+                'days_of_duty' => $this->Working_Days,
+                'is_active' => $request->is_active ?? true
+            ];
+    
+            // Create/update payroll period
+            if ($payroll_period->exists) {
+                if ($payroll_period->locked_at) {
+                    return response()->json([
+                        'message' => "Payroll is already locked",
+                        'statusCode' => 403
+                    ], 403);
+                }
+                $payroll_period->update($payrollData);
+            } else {
+                $payroll_period->fill($payrollData)->save();
+            }
+    
+            // Deactivate other periods
+            if($request->is_active){
+                PayrollPeriod::where('id', '!=', $payroll_period->id)->update(['is_active' => false]);
+            }
+           // 
+    
+            $period_id = $payroll_period->id;
+            $period_type = $payroll_period->period_type;
+    
+            $employee_data = [];
+            foreach ($employees as $data) {
+                if (is_array($data)) {
+                    $request->console->info("Processing employee ID : {$data['employee_number']}");
+                    $find_employee = Employee::where('employee_number', $data['employee_number'])->first();
+    
+                    $employee_details = [
+                        'employee_profile_id' => $data['employee_profile_id'],
+                        'employee_number' => $data['employee_number'],
+                        'first_name' => $data['personal_information']['first_name'],
+                        'middle_name' => $data['personal_information']['middle_name'],
+                        'last_name' => $data['personal_information']['last_name'],
+                        'extension_name' => $data['personal_information']['name_extension'],
+                        'designation' => $data['designation']['name'],
+                        'assigned_area' => json_encode($data['assigned_area']),
+                        'is_newly_hired' => false,
+                        'is_excluded' => $data['time_record']['is_out'] === 'true' ? 1 : 0,
+                        'is_resigned' => false,
+                        'status' => $data['is_inactive'] === false ? true : false,
+                    ];
+    
+                    $employee = $find_employee !== null
+                        ? $this->employeeService->update($find_employee->id, $employee_details)
+                        : $this->employeeService->create($employee_details);
+    
+                    $excluded_employee_details = [
+                        'employee_id' => $employee->id,
+                        'payroll_period_id' => $period_id,
+                        'month' => $month_of,
+                        'year' => $year_of,
+                        'period_start' => $payroll_period->period_start,
+                        'period_end' => $payroll_period->period_end,
+                        'reason' => $this->getExclusionReason($data),
+                        'is_removed' => false,
+                    ];
+    
+                    $employee_salary_details = [
+                        'employee_id' => $employee->id,
+                        'payroll_period_id' => $period_id,
+                        'employment_type' => $data['employment_type']['name'],
+                        'base_salary' => encrypt($data['time_record']['base_salary']),
+                        'salary_grade' => $data['salary_grade'],
+                        'salary_step' => $data['salary_step'],
+                        'month' => $data['payroll']['month'],
+                        'year' => $data['payroll']['year'],
+                        'is_active' => true,
+                    ];
+    
+                    // Handle ExcludedEmployee if out of payroll
+                    if ($data['time_record']['is_out'] === 'true') {
+                        $find_excluded_employee = ExcludedEmployee::where('employee_id', $employee->id)
+                            ->where('month', $month_of)
+                            ->where('year', $year_of)
+                            ->first();
+    
+                        $find_excluded_employee === null
+                            ? $this->excludedEmployeeService->create($excluded_employee_details)
+                            : $this->excludedEmployeeService->update($find_excluded_employee->id, $excluded_employee_details);
+                    }
+    
+                    // Handle EmployeeSalary
+                    $find_employee_salary = EmployeeSalary::where('employee_id', $employee->id)
+                        ->where('month', $month_of)
+                        ->where('year', $year_of)
+                        ->first();
+    
+                    if ($find_employee_salary === null) {
+                        $this->employeeSalaryService->create($employee_salary_details);
+                    } elseif ($find_employee_salary->employment_type !== $data['employment_type']['name']) {
+                        $find_employee_salary->update(['is_active', false]);
+                        $this->employeeSalaryService->create($employee_salary_details);
+                    } else {
+                        $this->employeeSalaryService->update($find_employee_salary->id, $employee_salary_details);
+                    }
+                    $request->console->info(" Processed  --------------------------- $employee->employee_number");
+    
+                    $employee_data[] = array_merge($employee->toArray(), $data);
+                }
+            }
+            
+            // Update other employee salaries to is_active = 0
+            EmployeeSalary::where('month', '!=', $month_of)
+                ->where('year', '!=', $year_of)
+                ->update(['is_active' => false]);
+    
+            $response_data = [
+                "employment_type" => $cache_data['employment_type'],
+                'month_of' => $cache_data['month_of'],
+                'year_of' => $cache_data['year_of'],
+                'period_id' => $period_id,
+                "period_type" => $period_type,
+                "period_start" => $cache_data['period_start'],
+                "period_end" => $cache_data['period_end'],
+                'first_half' => $cache_data['first_half'],
+                'second_half' => $cache_data['second_half'],
+                'employees' => $employee_data
+            ];
+    
+            $uuid = Str::uuid();
+           
+            $request->console->info("Initializin step 2...");
+    
+            Cache::put($uuid, json_encode($response_data));
+    
+            $request->console->info("Step 2 => OK");
+    
+            return response()->json([
+                'data' => ['uuid' => $uuid],
+                'message' => "Data Successfully saved (Step 2)",
+                'statusCode' => 200
+            ], Response::HTTP_OK);  
+        } catch (\Throwable $th) {
+            $request->console->error("Error Step 2: " . $th->getMessage());
         }
-        
-        // Update other employee salaries to is_active = 0
-        EmployeeSalary::where('month', '!=', $month_of)
-            ->where('year', '!=', $year_of)
-            ->update(['is_active' => false]);
-
-        $response_data = [
-            "employment_type" => $cache_data['employment_type'],
-            'month_of' => $cache_data['month_of'],
-            'year_of' => $cache_data['year_of'],
-            'period_id' => $period_id,
-            "period_type" => $period_type,
-            "period_start" => $cache_data['period_start'],
-            "period_end" => $cache_data['period_end'],
-            'first_half' => $cache_data['first_half'],
-            'second_half' => $cache_data['second_half'],
-            'employees' => $employee_data
-        ];
-
-        $uuid = Str::uuid();
-       
-        $request->console->info("saving to cache ...");
-
-        Cache::put($uuid, json_encode($response_data));
-
-        $request->console->info("payroll step 2 processed");
-
-        return response()->json([
-            'data' => ['uuid' => $uuid],
-            'message' => "Data Successfully saved (Step 2)",
-            'statusCode' => 200
-        ], Response::HTTP_OK);
     }
 
     // Step 3 (Complete)
     public function fetchStep3(Request $request)
     {
-        $cache_data = json_decode(Cache::get($request->uuid), true);
+        try {
+            $cache_data = json_decode(Cache::get($request->uuid), true);
         $request->console->info("payroll step 3 processing");
 
         $request->console->info("--------------------------------------------------------------");
@@ -843,7 +850,7 @@ class EmployeeProfileController extends Controller
             //     }
             // }
 
-            $request->console->info("Processing employee: {$data['employee_number']}");
+            $request->console->info("Processing employee ID : {$data['employee_number']}");
            
 
             $employment_type = strtolower($data['employment_type']['name']);
@@ -941,7 +948,7 @@ class EmployeeProfileController extends Controller
                 : $result = $this->employeeTimeRecordService->update($find_result->id, $employee_time_record_details);
 
                 if($result){
-                    $request->console->info("time record saved : {$data['employee_number']}");
+                    $request->console->info("time record saved ------------------------------ {$data['employee_number']}");
                 }
 
             EmployeeComputedSalary::updateOrCreate(
@@ -961,7 +968,7 @@ class EmployeeProfileController extends Controller
                 ->update(['is_active' => false]);
 
 
-                $request->console->info("computed salary saved : {$data['employee_number']}");
+                $request->console->info("computed salary saved ------------------------------ {$data['employee_number']}");
             $time_record[] = $result;
 
         }
@@ -981,21 +988,25 @@ class EmployeeProfileController extends Controller
 
         $uuid = Str::uuid();
 
-        $request->console->info("saving to cache ...");
+        $request->console->info("Initializing Step 3 ...");
 
         Cache::put($uuid, json_encode($response_data));
 
-        $request->console->info("payroll step 3 processed");
+        $request->console->info("Step 3 => OK");
         return response()->json([
             'data' => ['uuid' => $uuid],
             'message' => "Data Successfully saved (Step 3)",
             'statusCode' => 200
         ], Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+            $request->console->error("Error Step 3: " . $th->getMessage());
+        }
     }
 
     // Step 4 (Complete)
     public function fetchStep4(Request $request)
     {
+       try {
         $cache_data = json_decode(Cache::get($request->uuid), true);
         $employees = $cache_data['employees'];
         $request->console->info("payroll step 4 processing");
@@ -1044,7 +1055,7 @@ class EmployeeProfileController extends Controller
                     $employee_id
                 );
             }
-            $request->console->info("OK : {$data['employee']['employee_number']}");
+            $request->console->info("Processed ----------------------------- {$data['employee']['employee_number']}");
         }
 
         Cache::forget($request->uuid);
@@ -1068,13 +1079,27 @@ class EmployeeProfileController extends Controller
             ->where('year', $response_data['year_of'])
             ->first();
 
-        $request->console->info("PAYROLL-DATA FETCHED");
+        $monthName = date('F', mktime(0, 0, 0, $response_data['month_of'], 10));
+$request->console->info("
+ ____   _  _   
+/  _ \ | |/ |  
+| | | || ' /   
+| |_| || . \   
+\____/ |_|\_\  
+
+Payroll period for {$monthName} {$response_data['year_of']} has been fetched successfully");
+
+        
+       
         return response()->json([
             'message' => "Successfully Fetched.",
             'data' => new PayrollPeriodResource($payroll_period),
             "employee_generated" => count($employees),
             'statusCode' => 200
         ], Response::HTTP_CREATED);
+       } catch (\Throwable $th) {
+           $request->console->error("Error Step 4: " . $th->getMessage());
+       }
     }
 
     public function salaryRate($basic_Salary)

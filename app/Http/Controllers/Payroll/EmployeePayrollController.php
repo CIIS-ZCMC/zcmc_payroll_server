@@ -290,11 +290,14 @@ class EmployeePayrollController extends Controller
             $employee_id =$EmployeeInfo['id'];
             $payroll_period_id = $payrollPeriod->id;
 
+            //check if NDF of employee exists within the month and year 
+            //- do not allow to add duplicates
+            //this is for NDF only
+
             EmployeePayroll::updateOrCreate(
                 [
                     'employee_id' => $employee_id,
                     'payroll_period_id' => $payroll_period_id,
-                    'employee_time_record_id' => $employee_time_record_id,
                 ],
                 [
                     'month'=>$activePeriod->month,
@@ -304,6 +307,7 @@ class EmployeePayrollController extends Controller
                     'total_receivables'=>0,
                     'net_pay'=>$NightDifferentialAmount,
                     'deleted_at'=>null,
+                    'employee_time_record_id' => $employee_time_record_id,
                 ]
             );
 

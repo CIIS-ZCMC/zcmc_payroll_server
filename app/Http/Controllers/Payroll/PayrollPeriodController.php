@@ -51,7 +51,7 @@ class PayrollPeriodController extends Controller
     public function payrollPeriodList(Request $request)
     {
          
-        return Cache::remember('payroll-period-list', 5 * 60, function () {
+        return Cache::remember('payroll-period-list', 30, function () {
             $payroll_period = PayrollPeriod::all();
 
             if (!$payroll_period) {
