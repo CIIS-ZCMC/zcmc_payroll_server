@@ -201,7 +201,9 @@ class EmployeeProfileController extends Controller
             ini_set('memory_limit', '512M');
 
             $year_of = $request->year_of;
-            $month_of = $request->month_of;
+            $month_of = $request->month_of; // get previous month
+
+           
             $period_type = $request->period_type;
             $first_half = $request->first_half ?? null;
             $second_half = $request->second_half ?? null;
@@ -254,13 +256,22 @@ class EmployeeProfileController extends Controller
                 'assignedArea' => function ($query) {
                     $query->with(['salaryGrade']);
                 },
-                'dailyTimeRecords' => function ($query) use ($year_of, $month_of) {
-                    $query->whereYear('dtr_date', $year_of)
-                        ->whereMonth('dtr_date', $month_of)
-                        ->selectRaw('biometric_id, SUM(total_working_minutes) as total_working_minutes, 
+                'dailyTimeRecords' => function ($query) use ($year_of, $month_of, $employment_type, $period_type) {
+                    $query->whereYear('dtr_date', $year_of)->whereMonth('dtr_date', $month_of);
+
+                    if ($employment_type === 'job order' && $period_type) {
+                        if ($period_type === 'first_half') {
+                            $query->whereDay('dtr_date', '<=', 15);
+                        } else if ($period_type === 'second_half') {
+                            $query->whereDay('dtr_date', '>', 15);
+                        }
+                    }
+
+                   $query->selectRaw('biometric_id, SUM(total_working_minutes) as total_working_minutes, 
                                                SUM(overtime_minutes) as total_overtime_minutes,
                                                SUM(undertime_minutes) as total_undertime_minutes')
                         ->groupBy('biometric_id');
+        
                 },
                 'approvedOB' => function ($query) use ($year_of, $month_of, $expectedMinutesPerDay) {
                     $query->whereYear('date_from', $year_of)
