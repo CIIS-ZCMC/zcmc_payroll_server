@@ -369,6 +369,7 @@ class ReportsController extends Controller
             $sheet->mergeCells("Z" . ($currentRow) . ":Z" . ($currentRow + 8)); // Total Employee Deduction
             $sheet->mergeCells("AA" . ($currentRow) . ":AA" . ($currentRow + 3)); //Net Salary First Half
             $sheet->mergeCells("AA" . ($currentRow + 4) . ":AA" . ($currentRow + 7)); //Net Salary Second Half
+            // $sheet->mergeCells("AA" . ($currentRow) . ":AA" . ($currentRow + 11));
             $sheet->mergeCells("AB" . ($currentRow) . ":AB" . ($currentRow + 3)); //First Period
             $sheet->mergeCells("AB" . ($currentRow + 4) . ":AB" . ($currentRow + 7)); //Second Period
             $sheet->mergeCells("AC" . ($currentRow) . ":AC" . ($currentRow + 8)); // Remarks
@@ -404,6 +405,7 @@ class ReportsController extends Controller
             $sheet->setCellValue("Z" . ($currentRow), $employee['total_employee_deductions']);
             $sheet->setCellValue("AA" . ($currentRow), $employee['net_pay_first_half']);
             $sheet->setCellValue("AA" . ($currentRow + 4), $employee['net_pay_second_half']);
+            $sheet->setCellValue("AA" . ($currentRow + 8), $employee['net_pay']);
 
             $sheet->setCellValue("AB" . ($currentRow), $employee['first_period']);
             $sheet->setCellValue("AB" . ($currentRow + 4), $employee['second_period']);

@@ -23,7 +23,7 @@ class DeductionController extends Controller
         $data = $this->service->index($request);
 
         $response = [
-            'responseData' => [
+            'data' => [
                 'data' => DeductionResource::collection($data),
             ],
             'message' => "Data Successfully retrieved",
@@ -32,7 +32,7 @@ class DeductionController extends Controller
 
         // Only add meta if it's a paginated result
         if ($data instanceof LengthAwarePaginator) {
-            $response['responseData']['meta'] = [
+            $response['data']['meta'] = [
                 'current_page' => $data->currentPage(),
                 'last_page' => $data->lastPage(),
                 'per_page' => $data->perPage(),

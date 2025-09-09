@@ -17,6 +17,7 @@ class EmployeeReceivableService
     {
         //Nothing
     }
+
     public function getAll(): Collection
     {
         return $this->interface->getAll();
@@ -71,6 +72,21 @@ class EmployeeReceivableService
             'stopped_at' => $data->stopped_at,
             'completed_at' => $data->completed_at,
         ]);
+    }
+
+    public function upsert(array $data): int
+    {
+        $records = array_map(fn(EmployeeReceivableData $data) => $data->toArray(), $data);
+        return $this->interface->upsert($records);
+    }
+
+    public function store(array $dtos)
+    {
+        if (count($dtos) === 1) {
+            return $this->create($dtos[0]);
+        }
+
+        return $this->upsert($dtos);
     }
 
     public function update(int $id, array $data): EmployeeReceivable

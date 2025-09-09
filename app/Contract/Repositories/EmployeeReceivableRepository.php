@@ -33,6 +33,15 @@ class EmployeeReceivableRepository implements EmployeeReceivableInterface
         return $this->model->create($data);
     }
 
+    public function upsert(array $data): int
+    {
+        return $this->model->upsert(
+            $data,
+            ['payroll_period_id', 'employee_id', 'receivable_id'],
+            ['amount', 'frequency', 'is_default', 'updated_at']
+        );
+    }
+
     public function update(int $id, array $data): EmployeeReceivable
     {
         $model = $this->model->find($id);

@@ -24,7 +24,7 @@ class DeductionGroupController extends Controller
         $data = $this->service->index($request);
 
         $response = [
-            'responseData' => [
+            'data' => [
                 'data' => DeductionGroupResource::collection($data),
             ],
             'message' => "Data Successfully retrieved",

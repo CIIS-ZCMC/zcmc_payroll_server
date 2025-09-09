@@ -26,9 +26,9 @@ class EmployeeDeductionController extends Controller
         $data = $this->service->index($request);
 
         return response()->json([
+            'responseData' => EmployeeDeductionResource::collection($data),
             'message' => 'Data retrieved successfully.',
             'statusCode' => 200,
-            'responseData' => EmployeeDeductionResource::collection($data),
         ], Response::HTTP_OK);
     }
 
