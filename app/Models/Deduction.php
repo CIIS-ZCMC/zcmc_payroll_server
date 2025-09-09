@@ -4,63 +4,60 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Deduction extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'deductions';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'deduction_uuid',
         'deduction_group_id',
         'name',
         'code',
-        'employment_type',
-        'designation',
-        'assigned_area',
-        'condition',
-        'amount',
-        'percentage',
+        'type',
+        'hasDate',
+        'date_start',
+        'date_end',
+        'condition_operator',
+        'condition_value',
+        'percent_value',
+        'fixed_amount',
         'billing_cycle',
-        'terms_to_pay',
-        'is_applied_to_all',
-        'apply_salarygrade_from',
-        'apply_salarygrade_to',
-        'is_mandatory',
         'status',
-        'reason',
-        'stopped_at'
     ];
 
     public $timestamps = true;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->deduction_uuid)) {
+                $model->deduction_uuid = 'D-' . substr(str_replace('-', '', Str::uuid()), 0, 10);
+            }
+        });
+    }
 
     public function deductionGroup()
     {
         return $this->belongsTo(DeductionGroup::class, 'deduction_group_id');
     }
 
-    public function employeeList()
+    public function deductionRule()
     {
-        return $this->belongsToMany(EmployeeList::class, 'employee_deductions')
-            ->using(EmployeeDeduction::class)
-            ->withPivot('amount', 'percentage', 'frequency', 'total_term', 'is_default')
-            ->withTimestamps();
-    }
+        return $this->hasMany(DeductionRule::class, 'deduction_id');
 
-    public function getImports()
-    {
-        return $this->hasMany(Import::class, 'deduction_id');
     }
 
     public function employeeDeductions()
     {
         return $this->hasMany(EmployeeDeduction::class, 'deduction_id');
-    }
-
-    public function logs()
-    {
-        return $this->hasMany(DeductionLog::class);
     }
 }

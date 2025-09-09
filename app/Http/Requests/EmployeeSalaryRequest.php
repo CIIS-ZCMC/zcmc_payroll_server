@@ -31,7 +31,7 @@ class EmployeeSalaryRequest extends FormRequest
             'salary_step' => 'required|integer',
             'month' => 'required|string',
             'year' => 'required|string',
-            'is_active' => 'required|integer',
+            'is_active' => 'required|boolean',
         ];
     }
 }

@@ -36,7 +36,7 @@ class Token
         if ($token) {
             $accessToken = PersonalAccessToken::where('token', $token)->first();
             if ($accessToken) {
-                return decrypt($accessToken->abilities);
+                return decrypt($accessToken->permissions);
             }
         }
         return null;

@@ -15,20 +15,24 @@ class EmployeeReceivableResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
+            'employee' => new EmployeeResource($this->whenLoaded('employee')),
+            'payroll_period' => new PayrollPeriodResource($this->whenLoaded('payrollPeriod')),
+            'receivable' => new ReceivableResource($this->whenLoaded('receivables')),
+            'employee_id' => $this->employee_id,
+            'payroll_period_id' => $this->payroll_period_id,
             'receivable_id' => $this->receivable_id,
-            'receivable' => [
-                'name' => $this->receivables->name ?? 'N/A',
-                'code' => $this->receivables->code ?? 'N/A',
-            ],
-            'amount' => $this->amount,
-            'percentage' => $this->percentage,
+            'amount' => $this->amount ?? 0,
+            'percentage' => $this->percentage ?? 0,
             'frequency' => $this->frequency,
-            'total_term' => $this->total_term,
-            'is_default' => $this->is_default,
-            'status' => $this->status,
             'date_from' => $this->date_from,
             'date_to' => $this->date_to,
+            'total_paid' => $this->total_paid ?? 0,
+            'reason' => $this->reason,
+            'status' => $this->status,
+            'is_default' => $this->is_default,
             'stopped_at' => $this->stopped_at,
+            'completed_at' => $this->completed_at,
         ];
     }
 }

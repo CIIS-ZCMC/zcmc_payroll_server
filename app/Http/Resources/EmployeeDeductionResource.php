@@ -16,35 +16,29 @@ class EmployeeDeductionResource extends JsonResource
      */
     public function toArray($request)
     {
-        $adjustment = EmployeeDeductionAdjustment::where('employee_deduction_id', $this->id)
-            ->where('month', $request->processMonth['month'])
-            ->where('year', $request->processMonth['year'])
-            ->first();
-
-        // Fetch outside payments marked as new
-        $other_deductions = EmployeeDeductionTrail::where('employee_deduction_id', $this->id)->get();
-
         return [
             'id' => $this->id,
+            'employee' => new EmployeeResource($this->whenLoaded('employee')),
+            'payroll_period' => new PayrollPeriodResource($this->whenLoaded('payrollPeriod')),
+            'deduction' => new DeductionResource($this->whenLoaded('deductions')),
+            'employee_id' => $this->employee_id,
+            'payroll_period_id' => $this->payroll_period_id,
             'deduction_id' => $this->deduction_id,
-            'deduction' => [
-                'name' => $this->deductions->name ?? 'N/A',
-                'code' => $this->deductions->code ?? 'N/A',
-            ],
-            'amount' => $this->willDeduct === null ? ($adjustment->amount ?? 0) : $this->amount,
-            'percentage' => $this->percentage,
+            'amount' => $this->amount ?? 0,
+            'percentage' => $this->percentage ?? 0,
             'frequency' => $this->frequency,
-            'total_term' => $this->total_term,
-            'term_paid' => $this->employeeDeductionTrails->count(),
-            'is_default' => $this->is_default,
-            'status' => $this->status,
             'date_from' => $this->date_from,
             'date_to' => $this->date_to,
+            'with_terms' => $this->with_terms,
+            'total_term' => $this->total_term ?? 0,
+            'total_paid' => $this->total_paid ?? 0,
+            'reason' => $this->reason,
+            'status' => $this->status,
+            'is_default' => $this->is_default,
+            'isDifferential' => $this->isDifferential === null ? false : true,
+            'willDeduct' => $this->willDeduct === null ? false : true,
             'stopped_at' => $this->stopped_at,
-            'default_value' => $this->getDeductions,
-            'updated_on' => $this->updated_at,
-            'will_deduct' => $this->willDeduct,
-            'other_deduction' => $other_deductions ? EmployeeDeductionTrailResource::collection($other_deductions) : [],
+            'completed_at' => $this->completed_at,
         ];
     }
 }

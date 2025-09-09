@@ -4,34 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ExcludedEmployee extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'excluded_employees';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'employee_list_id',
-        'payroll_headers_id',
-        'reason',
-        'year',
+        'employee_id',
+        'payroll_period_id',
         'month',
+        'year',
+        'period_start',
+        'period_end',
+        'reason',
         'is_removed'
     ];
 
     public $timestamps = true;
 
-    public function employeeList()
+    public function employee()
     {
-        return $this->belongsTo(EmployeeList::class);
+        return $this->belongsTo(Employee::class);
     }
 
-    public function payrollHeader()
+    public function payrollPeriod()
     {
-        return $this->belongsTo(PayrollHeaders::class);
+        return $this->belongsTo(PayrollPeriod::class, 'payroll_period_id');
     }
 
 }

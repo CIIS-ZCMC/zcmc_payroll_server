@@ -1,0 +1,317 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\EmployeeDeduction;
+use App\Models\EmployeeReceivable;
+use App\Models\PayrollPeriod;
+use App\Models\Receivable;
+use Symfony\Component\HttpFoundation\Response;
+
+class ComputationService
+{
+    /**
+     * Summary of ComputeNetSalary
+     * NoofPresentDays is the number of days the employee was present in the month
+     * Including the Leave With Pay
+     * @param mixed $noOfPresentDays
+     * @param mixed $basicSalary
+     * @param mixed $allowances
+     * @return float|int
+     */
+    public function netsSalary($noOfPresentDays, $basicSalary, $totalAllowances)
+    {
+        $basic_salary = $basicSalary / 22;
+        $inital_salary = $basic_salary * $noOfPresentDays;
+        $total_salary = $inital_salary + $totalAllowances;
+
+        return $total_salary;
+    }
+
+    public function grossSalary($netSalary, $totalDeductions)
+    {
+        $grossSalary = $netSalary - $totalDeductions;
+
+        return $grossSalary;
+    }
+
+    public function hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $working_days)//leave is not included
+    {
+        $salary_percentage = 0.0;
+
+        if ($salary_grade <= 19) {
+            $salary_percentage = 0.25;
+        } elseif ($salary_grade == 20) {
+            $salary_percentage = 0.15;
+        } elseif ($salary_grade == 21) {
+            $salary_percentage = 0.13;
+        } elseif ($salary_grade == 22) {
+            $salary_percentage = 0.12;
+        } elseif ($salary_grade == 23) {
+            $salary_percentage = 0.11;
+        } elseif (in_array($salary_grade, [24, 25])) {
+            $salary_percentage = 0.10;
+        } elseif ($salary_grade == 26) {
+            $salary_percentage = 0.09;
+        } elseif ($salary_grade == 27) {
+            $salary_percentage = 0.08;
+        } elseif ($salary_grade == 28) {
+            $salary_percentage = 0.07;
+        } elseif (in_array($salary_grade, [29, 30])) {
+            $salary_percentage = 0.06;
+        } elseif ($salary_grade == 31) {
+            $salary_percentage = 0.05;
+        }
+
+        $amount = ($working_days >= 12)
+            ? (double) ($basic_salary * $salary_percentage)
+            : (($working_days <= 11) ? (double) ($basic_salary * 0.14)
+                : (($working_days <= 6) ? (double) ($basic_salary * 0.8) : 0.00));
+
+        if ($payroll_period_id !== null && $employee_id !== null) {
+            if ($employment_type !== 'Job Order') {
+                $hazard = Receivable::where('receivable_uuid', 'R-AjGZkFJiCn')->first();
+
+                EmployeeReceivable::updateOrCreate(
+                    [
+                        'payroll_period_id' => $payroll_period_id,
+                        'employee_id' => $employee_id,
+                        'receivable_id' => $hazard->id
+                    ],
+                    [
+                        'amount' => $amount,
+                        'status' => "active",
+                        'frequency' => "monthly",
+                        'is_default' => true
+                    ]
+                );
+
+                return $amount;
+            }
+        }
+
+        return $amount;
+    }
+
+    private function getHazardPayPercentage($salary_grade)
+    {
+        // 2016 rules simplified percentage table (section 3.3)
+        if ($salary_grade <= 19)
+            return 0.25;
+        if ($salary_grade == 20)
+            return 0.15;
+        if ($salary_grade == 21)
+            return 0.13;
+        if ($salary_grade == 22)
+            return 0.12;
+        if ($salary_grade == 23)
+            return 0.11;
+        if ($salary_grade == 24 || $salary_grade == 25)
+            return 0.10;
+        if ($salary_grade == 26)
+            return 0.09;
+        if ($salary_grade == 27)
+            return 0.08;
+        if ($salary_grade == 28)
+            return 0.07;
+        if ($salary_grade == 29 || $salary_grade == 30)
+            return 0.06;
+        if ($salary_grade == 31)
+            return 0.05;
+
+        return 0.00; // Default if salary grade doesn't match
+    }
+    public function hazard($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $is_part_time = false, $absent_days = 0, $no_of_leave_days = 0)
+    {
+        // Check if employee should be excluded due to excessive absence (11+ working days)
+        if ($absent_days >= 11) {
+            return 0.00;
+        }
+
+        if ($no_of_leave_days >= 11) {
+            return 0.00;
+        }
+
+        // Determine percentage based on salary grade (2016 rules)
+        $salary_percentage = $this->getHazardPayPercentage($salary_grade);
+
+        // Calculate full amount
+        $amount = $basic_salary * $salary_percentage;
+
+        // Adjust for part-time workers (2016 rules section 3.4)
+        if ($is_part_time) {
+            $amount = $amount / 2;
+        }
+
+        // Job Order employees are not eligible (assuming this is your business rule)
+        if ($employment_type === 'Job Order') {
+            return 0.00;
+        }
+
+        if ($payroll_period_id !== null && $employee_id !== null) {
+            $hazard = Receivable::where('id', 2)->first();
+
+            if ($hazard) {
+                EmployeeReceivable::updateOrCreate(
+                    [
+                        'payroll_period_id' => $payroll_period_id,
+                        'employee_id' => $employee_id,
+                        'receivable_id' => $hazard->id
+                    ],
+                    [
+                        'amount' => $amount,
+                        'status' => "active",
+                        'frequency' => "monthly",
+                        'is_default' => true
+                    ]
+                );
+            }
+        }
+
+        return $amount;
+    }
+
+    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days, $absences, $inital_salary)
+    {
+        $pera = Receivable::where('id', 1)->first();
+
+        $pera_full_amount = round($pera->fixed_amount, 2);
+        $pera_half_amount = round($pera->fixed_amount / 2, 2);
+
+        $pera_amount = null;
+        if ($no_of_present_days > 1) {
+
+            // as of now pera_amount is 
+            // 1000 for Permanent Part-time per month
+            // 2000 for Full-Time and Other employment Type per month except JO
+            // required_duty_days is 22 for now
+
+            if ($employment_type === 'Permanent Part-time') {
+                $pera_amount = $pera_half_amount;
+            } elseif ($employment_type !== 'Permanent Part-time' && $employment_type !== 'Job Order') {
+                $pera_amount = $pera_full_amount;
+            }
+
+            $amount = null;
+            if ($absences >= 1) {
+                $deduct = round($pera_amount / $required_duty_days, 2); //90.91 Full Time , 45.45 Part Time;
+                $absent_deduction = $deduct * $absences;
+                $amount = $pera_amount - $absent_deduction;
+            } else {
+                $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
+            }
+            if ($payroll_period_id !== null && $employee_id !== null) {
+                $find = EmployeeReceivable::where('payroll_period_id', $payroll_period_id)
+                    ->where('employee_id', $employee_id)
+                    ->where('receivable_id', $pera->id)
+                    ->first();
+
+                $request_data = [
+                    'payroll_period_id' => $payroll_period_id,
+                    'employee_id' => $employee_id,
+                    'receivable_id' => $pera->id,
+                    'amount' => $amount,
+                    'status' => "active",
+                    'frequency' => "monthly",
+                    'is_default' => true
+                ];
+
+                if (!$find) {
+                    EmployeeReceivable::create($request_data);
+                } else {
+                    $find->update($request_data);
+                }
+
+                return [
+                    'id' => $pera->id,
+                    'amount' => $amount
+                ];
+            }
+
+            return [
+                'id' => $pera->id,
+                'amount' => $amount
+            ];
+        }
+
+        return [
+            'id' => $pera->id,
+            'amount' => 0
+        ];
+    }
+
+    public function employeeDeduction($payroll_period_id, $employee_id)
+    {
+        // Get deductions for current payroll period
+        $currentDeductions = EmployeeDeduction::where('payroll_period_id', $payroll_period_id)
+            ->where('employee_id', $employee_id)
+            ->get();
+
+        // If deductions exist for current period, return them
+        if ($currentDeductions->isNotEmpty()) {
+            return $currentDeductions;
+        }
+
+        // Get current payroll period details
+        $payroll_period_of_the_month = PayrollPeriod::find($payroll_period_id);
+
+        // Find most recent previous period in same month
+        $lastPayrollPeriodOfTheMonth = PayrollPeriod::where('id', '<', $payroll_period_of_the_month->id)
+            ->where('month', $payroll_period_of_the_month->month)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        // Determine last payroll period using optimal assignment
+        $lastPayrollPeriod = null;
+        if ($lastPayrollPeriodOfTheMonth) {
+            $lastPayrollPeriod = $lastPayrollPeriodOfTheMonth;  // Direct assignment
+        } else {
+            $lastPayrollPeriod = PayrollPeriod::where('id', '<', $payroll_period_id)
+                ->orderBy('id', 'desc')
+                ->first();
+        }
+
+        if ($lastPayrollPeriod) {
+            $lastDeduction = EmployeeDeduction::where('payroll_period_id', $lastPayrollPeriod->id)
+                ->where('employee_id', $employee_id)
+                ->get();
+
+            // If a previous deduction exists, create a copy for the current period
+            if ($lastDeduction->isNotEmpty()) {
+                $newDeductions = [];
+                foreach ($lastDeduction as $deduction) {
+                    $newDeduction = $deduction->replicate();
+                    $newDeduction->payroll_period_id = $payroll_period_id;
+                    $newDeduction->save();
+                    $newDeductions[] = $newDeduction;
+                }
+
+                return collect($newDeductions);
+            }
+        }
+
+        return $currentDeductions;
+    }
+
+    public function CalculatePERA($totalPresentDays, $totalAbsences, $baseSalary, $employmentType)
+    {
+        $pera = 2000;
+
+        if ($employmentType === "Permanent Part-time") {
+            if ($totalAbsences >= 1) {
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(1000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((1000 - $totalDedForAbsent) * 100) / 100;
+            }
+        } else {
+            if ($totalAbsences >= 1) {
+                $salaryDedAbsent = floor((22 - $totalAbsences) / 22 * $baseSalary * 100) / 100;
+                $totalDedForAbsent = floor(2000 / 22 * $totalAbsences * 100) / 100;
+                $pera = floor((2000 - $totalDedForAbsent) * 100) / 100;
+            }
+        }
+
+        return $pera;
+    }
+
+}

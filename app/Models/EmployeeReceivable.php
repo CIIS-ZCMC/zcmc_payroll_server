@@ -15,7 +15,8 @@ class EmployeeReceivable extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'employee_list_id',
+        'payroll_period_id',
+        'employee_id',
         'receivable_id',
         'amount',
         'percentage',
@@ -33,33 +34,20 @@ class EmployeeReceivable extends Model
 
     public $timestamps = true;
 
-    public function logs()
+
+    //Version 2
+    public function employee()
     {
-        return $this->hasMany(EmployeeDeductionLog::class);
+        return $this->belongsTo(Employee::class);
     }
 
-    public function employeeList()
+    public function payrollPeriod()
     {
-        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
+        return $this->belongsTo(PayrollPeriod::class);
     }
 
     public function receivables()
     {
         return $this->belongsTo(Receivable::class, 'receivable_id');
-    }
-
-    public function getReceivable()
-    {
-        return $this->belongsTo(Receivable::class, 'id');
-    }
-
-    public function receivableLogs()
-    {
-        return $this->hasMany(EmployeeReceivableLog::class);
-    }
-
-    public function stoppageLogs()
-    {
-        return $this->hasMany(StoppageLog::class, 'employee_receivable_id');
     }
 }

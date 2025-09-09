@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Receivable;
 use Illuminate\Database\Seeder;
+use Str;
 
 class ReceivableSeeder extends Seeder
 {
@@ -15,53 +16,53 @@ class ReceivableSeeder extends Seeder
     public function run()
     {
         Receivable::firstOrCreate([
-            'name' => 'PERA',
+            'receivable_uuid' => "R-vwF8e28Fnz",
+            'name' => 'Personnel Economic Relief Allowance',
             'code' => 'PERA',
-            'employment_type' => 'All Employment Type',
-            'amount' => 0,
+            'type' => 'fixed',
+            'fixed_amount' => 2000,
             'billing_cycle' => 'Monthly',
             'status' => 'Active',
-            'is_mandatory' => true
         ]);
 
         Receivable::firstOrCreate([
+            'receivable_uuid' => "R-AjGZkFJiCn",
             'name' => 'Hazard',
             'code' => 'HAZARD',
-            'employment_type' => 'All Employment Type',
-            'amount' => 0,
+            'type' => 'fixed',
+            'fixed_amount' => 0,
             'billing_cycle' => 'Monthly',
             'status' => 'Active',
-            'is_mandatory' => true
         ]);
 
         Receivable::firstOrCreate([
+            'receivable_uuid' => "R-i5QXirTzLi",
             'name' => 'REPRESENTATION ALLOWANCE',
             'code' => 'REPS',
-            'employment_type' => 'All Employment Type',
-            'amount' => 0,
+            'type' => 'fixed',
+            'fixed_amount' => 0,
             'billing_cycle' => 'Monthly',
             'status' => 'Active',
-            'is_mandatory' => true
         ]);
 
         Receivable::firstOrCreate([
+            'receivable_uuid' => "R-7Voi7kcTJp",
             'name' => 'TRANSPORATION  ALLOWANCE',
             'code' => 'TRANS',
-            'employment_type' => 'All Employment Type',
-            'amount' => 0,
+            'type' => 'fixed',
+            'fixed_amount' => 0,
             'billing_cycle' => 'Monthly',
             'status' => 'Active',
-            'is_mandatory' => true
         ]);
 
         Receivable::firstOrCreate([
+            'receivable_uuid' => "R-6TWquJRBE9",
             'name' => 'CELL CARD ALLOWANCE',
             'code' => 'CELL',
-            'employment_type' => 'All Employment Type',
-            'amount' => 0,
+            'type' => 'fixed',
+            'fixed_amount' => 0,
             'billing_cycle' => 'Monthly',
             'status' => 'Active',
-            'is_mandatory' => true
         ]);
     }
 }

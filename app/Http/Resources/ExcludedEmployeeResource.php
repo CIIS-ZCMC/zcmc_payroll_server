@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ExcludedEmployeeResource extends JsonResource
@@ -16,12 +17,21 @@ class ExcludedEmployeeResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'employee_list_id' => EmployeeListResource::collection([$this->employeeList]),
-            'payroll_headers_id ' => PayrollHeaderResources::collection([$this->payrollHeader]),
-            'reason' => $this->last_name,
-            'year' => $this->middle_name,
-            'month' => $this->designation,
-            'created' => $this->created_at
+            'employee' => new EmployeeResource($this->whenloaded('employee')),
+            'payroll_period' => new PayrollPeriodResource($this->whenloaded('payrollPeriod')),
+            'month' => $this->month,
+            'year' => $this->year,
+            'period_start' => $this->period_start,
+            'period_end' => $this->period_end,
+            'reason' => $this->reason,
+            'excluded_at' => $this->formatExcludedPeriod(),
+            'is_removed' => $this->is_removed,
         ];
+    }
+
+    protected function formatExcludedPeriod()
+    {
+        $monthName = Carbon::createFromFormat('!m', $this->month)->format('F'); // Full month name
+        return "{$monthName} {$this->year} ({$this->period_start}-{$this->period_end})";
     }
 }
