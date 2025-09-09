@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Cache;
 use Str;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\GenPayroll;
 
 class EmployeeProfileController extends Controller
 {
@@ -200,8 +201,9 @@ class EmployeeProfileController extends Controller
         try {
             ini_set('memory_limit', '512M');
 
-            $year_of = $request->year_of;
-            $month_of = $request->month_of; // get previous month
+          
+            $month_of = GenPayroll::getPreviousMonthYear($request->month_of, $request->year_of)['month']; // get previous month
+            $year_of = GenPayroll::getPreviousMonthYear($request->month_of, $request->year_of)['year']; // get previous year
 
            
             $period_type = $request->period_type;
@@ -672,8 +674,8 @@ class EmployeeProfileController extends Controller
                 'payroll_type' => "General Payroll",
                 'period_type' => $period_type,
                 'employment_type' => $employment_type,
-                'month' => $month_of,
-                'year' => $year_of
+                'month' => GenPayroll::getNextMonthYear($month_of, $year_of)['month'],
+                'year' => GenPayroll::getNextMonthYear($month_of, $year_of)['year']
             ]);
     
             // Prepare update data
@@ -1102,14 +1104,16 @@ Payroll period for {$monthName} {$response_data['year_of']} has been fetched suc
 
         
        
-        return response()->json([
-            'message' => "Successfully Fetched.",
-            'data' => new PayrollPeriodResource($payroll_period),
-            "employee_generated" => count($employees),
-            'statusCode' => 200
-        ], Response::HTTP_CREATED);
+        // return response()->json([
+        //     'message' => "Successfully Fetched.",
+        //     'data' => new PayrollPeriodResource($payroll_period),
+        //     "employee_generated" => count($employees),
+        //     'statusCode' => 200
+        // ], Response::HTTP_CREATED);
        } catch (\Throwable $th) {
            $request->console->error("Error Step 4: " . $th->getMessage());
+           $request->console->error("Error Step 4: " . $th);
+          
        }
     }
 
