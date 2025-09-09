@@ -2,22 +2,23 @@
 
 namespace App\Services;
 
+use App\Contract\EmployeeSalaryInterface;
 use App\Models\EmployeeSalary;
 
 class EmployeeSalaryService
 {
+    public function __construct(private EmployeeSalaryInterface $interface)
+    {
+        //Nothing
+    }
+
     public function create(array $data)
     {
-        return EmployeeSalary::create($data);
+        return $this->interface->create($data);
     }
 
     public function update($id, array $data)
     {
-        $model = EmployeeSalary::find($id);
-        if ($model) {
-            $model->update($data);
-            return $model;
-        }
-        return null;
+        return $this->interface->update($id, $data);
     }
 }

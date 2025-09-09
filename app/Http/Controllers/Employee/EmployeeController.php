@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
 use App\Services\ComputationService;
 use App\Services\EmployeeSalaryService;
 use App\Services\EmployeeService;
@@ -87,6 +88,10 @@ class EmployeeController extends Controller
                 }
             ])->where('payroll_period_id', $payroll_period->id)
                 ->where('status', 'included')
+                ->orderBy(
+                    Employee::select('last_name')
+                        ->whereColumn('employees.id', 'employee_time_records.employee_id')
+                )
                 ->get();
 
             if (!$data) {

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Reports;
 use App\Exports\ExportEmployeePayroll;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeePayrollReportsResource;
+use App\Models\Employee;
 use App\Models\EmployeePayroll;
+use App\Models\EmployeeReceivable;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
@@ -15,172 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ReportsController extends Controller
 {
-    //     try {
-    //         $find = PayrollHeaders::where('month', $request->month)
-    //             ->where('year', $request->year)
-    //             ->where('employment_type', $request->employment_type);
-
-    //         if ($request->employment_type === 'job order') {
-    //             // Check if salary period is 1-15 or 16-30/31
-    //             if ($request->salary_period === '1-15') {
-    //                 $find->where('fromPeriod', 1)
-    //                     ->where('toPeriod', 15);
-    //             } elseif ($request->salary_period === '16-30/31') {
-    //                 $find->where('fromPeriod', 16)
-    //                     ->where('toPeriod', 30); // You can also adjust for months with 31 days if needed
-    //             }
-    //         }
-
-    //         $payrollHeader = $find->first();
-    //         if (!$payrollHeader) {
-    //             return response()->json(['message' => 'Payroll header not found'], Response::HTTP_NOT_FOUND);
-    //         }
-
-
-
-
-    //         $payrolls = PayrollHeaders::with([
-    //             'genPayrolls' => function ($query) {
-    //                 $query->with('EmployeeList');
-    //             }
-    //         ])->where('id', $payrollHeader->id)
-    //             ->get();
-
-    //         $employee_numbers = $payrolls->pluck('genPayrolls.*.EmployeeList.employee_number')->flatten();
-    //         $employee_profiles = EmployeeProfile::with(['employmentType'])
-    //             ->whereIn('employee_id', $employee_numbers) // Use whereIn() instead of where()
-    //             ->get();
-
-    //         $employee_total = [
-    //             'permanent_full_time' => 0,
-    //             'permanent_part_time' => 0,
-    //             'permanent_cti' => 0,
-    //             'temporary' => 0,
-    //             'job_order' => 0
-    //         ];
-
-    //         foreach ($employee_profiles as $employee) {
-    //             switch ($employee->employmentType->name) {
-    //                 case 'Permanent Full-time':
-    //                     $employee_total['permanent_full_time']++;
-    //                     break;
-    //                 case 'Permanent Part-time':
-    //                     $employee_total['permanent_part_time']++;
-    //                     break;
-    //                 case 'Permanent CTI':
-    //                     $employee_total['permanent_cti']++;
-    //                     break;
-    //                 case 'Temporary':
-    //                     $employee_total['temporary']++;
-    //                     break;
-    //                 case 'Job Order':
-    //                     $employee_total['job_order']++;
-    //                     break;
-    //             }
-    //         }
-
-    //         $totals = [
-    //             'month' => null,
-    //             'year' => null,
-    //             'pera' => 0,
-    //             'hazard' => 0,
-    //             'representation' => 0,
-    //             'transportation' => 0,
-    //             'cellphone' => 0,
-    //             'total_base_salary' => 0,
-    //             'total_net_pay' => 0,
-    //             'total_gross_pay' => 0,
-    //             'total_net_salary_first_half' => 0,
-    //             'total_net_salary_second_half' => 0,
-    //             'total_net_total_salary' => 0,
-    //         ];
-
-    //         foreach ($payrolls as $payroll) {
-    //             $totals['month'] = date('F', mktime(0, 0, 0, $payroll->month, 10));
-    //             $totals['year'] = $payroll->year;
-
-    //             foreach ($payroll->genPayrolls as $genPayroll) {
-    //                 // Decode employee_receivables JSON
-    //                 $receivables = json_decode($genPayroll['employee_receivables'], true);
-    //                 foreach ($receivables as $receivable) {
-    //                     if ($receivable['receivable']['code'] === 'PERA') {
-    //                         $totals['pera'] += $receivable['amount'];
-    //                     }
-
-    //                     if ($receivable['receivable']['code'] === 'HAZARD') {
-    //                         $totals['hazard'] += $receivable['amount'];
-    //                     }
-
-    //                     if ($receivable['receivable']['code'] === 'RA') {
-    //                         $totals['representation'] += $receivable['amount'];
-    //                     }
-
-    //                     if ($receivable['receivable']['code'] === 'TA') {
-    //                         $totals['transportation'] += $receivable['amount'];
-    //                     }
-
-    //                     if ($receivable['receivable']['code'] === 'CELL') {
-    //                         $totals['cellphone'] += $receivable['amount'];
-    //                     }
-    //                 }
-
-    //                 $totals['total_base_salary'] += decrypt($genPayroll->base_salary);
-    //                 $totals['total_net_pay'] += decrypt($genPayroll->net_pay);
-    //                 $totals['total_gross_pay'] += decrypt($genPayroll->gross_pay);
-    //                 $totals['total_net_salary_first_half'] += decrypt($genPayroll->net_salary_first_half);
-    //                 $totals['total_net_salary_second_half'] += decrypt($genPayroll->net_salary_second_half);
-    //                 $totals['total_net_total_salary'] += decrypt($genPayroll->net_total_salary);
-    //             }
-    //         }
-
-    //         // Retrieve deductions
-    //         $deductionData = DeductionGroup::with([
-    //             'deductions' => function ($query) use ($payrolls) {
-    //                 $query->with([
-    //                     'employeeDeductions' => function ($query) use ($payrolls) {
-    //                         $query->whereHas('EmployeeList.getGeneralPayrolls', function ($query) use ($payrolls) {
-    //                             $query->where('payroll_headers_id', $payrolls->pluck('id'));
-    //                         });
-    //                     }
-    //                 ]);
-    //             }
-    //         ])->get();
-
-    //         $deductions = $deductionData->map(function ($group) {
-    //             $deductionGroup = [
-    //                 'deduction_group_id' => $group->id,
-    //                 'name' => $group->name,
-    //                 'code' => strtoupper($group->code),
-    //                 'deductions' => [],
-    //                 'total_deductions' => 0
-    //             ];
-
-    //             foreach ($group->deductions as $deduction) {
-    //                 $totalAmount = $deduction->employeeDeductions->sum('amount');
-
-    //                 if ($totalAmount > 0) {
-    //                     $deductionGroup['deductions'][] = [
-    //                         'deduction_group_id' => $group->id,
-    //                         'deduction_id' => $deduction->id,
-    //                         'deduction_name' => $deduction->name,
-    //                         'code' => $deduction->code,
-    //                         'amount' => $totalAmount
-    //                     ];
-    //                 }
-    //             }
-
-    //             $deductionGroup['total_deductions'] = collect($deductionGroup['deductions'])->sum('amount');
-
-    //             return !empty($deductionGroup['deductions']) ? $deductionGroup : null;
-    //         })->filter()->values();
-
-    //         $data[] = array_merge($totals, $employee_total, ['deduction_group' => $deductions]);
-
-    //         return response()->json(['responseData' => $data], Response::HTTP_OK);
-    //     } catch (\Throwable $th) {
-    //         throw $th;
-    //     }
-    // }
 
     public function index(Request $request)
     {
@@ -224,10 +60,13 @@ class ReportsController extends Controller
                 ])->where('status', 'included');
             },
             'employee.employeeSalary',
-            'employee.employeeComputedSalaries' => function ($q) {
-
-            }
-        ])->where('payroll_period_id', $payroll_period->id)->get();
+            'employee.employeeComputedSalaries'
+        ])->where('payroll_period_id', $payroll_period->id)
+            ->orderBy(
+                Employee::select('last_name')
+                    ->whereColumn('employees.id', 'employee_payrolls.employee_id')
+            )
+            ->get();
 
         return response()->json([
             'message' => 'Data retrieved successfully.',
@@ -272,7 +111,21 @@ class ReportsController extends Controller
             }
         ])->where('payroll_period_id', $payroll_period->id)->first();
 
-        // Process Receivables
+        //     $receivables = collect($general_payroll->payrollPeriod->employeePayroll)
+        //     ->pluck('employeeTimeRecord.employee.employeeReceivables')
+        //     ->flatten(1)
+        //     ->groupBy('receivables.id')
+        //     ->map(function ($group) {
+        //         return [
+        //             'receivable_id' => $group->first()->receivables->id,
+        //             'receivable_name' => $group->first()->receivables->name,
+        //             'receivable_code' => $group->first()->receivables->code,
+        //             'total_amount' => $group->sum('amount')
+        //         ];
+        //     })
+        //     ->values();
+
+
         $receivables = collect($general_payroll->payrollPeriod->employeePayroll)
             ->pluck('employeeTimeRecord.employee.employeeReceivables')
             ->flatten(1)
@@ -346,7 +199,7 @@ class ReportsController extends Controller
             ->sum('gross_salary');
 
         $exactHalf = $totalNetPay / 2;
-        $totalNetFirstHalf = floor($exactHalf);
+        $totalNetFirstHalf = floor($exactHalf) + 10;
         $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
 
         $employeePayrolls = $general_payroll->payrollPeriod->employeePayroll ?? collect();
@@ -431,14 +284,13 @@ class ReportsController extends Controller
                 ])->where('status', 'included');
             },
             'employee.employeeSalary',
-            'employee.employeeComputedSalaries' => function ($q) {
-
-            }
-        ])->where('payroll_period_id', $payroll_period->id)->get();
+            'employee.employeeComputedSalaries'
+        ])->where('payroll_period_id', $payroll_period->id)
+            ->join('employees', 'employee_payrolls.employee_id', '=', 'employees.id')
+            ->orderBy('employees.last_name')
+            ->get();
 
         $data = EmployeePayrollReportsResource::collection($employee_payroll)->resolve();
-
-        // return Excel::download(new ExportEmployeePayroll($data), 'EmployeePayroll.xlsx');
 
         $templatePath = storage_path('app/templates/employee_payroll.xlsx');
         $spreadsheet = IOFactory::load($templatePath);
@@ -517,11 +369,11 @@ class ReportsController extends Controller
             $sheet->mergeCells("Z" . ($currentRow) . ":Z" . ($currentRow + 8)); // Total Employee Deduction
             $sheet->mergeCells("AA" . ($currentRow) . ":AA" . ($currentRow + 3)); //Net Salary First Half
             $sheet->mergeCells("AA" . ($currentRow + 4) . ":AA" . ($currentRow + 7)); //Net Salary Second Half
+            // $sheet->mergeCells("AA" . ($currentRow) . ":AA" . ($currentRow + 11));
             $sheet->mergeCells("AB" . ($currentRow) . ":AB" . ($currentRow + 3)); //First Period
             $sheet->mergeCells("AB" . ($currentRow + 4) . ":AB" . ($currentRow + 7)); //Second Period
             $sheet->mergeCells("AC" . ($currentRow) . ":AC" . ($currentRow + 8)); // Remarks
             $sheet->mergeCells("AD" . ($currentRow) . ":AD" . ($currentRow + 8)); // Number Of Absents
-
 
             //Values or Data 
             $sheet->setCellValue("B" . ($currentRow + 5), 'BASIC');
@@ -553,6 +405,7 @@ class ReportsController extends Controller
             $sheet->setCellValue("Z" . ($currentRow), $employee['total_employee_deductions']);
             $sheet->setCellValue("AA" . ($currentRow), $employee['net_pay_first_half']);
             $sheet->setCellValue("AA" . ($currentRow + 4), $employee['net_pay_second_half']);
+            $sheet->setCellValue("AA" . ($currentRow + 8), $employee['net_pay']);
 
             $sheet->setCellValue("AB" . ($currentRow), $employee['first_period']);
             $sheet->setCellValue("AB" . ($currentRow + 4), $employee['second_period']);

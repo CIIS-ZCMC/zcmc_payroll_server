@@ -2,58 +2,51 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Data\ReceivableData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReceivableRequest;
 use App\Http\Resources\ReceivableResource;
 use App\Models\Receivable;
+use App\Services\ReceivableService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ReceivableController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function __construct(private ReceivableService $service)
     {
-        if ($request->pagination) {
-            return $this->pagination($request);
-        }
-
-        return response()->json([
-            'responseData' => ReceivableResource::collection(Receivable::whereNull('deleted_at')->get()),
-            'message' => "Data Successfully retrieved",
-            'statusCode' => 200
-        ], Response::HTTP_OK);
+        //nothing
     }
 
+    public function index(Request $request)
+    {
+        $data = $this->service->index($request);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+        $response = [
+            'data' => [
+                'data' => ReceivableResource::collection($data),
+            ],
+            'message' => "Data Successfully retrieved",
+            'statusCode' => 200
+        ];
+
+        // Only add meta if it's a paginated result
+        if ($data instanceof LengthAwarePaginator) {
+            $response['data']['meta'] = [
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+            ];
+        }
+
+        return response()->json($response, Response::HTTP_OK);
+    }
+
     public function store(ReceivableRequest $request)
     {
-        $validate = $request->validated();
-        $validate_code = Receivable::whereNull('deleted_at')->where('code', $validate['code'])->first();
-
-        if ($validate_code) {
-            return response()->json(['message' => 'Code already exist'], Response::HTTP_FOUND);
-        }
-
-        if ($validate['type'] === null) {
-            if ($validate['percent_value'] !== null) {
-                $validate['type'] = 'percentage';
-            } elseif ($validate['fixed_amount'] !== null) {
-                $validate['type'] = 'fixed';
-            }
-        }
-
-        $data = Receivable::create($validate);
+        $dto = ReceivableData::fromRequest($request);
+        $data = $this->service->create($dto);
 
         return response()->json([
             'data' => new ReceivableResource($data),
@@ -62,12 +55,6 @@ class ReceivableController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id, Request $request)
     {
         $payroll_period_id = $request->payroll_period_id;
@@ -92,40 +79,16 @@ class ReceivableController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        $data = Receivable::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string',
+            'code' => 'required|string|unique:receivables,code,' . $id,
+            'amount' => 'required|numeric',
+        ]);
 
-        if (!$data) {
-            return response()->json([
-                'message' => "Data not found",
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        // Check if code already exists in other receivables
-        if ($request->has('code')) {
-            $existing = Receivable::whereNull('deleted_at')
-                ->where('code', $request->input('code'))
-                ->where('id', '!=', $id)
-                ->first();
-
-            if ($existing) {
-                return response()->json([
-                    'message' => 'Code already exist',
-                    'statusCode' => 302
-                ], Response::HTTP_FOUND);
-            }
-        }
-
-        $data->update($request->all());
+        $dto = ReceivableData::fromRequest($request);
+        $data = $this->service->update($id, $dto);
 
         return response()->json([
             'data' => new ReceivableResource($data),
@@ -134,54 +97,12 @@ class ReceivableController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $data = Receivable::findOrFail($id);
-
-        if (!$data) {
-            return response()->json([
-                'message' => "Data not found",
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data->delete();
+        $this->service->delete($id);
 
         return response()->json([
             'message' => "Data Successfully deleted",
-            'statusCode' => 200
-        ], Response::HTTP_OK);
-    }
-
-    public function pagination(Request $request)
-    {
-        $validated = $request->validate([
-            'per_page' => 'sometimes|integer|min:1|max:100',
-            'page' => 'sometimes|integer|min:1|max:100'
-        ]);
-
-        $perPage = $validated['per_page'] ?? 10;
-        $page = $validated['page'] ?? 1;
-
-        $data = Receivable::whereNull('deleted_at')->paginate($perPage, ['*'], 'page', $page);
-
-        return response()->json([
-            'responseData' => [
-                'data' => ReceivableResource::collection($data),
-                'meta' => [
-                    'current_page' => $data->currentPage(),
-                    'last_page' => $data->lastPage(),
-                    'per_page' => $data->perPage(),
-                    'total' => $data->total(),
-                ]
-            ],
-            'message' => "Data Successfully retrieved",
             'statusCode' => 200
         ], Response::HTTP_OK);
     }

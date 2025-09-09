@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Contract\EmployeeAdjustmentInterface;
 use App\Data\EmployeeAdjustmentData;
 use App\Models\EmployeeAdjustment;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class EmployeeAdjustmentService
 {
@@ -14,16 +12,6 @@ class EmployeeAdjustmentService
         private EmployeeAdjustmentInterface $interface
     ) {
         //nothing
-    }
-
-    public function getAll(): Collection
-    {
-        return $this->interface->getAll();
-    }
-
-    public function getAllPagination(int $perPage): LengthAwarePaginator
-    {
-        return $this->interface->getAllPagination($perPage);
     }
 
     public function create(EmployeeAdjustmentData $data): EmployeeAdjustment

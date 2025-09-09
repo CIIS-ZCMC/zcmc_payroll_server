@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Contract\EmployeeDeductionTrailInterface;
 use App\Data\EmployeeDeductionTrailData;
 use App\Models\EmployeeDeductionTrail;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class EmployeeDeductionTrailService
 {
@@ -14,17 +13,7 @@ class EmployeeDeductionTrailService
         //Nothing
     }
 
-    public function getAllPerPeriod(int $payroll_period_id, int $page, int $perPage): LengthAwarePaginator
-    {
-        return $this->interface->getAllPerPeriod($payroll_period_id, $page, $perPage);
-    }
-
-    public function getAllPagination(int $page, int $perPage): LengthAwarePaginator
-    {
-        return $this->interface->getAllPagination($page, $perPage);
-    }
-
-    public function create(EmployeeDeductionTrailData $data): EmployeeDeductionTrail
+    public function create(EmployeeDeductionTrailData $data)
     {
         return $this->interface->create([
             'employee_deduction_id' => $data->employee_deduction_id,
@@ -40,9 +29,9 @@ class EmployeeDeductionTrailService
         ]);
     }
 
-    public function find(int $id): ?EmployeeDeductionTrail
+    public function show(int $employee_id, int $deduction_id)
     {
-        return $this->interface->find($id);
+        return $this->interface->show($employee_id, $deduction_id);
     }
 
 }

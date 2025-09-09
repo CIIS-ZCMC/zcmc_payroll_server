@@ -93,7 +93,6 @@ class ComputationService
         return $amount;
     }
 
-
     private function getHazardPayPercentage($salary_grade)
     {
         // 2016 rules simplified percentage table (section 3.3)
@@ -172,7 +171,7 @@ class ComputationService
         return $amount;
     }
 
-    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days, $absences)
+    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days, $absences, $inital_salary)
     {
         $pera = Receivable::where('id', 1)->first();
 
@@ -195,12 +194,12 @@ class ComputationService
 
             $amount = null;
             if ($absences >= 1) {
-                $deduct = floor($pera_amount / $required_duty_days * $absences * 100) / 100;
-                $amount = floor(num: ($pera_amount - $deduct) * 100) / 100;
+                $deduct = round($pera_amount / $required_duty_days, 2); //90.91 Full Time , 45.45 Part Time;
+                $absent_deduction = $deduct * $absences;
+                $amount = $pera_amount - $absent_deduction;
             } else {
                 $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
             }
-
             if ($payroll_period_id !== null && $employee_id !== null) {
                 $find = EmployeeReceivable::where('payroll_period_id', $payroll_period_id)
                     ->where('employee_id', $employee_id)

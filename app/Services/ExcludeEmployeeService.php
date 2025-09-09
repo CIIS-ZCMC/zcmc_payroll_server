@@ -2,32 +2,28 @@
 
 namespace App\Services;
 
+use App\Contract\ExcludedEmployeeInterface;
 use App\Models\ExcludedEmployee;
 
 class ExcludeEmployeeService
 {
+    public function __construct(private ExcludedEmployeeInterface $interface)
+    {
+        //Nothing
+    }
+
     public function create(array $data)
     {
-        return ExcludedEmployee::create($data);
+        return $this->interface->create($data);
     }
 
     public function update($id, array $data)
     {
-        $model = ExcludedEmployee::find($id);
-        if ($model) {
-            $model->update($data);
-            return $model;
-        }
-        return null;
+        return $this->interface->update($id, $data);
     }
 
     public function delete($id)
     {
-        $model = ExcludedEmployee::find($id);
-        if ($model) {
-            $model->delete();
-            return true;
-        }
-        return false;
+        return $this->interface->delete($id);
     }
 }

@@ -27,6 +27,10 @@ class PayrollPeriod extends Model
         'locked_at',
         'is_active'
     ];
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 
     public function excludedEmployees()
     {

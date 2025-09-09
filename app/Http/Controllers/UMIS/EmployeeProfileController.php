@@ -20,15 +20,17 @@ use App\Services\EmployeeSalaryService;
 use App\Services\EmployeeService;
 use App\Services\EmployeeTimeRecordService;
 use App\Services\ExcludeEmployeeService;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cache;
-use Str;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\GenPayroll;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+
+
 
 class EmployeeProfileController extends Controller
 {
@@ -325,7 +327,7 @@ class EmployeeProfileController extends Controller
                 }
             ]);
 
-            if ($employment_type === 'Job Order') {
+            if ($employment_type === 'job order') {
                 $employee_data->whereHas('employmentType', function ($query) {
                     $query->where('name', 'Job Order');
                 });
@@ -596,11 +598,6 @@ class EmployeeProfileController extends Controller
           
             
 
-            // $data = $employee_data->map(function ($employee) use ($year_of, $month_of, $totalDaysInMonth, $request, $expectedMinutesPerDay, $holiday, $helper) {
-
-        
-            // });
-            // $request->console->info('Saved!');
             $response_data = [
                 "employment_type" => $employment_type,
                 "month_of" => $month_of,
@@ -1033,8 +1030,9 @@ class EmployeeProfileController extends Controller
             $employment_type = $data['employee']['salary']['employment_type'];
             $salary_grade = $data['employee']['salary']['salary_grade'];
             $basic_salary = $data['employee']['salary']['base_salary'];
-            $no_of_present_days = ['no_of_present_days']; //without leave, ob and ot , also holiday not included
-            $no_of_present_days_with_leave = ['no_of_present_days_with_leave'];
+            $initial_salary = $data['initial_net_pay'];
+            $no_of_present_days = $data['no_of_present_days']; //without leave, ob and ot , also holiday not included
+            $no_of_present_days_with_leave = $data['no_of_present_days_with_leave'];
             $no_of_absences = $data['no_of_absences'];
             $no_of_leave_wo_pay = $data['no_of_leave_wo_pay'];
             $no_of_leave_w_pay = $data['no_of_leave_w_pay'];
@@ -1060,7 +1058,8 @@ class EmployeeProfileController extends Controller
                     $no_of_present_days_with_leave,
                     $employment_type,
                     22,
-                    $no_of_absences
+                    $no_of_absences,
+                    $initial_salary
                 );
                 // $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
                 $deduction = $this->computationService->employeeDeduction(
