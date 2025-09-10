@@ -13,11 +13,13 @@ class GeneralPayrollController extends Controller
 {
     public function index(Request $request)
     {
+        
         $data = GeneralPayroll::with([
             'payrollPeriod',
             'payrollPeriod.employeePayroll'
         ])->where('month', $request->month_of)
             ->where('year', $request->year_of)
+            ->whereHas('payrollPeriod')
             ->get();
 
         return response()->json([

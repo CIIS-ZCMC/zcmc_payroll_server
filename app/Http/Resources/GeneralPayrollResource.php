@@ -14,6 +14,7 @@ class GeneralPayrollResource extends JsonResource
      */
     public function toArray($request)
     {
+     
         return [
             'id' => $this->id,
             'generated_by_id' => $this->generated_by_id,
@@ -31,5 +32,7 @@ class GeneralPayrollResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+        
+ 
     }
 }

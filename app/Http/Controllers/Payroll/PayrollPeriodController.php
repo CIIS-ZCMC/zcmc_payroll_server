@@ -19,10 +19,14 @@ class PayrollPeriodController extends Controller
             ->where('period_type', $request->period_type)
             ->where('month', $request->month_of)
             ->where('year', $request->year_of)
+            ->whereNull('deleted_at')
             ->first();
 
         if (!$payroll_period) {
-            $payroll_period = PayrollPeriod::where('is_active', true)->first();
+        
+            $payroll_period = PayrollPeriod::where('is_active', true)
+            ->whereNull('deleted_at')
+            ->first();
 
             if (!$payroll_period) {
                 return response()->json([
@@ -36,8 +40,11 @@ class PayrollPeriodController extends Controller
             'is_active' => true,
         ]);
 
+     
         //Deactivate Other payroll periods
-        PayrollPeriod::where('id', '!=', $payroll_period->id)->update([
+        PayrollPeriod::where('id', '!=', $payroll_period->id)
+        ->whereNull('deleted_at')
+        ->update([
             'is_active' => false,
         ]);
 
@@ -67,5 +74,16 @@ class PayrollPeriodController extends Controller
                 'statusCode' => 200,
             ], Response::HTTP_OK);
         });
+    }
+
+    public function destroy($id)
+    {
+        $payroll_period = PayrollPeriod::findOrFail($id);
+        $payroll_period->delete();
+
+        return response()->json([
+            'message' => 'Payroll period deleted successfully.',
+            'statusCode' => 200,
+        ], Response::HTTP_OK);
     }
 }

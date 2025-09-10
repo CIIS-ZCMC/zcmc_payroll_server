@@ -1091,15 +1091,22 @@ class EmployeeProfileController extends Controller
             ->where('year', $response_data['year_of'])
             ->first();
 
-        $monthName = date('F', mktime(0, 0, 0, $response_data['month_of'], 10));
+        $monthName = date('F', mktime(0, 0, 0,$response_data['month_of'], 10));
+        $currentMonth =date('F', mktime(0, 0, 0,GenPayroll::getNextMonthYear($response_data['month_of'], $response_data['year_of'])['month'], 10)); 
+        $fetchedYear =$response_data['year_of'];
+        $currentYear = GenPayroll::getNextMonthYear($response_data['month_of'], $response_data['year_of'])['year'];
 $request->console->info("
+
+=============
  ____   _  _   
 /  _ \ | |/ |  
 | | | || ' /   
 | |_| || . \   
-\____/ |_|\_\  
+\____/ |_|\_\
 
-Payroll period for {$monthName} {$response_data['year_of']} has been fetched successfully");
+=============
+
+Payroll period for {$currentMonth } {$currentYear} ( {$monthName}-{$fetchedYear} Data )  has been fetched successfully");
 
         
        

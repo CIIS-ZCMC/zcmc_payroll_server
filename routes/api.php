@@ -63,7 +63,7 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('employee-deduction-trail', EmployeeDeductionTrailController::class)->only(['index', 'store', 'show', 'destroy']);
 
     //Payroll Period
-    Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);
+    Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index','destroy']);
     Route::get("payroll-period-lists", [PayrollPeriodController::class, 'payrollPeriodList']);
 
     //Employee Payroll
