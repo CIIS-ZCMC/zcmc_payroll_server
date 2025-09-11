@@ -52,6 +52,8 @@ class FetchPayrollData extends Command
 
         $validator = $this->employeeProfileController->validatePayrollData($year, $month, $employmentType, $periodType);
        
+       
+
         $responseValidator = $validator->getData();
 
         if(!$responseValidator->allow_adding){
@@ -115,7 +117,7 @@ class FetchPayrollData extends Command
 
     
       } catch (\Throwable $th) {
-        Log::channel('fetch_payroll_log')->error("Error: " . $th->getMessage());
+        Log::channel('fetch_payroll_log')->error("Error: " . $th);
       }
         
     }

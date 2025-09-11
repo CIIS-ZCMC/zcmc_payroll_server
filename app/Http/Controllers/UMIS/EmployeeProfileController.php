@@ -63,18 +63,21 @@ class EmployeeProfileController extends Controller
 
     public function validatePayrollData($year, $month, $employmentType, $periodType)
     {
-  
-      
+
+        
+        
             $payrollPeriod = new PayrollPeriodController();
             $response = $payrollPeriod->index(request())->getData(true);
-         
+      
             if(!isset($response['data']['id'])){
                 return response()->json([
                     'allow_adding' => true,
                     'is_active' => true,
                 ]);
             }
-            $activePeriod = PayrollPeriod::find($response['data']['id']);
+
+            
+             $activePeriod = PayrollPeriod::find($response['data']['id']);
 
               //If No active period found, allow adding new data and set active
               if(!$activePeriod){
@@ -86,8 +89,11 @@ class EmployeeProfileController extends Controller
                 ]);
             
            }
+
+        
             
             if($activePeriod->year == $year && $activePeriod->month == $month ){
+               
                 //Allow adding new data and is_active = 1
                 //check period Type
                 if($activePeriod->period_type !== $periodType){
@@ -126,13 +132,14 @@ class EmployeeProfileController extends Controller
                     'non' => 'non'
                 ]);
             } 
-        
+
+         
             //Compare year  
             if($activePeriod->year >= $year){ 
-               
+              
                 //locked_at
                 //Compare months
-                if($activePeriod->month  > $month ){ //7 > 6
+                if ((int)$activePeriod->month >= (int)$month) { //7 > 6
                      //check if the previous payroll period is locked
 
                      $previousPeriod = PayrollPeriod::where('year', $year)->where('month', $month)
@@ -163,7 +170,7 @@ class EmployeeProfileController extends Controller
                     ]);
                 }
 
-                if($activePeriod->month  < $month ){ //7 < 8
+                if((int)$activePeriod->month  <= (int)$month ){ //7 < 8
                     //check if the active payroll period is locked
                  
                     //if locked then allow adding and set active.
@@ -182,6 +189,7 @@ class EmployeeProfileController extends Controller
                           "<" => "not locked"
                     ]);
                 }
+
               
             }
             //Year not equal
