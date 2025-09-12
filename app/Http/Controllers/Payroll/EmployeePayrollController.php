@@ -10,6 +10,7 @@ use App\Models\EmployeePayroll;
 use App\Models\EmployeeTimeRecord;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
+use App\Services\EmployeePayrollService;
 use App\Services\EmployeeTimeRecordService;
 use App\Services\PayrollPeriodService;
 use Illuminate\Http\Request;
@@ -24,8 +25,11 @@ class EmployeePayrollController extends Controller
     protected $payrollPeriod;
     protected $employeeTimeRecord;
 
-    public function __construct(EmployeeTimeRecordService $employeeTimeRecordService, PayrollPeriodService $payrollPeriodService)
-    {
+    public function __construct(
+        EmployeePayrollService $service,
+        EmployeeTimeRecordService $employeeTimeRecordService,
+        PayrollPeriodService $payrollPeriodService
+    ) {
         $this->employeeTimeRecord = $employeeTimeRecordService;
         $this->payrollPeriod = $payrollPeriodService;
     }
@@ -82,12 +86,13 @@ class EmployeePayrollController extends Controller
         $nightdiffRate = floor($monthlyRate * 0.005682 * 100) / 100;
         $nightDifferentialTwentyPercentRate = floor($nightdiffRate * 0.2 * 100) / 100;
         $totalAccumulatedND = floor($totalNightDutyHours * $nightDifferentialTwentyPercentRate * 100) / 100;
-        
+
 
         return $totalAccumulatedND;
     }
 
-    public function getNightHours($dtrRecord, $scheduleStartHour =22, $scheduleEndHour = 6) {
+    public function getNightHours($dtrRecord, $scheduleStartHour = 22, $scheduleEndHour = 6)
+    {
         /**
          * Calculate hours within the given schedule
          * 
@@ -96,26 +101,26 @@ class EmployeePayrollController extends Controller
          * @param int $scheduleEndHour Ending hour of schedule
          * @return array Array with dtr_date and total_night_hours
          */
-        
+
         $results = [];
 
-       
-        
+
+
         if (!empty($dtrRecord->first_in) && !empty($dtrRecord->first_out)) {
             $firstIn = new DateTime($dtrRecord->first_in);
             $firstOut = new DateTime($dtrRecord->first_out);
-            
+
             $shiftHours = $this->calculateHoursInSchedule($firstIn, $firstOut, $scheduleStartHour, $scheduleEndHour);
             $results = array_merge($results, $shiftHours);
         }
-        
+
         if (!empty($dtrRecord->second_in) && !empty($dtrRecord->second_out)) {
             $secondIn = new DateTime($dtrRecord->second_in);
             $secondOut = new DateTime($dtrRecord->second_out);
             $shiftHours = $this->calculateHoursInSchedule($secondIn, $secondOut, $scheduleStartHour, $scheduleEndHour);
             $results = array_merge($results, $shiftHours);
         }
-        
+
         $combinedResults = [];
         foreach ($results as $result) {
             $date = $result['dtr_date'];
@@ -127,27 +132,28 @@ class EmployeePayrollController extends Controller
             }
             $combinedResults[$date]['total_night_hours'] += $result['total_night_hours'];
         }
-        
+
         return array_values($combinedResults);
     }
-    
-    private function calculateHoursInSchedule($start, $end, $scheduleStartHour, $scheduleEndHour) {
+
+    private function calculateHoursInSchedule($start, $end, $scheduleStartHour, $scheduleEndHour)
+    {
         $hoursByDate = [];
-        
+
         $current = clone $start;
-        $interval = new DateInterval('PT1M'); 
-        
+        $interval = new DateInterval('PT1M');
+
         while ($current < $end) {
             $currentDate = $current->format('Y-m-d');
-            $currentHour = (int)$current->format('H');
+            $currentHour = (int) $current->format('H');
             $isInSchedule = false;
-            
+
             if ($scheduleStartHour < $scheduleEndHour) {
                 $isInSchedule = ($currentHour >= $scheduleStartHour && $currentHour < $scheduleEndHour);
             } else {
                 $isInSchedule = ($currentHour >= $scheduleStartHour || $currentHour < $scheduleEndHour);
             }
-            
+
             if ($isInSchedule) {
                 if (!isset($hoursByDate[$currentDate])) {
                     $hoursByDate[$currentDate] = [
@@ -155,16 +161,17 @@ class EmployeePayrollController extends Controller
                         'total_night_hours' => 0
                     ];
                 }
-                $hoursByDate[$currentDate]['total_night_hours'] += (1/60);
+                $hoursByDate[$currentDate]['total_night_hours'] += (1 / 60);
             }
             $current->add($interval);
         }
         foreach ($hoursByDate as &$entry) {
             $entry['total_night_hours'] = round($entry['total_night_hours'], 2);
         }
-        
+
         return array_values($hoursByDate);
     }
+
     private function processNightDifferential()
     {
         $payrollPeriod = new PayrollPeriodController();
@@ -177,72 +184,72 @@ class EmployeePayrollController extends Controller
             $nightDifferential = json_decode($timeRecord->night_differentials);
             $employeeInfo = $employee->employee;
             //Processing only employees with night differential
-            if($nightDifferential){
+            if ($nightDifferential) {
 
-            $schedule = json_decode($timeRecord->schedules);
-            $nightDiffRecord = [];
+                $schedule = json_decode($timeRecord->schedules);
+                $nightDiffRecord = [];
 
-            foreach ($nightDifferential as $dtrRecord) {
-                $timeshifts = collect(array_values(array_filter($schedule, function($schedule) use($dtrRecord){
-                    return $schedule->date == $dtrRecord->dtr_date;
-                })))->first();
+                foreach ($nightDifferential as $dtrRecord) {
+                    $timeshifts = collect(array_values(array_filter($schedule, function ($schedule) use ($dtrRecord) {
+                        return $schedule->date == $dtrRecord->dtr_date;
+                    })))->first();
 
-                if($timeshifts){
-                    $timeshift = $timeshifts->time_shift;
-                    $nightHours = $this->getNightHours(
-                        $dtrRecord ,
-                        Carbon::createFromFormat('H:i:s', $timeshift->first_in)->hour,
-                        Carbon::createFromFormat('H:i:s', $timeshift->first_out)->hour
-                    );
-                    $nightDiffRecord = array_merge($nightDiffRecord, $nightHours);
+                    if ($timeshifts) {
+                        $timeshift = $timeshifts->time_shift;
+                        $nightHours = $this->getNightHours(
+                            $dtrRecord,
+                            Carbon::createFromFormat('H:i:s', $timeshift->first_in)->hour,
+                            Carbon::createFromFormat('H:i:s', $timeshift->first_out)->hour
+                        );
+                        $nightDiffRecord = array_merge($nightDiffRecord, $nightHours);
+                    }
+
                 }
 
-            }
+                $totalNightHours = array_reduce($nightDiffRecord, function ($carry, $item) {
+                    return $carry + $item['total_night_hours'];
+                }, 0);
 
-              $totalNightHours = array_reduce($nightDiffRecord, function($carry, $item){
-                return $carry + $item['total_night_hours'];
-            }, 0);
+                $nightDifferentialAmount = $this->CalculateNightDifferential($totalNightHours, decrypt($employeeInfo->employeeSalary->base_salary));
 
-            $nightDifferentialAmount = $this->CalculateNightDifferential($totalNightHours, decrypt($employeeInfo->employeeSalary->base_salary));  
-
-            $employees[] = [
-                'EmployeeInfo' => $employeeInfo,
-                'TimeRecordID'=>$timeRecord->id,
-                'NightDifferentialAmount' => $nightDifferentialAmount
-            ];
-            //Return list here for employee's with night differential
+                $employees[] = [
+                    'EmployeeInfo' => $employeeInfo,
+                    'TimeRecordID' => $timeRecord->id,
+                    'NightDifferentialAmount' => $nightDifferentialAmount
+                ];
+                //Return list here for employee's with night differential
 
             }
         }
 
-      
-            //create new Payroll Period . for the current active month and year
-            //create generate payroll , total of night differential
-            //create employee employee payroll
-       
-       
-         $user = request()->user;
-       // $user = (object)['employee_id'=>2022090251, 'name'=>'Reenjay Caimor'];
 
-       // To do . check for existing payroll period if its locked , then do not allow to proceed 
+        //create new Payroll Period . for the current active month and year
+        //create generate payroll , total of night differential
+        //create employee employee payroll
 
-       
 
-       $existingNDFPayrollPeriod = PayrollPeriod::where('month', $activePeriod->month)
-       ->where('year', $activePeriod->year)
-       ->where('employment_type','permanent')
-       ->where('period_type','full_month')
-       ->where('payroll_type','Night Differential')
-       ->whereNotNull('locked_at')
-       ->first();
-       
+        $user = request()->user;
+        // $user = (object)['employee_id'=>2022090251, 'name'=>'Reenjay Caimor'];
 
-       if($existingNDFPayrollPeriod){
-           return response()->json([
-               'message' => 'Payroll period already locked.',
-               'statusCode' => 400,
-           ], Response::HTTP_BAD_REQUEST);
-       }
+        // To do . check for existing payroll period if its locked , then do not allow to proceed 
+
+
+
+        $existingNDFPayrollPeriod = PayrollPeriod::where('month', $activePeriod->month)
+            ->where('year', $activePeriod->year)
+            ->where('employment_type', 'permanent')
+            ->where('period_type', 'full_month')
+            ->where('payroll_type', 'Night Differential')
+            ->whereNotNull('locked_at')
+            ->first();
+
+
+        if ($existingNDFPayrollPeriod) {
+            return response()->json([
+                'message' => 'Payroll period already locked.',
+                'statusCode' => 400,
+            ], Response::HTTP_BAD_REQUEST);
+        }
 
         $payrollPeriod = PayrollPeriod::firstOrCreate([
             'month' => $activePeriod->month,
@@ -257,15 +264,15 @@ class EmployeePayrollController extends Controller
             'posted_at' => $activePeriod->posted_at,
             'last_generated_at' => $activePeriod->last_generated_at,
             'locked_at' => $activePeriod->locked_at,
-        ],[
-            'is_active'=>0
+        ], [
+            'is_active' => 0
         ]);
 
-        $total_Gross_ND = array_reduce($employees, function($carry, $item){
+        $total_Gross_ND = array_reduce($employees, function ($carry, $item) {
             return $carry + $item['NightDifferentialAmount'];
         }, 0);
 
-     
+
         $generalPayroll = GeneralPayroll::updateOrCreate(
             [
                 'payroll_period_id' => $payrollPeriod->id,
@@ -275,19 +282,20 @@ class EmployeePayrollController extends Controller
                 'generated_by_name' => $user->name,
             ],
             [
-            'payroll_period_id' => $payrollPeriod->id,
-            'total_employees' => count($employees),
-            'total_deductions' => 0,
-            'total_receivables' => 0,
-            'total_gross' => $total_Gross_ND,
-            'total_net' => $total_Gross_ND,
-        ]);
+                'payroll_period_id' => $payrollPeriod->id,
+                'total_employees' => count($employees),
+                'total_deductions' => 0,
+                'total_receivables' => 0,
+                'total_gross' => $total_Gross_ND,
+                'total_net' => $total_Gross_ND,
+            ]
+        );
         //Employee Payroll - Night Differential
         foreach ($employees as $employee) {
             $EmployeeInfo = $employee['EmployeeInfo'];
             $employee_time_record_id = $employee['TimeRecordID'];
             $NightDifferentialAmount = $employee['NightDifferentialAmount'];
-            $employee_id =$EmployeeInfo['id'];
+            $employee_id = $EmployeeInfo['id'];
             $payroll_period_id = $payrollPeriod->id;
 
             //check if NDF of employee exists within the month and year 
@@ -300,22 +308,22 @@ class EmployeePayrollController extends Controller
                     'payroll_period_id' => $payroll_period_id,
                 ],
                 [
-                    'month'=>$activePeriod->month,
-                    'year'=>$activePeriod->year,
-                    'gross_salary'=>$NightDifferentialAmount,
-                    'total_deductions'=>0,
-                    'total_receivables'=>0,
-                    'net_pay'=>$NightDifferentialAmount,
-                    'deleted_at'=>null,
+                    'month' => $activePeriod->month,
+                    'year' => $activePeriod->year,
+                    'gross_salary' => $NightDifferentialAmount,
+                    'total_deductions' => 0,
+                    'total_receivables' => 0,
+                    'net_pay' => $NightDifferentialAmount,
+                    'deleted_at' => null,
                     'employee_time_record_id' => $employee_time_record_id,
                 ]
             );
 
-          }
+        }
 
-          return response()->json([
+        return response()->json([
             'message' => 'Night Differential processed successfully',
-            'payrollID'=>$payrollPeriod->id,
+            'payrollID' => $payrollPeriod->id,
             'statusCode' => 200
         ]);
 
@@ -324,113 +332,113 @@ class EmployeePayrollController extends Controller
     public function store(Request $request)
     {
         try {
-          $user = $request->user;
-            
-        $response = [];
-        $payroll_period_id = $request->payroll_period_id;
-        $payroll_period = PayrollPeriod::find($payroll_period_id);
-        
+            $user = $request->user;
 
-       
-        if(isset($request->payroll_type) && $request->payroll_type === "NightDifferential"){
-            return $this->processNightDifferential($payroll_period);
-        }
+            $response = [];
+            $payroll_period_id = $request->payroll_period_id;
+            $payroll_period = PayrollPeriod::find($payroll_period_id);
 
-       
-        if (!$payroll_period || !is_numeric($payroll_period_id) || $payroll_period_id < 0 || (int) $payroll_period_id !== $payroll_period_id) {
-            return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
-        }
 
-      
 
-        if ($payroll_period && $payroll_period->locked_at !== null) {
-            return response()->json([
-                'message' => "Payroll is already locked",
-                'statusCode' => 403
-            ], Response::HTTP_FORBIDDEN);
-        }
-
-        $selected_employee = $request->selected_employees;
-        $selected_employee_ids = collect($selected_employee)->pluck('employee_number')->toArray();
-
-        // Get existing employee payroll records for this period
-        $existing_payrolls = EmployeePayroll::where('payroll_period_id', $payroll_period_id)
-            ->whereNotIn('employee_id', function ($query) use ($selected_employee_ids) {
-                $query->select('id')
-                    ->from('employees')
-                    ->whereIn('employee_number', $selected_employee_ids);
-            })->delete();
-
-        foreach ($selected_employee as $data) {
-            $employee = Employee::where('employee_number', $data['employee_number'])->first();
-
-            if (!$employee) {
-                return response()->json(['message' => 'Employee not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
+            if (isset($request->payroll_type) && $request->payroll_type === "NightDifferential") {
+                return $this->processNightDifferential($payroll_period);
             }
 
-            $employee_time_record = EmployeeTimeRecord::with([
-                'payrollPeriod',
-                'employee' => function ($query) use ($payroll_period_id) {
-                    $query->with([
-                        'employeeDeductions' => function ($query) use ($payroll_period_id) {
-                            $query->where('payroll_period_id', $payroll_period_id);
-                        },
-                        'employeeReceivables' => function ($query) use ($payroll_period_id) {
-                            $query->where('payroll_period_id', $payroll_period_id);
-                        }
-                    ]);
+
+            if (!$payroll_period || !is_numeric($payroll_period_id) || $payroll_period_id < 0 || (int) $payroll_period_id !== $payroll_period_id) {
+                return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
+            }
+
+
+
+            if ($payroll_period && $payroll_period->locked_at !== null) {
+                return response()->json([
+                    'message' => "Payroll is already locked",
+                    'statusCode' => 403
+                ], Response::HTTP_FORBIDDEN);
+            }
+
+            $selected_employee = $request->selected_employees;
+            $selected_employee_ids = collect($selected_employee)->pluck('employee_number')->toArray();
+
+            // Get existing employee payroll records for this period
+            $existing_payrolls = EmployeePayroll::where('payroll_period_id', $payroll_period_id)
+                ->whereNotIn('employee_id', function ($query) use ($selected_employee_ids) {
+                    $query->select('id')
+                        ->from('employees')
+                        ->whereIn('employee_number', $selected_employee_ids);
+                })->delete();
+
+            foreach ($selected_employee as $data) {
+                $employee = Employee::where('employee_number', $data['employee_number'])->first();
+
+                if (!$employee) {
+                    return response()->json(['message' => 'Employee not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
                 }
-            ])
-                ->where('payroll_period_id', $payroll_period_id)
-                ->where('employee_id', $employee->id)
-                // ->where('id', $data['id'])
-                ->first();
 
-            $employee_computed_salary = EmployeeComputedSalary::where('employee_id', $employee->id)
-                ->where('employee_time_record_id', $employee_time_record->id)
-                ->first();
+                $employee_time_record = EmployeeTimeRecord::with([
+                    'payrollPeriod',
+                    'employee' => function ($query) use ($payroll_period_id) {
+                        $query->with([
+                            'employeeDeductions' => function ($query) use ($payroll_period_id) {
+                                $query->where('payroll_period_id', $payroll_period_id);
+                            },
+                            'employeeReceivables' => function ($query) use ($payroll_period_id) {
+                                $query->where('payroll_period_id', $payroll_period_id);
+                            }
+                        ]);
+                    }
+                ])
+                    ->where('payroll_period_id', $payroll_period_id)
+                    ->where('employee_id', $employee->id)
+                    // ->where('id', $data['id'])
+                    ->first();
 
-            if (!$employee_computed_salary) {
-                return response()->json(['message' => 'Employee Salary not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
+                $employee_computed_salary = EmployeeComputedSalary::where('employee_id', $employee->id)
+                    ->where('employee_time_record_id', $employee_time_record->id)
+                    ->first();
+
+                if (!$employee_computed_salary) {
+                    return response()->json(['message' => 'Employee Salary not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
+                }
+
+                $total_deductions = round($employee_time_record->employee->employeeDeductions->sum('amount'), 2);
+                $total_receivables = round($employee_time_record->employee->employeeReceivables->sum('amount'), 2);
+
+                $base_salary = $employee_computed_salary->computed_salary;
+                $gross_salary = round($base_salary + $total_receivables, 2); //Base Salary +(Plus) Receivables
+                $net_pay = round($gross_salary - $total_deductions, 2); //Gross -(minus) total deductions
+
+                $request_data = [
+                    'employee_id' => $employee_time_record->employee_id,
+                    'payroll_period_id' => $employee_time_record->payroll_period_id,
+                    'employee_time_record_id' => $employee_time_record->id,
+                    'month' => $employee_time_record->payrollPeriod->month,
+                    'year' => $employee_time_record->payrollPeriod->year,
+                    'gross_salary' => $gross_salary,
+                    'total_deductions' => $total_deductions,
+                    'total_receivables' => $total_receivables,
+                    'net_pay' => $net_pay,
+                ];
+
+                $existing = EmployeePayroll::where('employee_id', $employee->id)
+                    ->where('employee_time_record_id', $employee_time_record->id)
+                    ->where('payroll_period_id', $payroll_period_id)
+                    ->first();
+
+                if (!$existing) {
+                    $result = EmployeePayroll::create($request_data);
+                } else {
+                    $existing->update($request_data);
+                    $result = $existing;
+                }
+
+                $response[] = $result;
             }
 
-            $total_deductions = round($employee_time_record->employee->employeeDeductions->sum('amount'), 2);
-            $total_receivables = round($employee_time_record->employee->employeeReceivables->sum('amount'), 2);
-
-            $base_salary = $employee_computed_salary->computed_salary;
-            $gross_salary = round($base_salary + $total_receivables, 2); //Base Salary +(Plus) Receivables
-            $net_pay = round($gross_salary - $total_deductions, 2); //Gross -(minus) total deductions
-
-            $request_data = [
-                'employee_id' => $employee_time_record->employee_id,
-                'payroll_period_id' => $employee_time_record->payroll_period_id,
-                'employee_time_record_id' => $employee_time_record->id,
-                'month' => $employee_time_record->payrollPeriod->month,
-                'year' => $employee_time_record->payrollPeriod->year,
-                'gross_salary' => $gross_salary,
-                'total_deductions' => $total_deductions,
-                'total_receivables' => $total_receivables,
-                'net_pay' => $net_pay,
-            ];
-
-            $existing = EmployeePayroll::where('employee_id', $employee->id)
-                ->where('employee_time_record_id', $employee_time_record->id)
-                ->where('payroll_period_id', $payroll_period_id)
-                ->first();
-
-            if (!$existing) {
-                $result = EmployeePayroll::create($request_data);
-            } else {
-                $existing->update($request_data);
-                $result = $existing;
+            if ($response === null) {
+                return response()->json(['message' => 'Error occurred while processing the employees', 'statusCode' => 500], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-
-            $response[] = $result;
-        }
-
-        if ($response === null) {
-            return response()->json(['message' => 'Error occurred while processing the employees', 'statusCode' => 500], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
 
 
             $totals = EmployeePayroll::where('payroll_period_id', $payroll_period->id)
@@ -462,13 +470,13 @@ class EmployeePayrollController extends Controller
                 GeneralPayroll::create($request_general_payroll);
             }
 
-        
 
-        return response()->json([
-            'responseData' => EmployeePayrollResource::collection($response),
-            'message' => 'Data successfully saved.',
-            'statusCode' => 200,
-        ], Response::HTTP_OK);
+
+            return response()->json([
+                'responseData' => EmployeePayrollResource::collection($response),
+                'message' => 'Data successfully saved.',
+                'statusCode' => 200,
+            ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             Log::channel("generate_payroll")->error(
                 sprintf(

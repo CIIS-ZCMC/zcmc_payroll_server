@@ -16,19 +16,20 @@ class ExcludedEmployeeData extends Data
         public string $period_end,
         public string $reason,
         public bool $is_removed,
-    ) { }
+    ) {
+    }
 
     public static function fromRequest(Request $request): self
     {
         return new self(
-            $request['employee_id'],
-            $request['payroll_period_id'],
-            $request['month'],
-            $request['year'],
-            $request['period_start'],
-            $request['period_end'],
-            $request['reason'],
-            $request['is_removed'],
+            $request->employee_id,
+            $request->payroll_period_id,
+            $request->month,
+            $request->year,
+            $request->period_start,
+            $request->period_end,
+            $request->reason,
+            $request->is_removed,
         );
     }
 

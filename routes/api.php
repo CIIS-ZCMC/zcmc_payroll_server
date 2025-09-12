@@ -7,6 +7,7 @@ use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Employee\EmployeeDeductionController;
 use App\Http\Controllers\Employee\EmployeeReceivableController;
 use App\Http\Controllers\Employee\EmployeeTimeRecordController;
+use App\Http\Controllers\Employee\ExcludedEmployeeController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
 use App\Http\Controllers\Payroll\GeneralPayrollController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
@@ -61,6 +62,7 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('employee-time-records', EmployeeTimeRecordController::class);
     Route::apiResource('employee-adjustments', EmployeeAdjustmentController::class)->only(['index', 'store', 'show']);
     Route::apiResource('employee-deduction-trail', EmployeeDeductionTrailController::class)->only(['index', 'store', 'show', 'destroy']);
+    Route::apiResource('excluded-employees', ExcludedEmployeeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     //Payroll Period
     Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);

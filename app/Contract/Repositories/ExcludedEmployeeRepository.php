@@ -4,12 +4,24 @@ namespace App\Contract\Repositories;
 
 use App\Contract\ExcludedEmployeeInterface;
 use App\Models\ExcludedEmployee;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ExcludedEmployeeRepository implements ExcludedEmployeeInterface
 {
     public function __construct(private ExcludedEmployee $model)
     {
         //nothing
+    }
+
+    public function getAll(int $payroll_period_id): Collection
+    {
+        return $this->model->where('payroll_period_id', $payroll_period_id)->get();
+    }
+
+    public function paginate(int $perPage, int $page, int $payroll_period_id): LengthAwarePaginator
+    {
+        return $this->model->where('payroll_period_id', $payroll_period_id)->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function create(array $data): ExcludedEmployee
