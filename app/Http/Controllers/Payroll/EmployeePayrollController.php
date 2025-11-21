@@ -26,7 +26,7 @@ class EmployeePayrollController extends Controller
     protected $employeeTimeRecord;
 
     public function __construct(
-        EmployeePayrollService $service,
+        private EmployeePayrollService $service,
         EmployeeTimeRecordService $employeeTimeRecordService,
         PayrollPeriodService $payrollPeriodService
     ) {
@@ -36,36 +36,7 @@ class EmployeePayrollController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->mode === 'included') {
-            return $this->included($request);
-        }
-
-        if ($request->mode === 'excluded') {
-            return $this->excluded($request);
-        }
-
-        $payroll_period_id = $request->payroll_period_id;
-        $payroll_period = PayrollPeriod::find($payroll_period_id);
-
-        if (!$payroll_period) {
-            return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
-        }
-
-        $data = EmployeePayroll::with([
-            'employee',
-            'employee.employeeDeductions',
-            'employee.employeeReceivables',
-            'employeeTimeRecord',
-            'employeeTimeRecord.employeeComputedSalary',
-            'payrollPeriod',
-        ])->where('payroll_period_id', $payroll_period->id)->get();
-
-        if (!$data) {
-            return response()->json([
-                'message' => 'No data found for the specified payroll period.',
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
+        $data = $this->service->index($request);
 
         return response()->json([
             'message' => 'Data retrieved successfully.',

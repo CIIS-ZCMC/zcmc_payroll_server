@@ -68,4 +68,23 @@ class EmployeeTimeRecord extends Model
     {
         return $this->hasOne(EmployeeComputedSalary::class);
     }
+
+    public function getRecords(int $payroll_period_id)
+    {
+        return $this->with([
+            'payrollPeriod',
+            'employeeComputedSalary',
+            'employee' => function ($query) use ($payroll_period_id) {
+                $query->with([
+                    'employeeSalary',
+                    'employeeDeductions' => function ($query) use ($payroll_period_id) {
+                        $query->where('payroll_period_id', $payroll_period_id);
+                    },
+                    'employeeReceivables' => function ($query) use ($payroll_period_id) {
+                        $query->where('payroll_period_id', $payroll_period_id);
+                    },
+                ]);
+            }
+        ])->where('payroll_period_id', $payroll_period_id)->get();
+    }
 }

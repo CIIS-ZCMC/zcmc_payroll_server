@@ -91,7 +91,7 @@ class LoginController extends Controller
 
     public function checkServerDatabaseConnection(Request $request)
     {
-       
+
         $database = DB::connection()->getDatabaseName();
 
         if ($database) {
@@ -113,6 +113,6 @@ class LoginController extends Controller
         return response()->json([
             'message' => "Successfully signout."
         ], Response::HTTP_OK)->cookie(env("COOKIE_NAME"), '', -1);
-        
+
     }
 }

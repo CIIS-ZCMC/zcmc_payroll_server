@@ -26,13 +26,12 @@ class EmployeeController extends Controller
     protected $computationService;
 
     public function __construct(
-        EmployeeService $employeeService,
+        private EmployeeService $service,
         ExcludeEmployeeService $excludedEmployeeService,
         EmployeeSalaryService $employeeSalaryService,
         EmployeeTimeRecordService $employeeTimeRecordService,
         ComputationService $computationService
     ) {
-        $this->employeeService = $employeeService;
         $this->excludedEmployeeService = $excludedEmployeeService;
         $this->employeeSalaryService = $employeeSalaryService;
         $this->employeeTimeRecordService = $employeeTimeRecordService;
@@ -42,24 +41,29 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->is_excluded) {
-            return $this->getExcludedEmployees($request);
-        }
+        $year = $request->year;
+        $month = $request->month;
 
-        $data = $this->getEmployee($request);
+        return $this->service->getEmployeesForPeriod($year, $month);
 
-        if (!$data) {
-            return response()->json([
-                'message' => 'No data found for the specified payroll period.',
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
+        // if ($request->is_excluded) {
+        //     return $this->getExcludedEmployees($request);
+        // }
 
-        return response()->json([
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-            'responseData' => EmployeeTimeRecordResource::collection($data),
-        ], Response::HTTP_OK);
+        // $data = $this->getEmployee($request);
+
+        // if (!$data) {
+        //     return response()->json([
+        //         'message' => 'No data found for the specified payroll period.',
+        //         'statusCode' => 404
+        //     ], Response::HTTP_NOT_FOUND);
+        // }
+
+        // return response()->json([
+        //     'message' => 'Data retrieved successfully.',
+        //     'statusCode' => 200,
+        //     'responseData' => EmployeeTimeRecordResource::collection($data),
+        // ], Response::HTTP_OK);
     }
 
     private function getEmployee(Request $request)

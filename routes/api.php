@@ -19,6 +19,7 @@ use App\Http\Controllers\Settings\ReceivableController;
 use App\Http\Controllers\Trail\EmployeeDeductionTrailController;
 use App\Http\Controllers\UMIS\EmployeeProfileController;
 use App\Models\EmployeeDeductionTrail;
+use App\Services\EmployeeService;
 use Illuminate\Support\Facades\Route;
 
 /*
