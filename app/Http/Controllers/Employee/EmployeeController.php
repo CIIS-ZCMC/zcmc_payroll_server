@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 use App\Services\ComputationService;
 use App\Services\EmployeeSalaryService;
@@ -41,29 +42,21 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        $year = $request->year;
-        $month = $request->month;
+        $data = $this->service->index($request['is_excluded']);
 
-        return $this->service->getEmployeesForPeriod($year, $month);
+        if (!$data) {
+            return response()->json([
+                'message' => 'No data found for the specified payroll period.',
+                'statusCode' => 404
+            ], Response::HTTP_NOT_FOUND);
+        }
 
-        // if ($request->is_excluded) {
-        //     return $this->getExcludedEmployees($request);
-        // }
-
-        // $data = $this->getEmployee($request);
-
-        // if (!$data) {
-        //     return response()->json([
-        //         'message' => 'No data found for the specified payroll period.',
-        //         'statusCode' => 404
-        //     ], Response::HTTP_NOT_FOUND);
-        // }
-
-        // return response()->json([
-        //     'message' => 'Data retrieved successfully.',
-        //     'statusCode' => 200,
-        //     'responseData' => EmployeeTimeRecordResource::collection($data),
-        // ], Response::HTTP_OK);
+        return response()->json([
+            'message' => 'Data retrieved successfully.',
+            'statusCode' => 200,
+            'responseData' => EmployeeResource::collection($data)
+            // 'responseData' => EmployeeTimeRecordResource::collection($timeRecords),
+        ], Response::HTTP_OK);
     }
 
     private function getEmployee(Request $request)

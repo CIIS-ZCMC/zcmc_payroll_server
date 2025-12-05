@@ -1005,7 +1005,6 @@ class EmployeeProfileController extends Controller
                         $employment_type,
                         $salary_grade,
                         $basic_salary,
-                        $is_part_time,
                         $no_of_absences,
                         $no_of_leave_days
                     );
@@ -1015,9 +1014,8 @@ class EmployeeProfileController extends Controller
                         $employee_id,
                         $no_of_present_days_with_leave,
                         $employment_type,
-                        22,
                         $no_of_absences,
-                        $initial_salary
+                        22,
                     );
                     // $hazard = $this->computationService->hazardPay($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $no_of_present_days);
                     $deduction = $this->computationService->employeeDeduction(

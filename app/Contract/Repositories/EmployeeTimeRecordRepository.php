@@ -45,4 +45,23 @@ class EmployeeTimeRecordRepository implements EmployeeTimeRecordInterface
         $model->update($data);
         return $model->fresh();
     }
+
+    public function createOrUpdate(array $data): EmployeeTimeRecord
+    {
+        return $this->model->updateOrCreate(
+            [
+                'employee_id' => $data['employee_id'],
+                'payroll_period_id' => $data['payroll_period_id']
+            ],
+            $data
+        );
+    }
+
+    public function deactivate(int $payroll_period_id, int $month, int $year): bool
+    {
+        return $this->model->where('payroll_period_id', '!=', $payroll_period_id)
+            ->where('month', '!=', $month)
+            ->where('year', '!=', $year)
+            ->update(['is_active' => false]);
+    }
 }

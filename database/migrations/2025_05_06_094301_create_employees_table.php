@@ -22,10 +22,10 @@ class CreateEmployeesTable extends Migration
             $table->string('middle_name')->nullable();
             $table->string('extension_name')->nullable();
             $table->string('designation');
-            $table->text('assigned_area')->nullable();
-            $table->boolean('is_newly_hired');
-            $table->boolean('is_excluded');
-            $table->boolean('is_resigned');
+            $table->json('assigned_area');
+            $table->boolean('is_newly_hired')->default(false);
+            $table->boolean('is_excluded')->default(false);
+            $table->boolean('is_resigned')->default(false);
             $table->boolean('status')->comment('1 is active, 0 is inactive');
             $table->softDeletes();
             $table->timestamps();

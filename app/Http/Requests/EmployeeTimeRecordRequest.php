@@ -32,7 +32,6 @@ class EmployeeTimeRecordRequest extends FormRequest
             'absent_rate' => 'required|integer',
             'undertime_rate' => 'required|integer',
             'base_salary' => 'required|integer',
-            'initial_net_pay' => 'required|integer',
             'net_pay' => 'required|integer',
             'total_working_minutes' => 'required|integer',
             'total_working_minutes_with_leave' => 'required|integer',

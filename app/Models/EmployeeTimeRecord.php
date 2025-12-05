@@ -22,7 +22,6 @@ class EmployeeTimeRecord extends Model
         'absent_rate',
         'undertime_rate',
         'base_salary',
-        'initial_net_pay',
         'net_pay',
         'total_working_minutes',
         'total_working_minutes_with_leave',

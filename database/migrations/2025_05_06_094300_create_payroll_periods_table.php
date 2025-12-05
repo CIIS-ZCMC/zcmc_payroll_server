@@ -17,12 +17,12 @@ class CreatePayrollPeriodsTable extends Migration
             $table->id();
             $table->string("month");
             $table->string("year");
-            $table->string("payroll_type")->nullable();
+            $table->string("payroll_type")->default('general_payroll');
             $table->string("employment_type");
             $table->string("period_type")->comment("first_half, second_half, full_month");
             $table->string('period_start');
             $table->string('period_end');
-            $table->integer("days_of_duty");
+            $table->integer("days_of_duty")->default(22);
             $table->boolean("is_special")->default(false);
             $table->dateTime("posted_at")->nullable();
             $table->dateTime("last_generated_at")->nullable();

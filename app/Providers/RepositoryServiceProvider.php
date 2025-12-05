@@ -6,6 +6,7 @@ use App\Contract\DeductionGroupInterface;
 use App\Contract\DeductionInterface;
 use App\Contract\DeductionRuleInterface;
 use App\Contract\EmployeeAdjustmentInterface;
+use App\Contract\EmployeeComputedSalaryInterface;
 use App\Contract\EmployeeDeductionInterface;
 use App\Contract\EmployeeDeductionTrailInterface;
 use App\Contract\EmployeeInterface;
@@ -22,6 +23,7 @@ use App\Contract\Repositories\DeductionGroupRepository;
 use App\Contract\Repositories\DeductionRepository;
 use App\Contract\Repositories\DeductionRuleRepository;
 use App\Contract\Repositories\EmployeeAdjustmentRepository;
+use App\Contract\Repositories\EmployeeComputedSalaryRepository;
 use App\Contract\Repositories\EmployeeDeductionRepository;
 use App\Contract\Repositories\EmployeeDeductionTrailRepository;
 use App\Contract\Repositories\EmployeePayrollRepository;
@@ -34,6 +36,7 @@ use App\Contract\Repositories\ExcludedEmployeeRepository;
 use App\Contract\Repositories\GeneralPayrollRepository;
 use App\Contract\Repositories\PayrollPeriodRepository;
 use App\Contract\Repositories\ReceivableRepository;
+use App\Models\EmployeeComputedSalary;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -123,6 +126,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             ReceivableInterface::class,
             ReceivableRepository::class
+        );
+
+        $this->app->bind(
+            EmployeeComputedSalaryInterface::class,
+            EmployeeComputedSalaryRepository::class
         );
     }
 

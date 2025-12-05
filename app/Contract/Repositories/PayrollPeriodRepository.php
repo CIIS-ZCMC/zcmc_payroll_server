@@ -31,4 +31,22 @@ class PayrollPeriodRepository implements PayrollPeriodInterface
         return $model->fresh();
     }
 
+    public function createOrUpdate(array $data): PayrollPeriod
+    {
+        return $this->model->updateOrCreate(
+            [
+                'year' => $data['year'],
+                'month' => $data['month'],
+                'employment_type' => $data['employment_type'],
+                'period_type' => $data['period_type'],
+            ],
+            $data
+        );
+    }
+
+    public function deactivate(int $id): bool
+    {
+        return $this->model->where('id', '!=', $id)->update(['is_active' => false]);
+    }
+
 }

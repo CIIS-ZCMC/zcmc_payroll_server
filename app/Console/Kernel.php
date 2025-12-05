@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\CheckEmployeeDeductions;
+use App\Console\Commands\FetchEmployeeTimeRecord;
 use App\Console\Commands\FetchPayrollData;
 use App\Console\Commands\ResumeDeduction;
 use App\Console\Commands\SuspendDeductions;
@@ -25,7 +26,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(CheckEmployeeDeductions::class)->dailyAt('00:00');
         $schedule->command(SuspendDeductions::class)->dailyAt('00:00');
         $schedule->command(SuspendReceivables::class)->dailyAt('00:00');
-        $schedule->command(FetchPayrollData::class)->everyMinute();
+        $schedule->command(FetchEmployeeTimeRecord::class)->dailyAt('07:00');
     }
 
     /**

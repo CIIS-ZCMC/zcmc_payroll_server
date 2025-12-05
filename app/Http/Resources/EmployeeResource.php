@@ -39,9 +39,10 @@ class EmployeeResource extends JsonResource
             'is_newly_hired' => $this->is_newly_hired,
             'is_excluded' => $this->is_excluded,
             'salary' => new EmployeeSalaryResource($this->employeeSalary),
-            'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
-            'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('employeeReceivables')),
-            'deduction_group' => $this->groupDeductionsByGroup()
+            // 'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
+            // 'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('employeeReceivables')),
+            // 'deduction_group' => $this->groupDeductionsByGroup(),
+            // 'employee_time_records' => new EmployeeTimeRecordResource($this->employeeTimeRecords)
         ];
     }
 

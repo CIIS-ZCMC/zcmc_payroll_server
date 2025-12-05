@@ -25,8 +25,7 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->double('absent_rate');
             $table->double('undertime_rate');
             $table->double('base_salary');
-            $table->double('initial_net_pay')->comment('holiday not include');
-            $table->double('net_pay')->comment('holiday is include');
+            $table->double('net_pay')->comment('basic_pay of employee, receivables is not included');
             $table->double('total_working_minutes');
             $table->double('total_working_minutes_with_leave');
             $table->double('total_working_hours');
@@ -47,17 +46,17 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->double('no_of_schedule');
             $table->longText('night_differentials');
             $table->longText('absent_dates');
-            $table->longText('schedules');
+            // $table->longText('schedules');
             $table->string('month');
             $table->string('year');
-            $table->string('from')->nullable()->comment('period from , ex.1-15');
-            $table->string('to')->nullable()->comment('period to , ex.16-31');
-            $table->boolean('is_night_shift');
-            $table->boolean('is_active')->default(0);
-            $table->string('status')->nullable()->comment('first_half or second_half');
+            $table->string('from');
+            $table->string('to');
+            // $table->boolean('is_night_shift');
+            $table->boolean('is_active')->default(true);
+            $table->string('status');
             $table->timestamp('locked_at')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

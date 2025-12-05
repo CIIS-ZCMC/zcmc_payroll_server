@@ -41,4 +41,16 @@ class ExcludedEmployeeRepository implements ExcludedEmployeeInterface
         $model = $this->model->find($id);
         return $model->delete();
     }
+
+
+    public function createOrUpdate(array $data): ExcludedEmployee
+    {
+        return $this->model->updateOrCreate(
+            [
+                'employee_id' => $data['employee_id'],
+                'payroll_period_id' => $data['payroll_period_id'],
+            ],
+            $data
+        );
+    }
 }

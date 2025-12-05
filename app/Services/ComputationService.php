@@ -121,8 +121,10 @@ class ComputationService
 
         return 0.00; // Default if salary grade doesn't match
     }
-    public function hazard($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $is_part_time = false, $absent_days = 0, $no_of_leave_days = 0)
+    public function hazard($payroll_period_id, $employee_id, $employment_type, $salary_grade, $basic_salary, $absent_days = 0, $no_of_leave_days = 0)
     {
+        $is_part_time = $employment_type === 'Permanent Part-time' ? true : false;
+
         // Check if employee should be excluded due to excessive absence (11+ working days)
         if ($absent_days >= 11) {
             return 0.00;
@@ -171,7 +173,7 @@ class ComputationService
         return $amount;
     }
 
-    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $required_duty_days, $absences, $inital_salary)
+    public function pera($payroll_period_id, $employee_id, $no_of_present_days, $employment_type, $absences, $required_duty_days = 22, )
     {
         $pera = Receivable::where('id', 1)->first();
 

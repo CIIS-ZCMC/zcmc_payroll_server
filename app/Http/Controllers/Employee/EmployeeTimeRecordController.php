@@ -52,7 +52,6 @@ class EmployeeTimeRecordController extends Controller
             'absent_rate' => 'nullable|integer',
             'undertime_rate' => 'nullable|integer',
             'base_salary' => 'nullable|integer',
-            'initial_net_pay' => 'nullable|integer',
             'net_pay' => 'nullable|integer',
             'total_working_minutes' => 'nullable|integer',
             'total_working_minutes_with_leave' => 'nullable|integer',

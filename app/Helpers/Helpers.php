@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\EmployeeDeductionLog;
 use App\Models\TimeRecord;
 use DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
@@ -245,16 +246,32 @@ class Helpers
         ]);
     }
 
-    public function getDateIntervals($from, $to)
+    public static function validatePeriodType(int $year, int $month, string $employment_type, string $periodType)
     {
-        $dates_Interval = [];
-        $from = strtotime($from);
-        $to = strtotime($to);
-        while ($from <= $to) {
-            $dates_Interval[] = date('Y-m-d', $from);
-            $from = strtotime('+1 day', $from);
+        $totalDaysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+        switch ($employment_type) {
+            case 'regular':
+                return [
+                    'period_start' => 1,
+                    'period_end' => $totalDaysInMonth
+                ];
+
+            case 'job_order':
+                if ($periodType === 'first_half') {
+                    return [
+                        'period_start' => 1,
+                        'period_end' => 15
+                    ];
+                } elseif ($periodType === 'second_half') {
+                    return [
+                        'period_start' => 16,
+                        'period_end' => $totalDaysInMonth
+                    ];
+                }
+                break;
         }
 
-        return $dates_Interval;
+        return null;
     }
 }

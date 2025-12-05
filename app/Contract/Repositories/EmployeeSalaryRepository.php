@@ -23,4 +23,15 @@ class EmployeeSalaryRepository implements EmployeeSalaryInterface
         $model->update($data);
         return $model->fresh();
     }
+
+    public function createOrUpdate(array $data): EmployeeSalary
+    {
+        return $this->model->updateOrCreate(
+            [
+                'employee_id' => $data['employee_id'],
+                'payroll_period_id' => $data['payroll_period_id']
+            ],
+            $data
+        );
+    }
 }
