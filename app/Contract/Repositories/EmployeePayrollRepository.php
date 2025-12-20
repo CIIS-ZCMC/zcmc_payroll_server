@@ -4,11 +4,10 @@ namespace App\Contract\Repositories;
 
 use App\Contract\EmployeePayrollInterface;
 use App\Models\EmployeePayroll;
-use App\Models\EmployeeTimeRecord;
 
 class EmployeePayrollRepository implements EmployeePayrollInterface
 {
-    public function __construct(private EmployeePayroll $model, private EmployeeTimeRecord $employeeTimeRecord)
+    public function __construct(private EmployeePayroll $model)
     {
         //nothing
     }
@@ -25,34 +24,16 @@ class EmployeePayrollRepository implements EmployeePayrollInterface
         return $model;
     }
 
-    public function included(int $payroll_period_id)
+    public function createOrUpdate(array $data): EmployeePayroll
     {
-        return $this->getEmployee($payroll_period_id);
-    }
 
-    public function excluded(int $payroll_period_id)
-    {
-        return $this->getEmployee($payroll_period_id);
-    }
-
-    protected function getEmployee($payroll_period_id)
-    {
-        $employeeTimeRecord = $this->employeeTimeRecord->getRecords($payroll_period_id);
-
-        return $employeeTimeRecord->map(function ($record) {
-            $totalReceivables = $record->employee->employeeReceivables->sum('amount');
-            $totalDeductions = $record->employee->employeeDeductions->sum('amount');
-            $grossPay = round($record->employeeComputedSalary->computed_salary + $totalReceivables, 2);
-            $netPay = round($grossPay - $totalDeductions, 2);
-
-            $record->total_receivables = $totalReceivables;
-            $record->total_deductions = $totalDeductions;
-            $record->gross_salary = $grossPay;
-            $record->net_pay = $netPay;
-
-            return $record;
-        })->filter(function ($record) {
-            return $record->status === 'included' && $record->net_pay >= 5000;
-        })->values();
+        return $this->model->updateOrCreate(
+            [
+                'employee_id' => $data['employee_id'],
+                'employee_time_record_id' => $data['employee_time_record_id'],
+                'payroll_period_id' => $data['payroll_period_id']
+            ],
+            $data
+        );
     }
 }

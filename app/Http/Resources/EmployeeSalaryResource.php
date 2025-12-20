@@ -19,7 +19,7 @@ class EmployeeSalaryResource extends JsonResource
             'employee_id' => $this->employee_id,
             'payroll_period_id' => $this->payroll_period_id,
             'employment_type' => $this->employment_type,
-            'base_salary' => decrypt($this->base_salary),
+            'base_salary' => floatval(decrypt($this->base_salary)),
             'salary_grade' => $this->salary_grade,
             'salary_step' => $this->salary_step,
             'month' => $this->month,

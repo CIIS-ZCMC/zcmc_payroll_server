@@ -19,13 +19,16 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->unsignedBigInteger('payroll_period_id');
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
-            $table->double('minutes')->comment('rate');
-            $table->double('daily')->comment('rate');
-            $table->double('hourly')->comment('rate');
-            $table->double('absent_rate');
-            $table->double('undertime_rate');
-            $table->double('base_salary');
-            $table->double('net_pay')->comment('basic_pay of employee, receivables is not included');
+
+            $table->text('minutes'); //Rate
+            $table->text('daily'); //Rate
+            $table->text('hourly'); //Rate
+            $table->text('absent_rate');
+            $table->text('undertime_rate');
+            $table->text('base_salary');
+            $table->text('basic_pay')->comment('basic_pay of employee, receivables is not included');
+            // $table->text('net_pay')->comment('basic_pay of employee, receivables is not included');
+
             $table->double('total_working_minutes');
             $table->double('total_working_minutes_with_leave');
             $table->double('total_working_hours');

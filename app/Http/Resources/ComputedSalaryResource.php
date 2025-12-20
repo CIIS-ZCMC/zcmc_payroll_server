@@ -17,7 +17,7 @@ class ComputedSalaryResource extends JsonResource
         return [
             'id' => $this->id,
             'time_record_id' => $this->time_record_id,
-            'computed_salary' => $this->computed_salary, // Decrypted or processed as needed
+            'computed_salary' => decrypt($this->computed_salary), // Decrypted or processed as needed
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

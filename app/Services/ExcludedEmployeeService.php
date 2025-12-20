@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contract\ExcludedEmployeeInterface;
 use App\Data\ExcludedEmployeeData;
+use App\Models\EmployeeTimeRecord;
 use App\Models\ExcludedEmployee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -41,16 +42,20 @@ class ExcludedEmployeeService
 
     public function create(ExcludedEmployeeData $data): ExcludedEmployee
     {
-        return $this->interface->create([
-            'payroll_period_id' => $data->payroll_period_id,
+        $created = $this->interface->create([
             'employee_id' => $data->employee_id,
-            'month' => $data->month,
-            'year' => $data->year,
-            'period_start' => $data->period_start,
-            'period_end' => $data->period_end,
+            'payroll_period_id' => $data->payroll_period_id,
             'reason' => $data->reason,
             'is_removed' => $data->is_removed,
         ]);
+
+        if ($created) {
+            EmployeeTimeRecord::where('employee_id', $created->employee_id)
+                ->where('payroll_period_id', $created->payroll_period_id)
+                ->update(['status' => 'excluded']);
+        }
+
+        return $created;
     }
 
     public function update(int $id, array $data): ExcludedEmployee

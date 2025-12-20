@@ -20,6 +20,10 @@ class EmployeeComputedSalary extends Model
         'computed_salary'
     ];
 
+    protected $casts = [
+        'computed_salary' => 'encrypted',
+    ];
+
     public $timestamps = true;
 
     public function employee()

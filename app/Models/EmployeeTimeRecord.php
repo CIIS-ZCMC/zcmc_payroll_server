@@ -22,7 +22,7 @@ class EmployeeTimeRecord extends Model
         'absent_rate',
         'undertime_rate',
         'base_salary',
-        'net_pay',
+        'basic_pay',
         'total_working_minutes',
         'total_working_minutes_with_leave',
         'total_working_hours',
@@ -51,6 +51,16 @@ class EmployeeTimeRecord extends Model
         'is_night_shift',
         'is_active',
         'status'
+    ];
+
+    protected $casts = [
+        'minutes' => 'encrypted',
+        'daily' => 'encrypted',
+        'hourly' => 'encrypted',
+        'absent_rate' => 'encrypted',
+        'undertime_rate' => 'encrypted',
+        'base_salary' => 'encrypted',
+        'basic_pay' => 'encrypted',
     ];
 
     public function employee()

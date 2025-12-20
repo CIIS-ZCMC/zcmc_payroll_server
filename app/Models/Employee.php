@@ -36,7 +36,7 @@ class Employee extends Model
 
     public function employeeTimeRecords()
     {
-        return $this->hasMany(EmployeeTimeRecord::class);
+        return $this->hasOne(EmployeeTimeRecord::class); // Change hasMany to hasOne
     }
 
     public function employeeComputedSalaries()

@@ -36,7 +36,7 @@ class ExcludedEmployeeController extends Controller
 
         return response()->json([
             'message' => 'Data successfully saved.',
-            'statusCode' => 200,
+            'statusCode' => 201,
         ], Response::HTTP_CREATED);
     }
 

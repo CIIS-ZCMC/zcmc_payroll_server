@@ -12,9 +12,9 @@ class EmployeeService
         //Nothing
     }
 
-    public function index(bool $isExcluded): Collection
+    public function index(string $isExcluded): Collection
     {
-        if ($isExcluded === true) {
+        if ($isExcluded === 'true') {
             return $this->interface->getEmployee('excluded');
         }
 

@@ -51,9 +51,10 @@ class EmployeeRepository implements EmployeeInterface
         return $this->model->with([
             'employeeSalary',
             'employeeComputedSalaries',
+            'excludedEmployees',
             'employeeDeductions',
             'employeeReceivables',
-            'employeeTimeRecords.employee',
+            'employeeTimeRecords',
             'employeeTimeRecords.employee.employeeSalary',
             'employeeTimeRecords.employeeComputedSalary',
             'employeeTimeRecords.payrollPeriod' => function ($query) use ($status) {

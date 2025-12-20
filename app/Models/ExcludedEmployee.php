@@ -17,10 +17,6 @@ class ExcludedEmployee extends Model
     protected $fillable = [
         'employee_id',
         'payroll_period_id',
-        'month',
-        'year',
-        'period_start',
-        'period_end',
         'reason',
         'is_removed'
     ];

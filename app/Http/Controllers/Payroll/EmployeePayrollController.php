@@ -310,16 +310,13 @@ class EmployeePayrollController extends Controller
             $payroll_period = PayrollPeriod::find($payroll_period_id);
 
 
-
             if (isset($request->payroll_type) && $request->payroll_type === "NightDifferential") {
                 return $this->processNightDifferential($payroll_period);
             }
 
-
             if (!$payroll_period || !is_numeric($payroll_period_id) || $payroll_period_id < 0 || (int) $payroll_period_id !== $payroll_period_id) {
                 return response()->json(['message' => 'Payroll period not found', 'statusCode' => 404], Response::HTTP_NOT_FOUND);
             }
-
 
 
             if ($payroll_period && $payroll_period->locked_at !== null) {

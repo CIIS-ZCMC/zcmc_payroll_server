@@ -22,11 +22,11 @@ class EmployeePayrollResource extends JsonResource
             'month' => $this->month,
             'year' => $this->year,
             'gross_salary' => $this->gross_salary,
+            'net_salary' => $this->net_pay,
             'total_deductions' => $this->total_deductions,
             'total_receivables' => $this->total_receivables,
-            'net_pay' => $this->net_pay,
-            'employee_deductions' => EmployeeDeductionResource::collection($this->employee->employeeDeductions),
-            'employee_receivables' => EmployeeReceivableResource::collection($this->employee->employeeReceivables)
+            // 'employee_deductions' => EmployeeDeductionResource::collection($this->employee->employeeDeductions),
+            // 'employee_receivables' => EmployeeReceivableResource::collection($this->employee->employeeReceivables)
         ];
     }
 }

@@ -19,12 +19,7 @@ class ExcludedEmployeeResource extends JsonResource
             'id' => $this->id,
             'employee' => new EmployeeResource($this->whenloaded('employee')),
             'payroll_period' => new PayrollPeriodResource($this->whenloaded('payrollPeriod')),
-            'month' => $this->month,
-            'year' => $this->year,
-            'period_start' => $this->period_start,
-            'period_end' => $this->period_end,
             'reason' => $this->reason,
-            'excluded_at' => $this->formatExcludedPeriod(),
             'is_removed' => $this->is_removed,
         ];
     }

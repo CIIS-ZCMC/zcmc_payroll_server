@@ -18,7 +18,7 @@ class EmployeeComputedSalaryResource extends JsonResource
             'id' => $this->id,
             'employee_id' => $this->employee_id,
             'employee_record_id' => $this->employee_time_record_id,
-            'computed_salary' => $this->computed_salary,
+            'computed_salary' => (float) $this->computed_salary,
         ];
     }
 }

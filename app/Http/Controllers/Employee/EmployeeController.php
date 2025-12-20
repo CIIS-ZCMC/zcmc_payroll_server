@@ -55,46 +55,7 @@ class EmployeeController extends Controller
             'message' => 'Data retrieved successfully.',
             'statusCode' => 200,
             'responseData' => EmployeeResource::collection($data)
-            // 'responseData' => EmployeeTimeRecordResource::collection($timeRecords),
         ], Response::HTTP_OK);
-    }
-
-    private function getEmployee(Request $request)
-    {
-        $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
-            ->where('period_type', $request->period_type)
-            ->where('month', $request->month_of)
-            ->where('year', $request->year_of)
-            ->first();
-
-        if ($payroll_period) {
-            $data = EmployeeTimeRecord::with([
-                'payrollPeriod',
-                'employee' => function ($query) {
-                    $query->with([
-                        'employeeSalary',
-                        'employeeComputedSalaries',
-                        'employeeDeductions',
-                        'employeeReceivables',
-                        'employeeTimeRecords'
-                    ]);
-                }
-            ])->where('payroll_period_id', $payroll_period->id)
-                ->where('status', 'included')
-                ->orderBy(
-                    Employee::select('last_name')
-                        ->whereColumn('employees.id', 'employee_time_records.employee_id')
-                )
-                ->get();
-
-            if (!$data) {
-                return null;
-            }
-
-            return $data;
-        }
-
-        return null;
     }
 
     private function getExcludedEmployees(Request $request)

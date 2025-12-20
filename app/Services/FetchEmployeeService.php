@@ -179,7 +179,7 @@ class FetchEmployeeService
             'employee_id' => $employee['id'],
             'payroll_period_id' => $payrollPeriod['id'],
             'employment_type' => $employeeData['employment_type']['name'],
-            'base_salary' => $employeeData['time_record']['base_salary'],
+            'base_salary' => encrypt($employeeData['time_record']['base_salary']),
             'salary_grade' => $employeeData['salary_grade'],
             'salary_step' => $employeeData['salary_step'],
             'month' => $cachedMetaData['month'],
@@ -210,7 +210,7 @@ class FetchEmployeeService
             'absent_rate' => $time_record['absent_rate'],
             'undertime_rate' => $time_record['undertime_rate'],
             'base_salary' => $time_record['base_salary'],
-            'net_pay' => $time_record['basic_pay'], // Basic Pay no recievables yet
+            'basic_pay' => $time_record['basic_pay'], // Basic Pay no recievables yet
             'total_working_minutes' => $time_record['total_working_minutes'],
             'total_working_minutes_with_leave' => $time_record['total_working_minutes_with_leave'],
             'total_working_hours' => $time_record['total_working_hours'],
@@ -243,7 +243,7 @@ class FetchEmployeeService
         $this->interfaceEmployeeComputedSalary->createOrUpdate([
             'employee_id' => $employee['id'],
             'employee_time_record_id' => $employeeTimeRecord['id'],
-            'computed_salary' => $employeeTimeRecord['net_pay']
+            'computed_salary' => encrypt($employeeTimeRecord['net_pay'])
         ]);
 
         $this->interfaceEmployeeTimeRecord->deactivate(
