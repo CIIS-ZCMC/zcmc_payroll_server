@@ -56,7 +56,7 @@ Route::middleware('auth.token')->group(function () {
     // Route::post('fetch_record_step_4', [EmployeeProfileController::class, 'fetchStep4']);
 
     //Fetch from Redis
-    Route::get('fetch_employees', [FetchEmployeeController::class, 'index']);
+    Route::get('fetch-employees', [FetchEmployeeController::class, 'index']);
 
     //Employee
     Route::apiResource('employees', EmployeeController::class)->only(['index']);
