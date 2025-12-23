@@ -1,0 +1,93 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\System\\zcmc_payroll_client_v2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\reports\\ucreport.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\reports\\ucreport.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\payroll\\ucpayrollsteptwo.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\payroll\\ucpayrollsteptwo.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\settings\\frmsettings.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\settings\\frmsettings.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\settings\\frmsettings.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\settings\\frmsettings.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FrmSettings.vb",
+              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
+              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
+              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
+              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-12-23T07:43:14.705Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FrmSettings.vb [Design]",
+              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
+              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
+              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb [Design]",
+              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-12-23T07:43:13.49Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UcPayrollStepTwo.vb [Design]",
+              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Payroll\\UcPayrollStepTwo.vb",
+              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Payroll\\UcPayrollStepTwo.vb",
+              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Payroll\\UcPayrollStepTwo.vb [Design]",
+              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Payroll\\UcPayrollStepTwo.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-12-23T07:42:10.229Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UcReport.vb [Design]",
+              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Reports\\UcReport.vb",
+              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Reports\\UcReport.vb",
+              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Reports\\UcReport.vb [Design]",
+              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Reports\\UcReport.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-12-23T07:31:39.093Z",
+              "EditorCaption": " [Design]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

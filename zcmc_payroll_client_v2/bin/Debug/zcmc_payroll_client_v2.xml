@@ -1,0 +1,131 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+zcmc_payroll_client_v2
+</name>
+</assembly>
+<members>
+<member name="T:zcmc_payroll_client_v2.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.approved_32">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.back_button_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.close_16">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.close_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.completed_payroll_32">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.dashboard_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.employee_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.file_import_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.minimize_16">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.payroll_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.refetch_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.remove_employee_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.report_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.round_pending_32">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.round_processing_32">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.round_success_32">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.settings_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.sign_out_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.view_employee_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.zcmc_building">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.zcmc_logo">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+</members>
+</doc>

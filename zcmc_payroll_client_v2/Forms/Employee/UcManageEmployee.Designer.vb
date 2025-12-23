@@ -1,0 +1,555 @@
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+Partial Class UcManageEmployee
+    Inherits System.Windows.Forms.UserControl
+
+    'UserControl overrides dispose to clean up the component list.
+    <System.Diagnostics.DebuggerNonUserCode()>
+    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+        Try
+            If disposing AndAlso components IsNot Nothing Then
+                components.Dispose()
+            End If
+        Finally
+            MyBase.Dispose(disposing)
+        End Try
+    End Sub
+
+    'Required by the Windows Form Designer
+    Private components As System.ComponentModel.IContainer
+
+    'NOTE: The following procedure is required by the Windows Form Designer
+    'It can be modified using the Windows Form Designer.  
+    'Do not modify it using the code editor.
+    <System.Diagnostics.DebuggerStepThrough()>
+    Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(UcManageEmployee))
+        Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Me.panelContainer = New System.Windows.Forms.Panel()
+        Me.SplitContainer = New System.Windows.Forms.SplitContainer()
+        Me.lblMessage = New System.Windows.Forms.Label()
+        Me.dgvTable = New System.Windows.Forms.DataGridView()
+        Me.row_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employeeID = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_name = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_designation = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_assigned_area = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_remarks = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_status = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.action_view = New System.Windows.Forms.DataGridViewButtonColumn()
+        Me.action_exclude_or_inlucde = New System.Windows.Forms.DataGridViewButtonColumn()
+        Me.action_manage_deduction = New System.Windows.Forms.DataGridViewButtonColumn()
+        Me.action_manage_receivables = New System.Windows.Forms.DataGridViewButtonColumn()
+        Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.DataGridView1 = New System.Windows.Forms.DataGridView()
+        Me.record_type = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.record_value = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.lblAssignedArea = New System.Windows.Forms.Label()
+        Me.lblDesignation = New System.Windows.Forms.Label()
+        Me.lblName = New System.Windows.Forms.Label()
+        Me.Panel3 = New System.Windows.Forms.Panel()
+        Me.btnClose = New System.Windows.Forms.Button()
+        Me.panelNavigator = New System.Windows.Forms.Panel()
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.panelTop = New System.Windows.Forms.Panel()
+        Me.btnExcludedEmployee = New System.Windows.Forms.Button()
+        Me.btnIncludedEmployee = New System.Windows.Forms.Button()
+        Me.DataGridViewImageColumn1 = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.tmrSlide = New System.Windows.Forms.Timer(Me.components)
+        Me.panelContainer.SuspendLayout()
+        CType(Me.SplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.SplitContainer.Panel1.SuspendLayout()
+        Me.SplitContainer.Panel2.SuspendLayout()
+        Me.SplitContainer.SuspendLayout()
+        CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.Panel2.SuspendLayout()
+        CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.GroupBox1.SuspendLayout()
+        Me.Panel3.SuspendLayout()
+        Me.panelNavigator.SuspendLayout()
+        Me.panelTop.SuspendLayout()
+        Me.SuspendLayout()
+        '
+        'panelContainer
+        '
+        Me.panelContainer.Controls.Add(Me.SplitContainer)
+        Me.panelContainer.Controls.Add(Me.panelNavigator)
+        Me.panelContainer.Controls.Add(Me.panelTop)
+        Me.panelContainer.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.panelContainer.Location = New System.Drawing.Point(0, 0)
+        Me.panelContainer.Name = "panelContainer"
+        Me.panelContainer.Size = New System.Drawing.Size(1107, 588)
+        Me.panelContainer.TabIndex = 0
+        '
+        'SplitContainer
+        '
+        Me.SplitContainer.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.SplitContainer.IsSplitterFixed = True
+        Me.SplitContainer.Location = New System.Drawing.Point(13, 126)
+        Me.SplitContainer.Name = "SplitContainer"
+        '
+        'SplitContainer.Panel1
+        '
+        Me.SplitContainer.Panel1.Controls.Add(Me.lblMessage)
+        Me.SplitContainer.Panel1.Controls.Add(Me.dgvTable)
+        '
+        'SplitContainer.Panel2
+        '
+        Me.SplitContainer.Panel2.Controls.Add(Me.Panel2)
+        Me.SplitContainer.Panel2MinSize = 0
+        Me.SplitContainer.Size = New System.Drawing.Size(1082, 449)
+        Me.SplitContainer.SplitterDistance = 722
+        Me.SplitContainer.TabIndex = 3
+        '
+        'lblMessage
+        '
+        Me.lblMessage.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom), System.Windows.Forms.AnchorStyles)
+        Me.lblMessage.AutoSize = True
+        Me.lblMessage.BackColor = System.Drawing.Color.White
+        Me.lblMessage.Font = New System.Drawing.Font("Segoe UI Semibold", 15.75!, System.Drawing.FontStyle.Bold)
+        Me.lblMessage.Location = New System.Drawing.Point(285, 209)
+        Me.lblMessage.Name = "lblMessage"
+        Me.lblMessage.Size = New System.Drawing.Size(152, 30)
+        Me.lblMessage.TabIndex = 11
+        Me.lblMessage.Text = "Label Message"
+        Me.lblMessage.Visible = False
+        '
+        'dgvTable
+        '
+        Me.dgvTable.AllowUserToAddRows = False
+        Me.dgvTable.AllowUserToDeleteRows = False
+        Me.dgvTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
+        Me.dgvTable.BackgroundColor = System.Drawing.Color.White
+        Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle1.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
+        Me.dgvTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.row_number, Me.employeeID, Me.employee_number, Me.employee_name, Me.employee_designation, Me.employee_assigned_area, Me.employee_remarks, Me.employee_status, Me.action_view, Me.action_exclude_or_inlucde, Me.action_manage_deduction, Me.action_manage_receivables})
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle2.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Tahoma", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.Gainsboro
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle2
+        Me.dgvTable.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.dgvTable.EnableHeadersVisualStyles = False
+        Me.dgvTable.GridColor = System.Drawing.Color.WhiteSmoke
+        Me.dgvTable.Location = New System.Drawing.Point(0, 0)
+        Me.dgvTable.Name = "dgvTable"
+        Me.dgvTable.ReadOnly = True
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvTable.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
+        Me.dgvTable.RowHeadersVisible = False
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Tahoma", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dgvTable.RowsDefaultCellStyle = DataGridViewCellStyle4
+        Me.dgvTable.RowTemplate.Height = 26
+        Me.dgvTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvTable.Size = New System.Drawing.Size(722, 449)
+        Me.dgvTable.TabIndex = 1
+        '
+        'row_number
+        '
+        Me.row_number.FillWeight = 10.0!
+        Me.row_number.HeaderText = "#"
+        Me.row_number.Name = "row_number"
+        Me.row_number.ReadOnly = True
+        '
+        'employeeID
+        '
+        Me.employeeID.HeaderText = "ID"
+        Me.employeeID.Name = "employeeID"
+        Me.employeeID.ReadOnly = True
+        Me.employeeID.Visible = False
+        '
+        'employee_number
+        '
+        Me.employee_number.FillWeight = 50.0!
+        Me.employee_number.HeaderText = "Employee ID"
+        Me.employee_number.Name = "employee_number"
+        Me.employee_number.ReadOnly = True
+        '
+        'employee_name
+        '
+        Me.employee_name.HeaderText = "Name"
+        Me.employee_name.Name = "employee_name"
+        Me.employee_name.ReadOnly = True
+        '
+        'employee_designation
+        '
+        Me.employee_designation.FillWeight = 50.0!
+        Me.employee_designation.HeaderText = "Designation"
+        Me.employee_designation.Name = "employee_designation"
+        Me.employee_designation.ReadOnly = True
+        '
+        'employee_assigned_area
+        '
+        Me.employee_assigned_area.FillWeight = 50.0!
+        Me.employee_assigned_area.HeaderText = "Assigned Area"
+        Me.employee_assigned_area.Name = "employee_assigned_area"
+        Me.employee_assigned_area.ReadOnly = True
+        '
+        'employee_remarks
+        '
+        Me.employee_remarks.FillWeight = 50.0!
+        Me.employee_remarks.HeaderText = "Remarks"
+        Me.employee_remarks.Name = "employee_remarks"
+        Me.employee_remarks.ReadOnly = True
+        '
+        'employee_status
+        '
+        Me.employee_status.FillWeight = 40.0!
+        Me.employee_status.HeaderText = "Status"
+        Me.employee_status.Name = "employee_status"
+        Me.employee_status.ReadOnly = True
+        '
+        'action_view
+        '
+        Me.action_view.FillWeight = 30.0!
+        Me.action_view.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_view.HeaderText = ""
+        Me.action_view.Name = "action_view"
+        Me.action_view.ReadOnly = True
+        '
+        'action_exclude_or_inlucde
+        '
+        Me.action_exclude_or_inlucde.FillWeight = 30.0!
+        Me.action_exclude_or_inlucde.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_exclude_or_inlucde.HeaderText = ""
+        Me.action_exclude_or_inlucde.Name = "action_exclude_or_inlucde"
+        Me.action_exclude_or_inlucde.ReadOnly = True
+        '
+        'action_manage_deduction
+        '
+        Me.action_manage_deduction.FillWeight = 40.0!
+        Me.action_manage_deduction.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_manage_deduction.HeaderText = ""
+        Me.action_manage_deduction.Name = "action_manage_deduction"
+        Me.action_manage_deduction.ReadOnly = True
+        '
+        'action_manage_receivables
+        '
+        Me.action_manage_receivables.FillWeight = 40.0!
+        Me.action_manage_receivables.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_manage_receivables.HeaderText = ""
+        Me.action_manage_receivables.Name = "action_manage_receivables"
+        Me.action_manage_receivables.ReadOnly = True
+        '
+        'Panel2
+        '
+        Me.Panel2.BackColor = System.Drawing.Color.White
+        Me.Panel2.Controls.Add(Me.DataGridView1)
+        Me.Panel2.Controls.Add(Me.GroupBox1)
+        Me.Panel2.Controls.Add(Me.Panel3)
+        Me.Panel2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Panel2.Location = New System.Drawing.Point(0, 0)
+        Me.Panel2.Name = "Panel2"
+        Me.Panel2.Size = New System.Drawing.Size(356, 449)
+        Me.Panel2.TabIndex = 0
+        '
+        'DataGridView1
+        '
+        Me.DataGridView1.AllowUserToAddRows = False
+        Me.DataGridView1.AllowUserToDeleteRows = False
+        Me.DataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
+        Me.DataGridView1.BackgroundColor = System.Drawing.Color.White
+        Me.DataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.DataGridView1.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle5.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridView1.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle5
+        Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.record_type, Me.record_value})
+        Me.DataGridView1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.DataGridView1.EnableHeadersVisualStyles = False
+        Me.DataGridView1.GridColor = System.Drawing.Color.WhiteSmoke
+        Me.DataGridView1.Location = New System.Drawing.Point(0, 206)
+        Me.DataGridView1.Name = "DataGridView1"
+        DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle6.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle6.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridView1.RowHeadersDefaultCellStyle = DataGridViewCellStyle6
+        Me.DataGridView1.RowHeadersVisible = False
+        Me.DataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.DataGridView1.Size = New System.Drawing.Size(356, 243)
+        Me.DataGridView1.TabIndex = 7
+        '
+        'record_type
+        '
+        Me.record_type.HeaderText = "Details"
+        Me.record_type.Name = "record_type"
+        '
+        'record_value
+        '
+        Me.record_value.HeaderText = "Value"
+        Me.record_value.Name = "record_value"
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.lblAssignedArea)
+        Me.GroupBox1.Controls.Add(Me.lblDesignation)
+        Me.GroupBox1.Controls.Add(Me.lblName)
+        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.GroupBox1.Font = New System.Drawing.Font("Tahoma", 14.25!)
+        Me.GroupBox1.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.GroupBox1.Location = New System.Drawing.Point(0, 42)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(356, 164)
+        Me.GroupBox1.TabIndex = 6
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "Employee Information"
+        '
+        'lblAssignedArea
+        '
+        Me.lblAssignedArea.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblAssignedArea.ForeColor = System.Drawing.Color.Black
+        Me.lblAssignedArea.Location = New System.Drawing.Point(17, 72)
+        Me.lblAssignedArea.Name = "lblAssignedArea"
+        Me.lblAssignedArea.Size = New System.Drawing.Size(312, 82)
+        Me.lblAssignedArea.TabIndex = 11
+        Me.lblAssignedArea.Text = "Innovation and Information System Unit"
+        '
+        'lblDesignation
+        '
+        Me.lblDesignation.AutoSize = True
+        Me.lblDesignation.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblDesignation.ForeColor = System.Drawing.Color.Black
+        Me.lblDesignation.Location = New System.Drawing.Point(17, 49)
+        Me.lblDesignation.Name = "lblDesignation"
+        Me.lblDesignation.Size = New System.Drawing.Size(143, 14)
+        Me.lblDesignation.TabIndex = 10
+        Me.lblDesignation.Text = "Computer Programmer II"
+        '
+        'lblName
+        '
+        Me.lblName.AutoSize = True
+        Me.lblName.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblName.ForeColor = System.Drawing.Color.Black
+        Me.lblName.Location = New System.Drawing.Point(17, 26)
+        Me.lblName.Name = "lblName"
+        Me.lblName.Size = New System.Drawing.Size(185, 23)
+        Me.lblName.TabIndex = 9
+        Me.lblName.Text = "Dolar, Kim Horace A."
+        '
+        'Panel3
+        '
+        Me.Panel3.Controls.Add(Me.btnClose)
+        Me.Panel3.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Panel3.Location = New System.Drawing.Point(0, 0)
+        Me.Panel3.Name = "Panel3"
+        Me.Panel3.Size = New System.Drawing.Size(356, 42)
+        Me.Panel3.TabIndex = 5
+        '
+        'btnClose
+        '
+        Me.btnClose.BackColor = System.Drawing.Color.White
+        Me.btnClose.FlatAppearance.BorderSize = 0
+        Me.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnClose.Font = New System.Drawing.Font("Tahoma", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnClose.ForeColor = System.Drawing.Color.Black
+        Me.btnClose.Image = Global.zcmc_payroll_client_v2.My.Resources.Resources.back_button_24
+        Me.btnClose.Location = New System.Drawing.Point(3, 3)
+        Me.btnClose.Name = "btnClose"
+        Me.btnClose.Size = New System.Drawing.Size(81, 33)
+        Me.btnClose.TabIndex = 2
+        Me.btnClose.Text = "Close"
+        Me.btnClose.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnClose.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnClose.UseVisualStyleBackColor = False
+        '
+        'panelNavigator
+        '
+        Me.panelNavigator.Controls.Add(Me.Panel1)
+        Me.panelNavigator.Dock = System.Windows.Forms.DockStyle.Top
+        Me.panelNavigator.Location = New System.Drawing.Point(0, 53)
+        Me.panelNavigator.Name = "panelNavigator"
+        Me.panelNavigator.Size = New System.Drawing.Size(1107, 67)
+        Me.panelNavigator.TabIndex = 2
+        '
+        'Panel1
+        '
+        Me.Panel1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Panel1.BackColor = System.Drawing.Color.White
+        Me.Panel1.Location = New System.Drawing.Point(13, 10)
+        Me.Panel1.Name = "Panel1"
+        Me.Panel1.Size = New System.Drawing.Size(1082, 46)
+        Me.Panel1.TabIndex = 0
+        '
+        'panelTop
+        '
+        Me.panelTop.Controls.Add(Me.btnExcludedEmployee)
+        Me.panelTop.Controls.Add(Me.btnIncludedEmployee)
+        Me.panelTop.Dock = System.Windows.Forms.DockStyle.Top
+        Me.panelTop.Location = New System.Drawing.Point(0, 0)
+        Me.panelTop.Name = "panelTop"
+        Me.panelTop.Size = New System.Drawing.Size(1107, 53)
+        Me.panelTop.TabIndex = 0
+        '
+        'btnExcludedEmployee
+        '
+        Me.btnExcludedEmployee.BackColor = System.Drawing.Color.Gainsboro
+        Me.btnExcludedEmployee.FlatAppearance.BorderColor = System.Drawing.Color.White
+        Me.btnExcludedEmployee.FlatAppearance.BorderSize = 0
+        Me.btnExcludedEmployee.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnExcludedEmployee.Font = New System.Drawing.Font("Tahoma", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnExcludedEmployee.ForeColor = System.Drawing.Color.Black
+        Me.btnExcludedEmployee.Location = New System.Drawing.Point(174, 5)
+        Me.btnExcludedEmployee.Name = "btnExcludedEmployee"
+        Me.btnExcludedEmployee.Size = New System.Drawing.Size(155, 39)
+        Me.btnExcludedEmployee.TabIndex = 1
+        Me.btnExcludedEmployee.Text = "Excluded Employee"
+        Me.btnExcludedEmployee.UseVisualStyleBackColor = False
+        '
+        'btnIncludedEmployee
+        '
+        Me.btnIncludedEmployee.BackColor = System.Drawing.Color.Gainsboro
+        Me.btnIncludedEmployee.FlatAppearance.BorderColor = System.Drawing.Color.White
+        Me.btnIncludedEmployee.FlatAppearance.BorderSize = 0
+        Me.btnIncludedEmployee.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnIncludedEmployee.Font = New System.Drawing.Font("Tahoma", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnIncludedEmployee.ForeColor = System.Drawing.Color.Black
+        Me.btnIncludedEmployee.Location = New System.Drawing.Point(13, 5)
+        Me.btnIncludedEmployee.Name = "btnIncludedEmployee"
+        Me.btnIncludedEmployee.Size = New System.Drawing.Size(155, 39)
+        Me.btnIncludedEmployee.TabIndex = 0
+        Me.btnIncludedEmployee.Text = "Included Employee"
+        Me.btnIncludedEmployee.UseVisualStyleBackColor = False
+        '
+        'DataGridViewImageColumn1
+        '
+        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle7.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle7.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle7.NullValue = CType(resources.GetObject("DataGridViewCellStyle7.NullValue"), Object)
+        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.Color.WhiteSmoke
+        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.Color.Black
+        Me.DataGridViewImageColumn1.DefaultCellStyle = DataGridViewCellStyle7
+        Me.DataGridViewImageColumn1.FillWeight = 40.0!
+        Me.DataGridViewImageColumn1.HeaderText = ""
+        Me.DataGridViewImageColumn1.Image = Global.zcmc_payroll_client_v2.My.Resources.Resources.view_employee_24
+        Me.DataGridViewImageColumn1.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch
+        Me.DataGridViewImageColumn1.Name = "DataGridViewImageColumn1"
+        Me.DataGridViewImageColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridViewImageColumn1.ToolTipText = "View"
+        Me.DataGridViewImageColumn1.Width = 62
+        '
+        'DataGridViewImageColumn2
+        '
+        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle8.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle8.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle8.NullValue = CType(resources.GetObject("DataGridViewCellStyle8.NullValue"), Object)
+        DataGridViewCellStyle8.SelectionBackColor = System.Drawing.Color.Gainsboro
+        DataGridViewCellStyle8.SelectionForeColor = System.Drawing.Color.Black
+        Me.DataGridViewImageColumn2.DefaultCellStyle = DataGridViewCellStyle8
+        Me.DataGridViewImageColumn2.FillWeight = 40.0!
+        Me.DataGridViewImageColumn2.HeaderText = ""
+        Me.DataGridViewImageColumn2.Image = Global.zcmc_payroll_client_v2.My.Resources.Resources.remove_employee_24
+        Me.DataGridViewImageColumn2.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch
+        Me.DataGridViewImageColumn2.Name = "DataGridViewImageColumn2"
+        Me.DataGridViewImageColumn2.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridViewImageColumn2.ToolTipText = "Exclude"
+        Me.DataGridViewImageColumn2.Width = 62
+        '
+        'tmrSlide
+        '
+        Me.tmrSlide.Interval = 10
+        '
+        'UcManageEmployee
+        '
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
+        Me.AutoSize = True
+        Me.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.Controls.Add(Me.panelContainer)
+        Me.Name = "UcManageEmployee"
+        Me.Size = New System.Drawing.Size(1107, 588)
+        Me.panelContainer.ResumeLayout(False)
+        Me.SplitContainer.Panel1.ResumeLayout(False)
+        Me.SplitContainer.Panel1.PerformLayout()
+        Me.SplitContainer.Panel2.ResumeLayout(False)
+        CType(Me.SplitContainer, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.SplitContainer.ResumeLayout(False)
+        CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.Panel2.ResumeLayout(False)
+        CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
+        Me.Panel3.ResumeLayout(False)
+        Me.panelNavigator.ResumeLayout(False)
+        Me.panelTop.ResumeLayout(False)
+        Me.ResumeLayout(False)
+
+    End Sub
+
+    Friend WithEvents panelContainer As Panel
+    Friend WithEvents panelTop As Panel
+    Friend WithEvents btnExcludedEmployee As Button
+    Friend WithEvents btnIncludedEmployee As Button
+    Friend WithEvents panelNavigator As Panel
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents SplitContainer As SplitContainer
+    Friend WithEvents Panel2 As Panel
+    Friend WithEvents dgvTable As DataGridView
+    Friend WithEvents DataGridViewImageColumn1 As DataGridViewImageColumn
+    Friend WithEvents DataGridViewImageColumn2 As DataGridViewImageColumn
+    Friend WithEvents DataGridView1 As DataGridView
+    Friend WithEvents record_type As DataGridViewTextBoxColumn
+    Friend WithEvents record_value As DataGridViewTextBoxColumn
+    Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents lblAssignedArea As Label
+    Friend WithEvents lblDesignation As Label
+    Friend WithEvents lblName As Label
+    Friend WithEvents Panel3 As Panel
+    Friend WithEvents btnClose As Button
+    Friend WithEvents lblMessage As Label
+    Friend WithEvents row_number As DataGridViewTextBoxColumn
+    Friend WithEvents employeeID As DataGridViewTextBoxColumn
+    Friend WithEvents employee_number As DataGridViewTextBoxColumn
+    Friend WithEvents employee_name As DataGridViewTextBoxColumn
+    Friend WithEvents employee_designation As DataGridViewTextBoxColumn
+    Friend WithEvents employee_assigned_area As DataGridViewTextBoxColumn
+    Friend WithEvents employee_remarks As DataGridViewTextBoxColumn
+    Friend WithEvents employee_status As DataGridViewTextBoxColumn
+    Friend WithEvents action_view As DataGridViewButtonColumn
+    Friend WithEvents action_exclude_or_inlucde As DataGridViewButtonColumn
+    Friend WithEvents action_manage_deduction As DataGridViewButtonColumn
+    Friend WithEvents action_manage_receivables As DataGridViewButtonColumn
+    Friend WithEvents tmrSlide As Timer
+End Class
