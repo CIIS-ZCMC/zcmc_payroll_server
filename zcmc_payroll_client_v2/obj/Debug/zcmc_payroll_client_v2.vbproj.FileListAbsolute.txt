@@ -34,3 +34,7 @@ D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_c
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmShowEmployeeReceivable.resources
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmSettings.resources
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.UcReport.resources
+D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.UcEmployeeRefetch.resources
+D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.UcManageDeductionGroup.resources
+D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.UcManageDeduction.resources
+D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.UcManageReceivable.resources

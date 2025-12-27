@@ -140,6 +140,12 @@
     <Compile Include="Forms\Employee\Employee Receivables\FrmShowEmployeeReceivable.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\Employee\Employee Refetch\UcEmployeeRefetch.Designer.vb">
+      <DependentUpon>UcEmployeeRefetch.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Employee\Employee Refetch\UcEmployeeRefetch.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Forms\Employee\UcManageEmployee.Designer.vb">
       <DependentUpon>UcManageEmployee.vb</DependentUpon>
     </Compile>
@@ -200,11 +206,29 @@
     <Compile Include="Forms\Reports\UcReport.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Forms\Settings\Deduction Group\UcManageDeductionGroup.Designer.vb">
+      <DependentUpon>UcManageDeductionGroup.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Settings\Deduction Group\UcManageDeductionGroup.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\Deduction\UcManageDeduction.Designer.vb">
+      <DependentUpon>UcManageDeduction.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Settings\Deduction\UcManageDeduction.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Forms\Settings\FrmSettings.Designer.vb">
       <DependentUpon>FrmSettings.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Settings\FrmSettings.vb">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\Receivable\UcManageReceivable.Designer.vb">
+      <DependentUpon>UcManageReceivable.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Settings\Receivable\UcManageReceivable.vb">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Helpers\BaseMaterialForm.vb">
       <SubType>Form</SubType>
@@ -247,6 +271,9 @@
     <EmbeddedResource Include="Forms\Employee\Employee Receivables\FrmShowEmployeeReceivable.resx">
       <DependentUpon>FrmShowEmployeeReceivable.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Employee\Employee Refetch\UcEmployeeRefetch.resx">
+      <DependentUpon>UcEmployeeRefetch.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Employee\UcManageEmployee.resx">
       <DependentUpon>UcManageEmployee.vb</DependentUpon>
     </EmbeddedResource>
@@ -277,8 +304,17 @@
     <EmbeddedResource Include="Forms\Reports\UcReport.resx">
       <DependentUpon>UcReport.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Settings\Deduction Group\UcManageDeductionGroup.resx">
+      <DependentUpon>UcManageDeductionGroup.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Settings\Deduction\UcManageDeduction.resx">
+      <DependentUpon>UcManageDeduction.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Settings\FrmSettings.resx">
       <DependentUpon>FrmSettings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Settings\Receivable\UcManageReceivable.resx">
+      <DependentUpon>UcManageReceivable.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Helpers\BaseMaterialForm.resx">
       <DependentUpon>BaseMaterialForm.vb</DependentUpon>

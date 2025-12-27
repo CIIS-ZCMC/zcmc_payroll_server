@@ -22,23 +22,32 @@ Partial Class FrmSettings
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmSettings))
         Me.panelNav = New System.Windows.Forms.Panel()
+        Me.btnMinimize = New System.Windows.Forms.Button()
+        Me.btnClose = New System.Windows.Forms.Button()
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.panelContent = New System.Windows.Forms.Panel()
         Me.panelBottom = New System.Windows.Forms.Panel()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.panelSidebar = New System.Windows.Forms.Panel()
+        Me.pnlSettingsMenu = New System.Windows.Forms.Panel()
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.btnReceivables = New System.Windows.Forms.Button()
+        Me.btnDeductions = New System.Windows.Forms.Button()
+        Me.btnDeductionGroups = New System.Windows.Forms.Button()
         Me.btnSettings = New System.Windows.Forms.Button()
         Me.btnLogout = New System.Windows.Forms.Button()
         Me.btnRefetchEmployee = New System.Windows.Forms.Button()
         Me.btnReports = New System.Windows.Forms.Button()
-        Me.btnMinimize = New System.Windows.Forms.Button()
-        Me.btnClose = New System.Windows.Forms.Button()
+        Me.tmrSettings = New System.Windows.Forms.Timer(Me.components)
         Me.panelNav.SuspendLayout()
         Me.panelContainer.SuspendLayout()
         Me.panelBottom.SuspendLayout()
         Me.panelSidebar.SuspendLayout()
+        Me.pnlSettingsMenu.SuspendLayout()
+        Me.Panel1.SuspendLayout()
         Me.SuspendLayout()
         '
         'panelNav
@@ -52,6 +61,34 @@ Partial Class FrmSettings
         Me.panelNav.Name = "panelNav"
         Me.panelNav.Size = New System.Drawing.Size(1081, 31)
         Me.panelNav.TabIndex = 1
+        '
+        'btnMinimize
+        '
+        Me.btnMinimize.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnMinimize.BackColor = System.Drawing.Color.Transparent
+        Me.btnMinimize.BackgroundImage = CType(resources.GetObject("btnMinimize.BackgroundImage"), System.Drawing.Image)
+        Me.btnMinimize.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
+        Me.btnMinimize.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnMinimize.ForeColor = System.Drawing.Color.White
+        Me.btnMinimize.Location = New System.Drawing.Point(996, 3)
+        Me.btnMinimize.Name = "btnMinimize"
+        Me.btnMinimize.Size = New System.Drawing.Size(37, 22)
+        Me.btnMinimize.TabIndex = 1
+        Me.btnMinimize.UseVisualStyleBackColor = False
+        '
+        'btnClose
+        '
+        Me.btnClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnClose.BackColor = System.Drawing.Color.Red
+        Me.btnClose.BackgroundImage = Global.zcmc_payroll_client_v2.My.Resources.Resources.close_16
+        Me.btnClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
+        Me.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnClose.ForeColor = System.Drawing.Color.Red
+        Me.btnClose.Location = New System.Drawing.Point(1039, 3)
+        Me.btnClose.Name = "btnClose"
+        Me.btnClose.Size = New System.Drawing.Size(37, 22)
+        Me.btnClose.TabIndex = 0
+        Me.btnClose.UseVisualStyleBackColor = False
         '
         'panelContainer
         '
@@ -71,7 +108,7 @@ Partial Class FrmSettings
         '
         Me.panelContent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.panelContent.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.panelContent.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.panelContent.Font = New System.Drawing.Font("Segoe UI Semibold", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.panelContent.Location = New System.Drawing.Point(223, 0)
         Me.panelContent.Name = "panelContent"
         Me.panelContent.Size = New System.Drawing.Size(858, 522)
@@ -103,6 +140,7 @@ Partial Class FrmSettings
         'panelSidebar
         '
         Me.panelSidebar.BackColor = System.Drawing.Color.FromArgb(CType(CType(10, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(48, Byte), Integer))
+        Me.panelSidebar.Controls.Add(Me.pnlSettingsMenu)
         Me.panelSidebar.Controls.Add(Me.btnSettings)
         Me.panelSidebar.Controls.Add(Me.btnLogout)
         Me.panelSidebar.Controls.Add(Me.btnRefetchEmployee)
@@ -114,6 +152,77 @@ Partial Class FrmSettings
         Me.panelSidebar.Name = "panelSidebar"
         Me.panelSidebar.Size = New System.Drawing.Size(223, 563)
         Me.panelSidebar.TabIndex = 1
+        '
+        'pnlSettingsMenu
+        '
+        Me.pnlSettingsMenu.Controls.Add(Me.Panel1)
+        Me.pnlSettingsMenu.Dock = System.Windows.Forms.DockStyle.Top
+        Me.pnlSettingsMenu.Location = New System.Drawing.Point(0, 141)
+        Me.pnlSettingsMenu.Name = "pnlSettingsMenu"
+        Me.pnlSettingsMenu.Size = New System.Drawing.Size(223, 158)
+        Me.pnlSettingsMenu.TabIndex = 12
+        '
+        'Panel1
+        '
+        Me.Panel1.Controls.Add(Me.btnReceivables)
+        Me.Panel1.Controls.Add(Me.btnDeductions)
+        Me.Panel1.Controls.Add(Me.btnDeductionGroups)
+        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Right
+        Me.Panel1.Location = New System.Drawing.Point(28, 0)
+        Me.Panel1.Name = "Panel1"
+        Me.Panel1.Size = New System.Drawing.Size(195, 158)
+        Me.Panel1.TabIndex = 0
+        '
+        'btnReceivables
+        '
+        Me.btnReceivables.Dock = System.Windows.Forms.DockStyle.Top
+        Me.btnReceivables.FlatAppearance.BorderSize = 0
+        Me.btnReceivables.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnReceivables.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnReceivables.ForeColor = System.Drawing.Color.White
+        Me.btnReceivables.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnReceivables.Location = New System.Drawing.Point(0, 94)
+        Me.btnReceivables.Name = "btnReceivables"
+        Me.btnReceivables.Size = New System.Drawing.Size(195, 47)
+        Me.btnReceivables.TabIndex = 16
+        Me.btnReceivables.Text = "Receivable"
+        Me.btnReceivables.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnReceivables.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnReceivables.UseVisualStyleBackColor = True
+        '
+        'btnDeductions
+        '
+        Me.btnDeductions.Dock = System.Windows.Forms.DockStyle.Top
+        Me.btnDeductions.FlatAppearance.BorderSize = 0
+        Me.btnDeductions.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnDeductions.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnDeductions.ForeColor = System.Drawing.Color.White
+        Me.btnDeductions.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnDeductions.Location = New System.Drawing.Point(0, 47)
+        Me.btnDeductions.Name = "btnDeductions"
+        Me.btnDeductions.Size = New System.Drawing.Size(195, 47)
+        Me.btnDeductions.TabIndex = 15
+        Me.btnDeductions.Text = "Deduction"
+        Me.btnDeductions.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnDeductions.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnDeductions.UseVisualStyleBackColor = True
+        '
+        'btnDeductionGroups
+        '
+        Me.btnDeductionGroups.Dock = System.Windows.Forms.DockStyle.Top
+        Me.btnDeductionGroups.FlatAppearance.BorderSize = 0
+        Me.btnDeductionGroups.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnDeductionGroups.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnDeductionGroups.ForeColor = System.Drawing.Color.White
+        Me.btnDeductionGroups.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnDeductionGroups.Location = New System.Drawing.Point(0, 0)
+        Me.btnDeductionGroups.Name = "btnDeductionGroups"
+        Me.btnDeductionGroups.Size = New System.Drawing.Size(195, 47)
+        Me.btnDeductionGroups.TabIndex = 14
+        Me.btnDeductionGroups.Text = "Deduction Group"
+        Me.btnDeductionGroups.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnDeductionGroups.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnDeductionGroups.UseVisualStyleBackColor = True
         '
         'btnSettings
         '
@@ -127,7 +236,7 @@ Partial Class FrmSettings
         Me.btnSettings.Location = New System.Drawing.Point(0, 94)
         Me.btnSettings.Name = "btnSettings"
         Me.btnSettings.Size = New System.Drawing.Size(223, 47)
-        Me.btnSettings.TabIndex = 5
+        Me.btnSettings.TabIndex = 11
         Me.btnSettings.Text = "Settings"
         Me.btnSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnSettings.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
@@ -187,33 +296,9 @@ Partial Class FrmSettings
         Me.btnReports.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnReports.UseVisualStyleBackColor = True
         '
-        'btnMinimize
+        'tmrSettings
         '
-        Me.btnMinimize.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnMinimize.BackColor = System.Drawing.Color.Transparent
-        Me.btnMinimize.BackgroundImage = CType(resources.GetObject("btnMinimize.BackgroundImage"), System.Drawing.Image)
-        Me.btnMinimize.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
-        Me.btnMinimize.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnMinimize.ForeColor = System.Drawing.Color.White
-        Me.btnMinimize.Location = New System.Drawing.Point(996, 3)
-        Me.btnMinimize.Name = "btnMinimize"
-        Me.btnMinimize.Size = New System.Drawing.Size(37, 22)
-        Me.btnMinimize.TabIndex = 1
-        Me.btnMinimize.UseVisualStyleBackColor = False
-        '
-        'btnClose
-        '
-        Me.btnClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnClose.BackColor = System.Drawing.Color.Red
-        Me.btnClose.BackgroundImage = Global.zcmc_payroll_client_v2.My.Resources.Resources.close_16
-        Me.btnClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
-        Me.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnClose.ForeColor = System.Drawing.Color.Red
-        Me.btnClose.Location = New System.Drawing.Point(1039, 3)
-        Me.btnClose.Name = "btnClose"
-        Me.btnClose.Size = New System.Drawing.Size(37, 22)
-        Me.btnClose.TabIndex = 0
-        Me.btnClose.UseVisualStyleBackColor = False
+        Me.tmrSettings.Interval = 15
         '
         'FrmSettings
         '
@@ -231,6 +316,8 @@ Partial Class FrmSettings
         Me.panelContainer.ResumeLayout(False)
         Me.panelBottom.ResumeLayout(False)
         Me.panelSidebar.ResumeLayout(False)
+        Me.pnlSettingsMenu.ResumeLayout(False)
+        Me.Panel1.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -246,5 +333,11 @@ Partial Class FrmSettings
     Friend WithEvents btnLogout As Button
     Friend WithEvents btnRefetchEmployee As Button
     Friend WithEvents btnReports As Button
+    Friend WithEvents pnlSettingsMenu As Panel
     Friend WithEvents btnSettings As Button
+    Friend WithEvents tmrSettings As Timer
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents btnReceivables As Button
+    Friend WithEvents btnDeductions As Button
+    Friend WithEvents btnDeductionGroups As Button
 End Class

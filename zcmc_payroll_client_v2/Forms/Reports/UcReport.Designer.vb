@@ -24,9 +24,6 @@ Partial Class UcReport
     Private Sub InitializeComponent()
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.panelContent = New System.Windows.Forms.Panel()
-        Me.panelTop = New System.Windows.Forms.Panel()
-        Me.lblDescription = New System.Windows.Forms.Label()
-        Me.lblTitle = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.btnExport = New System.Windows.Forms.Button()
         Me.cmbYear = New System.Windows.Forms.ComboBox()
@@ -40,10 +37,13 @@ Partial Class UcReport
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.btnGenerateReport = New System.Windows.Forms.Button()
+        Me.panelTop = New System.Windows.Forms.Panel()
+        Me.lblDescription = New System.Windows.Forms.Label()
+        Me.lblTitle = New System.Windows.Forms.Label()
         Me.panelContainer.SuspendLayout()
         Me.panelContent.SuspendLayout()
-        Me.panelTop.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
+        Me.panelTop.SuspendLayout()
         Me.SuspendLayout()
         '
         'panelContainer
@@ -65,43 +65,9 @@ Partial Class UcReport
         Me.panelContent.Size = New System.Drawing.Size(957, 462)
         Me.panelContent.TabIndex = 33
         '
-        'panelTop
-        '
-        Me.panelTop.BackColor = System.Drawing.Color.FromArgb(CType(CType(10, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(48, Byte), Integer))
-        Me.panelTop.Controls.Add(Me.lblDescription)
-        Me.panelTop.Controls.Add(Me.lblTitle)
-        Me.panelTop.Dock = System.Windows.Forms.DockStyle.Top
-        Me.panelTop.Location = New System.Drawing.Point(0, 0)
-        Me.panelTop.Name = "panelTop"
-        Me.panelTop.Size = New System.Drawing.Size(957, 66)
-        Me.panelTop.TabIndex = 32
-        '
-        'lblDescription
-        '
-        Me.lblDescription.AutoSize = True
-        Me.lblDescription.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.lblDescription.ForeColor = System.Drawing.Color.White
-        Me.lblDescription.Location = New System.Drawing.Point(16, 32)
-        Me.lblDescription.Name = "lblDescription"
-        Me.lblDescription.Size = New System.Drawing.Size(567, 19)
-        Me.lblDescription.TabIndex = 3
-        Me.lblDescription.Text = "Generate different types of reports here to suit your-data-intensive workflow req" &
-    "uirements."
-        '
-        'lblTitle
-        '
-        Me.lblTitle.AutoSize = True
-        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTitle.ForeColor = System.Drawing.Color.White
-        Me.lblTitle.Location = New System.Drawing.Point(16, 12)
-        Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(199, 21)
-        Me.lblTitle.TabIndex = 2
-        Me.lblTitle.Text = "Generate Payroll Reports"
-        Me.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
         'GroupBox1
         '
+        Me.GroupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top
         Me.GroupBox1.Controls.Add(Me.btnExport)
         Me.GroupBox1.Controls.Add(Me.cmbYear)
         Me.GroupBox1.Controls.Add(Me.cmbMonth)
@@ -274,6 +240,41 @@ Partial Class UcReport
         Me.btnGenerateReport.Text = "Generate Report"
         Me.btnGenerateReport.UseVisualStyleBackColor = False
         '
+        'panelTop
+        '
+        Me.panelTop.BackColor = System.Drawing.Color.FromArgb(CType(CType(10, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(48, Byte), Integer))
+        Me.panelTop.Controls.Add(Me.lblDescription)
+        Me.panelTop.Controls.Add(Me.lblTitle)
+        Me.panelTop.Dock = System.Windows.Forms.DockStyle.Top
+        Me.panelTop.Location = New System.Drawing.Point(0, 0)
+        Me.panelTop.Name = "panelTop"
+        Me.panelTop.Size = New System.Drawing.Size(957, 66)
+        Me.panelTop.TabIndex = 32
+        '
+        'lblDescription
+        '
+        Me.lblDescription.AutoSize = True
+        Me.lblDescription.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.lblDescription.ForeColor = System.Drawing.Color.White
+        Me.lblDescription.Location = New System.Drawing.Point(16, 32)
+        Me.lblDescription.Name = "lblDescription"
+        Me.lblDescription.Size = New System.Drawing.Size(567, 19)
+        Me.lblDescription.TabIndex = 3
+        Me.lblDescription.Text = "Generate different types of reports here to suit your-data-intensive workflow req" &
+    "uirements."
+        '
+        'lblTitle
+        '
+        Me.lblTitle.AutoSize = True
+        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTitle.ForeColor = System.Drawing.Color.White
+        Me.lblTitle.Location = New System.Drawing.Point(16, 12)
+        Me.lblTitle.Name = "lblTitle"
+        Me.lblTitle.Size = New System.Drawing.Size(199, 21)
+        Me.lblTitle.TabIndex = 2
+        Me.lblTitle.Text = "Generate Payroll Reports"
+        Me.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
         'UcReport
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -284,10 +285,10 @@ Partial Class UcReport
         Me.Size = New System.Drawing.Size(957, 528)
         Me.panelContainer.ResumeLayout(False)
         Me.panelContent.ResumeLayout(False)
-        Me.panelTop.ResumeLayout(False)
-        Me.panelTop.PerformLayout()
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
+        Me.panelTop.ResumeLayout(False)
+        Me.panelTop.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
