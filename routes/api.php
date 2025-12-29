@@ -43,7 +43,7 @@ Route::middleware('auth.token')->group(function () {
     Route::get('authentications', [AuthenticationController::class, 'index']);
 
     //Libraries
-    Route::put('deduction-stop/{id}', [DeductionController::class, 'stop']);
+    // Route::put('deduction-stop/{id}', [DeductionController::class, 'stop']);
     Route::apiResource('deductions', DeductionController::class);
     Route::apiResource('deduction-rules', DeductionRuleController::class);
     Route::apiResource('deduction-groups', DeductionGroupController::class);

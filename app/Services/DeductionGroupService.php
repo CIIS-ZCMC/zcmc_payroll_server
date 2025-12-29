@@ -20,22 +20,9 @@ class DeductionGroupService
         return $this->interface->getAll();
     }
 
-    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    public function paginate(int $perPage = 15, int $page): LengthAwarePaginator
     {
         return $this->interface->paginate($perPage, $page);
-    }
-
-    public function index(Request $request): Collection|LengthAwarePaginator
-    {
-        $mode = $request->mode;
-        $perPage = $request->per_page ?? 15;
-        $page = $request->page ?? 1;
-
-        if ($mode === 'paginate') {
-            return $this->paginate($perPage, $page);
-        }
-
-        return $this->getAll();
     }
 
     public function create(DeductionGroupData $data): DeductionGroup
