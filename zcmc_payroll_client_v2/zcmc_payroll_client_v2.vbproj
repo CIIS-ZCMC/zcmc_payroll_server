@@ -206,11 +206,23 @@
     <Compile Include="Forms\Reports\UcReport.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Forms\Settings\Deduction Group\AddEditDeductionGroup.Designer.vb">
+      <DependentUpon>AddEditDeductionGroup.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Settings\Deduction Group\AddEditDeductionGroup.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\Settings\Deduction Group\UcManageDeductionGroup.Designer.vb">
       <DependentUpon>UcManageDeductionGroup.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Settings\Deduction Group\UcManageDeductionGroup.vb">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\Deduction\AddEditDeduction.Designer.vb">
+      <DependentUpon>AddEditDeduction.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Settings\Deduction\AddEditDeduction.vb">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Settings\Deduction\UcManageDeduction.Designer.vb">
       <DependentUpon>UcManageDeduction.vb</DependentUpon>
@@ -222,6 +234,12 @@
       <DependentUpon>FrmSettings.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\Settings\FrmSettings.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\Receivable\AddEditReceivable.Designer.vb">
+      <DependentUpon>AddEditReceivable.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Settings\Receivable\AddEditReceivable.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Settings\Receivable\UcManageReceivable.Designer.vb">
@@ -303,6 +321,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Reports\UcReport.resx">
       <DependentUpon>UcReport.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Settings\Deduction Group\AddEditDeductionGroup.resx">
+      <DependentUpon>AddEditDeductionGroup.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Settings\Deduction Group\UcManageDeductionGroup.resx">
       <DependentUpon>UcManageDeductionGroup.vb</DependentUpon>

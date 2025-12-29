@@ -1,16 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\System\\zcmc_payroll_client_v2\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\settings\\receivable\\ucmanagereceivable.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
-      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\settings\\receivable\\ucmanagereceivable.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\settings\\frmsettings.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
-      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\settings\\frmsettings.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -18,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -27,34 +18,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UcManageReceivable.vb [Design]",
-              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\Receivable\\UcManageReceivable.vb",
-              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Settings\\Receivable\\UcManageReceivable.vb",
-              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\Receivable\\UcManageReceivable.vb [Design]",
-              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Settings\\Receivable\\UcManageReceivable.vb [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2025-12-27T03:10:33.232Z",
-              "EditorCaption": " [Design]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FrmSettings.vb [Design]",
-              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
-              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb",
-              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb [Design]",
-              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Settings\\FrmSettings.vb [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2025-12-27T03:10:02.266Z",
-              "EditorCaption": " [Design]"
             }
           ]
         }
