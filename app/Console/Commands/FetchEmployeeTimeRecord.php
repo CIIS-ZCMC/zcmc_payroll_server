@@ -57,6 +57,7 @@ class FetchEmployeeTimeRecord extends Command
         // Check if today is a processing day for job order employees
         if (($day === 16) || ($day === 1 && $today->isFirstOfMonth())) {
             $periodType = $day === 16 ? 'first_half' : 'second_half';
+
             // If it's the 1st of the month, we need to adjust the month for second half of previous month
             $processMonth = $periodType === 'first_half' ? $month : ($month === 1 ? 12 : $month - 1);
             $processYear = $periodType === 'first_half' ? $year : ($month === 1 ? $year - 1 : $year);

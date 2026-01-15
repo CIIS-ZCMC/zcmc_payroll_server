@@ -21,14 +21,11 @@ class CreateDeductionsTable extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('type')->default('fixed')->comment('fixed / percentage / conditional');
-            $table->boolean('hasDate')->default(false);
-            $table->date('date_start')->nullable();
-            $table->date('date_end')->nullable();
-            $table->string('condition_operator')->nullable();
-            $table->double('condition_value')->nullable();
+            $table->string('billing_cycle')->default('monthly');
             $table->double('percent_value')->nullable();
             $table->double('fixed_amount')->nullable();
-            $table->string('billing_cycle')->default('monthly');
+            $table->date('date_start')->nullable();
+            $table->date('date_end')->nullable();
             $table->string('status')->default("active");
             $table->softDeletes();
             $table->timestamps();

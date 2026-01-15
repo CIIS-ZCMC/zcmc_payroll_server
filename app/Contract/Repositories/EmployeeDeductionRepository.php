@@ -68,4 +68,9 @@ class EmployeeDeductionRepository implements EmployeeDeductionInterface
         $model->update(['status' => 'stopped', 'stopped_at' => now()]);
         return $model;
     }
+
+    public function find(int $id): EmployeeDeduction
+    {
+        return $this->model->find($id);
+    }
 }

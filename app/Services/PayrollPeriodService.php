@@ -14,57 +14,33 @@ class PayrollPeriodService
         //Nothing
     }
 
-    public function index(array $request): ?PayrollPeriod
+    public function index(bool $has_filter, array $params)
     {
-        $now = now();
-        $currentDay = $now->day;
-        $currentMonth = $now->month;
-        $currentYear = $now->year;
-        $firstHalfThreshold = 15;
-
-        // Handle specific period request
-        if ($this->hasValidPeriodRequest($request)) {
-            Log::info('Attempting to find specific period', [
-                'year' => $request['year'],
-                'month' => $request['month'],
-                'period_type' => $request['period_type'],
-                'employment_type' => $request['employment_type']
-            ]);
-
-            if ($period = $this->findPeriod($request['year'], $request['month'], $request['period_type'], $request['employment_type'])) {
-                Log::info('Found and activating specific period', ['period_id' => $period->id]);
-                return $this->activatePeriod($period);
-            }
-
-            Log::warning('Specific period not found', $request);
+        if ($has_filter === false) {
+            Log::info('No filter applied, returning all payroll periods');
+            return $this->interface->getAll();
         }
 
-        // Try current period
-        $periodType = $currentDay <= $firstHalfThreshold ? 'first_half' : 'second_half';
-        Log::info('Attempting to find current period', [
-            'year' => $currentYear,
-            'month' => $currentMonth,
-            'period_type' => $periodType,
-            'employment_type' => 'regular'
-        ]);
-        if ($period = $this->findPeriod($currentYear, $currentMonth, $periodType, 'regular')) {
-            Log::info('Found and activating current period', ['period_id' => $period->id]);
-            return $this->activatePeriod($period);
+        if ($has_filter === true && $this->hasValidPeriodRequest($params)) {
+            Log::info('Valid period request found, finding period', $params);
+            return $this->interface->findPeriod(
+                $params['year'],
+                $params['month'],
+                $params['period_type'],
+                $params['employment_type']
+            );
         }
 
-        // Fallback to latest active period
-        Log::warning('Current period not found, falling back to latest active period');
-        return $this->getLatestActivePeriod();
+        Log::info('No valid period request found, returning active period');
+        return $this->interface->getActive();
     }
 
-    public function create(array $data)
+    public function setPeriod(int $id)
     {
-        return $this->interface->create($data);
-    }
-
-    public function update($id, array $data)
-    {
-        return $this->interface->update($id, $data);
+        return DB::transaction(function () use ($id) {
+            $this->interface->deactivateOthers($id);
+            return $this->interface->setActive($id);
+        });
     }
 
     public function lock($id)
@@ -72,16 +48,40 @@ class PayrollPeriodService
         return $this->interface->lock($id);
     }
 
+    public function findPeriod(int $year, int $month, string $periodType, string $employmentType)
+    {
+        $period = $this->interface->findPeriod($year, $month, $periodType, $employmentType);
+        return $this->setPeriod($period->id);
+    }
+
+    public function isLocked(int $id)
+    {
+        return $this->interface->isLocked($id);
+    }
+
     public function find($id)
     {
         return PayrollPeriod::find(id: $id);
     }
 
-    private function getLatestPayrollPeriod(): PayrollPeriod
+    public function getPayrollPeriod(array $params): ?PayrollPeriod
     {
-        return PayrollPeriod::latest()->first();
+        $year = $params['year'] ?? null;
+        $month = $params['month'] ?? null;
+        $periodType = $params['period_type'] ?? null;
+        $employmentType = $params['employment_type'] ?? 'regular';
+
+        // Handle specific period request
+        if ($this->hasValidPeriodRequest($params)) {
+            if ($period = $this->findPeriod($year, $month, $periodType, $employmentType)) {
+                return DB::transaction(fn() => $this->setPeriod($period->id));
+            }
+        }
+        // Fallback to latest active period
+        return $this->interface->getActive();
     }
 
+    // PRIVATE FUNCTIONS
     private function hasValidPeriodRequest(array $request): bool
     {
         return isset(
@@ -90,32 +90,5 @@ class PayrollPeriodService
             $request['period_type'],
             $request['employment_type']
         );
-    }
-
-    private function findPeriod($year, $month, $periodType, $employmentType): ?PayrollPeriod
-    {
-        return PayrollPeriod::where('year', $year)
-            ->where('month', $month)
-            ->where('period_type', $periodType)
-            ->where('employment_type', $employmentType)
-            ->first();
-    }
-
-    private function activatePeriod(PayrollPeriod $period): PayrollPeriod
-    {
-        DB::transaction(function () use ($period) {
-            $period->update(['is_active' => true]);
-            $this->interface->deactivate($period->id);
-        });
-
-        return $period;
-    }
-
-    private function getLatestActivePeriod(): ?PayrollPeriod
-    {
-        if ($period = $this->getLatestPayrollPeriod()) {
-            return $this->activatePeriod($period);
-        }
-        return null;
     }
 }

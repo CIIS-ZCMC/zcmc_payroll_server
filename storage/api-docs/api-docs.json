@@ -102,6 +102,460 @@
                 ]
             }
         },
+        "/api/employees": {
+            "get": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "List all employees",
+                "operationId": "f8c90aec59d223dd0f93f4a7ea802106",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "all"
+                        }
+                    },
+                    {
+                        "name": "paginate",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of employees"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employees/{id}": {
+            "get": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Get employee by id",
+                "operationId": "c20473e87f752bc3863f7d0b03d6a92b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee successfully retrieved"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employee-deductions": {
+            "post": {
+                "tags": [
+                    "Employee Deductions"
+                ],
+                "summary": "Store employee deductions",
+                "description": "Store single or multiple employee deductions. For bulk operations, use the 'deductions' array.",
+                "operationId": "bca11d1399d8c89ff349779f87804409",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "payroll_period_id",
+                                            "employee_id",
+                                            "deduction_id"
+                                        ],
+                                        "properties": {
+                                            "payroll_period_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "employee_id": {
+                                                "type": "integer",
+                                                "example": 123
+                                            },
+                                            "deduction_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "frequency": {
+                                                "type": "string",
+                                                "example": "monthly"
+                                            },
+                                            "amount": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 1000
+                                            },
+                                            "percentage": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 10.5
+                                            },
+                                            "date_from": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "2025-01-01"
+                                            },
+                                            "date_to": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "2025-12-31"
+                                            },
+                                            "with_terms": {
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "total_term": {
+                                                "type": "integer",
+                                                "example": 12
+                                            },
+                                            "total_paid": {
+                                                "type": "integer",
+                                                "example": 0
+                                            },
+                                            "is_default": {
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "isDifferential": {
+                                                "type": "string",
+                                                "example": "no"
+                                            },
+                                            "reason": {
+                                                "type": "string",
+                                                "example": "Monthly loan payment"
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "active"
+                                            },
+                                            "willDeduct": {
+                                                "type": "string",
+                                                "example": "yes"
+                                            },
+                                            "stopped_at": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": null
+                                            },
+                                            "completed_at": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": null
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "required": [
+                                            "payroll_period_id",
+                                            "deductions"
+                                        ],
+                                        "properties": {
+                                            "payroll_period_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "deductions": {
+                                                "type": "array",
+                                                "items": {
+                                                    "required": [
+                                                        "employee_number",
+                                                        "deduction_id"
+                                                    ],
+                                                    "properties": {
+                                                        "employee_number": {
+                                                            "type": "string",
+                                                            "example": "EMP001"
+                                                        },
+                                                        "deduction_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "amount": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 1000
+                                                        },
+                                                        "total_term": {
+                                                            "type": "integer",
+                                                            "example": 12
+                                                        },
+                                                        "total_paid": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "notes": {
+                                                            "type": "string",
+                                                            "example": "Monthly deduction"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Deductions saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data successfully saved."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Forbidden"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or employee not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Employee EMP001 not found."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "employee_id": [
+                                                    "The employee id field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payroll-periods": {
+            "get": {
+                "tags": [
+                    "Payroll Periods"
+                ],
+                "summary": "Retrieve payroll periods with optional filtering",
+                "operationId": "870dba619abc180810c585759c85e3d0",
+                "parameters": [
+                    {
+                        "name": "has_filter",
+                        "in": "query",
+                        "description": "Set to false to get all payroll periods",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "employment_type",
+                        "in": "query",
+                        "description": "Filter by employment type",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "period_type",
+                        "in": "query",
+                        "description": "Filter by period type",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Filter by month (1-12)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 12,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Filter by year (e.g., 2025)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payroll periods retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payroll-periods/{id}": {
+            "put": {
+                "tags": [
+                    "Payroll Periods"
+                ],
+                "summary": "Set or lock payroll period",
+                "operationId": "6d4a6136e1ac8c68ca72d41f77523abb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Payroll period ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "set_period"
+                                ],
+                                "properties": {
+                                    "set_period": {
+                                        "description": "Set as active period",
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payroll period updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Payroll period not found"
+                    }
+                }
+            }
+        },
         "/api/deductions": {
             "get": {
                 "tags": [
@@ -226,6 +680,15 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "import",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
                         }
                     }
                 ],
@@ -798,6 +1261,18 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Employees",
+            "description": "Employees"
+        },
+        {
+            "name": "Employee Deductions",
+            "description": "Employee Deductions"
+        },
+        {
+            "name": "Payroll Periods",
+            "description": "Payroll Periods"
         },
         {
             "name": "Deductions",

@@ -6,9 +6,11 @@ use App\Data\DeductionData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeductionRequest;
 use App\Http\Resources\DeductionResource;
+use App\Http\Resources\ImportDeductionResource;
 use App\Models\Deduction;
 use App\Services\DeductionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeductionController extends Controller
@@ -50,12 +52,12 @@ class DeductionController extends Controller
      */
     public function index(Request $request)
     {
-        $paginate = $request->boolean('paginate', true);
+        $paginate = $request->boolean('paginate', false);
 
         $perPage = $request->per_page ?? 15;
         $page = $request->page ?? 1;
 
-        $data = $paginate ? $this->service->paginate($perPage, $page) : $this->service->getAll();
+        $data = $paginate === true ? $this->service->paginate($perPage, $page) : $this->service->getAll();
 
         return response()->json([
             'data' => DeductionResource::collection($data),
@@ -120,6 +122,12 @@ class DeductionController extends Controller
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
+     *     @OA\Parameter(
+     *         name="import",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="boolean", default=false)
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Deduction details"
@@ -132,6 +140,8 @@ class DeductionController extends Controller
      */
     public function show($id, Request $request)
     {
+        $import = $request->boolean('import', false);
+
         $payroll_period_id = $request->payroll_period_id;
 
         $data = Deduction::with([
@@ -147,8 +157,10 @@ class DeductionController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
+        $resource_data = $import ? new ImportDeductionResource($data) : new DeductionResource($data);
+
         return response()->json([
-            'data' => new DeductionResource($data),
+            'data' => $resource_data,
             'message' => "Data Successfully retrieved",
             'statusCode' => 200
         ], Response::HTTP_OK);

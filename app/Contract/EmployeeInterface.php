@@ -4,12 +4,16 @@ namespace App\Contract;
 
 use App\Models\Employee;
 use Illuminate\Support\Collection;
-use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface EmployeeInterface
 {
+    public function getAll(): Collection;
+    public function paginate(int $perPage, int $page): LengthAwarePaginator;
     public function create(array $data): Employee;
     public function update(int $id, array $data): Employee;
     public function createOrUpdate(array $data): Employee;
-    public function getEmployee(string $status): Collection;
+    public function getIncludedEmployee(): Collection;
+    public function getExcludedEmployee(): Collection;
+    public function find(int $id): Employee;
 }

@@ -10,6 +10,7 @@ use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeDeductionService
 {
@@ -41,56 +42,29 @@ class EmployeeDeductionService
         return $this->getAll();
     }
 
-    public function create(EmployeeDeductionData $data): EmployeeDeduction
+    public function create(EmployeeDeductionData $dto): EmployeeDeduction
     {
-        $amount = $data->amount;
-        $percentage = $data->percentage;
+        // $amount = $data->amount;
+        // $percentage = $data->percentage;
 
-        if ($percentage > 0) {
-            $base_salary = EmployeeTimeRecord::where('payroll_period_id', $data->payroll_period_id)
-                ->where('employee_id', $data->employee_id)
-                ->first()
-                ->base_salary ?? 0;
+        // if ($percentage > 0) {
+        //     $base_salary = EmployeeTimeRecord::where('payroll_period_id', $data->payroll_period_id)
+        //         ->where('employee_id', $data->employee_id)
+        //         ->first()
+        //         ->base_salary ?? 0;
 
-            $percentageValue = $percentage / 100;
-            $amount = round($base_salary * $percentageValue, 2);
-        }
+        //     $percentageValue = $percentage / 100;
+        //     $amount = round($base_salary * $percentageValue, 2);
+        // }
 
-        return $this->interface->create([
-            'payroll_period_id' => $data->payroll_period_id,
-            'employee_id' => $data->employee_id,
-            'deduction_id' => $data->deduction_id,
-            'frequency' => $data->frequency,
-            'amount' => $amount,
-            'percentage' => $percentage,
-            'date_from' => $data->date_from,
-            'date_to' => $data->date_to,
-            'with_terms' => $data->with_terms,
-            'total_term' => $data->total_term,
-            'total_paid' => $data->total_paid,
-            'is_default' => $data->is_default,
-            'isDifferential' => $data->isDifferential,
-            'reason' => $data->reason,
-            'status' => $data->status,
-            'willDeduct' => $data->willDeduct,
-            'stopped_at' => $data->stopped_at,
-            'completed_at' => $data->completed_at,
-        ]);
+        $data = $this->applyBusinessRules($dto);
+        return $this->interface->create($data);
     }
 
-    public function upsert(array $data): int
+    public function upsert(array $dto)
     {
-        $records = array_map(fn(EmployeeDeductionData $data) => $data->toArray(), $data);
-        return $this->interface->upsert($records);
-    }
-
-    public function store(array $dtos)
-    {
-        if (count($dtos) === 1) {
-            return $this->create($dtos[0]);
-        }
-
-        return $this->upsert($dtos);
+        $data = array_map(fn(EmployeeDeductionData $dto) => $this->applyBusinessRules($dto), $dto);
+        return $this->interface->upsert($data);
     }
 
     public function update(int $id, array $data): EmployeeDeduction
@@ -134,6 +108,11 @@ class EmployeeDeductionService
         return $this->interface->stop($id);
     }
 
+    public function find(int $id): EmployeeDeduction
+    {
+        return $this->interface->find($id);
+    }
+
     private function checkPayrollPeriodLock(): array
     {
         $payrollPeriod = PayrollPeriod::where('is_active', 1)->first();
@@ -160,5 +139,23 @@ class EmployeeDeductionService
                 $dto = array_merge($data, $payrollPeriod);
                 return $this->update($id, $dto);
         }
+    }
+
+    private function applyBusinessRules(EmployeeDeductionData $data): array
+    {
+        $amount = $data->amount;
+
+        if ($data->percentage && $data->percentage > 0) {
+            $baseSalary = EmployeeTimeRecord::where('payroll_period_id', $data->payroll_period_id)
+                ->where('employee_id', $data->employee_id)
+                ->value('base_salary') ?? 0;
+
+            $percentageValue = $data->percentage / 100;
+            $amount = round($baseSalary * $percentageValue, 2);
+        }
+
+        return array_merge($data->toArray(), [
+            'amount' => $amount,
+        ]);
     }
 }

@@ -61,6 +61,8 @@ class FetchEmployeeService
                 'is_active' => true
             ]);
 
+            $this->interfacePayrollPeriod->deactivateOthers($payrollPeriod->id);
+
             $processedEmployees = [];
             foreach ($data as $employeeData) {
                 $processedEmployees[] = $this->processEmployee($employeeData, $payrollPeriod, $payrollPeriod);

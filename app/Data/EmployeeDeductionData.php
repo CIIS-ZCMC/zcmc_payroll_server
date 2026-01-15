@@ -30,44 +30,68 @@ class EmployeeDeductionData extends Data
     ) {
     }
 
-    public static function fromRequest(array $request): self
+    // public static function fromRequest(array $request): self
+    // {
+    //     $employeeId = $request['employee_id'] ?? null;
+    //     $withTerms = $request['with_terms'] ?? false;
+
+    //     if (isset($request['employee_number']) && !$employeeId) {
+    //         $employee = Employee::where('employee_number', $request['employee_number'])->first();
+    //         if ($employee) {
+    //             $employeeId = $employee->id;
+    //         } else {
+    //             throw new \InvalidArgumentException("Employee with number {$request['employee_number']} not found");
+    //         }
+    //     }
+
+    //     if (isset($request['total_term']) && $request['total_term'] > 0) {
+    //         $withTerms = true;
+    //     }
+
+
+    //     return new self(
+    //         $request['payroll_period_id'],
+    //         $employeeId,
+    //         $request['deduction_id'],
+    //         $request['frequency'] ?? 'monthly',
+    //         $request['amount'] ?? null,
+    //         $request['percentage'] ?? null,
+    //         $request['date_from'] ?? null,
+    //         $request['date_to'] ?? null,
+    //         $withTerms,
+    //         $request['total_term'] ?? null,
+    //         $request['total_paid'] ?? null,
+    //         $request['is_default'] ?? false,
+    //         $request['isDifferential'] ?? null,
+    //         $request['reason'] ?? null,
+    //         $request['status'] ?? null,
+    //         $request['willDeduct'] ?? null,
+    //         $request['stopped_at'] ?? null,
+    //         $request['completed_at'] ?? null,
+    //     );
+    // }
+
+    public static function fromRequest(array $data): self
     {
-        $employeeId = $request['employee_id'] ?? null;
-        $withTerms = $request['with_terms'] ?? false;
-
-        if (isset($request['employee_number']) && !$employeeId) {
-            $employee = Employee::where('employee_number', $request['employee_number'])->first();
-            if ($employee) {
-                $employeeId = $employee->id;
-            } else {
-                throw new \InvalidArgumentException("Employee with number {$request['employee_number']} not found");
-            }
-        }
-
-        if (isset($request['total_term']) && $request['total_term'] > 0) {
-            $withTerms = true;
-        }
-
-
         return new self(
-            $request['payroll_period_id'],
-            $employeeId,
-            $request['deduction_id'],
-            $request['frequency'] ?? 'monthly',
-            $request['amount'] ?? null,
-            $request['percentage'] ?? null,
-            $request['date_from'] ?? null,
-            $request['date_to'] ?? null,
-            $withTerms,
-            $request['total_term'] ?? null,
-            $request['total_paid'] ?? null,
-            $request['is_default'] ?? false,
-            $request['isDifferential'] ?? null,
-            $request['reason'] ?? null,
-            $request['status'] ?? null,
-            $request['willDeduct'] ?? null,
-            $request['stopped_at'] ?? null,
-            $request['completed_at'] ?? null,
+            $data['payroll_period_id'],
+            $data['employee_id'],
+            $data['deduction_id'],
+            $data['frequency'] ?? 'monthly',
+            $data['amount'] ?? null,
+            $data['percentage'] ?? null,
+            $data['date_from'] ?? null,
+            $data['date_to'] ?? null,
+            $data['with_terms'] ?? false,
+            $data['total_term'] ?? null,
+            $data['total_paid'] ?? null,
+            $data['is_default'] ?? false,
+            $data['isDifferential'] ?? null,
+            $data['reason'] ?? null,
+            $data['status'] ?? null,
+            $data['willDeduct'] ?? null,
+            $data['stopped_at'] ?? null,
+            $data['completed_at'] ?? null,
         );
     }
 

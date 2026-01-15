@@ -59,7 +59,7 @@ Route::middleware('auth.token')->group(function () {
     Route::get('fetch-employees', [FetchEmployeeController::class, 'index']);
 
     //Employee
-    Route::apiResource('employees', EmployeeController::class)->only(['index']);
+    Route::apiResource('employees', EmployeeController::class)->only(['index', 'show']);
     Route::apiResource('employee-deductions', EmployeeDeductionController::class);
     Route::apiResource('employee-receivables', EmployeeReceivableController::class);
     Route::apiResource('employee-time-records', EmployeeTimeRecordController::class);
@@ -68,7 +68,7 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('excluded-employees', ExcludedEmployeeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     //Payroll Period
-    Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);
+    Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index', 'update']);
     Route::get("payroll-period-lists", [PayrollPeriodController::class, 'payrollPeriodList']);
 
     //Employee Payroll

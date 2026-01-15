@@ -20,9 +20,11 @@ class CreateDeductionRulesTable extends Migration
             $table->decimal('min_salary')->nullable();
             $table->decimal('max_salary')->nullable();
             $table->string('apply_type')->comment('Type of deduction: fixed or percentage');
-            $table->string('value')->comment('	If fixed, this is the fixed amount; if percentage, its the rate (e.g. 5 for 5%)');
-            $table->date('effective_date')->nullable()->comment('Date from which the rule is effective');
+            $table->string('value')->comment('If fixed, this is the fixed amount; if percentage, its the rate (e.g. 5 for 5%)');
+            $table->date('date_start')->nullable();
+            $table->date('date_end')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

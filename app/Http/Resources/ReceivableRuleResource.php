@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DeductionRuleResource extends JsonResource
+class ReceivableRuleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,7 +16,7 @@ class DeductionRuleResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'deduction_id' => $this->deduction_id,
+            'receivable_id' => $this->receivable_id,
             'min_salary' => $this->min_salary,
             'max_salary' => $this->max_salary,
             'apply_type' => $this->apply_type,

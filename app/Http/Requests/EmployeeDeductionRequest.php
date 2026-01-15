@@ -23,7 +23,7 @@ class EmployeeDeductionRequest extends FormRequest
      */
     public function rules()
     {
-        // If we're handling multiple records
+        // If we're handling multiple records, for storing bulk
         if ($this->has('deductions')) {
             return [
                 'payroll_period_id' => 'required|integer',
@@ -37,6 +37,7 @@ class EmployeeDeductionRequest extends FormRequest
             ];
         }
 
+        //for single creating
         return [
             'payroll_period_id' => 'required|integer',
             'employee_id' => 'required|integer',

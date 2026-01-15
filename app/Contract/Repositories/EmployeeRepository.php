@@ -6,6 +6,7 @@ use App\Contract\EmployeeInterface;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EmployeeRepository implements EmployeeInterface
 {
@@ -14,6 +15,15 @@ class EmployeeRepository implements EmployeeInterface
         //nothinng
     }
 
+    public function getAll(): Collection
+    {
+        return $this->model->orderBy('last_name')->get();
+    }
+
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->model->orderBy('last_name')->paginate($perPage, ['*'], 'page', $page);
+    }
 
     public function create(array $data): Employee
     {
@@ -66,5 +76,61 @@ class EmployeeRepository implements EmployeeInterface
                     $q->where('is_active', true);
                 });
         })->orderBy('last_name')->get();
+    }
+
+    public function getIncludedEmployee(): Collection
+    {
+        return $this->model
+            ->where('is_excluded', false)
+            ->whereHas('employeeTimeRecords', function ($query) {
+                $query->whereHas('payrollPeriod', function ($q) {
+                    $q->where('is_active', true)->whereNull('locked_at');
+                });
+            })
+            ->with([
+                'employeeTimeRecords' => function ($query) {
+                    $query->whereHas('payrollPeriod', function ($q) {
+                        $q->where('is_active', true)->whereNull('locked_at');
+                    });
+                }
+            ])
+            ->orderBy('last_name')
+            ->get();
+    }
+
+    public function getExcludedEmployee(): Collection
+    {
+        return $this->model
+            ->where('is_excluded', true)
+            ->whereHas('employeeTimeRecords', function ($query) {
+                $query->whereHas('payrollPeriod', function ($q) {
+                    $q->where('is_active', true)->whereNull('locked_at');
+                });
+            })
+            ->with([
+                'employeeTimeRecords' => function ($query) {
+                    $query->whereHas('payrollPeriod', function ($q) {
+                        $q->where('is_active', true)->whereNull('locked_at');
+                    });
+                }
+            ])
+            ->orderBy('last_name')
+            ->get();
+    }
+
+    public function find(int $id): Employee
+    {
+        return $this->model->with([
+            'employeeDeductions' => function ($query) {
+                $query->whereHas('payrollPeriod', function ($q) {
+                    $q->where('is_active', true)->whereNull('locked_at');
+                });
+            },
+            'employeeReceivables' => function ($query) {
+                $query->whereHas('payrollPeriod', function ($q) {
+                    $q->where('is_active', true)->whereNull('locked_at');
+                });
+            }
+        ])->where('id', $id)->first();
     }
 }
