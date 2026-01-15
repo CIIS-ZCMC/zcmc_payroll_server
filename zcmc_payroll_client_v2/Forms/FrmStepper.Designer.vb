@@ -27,6 +27,7 @@ Partial Class FrmStepper
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmStepper))
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.pnlContent = New System.Windows.Forms.Panel()
+        Me.pbLoading = New System.Windows.Forms.ProgressBar()
         Me.pnlUserControlDisplay = New System.Windows.Forms.Panel()
         Me.panelFooter = New System.Windows.Forms.Panel()
         Me.btnNext = New System.Windows.Forms.Button()
@@ -35,7 +36,7 @@ Partial Class FrmStepper
         Me.tblpStepper = New System.Windows.Forms.TableLayoutPanel()
         Me.panelNavbar = New System.Windows.Forms.Panel()
         Me.btnMore = New System.Windows.Forms.Button()
-        Me.Label3 = New System.Windows.Forms.Label()
+        Me.lblMonthYear = New System.Windows.Forms.Label()
         Me.btnSet = New System.Windows.Forms.Button()
         Me.lblTitle = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
@@ -72,6 +73,7 @@ Partial Class FrmStepper
         '
         Me.pnlContent.BackColor = System.Drawing.Color.WhiteSmoke
         Me.pnlContent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.pnlContent.Controls.Add(Me.pbLoading)
         Me.pnlContent.Controls.Add(Me.pnlUserControlDisplay)
         Me.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pnlContent.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
@@ -81,15 +83,28 @@ Partial Class FrmStepper
         Me.pnlContent.Size = New System.Drawing.Size(1336, 540)
         Me.pnlContent.TabIndex = 7
         '
+        'pbLoading
+        '
+        Me.pbLoading.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.pbLoading.Dock = System.Windows.Forms.DockStyle.Top
+        Me.pbLoading.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.pbLoading.Location = New System.Drawing.Point(0, 0)
+        Me.pbLoading.MarqueeAnimationSpeed = 30
+        Me.pbLoading.Name = "pbLoading"
+        Me.pbLoading.Size = New System.Drawing.Size(1334, 23)
+        Me.pbLoading.TabIndex = 0
+        Me.pbLoading.Value = 10
+        Me.pbLoading.Visible = False
+        '
         'pnlUserControlDisplay
         '
         Me.pnlUserControlDisplay.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.pnlUserControlDisplay.BackColor = System.Drawing.Color.White
-        Me.pnlUserControlDisplay.Location = New System.Drawing.Point(11, 17)
+        Me.pnlUserControlDisplay.Location = New System.Drawing.Point(11, 29)
         Me.pnlUserControlDisplay.Name = "pnlUserControlDisplay"
-        Me.pnlUserControlDisplay.Size = New System.Drawing.Size(1312, 505)
+        Me.pnlUserControlDisplay.Size = New System.Drawing.Size(1312, 493)
         Me.pnlUserControlDisplay.TabIndex = 0
         '
         'panelFooter
@@ -170,7 +185,7 @@ Partial Class FrmStepper
         Me.panelNavbar.BackColor = System.Drawing.Color.FromArgb(CType(CType(10, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(48, Byte), Integer))
         Me.panelNavbar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.panelNavbar.Controls.Add(Me.btnMore)
-        Me.panelNavbar.Controls.Add(Me.Label3)
+        Me.panelNavbar.Controls.Add(Me.lblMonthYear)
         Me.panelNavbar.Controls.Add(Me.btnSet)
         Me.panelNavbar.Controls.Add(Me.lblTitle)
         Me.panelNavbar.Controls.Add(Me.PictureBox1)
@@ -198,18 +213,18 @@ Partial Class FrmStepper
         Me.btnMore.Text = "More"
         Me.btnMore.UseVisualStyleBackColor = False
         '
-        'Label3
+        'lblMonthYear
         '
-        Me.Label3.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label3.BackColor = System.Drawing.Color.Transparent
-        Me.Label3.Font = New System.Drawing.Font("Tahoma", 15.75!, System.Drawing.FontStyle.Underline)
-        Me.Label3.ForeColor = System.Drawing.Color.White
-        Me.Label3.Location = New System.Drawing.Point(963, 10)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(158, 41)
-        Me.Label3.TabIndex = 8
-        Me.Label3.Text = "December 2025"
-        Me.Label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.lblMonthYear.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.lblMonthYear.BackColor = System.Drawing.Color.Transparent
+        Me.lblMonthYear.Font = New System.Drawing.Font("Tahoma", 15.75!, System.Drawing.FontStyle.Underline)
+        Me.lblMonthYear.ForeColor = System.Drawing.Color.White
+        Me.lblMonthYear.Location = New System.Drawing.Point(963, 10)
+        Me.lblMonthYear.Name = "lblMonthYear"
+        Me.lblMonthYear.Size = New System.Drawing.Size(158, 41)
+        Me.lblMonthYear.TabIndex = 8
+        Me.lblMonthYear.Text = "December 2025"
+        Me.lblMonthYear.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'btnSet
         '
@@ -325,11 +340,12 @@ Partial Class FrmStepper
     Friend WithEvents tblpStepper As TableLayoutPanel
     Friend WithEvents panelNavbar As Panel
     Friend WithEvents btnMore As Button
-    Friend WithEvents Label3 As Label
+    Friend WithEvents lblMonthYear As Label
     Friend WithEvents btnSet As Button
     Friend WithEvents lblTitle As Label
     Friend WithEvents PictureBox1 As PictureBox
     Friend WithEvents Panel1 As Panel
     Friend WithEvents btnMinimize As Button
     Friend WithEvents btnMaximize As Button
+    Friend WithEvents pbLoading As ProgressBar
 End Class

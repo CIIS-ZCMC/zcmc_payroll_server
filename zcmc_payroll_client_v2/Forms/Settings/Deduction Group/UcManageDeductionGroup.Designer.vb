@@ -22,19 +22,15 @@ Partial Class UcManageDeductionGroup
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle10 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle11 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle12 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle9 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.panelContent = New System.Windows.Forms.Panel()
         Me.dgvTable = New System.Windows.Forms.DataGridView()
-        Me.row_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.deduction_group_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.deduction_group_name = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.deduction_group_code = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.action_edit = New System.Windows.Forms.DataGridViewButtonColumn()
-        Me.action_delete = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.panelNavigator = New System.Windows.Forms.Panel()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.btnAdd = New System.Windows.Forms.Button()
@@ -42,6 +38,12 @@ Partial Class UcManageDeductionGroup
         Me.panelTop = New System.Windows.Forms.Panel()
         Me.lblDescription = New System.Windows.Forms.Label()
         Me.lblTitle = New System.Windows.Forms.Label()
+        Me.row_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.deduction_group_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.deduction_group_name = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.deduction_group_code = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.action_edit = New System.Windows.Forms.DataGridViewButtonColumn()
+        Me.action_delete = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.panelContainer.SuspendLayout()
         Me.panelContent.SuspendLayout()
         CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -78,83 +80,45 @@ Partial Class UcManageDeductionGroup
         Me.dgvTable.BackgroundColor = System.Drawing.Color.White
         Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
-        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        DataGridViewCellStyle1.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle1.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
+        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle7.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle7.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle7.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle7
         Me.dgvTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.row_number, Me.deduction_group_id, Me.deduction_group_name, Me.deduction_group_code, Me.action_edit, Me.action_delete})
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle2.BackColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Tahoma", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.Gainsboro
-        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.Black
-        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle10.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle10.Font = New System.Drawing.Font("Tahoma", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle10.SelectionBackColor = System.Drawing.Color.Gainsboro
+        DataGridViewCellStyle10.SelectionForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle10
         Me.dgvTable.Dock = System.Windows.Forms.DockStyle.Fill
         Me.dgvTable.EnableHeadersVisualStyles = False
         Me.dgvTable.GridColor = System.Drawing.Color.WhiteSmoke
         Me.dgvTable.Location = New System.Drawing.Point(0, 67)
         Me.dgvTable.Name = "dgvTable"
         Me.dgvTable.ReadOnly = True
-        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle3.BackColor = System.Drawing.Color.White
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.Black
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.SteelBlue
-        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvTable.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
+        DataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle11.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle11.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle11.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle11.SelectionBackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvTable.RowHeadersDefaultCellStyle = DataGridViewCellStyle11
         Me.dgvTable.RowHeadersVisible = False
-        DataGridViewCellStyle4.Font = New System.Drawing.Font("Tahoma", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dgvTable.RowsDefaultCellStyle = DataGridViewCellStyle4
+        DataGridViewCellStyle12.Font = New System.Drawing.Font("Tahoma", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dgvTable.RowsDefaultCellStyle = DataGridViewCellStyle12
         Me.dgvTable.RowTemplate.Height = 26
         Me.dgvTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvTable.Size = New System.Drawing.Size(957, 395)
         Me.dgvTable.TabIndex = 4
-        '
-        'row_number
-        '
-        Me.row_number.FillWeight = 10.0!
-        Me.row_number.HeaderText = "#"
-        Me.row_number.Name = "row_number"
-        Me.row_number.ReadOnly = True
-        '
-        'deduction_group_id
-        '
-        Me.deduction_group_id.HeaderText = "ID"
-        Me.deduction_group_id.Name = "deduction_group_id"
-        Me.deduction_group_id.ReadOnly = True
-        Me.deduction_group_id.Visible = False
-        '
-        'deduction_group_name
-        '
-        Me.deduction_group_name.HeaderText = "Name"
-        Me.deduction_group_name.Name = "deduction_group_name"
-        Me.deduction_group_name.ReadOnly = True
-        '
-        'deduction_group_code
-        '
-        Me.deduction_group_code.HeaderText = "Code"
-        Me.deduction_group_code.Name = "deduction_group_code"
-        Me.deduction_group_code.ReadOnly = True
-        '
-        'action_edit
-        '
-        Me.action_edit.HeaderText = ""
-        Me.action_edit.Name = "action_edit"
-        Me.action_edit.ReadOnly = True
-        '
-        'action_delete
-        '
-        Me.action_delete.HeaderText = ""
-        Me.action_delete.Name = "action_delete"
-        Me.action_delete.ReadOnly = True
         '
         'panelNavigator
         '
@@ -242,6 +206,60 @@ Partial Class UcManageDeductionGroup
         Me.lblTitle.Text = "Deduction Group"
         Me.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'row_number
+        '
+        Me.row_number.FillWeight = 10.0!
+        Me.row_number.HeaderText = "#"
+        Me.row_number.Name = "row_number"
+        Me.row_number.ReadOnly = True
+        '
+        'deduction_group_id
+        '
+        Me.deduction_group_id.HeaderText = "ID"
+        Me.deduction_group_id.Name = "deduction_group_id"
+        Me.deduction_group_id.ReadOnly = True
+        Me.deduction_group_id.Visible = False
+        '
+        'deduction_group_name
+        '
+        Me.deduction_group_name.HeaderText = "Name"
+        Me.deduction_group_name.Name = "deduction_group_name"
+        Me.deduction_group_name.ReadOnly = True
+        '
+        'deduction_group_code
+        '
+        Me.deduction_group_code.HeaderText = "Code"
+        Me.deduction_group_code.Name = "deduction_group_code"
+        Me.deduction_group_code.ReadOnly = True
+        '
+        'action_edit
+        '
+        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle8.BackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle8.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle8.SelectionBackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle8.SelectionForeColor = System.Drawing.Color.White
+        Me.action_edit.DefaultCellStyle = DataGridViewCellStyle8
+        Me.action_edit.FillWeight = 15.0!
+        Me.action_edit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_edit.HeaderText = ""
+        Me.action_edit.Name = "action_edit"
+        Me.action_edit.ReadOnly = True
+        '
+        'action_delete
+        '
+        DataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle9.BackColor = System.Drawing.Color.IndianRed
+        DataGridViewCellStyle9.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle9.SelectionBackColor = System.Drawing.Color.IndianRed
+        DataGridViewCellStyle9.SelectionForeColor = System.Drawing.Color.White
+        Me.action_delete.DefaultCellStyle = DataGridViewCellStyle9
+        Me.action_delete.FillWeight = 15.0!
+        Me.action_delete.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_delete.HeaderText = ""
+        Me.action_delete.Name = "action_delete"
+        Me.action_delete.ReadOnly = True
+        '
         'UcManageDeductionGroup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -270,12 +288,12 @@ Partial Class UcManageDeductionGroup
     Friend WithEvents panelNavigator As Panel
     Friend WithEvents Panel1 As Panel
     Friend WithEvents dgvTable As DataGridView
+    Friend WithEvents txtSearch As TextBox
+    Friend WithEvents btnAdd As Button
     Friend WithEvents row_number As DataGridViewTextBoxColumn
     Friend WithEvents deduction_group_id As DataGridViewTextBoxColumn
     Friend WithEvents deduction_group_name As DataGridViewTextBoxColumn
     Friend WithEvents deduction_group_code As DataGridViewTextBoxColumn
     Friend WithEvents action_edit As DataGridViewButtonColumn
     Friend WithEvents action_delete As DataGridViewButtonColumn
-    Friend WithEvents txtSearch As TextBox
-    Friend WithEvents btnAdd As Button
 End Class

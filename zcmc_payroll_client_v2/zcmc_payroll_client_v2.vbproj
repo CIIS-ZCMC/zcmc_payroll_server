@@ -64,6 +64,10 @@
     <Reference Include="MetroFramework.Fonts, Version=1.2.0.3, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
       <HintPath>..\packages\MetroFramework.Fonts.1.2.0.3\lib\net40\MetroFramework.Fonts.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.16.0.18925.20022\lib\net40\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -95,8 +99,21 @@
   <ItemGroup>
     <Compile Include="Api\ApiClient.vb" />
     <Compile Include="Api\AuthApi.vb" />
+    <Compile Include="Api\DeductionApi.vb" />
+    <Compile Include="Api\DeductionGroupApi.vb" />
+    <Compile Include="Api\DeductionRuleApi.vb" />
+    <Compile Include="Api\EmployeeApi.vb" />
+    <Compile Include="Api\EmployeeDeductionApi.vb" />
+    <Compile Include="Api\EmployeeReceivableApi.vb" />
+    <Compile Include="Api\ImportDeductionApi.vb" />
+    <Compile Include="Api\PayrollPeriodApi.vb" />
+    <Compile Include="Api\ReceivableApi.vb" />
+    <Compile Include="Api\ReceivableRuleApi.vb" />
     <Compile Include="Config\AppConfig.vb" />
+    <Compile Include="Config\AppState.vb" />
     <Compile Include="Config\Routes.vb" />
+    <Compile Include="Config\ServiceErrorCode.vb" />
+    <Compile Include="DTO\EmployeeDeductionDto.vb" />
     <Compile Include="Form1.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -251,9 +268,29 @@
     <Compile Include="Helpers\BaseMaterialForm.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Helpers\ComboItem.vb" />
     <Compile Include="Helpers\Helpers.vb" />
+    <Compile Include="Helpers\LoadingHelper.vb" />
+    <Compile Include="Helpers\ValidateInputs.vb" />
     <Compile Include="Models\ApiResponse.vb" />
+    <Compile Include="Models\AssignedAreaResponse.vb" />
+    <Compile Include="Models\DeductionGroupResponse.vb" />
+    <Compile Include="Models\DeductionResponse.vb" />
+    <Compile Include="Models\DeductionRuleResponse.vb" />
+    <Compile Include="Models\EmployeeComputedSalaryResponse.vb" />
+    <Compile Include="Models\EmployeeDeductionResponse.vb" />
+    <Compile Include="Models\EmployeePayrollResponse.vb" />
+    <Compile Include="Models\EmployeeReceivableResponse.vb" />
+    <Compile Include="Models\EmployeeResponse.vb" />
+    <Compile Include="Models\EmployeeSalaryResponse.vb" />
+    <Compile Include="Models\EmployeeTimeRecordResponse.vb" />
+    <Compile Include="Models\ExcludedEmployeeResponse.vb" />
+    <Compile Include="Models\GeneralPayrollResponse.vb" />
+    <Compile Include="Models\ImportDeductionResponse.vb" />
     <Compile Include="Models\LoginResponse.vb" />
+    <Compile Include="Models\PayrollPeriodResponse.vb" />
+    <Compile Include="Models\ReceivableResponse.vb" />
+    <Compile Include="Models\ReceivableRuleResponse.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -266,6 +303,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Services\AuthService.vb" />
+    <Compile Include="Services\DeductionGroupService.vb" />
+    <Compile Include="Services\DeductionService.vb" />
+    <Compile Include="Services\EmployeeDeductionService.vb" />
+    <Compile Include="Services\EmployeeService.vb" />
+    <Compile Include="Services\ImportDeductionService.vb" />
+    <Compile Include="Services\PayrollPeriodService.vb" />
+    <Compile Include="Services\ServiceResult.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Form1.resx">

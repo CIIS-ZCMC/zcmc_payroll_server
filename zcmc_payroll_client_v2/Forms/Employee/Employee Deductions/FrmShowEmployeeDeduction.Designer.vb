@@ -25,11 +25,19 @@ Partial Class FrmShowEmployeeDeduction
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmShowEmployeeDeduction))
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmShowEmployeeDeduction))
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.dgvTable = New System.Windows.Forms.DataGridView()
+        Me.panelTop = New System.Windows.Forms.Panel()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.btnAdd = New System.Windows.Forms.Button()
+        Me.lblEmployeeName = New System.Windows.Forms.Label()
+        Me.panelNav = New System.Windows.Forms.Panel()
+        Me.btnMinimize = New System.Windows.Forms.Button()
+        Me.btnClose = New System.Windows.Forms.Button()
         Me.number = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.employee_deduction_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.payroll_period_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
@@ -48,13 +56,6 @@ Partial Class FrmShowEmployeeDeduction
         Me.is_default = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.action_edit = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.action_stop = New System.Windows.Forms.DataGridViewButtonColumn()
-        Me.panelTop = New System.Windows.Forms.Panel()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.btnAdd = New System.Windows.Forms.Button()
-        Me.lblEmployeeName = New System.Windows.Forms.Label()
-        Me.panelNav = New System.Windows.Forms.Panel()
-        Me.btnMinimize = New System.Windows.Forms.Button()
-        Me.btnClose = New System.Windows.Forms.Button()
         Me.panelContainer.SuspendLayout()
         CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.panelTop.SuspendLayout()
@@ -82,148 +83,41 @@ Partial Class FrmShowEmployeeDeduction
         Me.dgvTable.AllowUserToDeleteRows = False
         Me.dgvTable.AllowUserToResizeColumns = False
         Me.dgvTable.AllowUserToResizeRows = False
-        DataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro
-        DataGridViewCellStyle1.Padding = New System.Windows.Forms.Padding(5)
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.GradientInactiveCaption
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.Black
-        Me.dgvTable.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvTable.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders
         Me.dgvTable.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight
         Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.dgvTable.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.RaisedVertical
-        Me.dgvTable.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable
-        Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
-        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.Padding = New System.Windows.Forms.Padding(10)
-        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
+        DataGridViewCellStyle1.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.Padding = New System.Windows.Forms.Padding(10)
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.number, Me.employee_deduction_id, Me.payroll_period_id, Me.employee_id, Me.deduction_id, Me.deduction_name, Me.deduction_code, Me.deduction_amount, Me.percentage, Me.completed_on, Me.with_terms, Me.total_term, Me.terms_paid, Me.billing_cycle, Me.reason, Me.is_default, Me.action_edit, Me.action_stop})
-        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
-        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(CType(CType(222, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
-        DataGridViewCellStyle3.Padding = New System.Windows.Forms.Padding(5)
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.GradientInactiveCaption
-        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.Desktop
-        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle3
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle4.Padding = New System.Windows.Forms.Padding(5)
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.Gainsboro
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle4
         Me.dgvTable.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvTable.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvTable.EnableHeadersVisualStyles = False
         Me.dgvTable.Location = New System.Drawing.Point(0, 100)
+        Me.dgvTable.MultiSelect = False
         Me.dgvTable.Name = "dgvTable"
+        Me.dgvTable.ReadOnly = True
         Me.dgvTable.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         Me.dgvTable.RowHeadersVisible = False
         Me.dgvTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvTable.Size = New System.Drawing.Size(998, 486)
         Me.dgvTable.TabIndex = 10
-        '
-        'number
-        '
-        Me.number.FillWeight = 40.0!
-        Me.number.HeaderText = "#"
-        Me.number.Name = "number"
-        '
-        'employee_deduction_id
-        '
-        Me.employee_deduction_id.HeaderText = "ID"
-        Me.employee_deduction_id.Name = "employee_deduction_id"
-        Me.employee_deduction_id.Visible = False
-        '
-        'payroll_period_id
-        '
-        Me.payroll_period_id.HeaderText = "Payroll Period ID"
-        Me.payroll_period_id.Name = "payroll_period_id"
-        Me.payroll_period_id.Visible = False
-        '
-        'employee_id
-        '
-        Me.employee_id.HeaderText = "Employee ID"
-        Me.employee_id.Name = "employee_id"
-        Me.employee_id.Visible = False
-        '
-        'deduction_id
-        '
-        Me.deduction_id.HeaderText = "Deduction ID"
-        Me.deduction_id.Name = "deduction_id"
-        Me.deduction_id.Visible = False
-        '
-        'deduction_name
-        '
-        Me.deduction_name.HeaderText = "Name"
-        Me.deduction_name.Name = "deduction_name"
-        '
-        'deduction_code
-        '
-        Me.deduction_code.HeaderText = "Code"
-        Me.deduction_code.Name = "deduction_code"
-        '
-        'deduction_amount
-        '
-        Me.deduction_amount.HeaderText = "Amount"
-        Me.deduction_amount.Name = "deduction_amount"
-        '
-        'percentage
-        '
-        Me.percentage.HeaderText = "Percentage"
-        Me.percentage.Name = "percentage"
-        Me.percentage.Visible = False
-        '
-        'completed_on
-        '
-        Me.completed_on.HeaderText = "Completed On"
-        Me.completed_on.Name = "completed_on"
-        Me.completed_on.Visible = False
-        '
-        'with_terms
-        '
-        Me.with_terms.HeaderText = "With Terms"
-        Me.with_terms.Name = "with_terms"
-        Me.with_terms.Visible = False
-        '
-        'total_term
-        '
-        Me.total_term.HeaderText = "Term"
-        Me.total_term.Name = "total_term"
-        '
-        'terms_paid
-        '
-        Me.terms_paid.HeaderText = "Terms Paid"
-        Me.terms_paid.Name = "terms_paid"
-        '
-        'billing_cycle
-        '
-        Me.billing_cycle.HeaderText = "Billing Cycle"
-        Me.billing_cycle.Name = "billing_cycle"
-        '
-        'reason
-        '
-        Me.reason.HeaderText = "Reason"
-        Me.reason.Name = "reason"
-        '
-        'is_default
-        '
-        Me.is_default.HeaderText = "Is Default"
-        Me.is_default.Name = "is_default"
-        '
-        'action_edit
-        '
-        Me.action_edit.FillWeight = 40.0!
-        Me.action_edit.HeaderText = ""
-        Me.action_edit.Name = "action_edit"
-        '
-        'action_stop
-        '
-        Me.action_stop.FillWeight = 40.0!
-        Me.action_stop.HeaderText = ""
-        Me.action_stop.Name = "action_stop"
         '
         'panelTop
         '
@@ -255,7 +149,7 @@ Partial Class FrmShowEmployeeDeduction
         Me.btnAdd.Font = New System.Drawing.Font("Segoe UI Semibold", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnAdd.ForeColor = System.Drawing.Color.White
         Me.btnAdd.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnAdd.Location = New System.Drawing.Point(830, 16)
+        Me.btnAdd.Location = New System.Drawing.Point(830, 14)
         Me.btnAdd.Name = "btnAdd"
         Me.btnAdd.Size = New System.Drawing.Size(138, 36)
         Me.btnAdd.TabIndex = 25
@@ -267,7 +161,7 @@ Partial Class FrmShowEmployeeDeduction
         '
         Me.lblEmployeeName.AutoSize = True
         Me.lblEmployeeName.Font = New System.Drawing.Font("Segoe UI", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblEmployeeName.Location = New System.Drawing.Point(6, 18)
+        Me.lblEmployeeName.Location = New System.Drawing.Point(6, 16)
         Me.lblEmployeeName.Name = "lblEmployeeName"
         Me.lblEmployeeName.Size = New System.Drawing.Size(204, 32)
         Me.lblEmployeeName.TabIndex = 0
@@ -313,6 +207,139 @@ Partial Class FrmShowEmployeeDeduction
         Me.btnClose.TabIndex = 0
         Me.btnClose.UseVisualStyleBackColor = False
         '
+        'number
+        '
+        Me.number.FillWeight = 40.0!
+        Me.number.HeaderText = "#"
+        Me.number.Name = "number"
+        Me.number.ReadOnly = True
+        '
+        'employee_deduction_id
+        '
+        Me.employee_deduction_id.HeaderText = "ID"
+        Me.employee_deduction_id.Name = "employee_deduction_id"
+        Me.employee_deduction_id.ReadOnly = True
+        Me.employee_deduction_id.Visible = False
+        '
+        'payroll_period_id
+        '
+        Me.payroll_period_id.HeaderText = "Payroll Period ID"
+        Me.payroll_period_id.Name = "payroll_period_id"
+        Me.payroll_period_id.ReadOnly = True
+        Me.payroll_period_id.Visible = False
+        '
+        'employee_id
+        '
+        Me.employee_id.HeaderText = "Employee ID"
+        Me.employee_id.Name = "employee_id"
+        Me.employee_id.ReadOnly = True
+        Me.employee_id.Visible = False
+        '
+        'deduction_id
+        '
+        Me.deduction_id.HeaderText = "Deduction ID"
+        Me.deduction_id.Name = "deduction_id"
+        Me.deduction_id.ReadOnly = True
+        Me.deduction_id.Visible = False
+        '
+        'deduction_name
+        '
+        Me.deduction_name.HeaderText = "Name"
+        Me.deduction_name.Name = "deduction_name"
+        Me.deduction_name.ReadOnly = True
+        '
+        'deduction_code
+        '
+        Me.deduction_code.HeaderText = "Code"
+        Me.deduction_code.Name = "deduction_code"
+        Me.deduction_code.ReadOnly = True
+        '
+        'deduction_amount
+        '
+        Me.deduction_amount.HeaderText = "Amount"
+        Me.deduction_amount.Name = "deduction_amount"
+        Me.deduction_amount.ReadOnly = True
+        '
+        'percentage
+        '
+        Me.percentage.HeaderText = "Percentage"
+        Me.percentage.Name = "percentage"
+        Me.percentage.ReadOnly = True
+        Me.percentage.Visible = False
+        '
+        'completed_on
+        '
+        Me.completed_on.HeaderText = "Completed On"
+        Me.completed_on.Name = "completed_on"
+        Me.completed_on.ReadOnly = True
+        Me.completed_on.Visible = False
+        '
+        'with_terms
+        '
+        Me.with_terms.HeaderText = "With Terms"
+        Me.with_terms.Name = "with_terms"
+        Me.with_terms.ReadOnly = True
+        Me.with_terms.Visible = False
+        '
+        'total_term
+        '
+        Me.total_term.HeaderText = "Term"
+        Me.total_term.Name = "total_term"
+        Me.total_term.ReadOnly = True
+        '
+        'terms_paid
+        '
+        Me.terms_paid.HeaderText = "Terms Paid"
+        Me.terms_paid.Name = "terms_paid"
+        Me.terms_paid.ReadOnly = True
+        '
+        'billing_cycle
+        '
+        Me.billing_cycle.HeaderText = "Billing Cycle"
+        Me.billing_cycle.Name = "billing_cycle"
+        Me.billing_cycle.ReadOnly = True
+        '
+        'reason
+        '
+        Me.reason.HeaderText = "Reason"
+        Me.reason.Name = "reason"
+        Me.reason.ReadOnly = True
+        '
+        'is_default
+        '
+        Me.is_default.HeaderText = "Is Default"
+        Me.is_default.Name = "is_default"
+        Me.is_default.ReadOnly = True
+        '
+        'action_edit
+        '
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle2.BackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White
+        Me.action_edit.DefaultCellStyle = DataGridViewCellStyle2
+        Me.action_edit.FillWeight = 40.0!
+        Me.action_edit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_edit.HeaderText = ""
+        Me.action_edit.Name = "action_edit"
+        Me.action_edit.ReadOnly = True
+        Me.action_edit.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
+        '
+        'action_stop
+        '
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle3.BackColor = System.Drawing.Color.IndianRed
+        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.IndianRed
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.White
+        Me.action_stop.DefaultCellStyle = DataGridViewCellStyle3
+        Me.action_stop.FillWeight = 40.0!
+        Me.action_stop.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.action_stop.HeaderText = ""
+        Me.action_stop.Name = "action_stop"
+        Me.action_stop.ReadOnly = True
+        '
         'FrmShowEmployeeDeduction
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -341,6 +368,9 @@ Partial Class FrmShowEmployeeDeduction
     Friend WithEvents btnClose As Button
     Friend WithEvents panelTop As Panel
     Friend WithEvents dgvTable As DataGridView
+    Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents lblEmployeeName As Label
+    Friend WithEvents btnAdd As Button
     Friend WithEvents number As DataGridViewTextBoxColumn
     Friend WithEvents employee_deduction_id As DataGridViewTextBoxColumn
     Friend WithEvents payroll_period_id As DataGridViewTextBoxColumn
@@ -359,7 +389,4 @@ Partial Class FrmShowEmployeeDeduction
     Friend WithEvents is_default As DataGridViewTextBoxColumn
     Friend WithEvents action_edit As DataGridViewButtonColumn
     Friend WithEvents action_stop As DataGridViewButtonColumn
-    Friend WithEvents GroupBox1 As GroupBox
-    Friend WithEvents lblEmployeeName As Label
-    Friend WithEvents btnAdd As Button
 End Class

@@ -189,6 +189,7 @@ Partial Class AddEditDeductionGroup
         Me.Controls.Add(Me.TableLayoutPanelContainer)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "AddEditDeductionGroup"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "AddEditDeductionGroup"
         Me.TableLayoutPanelContainer.ResumeLayout(False)
         Me.panelTop.ResumeLayout(False)

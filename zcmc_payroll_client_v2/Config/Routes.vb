@@ -5,8 +5,10 @@
 
     Public urlDeduction As String = "deductions"
     Public urlDeductionRule As String = "deduction-rules"
-    Public urlurlDeductionGroup As String = "deduction-groups"
+    Public urlDeductionGroup As String = "deduction-groups"
     Public urlReceivable As String = "receivables"
+    Public urlReceivableRule As String = "receivable-rules"
+
 
     Public urlFetchEmployee As String = "fetch-employees"
     Public urlExcludedEmployee As String = "excluded-employees"

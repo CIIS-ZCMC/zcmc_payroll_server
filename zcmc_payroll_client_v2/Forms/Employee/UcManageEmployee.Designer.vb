@@ -30,8 +30,9 @@ Partial Class UcManageEmployee
         Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(UcManageEmployee))
         Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(UcManageEmployee))
+        Dim DataGridViewCellStyle9 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.SplitContainer = New System.Windows.Forms.SplitContainer()
         Me.lblMessage = New System.Windows.Forms.Label()
@@ -49,9 +50,7 @@ Partial Class UcManageEmployee
         Me.action_manage_deduction = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.action_manage_receivables = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.DataGridView1 = New System.Windows.Forms.DataGridView()
-        Me.record_type = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.record_value = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.dgvList = New System.Windows.Forms.DataGridView()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.lblAssignedArea = New System.Windows.Forms.Label()
         Me.lblDesignation = New System.Windows.Forms.Label()
@@ -66,6 +65,11 @@ Partial Class UcManageEmployee
         Me.DataGridViewImageColumn1 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.tmrSlide = New System.Windows.Forms.Timer(Me.components)
+        Me.lblEmployeeID = New System.Windows.Forms.Label()
+        Me.record_row_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.record_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.record_type = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.record_value = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.panelContainer.SuspendLayout()
         CType(Me.SplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer.Panel1.SuspendLayout()
@@ -73,7 +77,7 @@ Partial Class UcManageEmployee
         Me.SplitContainer.SuspendLayout()
         CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel2.SuspendLayout()
-        CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dgvList, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox1.SuspendLayout()
         Me.Panel3.SuspendLayout()
         Me.panelNavigator.SuspendLayout()
@@ -264,7 +268,7 @@ Partial Class UcManageEmployee
         'Panel2
         '
         Me.Panel2.BackColor = System.Drawing.Color.White
-        Me.Panel2.Controls.Add(Me.DataGridView1)
+        Me.Panel2.Controls.Add(Me.dgvList)
         Me.Panel2.Controls.Add(Me.GroupBox1)
         Me.Panel2.Controls.Add(Me.Panel3)
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Fill
@@ -273,14 +277,14 @@ Partial Class UcManageEmployee
         Me.Panel2.Size = New System.Drawing.Size(356, 449)
         Me.Panel2.TabIndex = 0
         '
-        'DataGridView1
+        'dgvList
         '
-        Me.DataGridView1.AllowUserToAddRows = False
-        Me.DataGridView1.AllowUserToDeleteRows = False
-        Me.DataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
-        Me.DataGridView1.BackgroundColor = System.Drawing.Color.White
-        Me.DataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.DataGridView1.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
+        Me.dgvList.AllowUserToAddRows = False
+        Me.dgvList.AllowUserToDeleteRows = False
+        Me.dgvList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
+        Me.dgvList.BackgroundColor = System.Drawing.Color.White
+        Me.dgvList.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvList.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
         DataGridViewCellStyle5.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -288,39 +292,38 @@ Partial Class UcManageEmployee
         DataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
         DataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White
         DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.DataGridView1.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle5
-        Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.record_type, Me.record_value})
-        Me.DataGridView1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.DataGridView1.EnableHeadersVisualStyles = False
-        Me.DataGridView1.GridColor = System.Drawing.Color.WhiteSmoke
-        Me.DataGridView1.Location = New System.Drawing.Point(0, 206)
-        Me.DataGridView1.Name = "DataGridView1"
+        Me.dgvList.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle5
+        Me.dgvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvList.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.record_row_number, Me.record_id, Me.record_type, Me.record_value})
         DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle6.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window
         DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle6.ForeColor = System.Drawing.Color.Black
-        DataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.SteelBlue
-        DataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.DataGridView1.RowHeadersDefaultCellStyle = DataGridViewCellStyle6
-        Me.DataGridView1.RowHeadersVisible = False
-        Me.DataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.DataGridView1.Size = New System.Drawing.Size(356, 243)
-        Me.DataGridView1.TabIndex = 7
-        '
-        'record_type
-        '
-        Me.record_type.HeaderText = "Details"
-        Me.record_type.Name = "record_type"
-        '
-        'record_value
-        '
-        Me.record_value.HeaderText = "Value"
-        Me.record_value.Name = "record_value"
+        DataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvList.DefaultCellStyle = DataGridViewCellStyle6
+        Me.dgvList.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.dgvList.EnableHeadersVisualStyles = False
+        Me.dgvList.GridColor = System.Drawing.Color.WhiteSmoke
+        Me.dgvList.Location = New System.Drawing.Point(0, 206)
+        Me.dgvList.Name = "dgvList"
+        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle7.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle7.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle7.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.Color.White
+        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvList.RowHeadersDefaultCellStyle = DataGridViewCellStyle7
+        Me.dgvList.RowHeadersVisible = False
+        Me.dgvList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvList.Size = New System.Drawing.Size(356, 243)
+        Me.dgvList.TabIndex = 7
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.lblEmployeeID)
         Me.GroupBox1.Controls.Add(Me.lblAssignedArea)
         Me.GroupBox1.Controls.Add(Me.lblDesignation)
         Me.GroupBox1.Controls.Add(Me.lblName)
@@ -338,9 +341,9 @@ Partial Class UcManageEmployee
         '
         Me.lblAssignedArea.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblAssignedArea.ForeColor = System.Drawing.Color.Black
-        Me.lblAssignedArea.Location = New System.Drawing.Point(17, 72)
+        Me.lblAssignedArea.Location = New System.Drawing.Point(18, 80)
         Me.lblAssignedArea.Name = "lblAssignedArea"
-        Me.lblAssignedArea.Size = New System.Drawing.Size(312, 82)
+        Me.lblAssignedArea.Size = New System.Drawing.Size(312, 74)
         Me.lblAssignedArea.TabIndex = 11
         Me.lblAssignedArea.Text = "Innovation and Information System Unit"
         '
@@ -349,7 +352,7 @@ Partial Class UcManageEmployee
         Me.lblDesignation.AutoSize = True
         Me.lblDesignation.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblDesignation.ForeColor = System.Drawing.Color.Black
-        Me.lblDesignation.Location = New System.Drawing.Point(17, 49)
+        Me.lblDesignation.Location = New System.Drawing.Point(18, 66)
         Me.lblDesignation.Name = "lblDesignation"
         Me.lblDesignation.Size = New System.Drawing.Size(143, 14)
         Me.lblDesignation.TabIndex = 10
@@ -360,7 +363,7 @@ Partial Class UcManageEmployee
         Me.lblName.AutoSize = True
         Me.lblName.Font = New System.Drawing.Font("Tahoma", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblName.ForeColor = System.Drawing.Color.Black
-        Me.lblName.Location = New System.Drawing.Point(17, 26)
+        Me.lblName.Location = New System.Drawing.Point(17, 41)
         Me.lblName.Name = "lblName"
         Me.lblName.Size = New System.Drawing.Size(185, 23)
         Me.lblName.TabIndex = 9
@@ -454,13 +457,13 @@ Partial Class UcManageEmployee
         '
         'DataGridViewImageColumn1
         '
-        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle7.BackColor = System.Drawing.Color.White
-        DataGridViewCellStyle7.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle7.NullValue = CType(resources.GetObject("DataGridViewCellStyle7.NullValue"), Object)
-        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.Color.WhiteSmoke
-        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.Color.Black
-        Me.DataGridViewImageColumn1.DefaultCellStyle = DataGridViewCellStyle7
+        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle8.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle8.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle8.NullValue = CType(resources.GetObject("DataGridViewCellStyle8.NullValue"), Object)
+        DataGridViewCellStyle8.SelectionBackColor = System.Drawing.Color.WhiteSmoke
+        DataGridViewCellStyle8.SelectionForeColor = System.Drawing.Color.Black
+        Me.DataGridViewImageColumn1.DefaultCellStyle = DataGridViewCellStyle8
         Me.DataGridViewImageColumn1.FillWeight = 40.0!
         Me.DataGridViewImageColumn1.HeaderText = ""
         Me.DataGridViewImageColumn1.Image = Global.zcmc_payroll_client_v2.My.Resources.Resources.view_employee_24
@@ -472,13 +475,13 @@ Partial Class UcManageEmployee
         '
         'DataGridViewImageColumn2
         '
-        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle8.BackColor = System.Drawing.Color.White
-        DataGridViewCellStyle8.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle8.NullValue = CType(resources.GetObject("DataGridViewCellStyle8.NullValue"), Object)
-        DataGridViewCellStyle8.SelectionBackColor = System.Drawing.Color.Gainsboro
-        DataGridViewCellStyle8.SelectionForeColor = System.Drawing.Color.Black
-        Me.DataGridViewImageColumn2.DefaultCellStyle = DataGridViewCellStyle8
+        DataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle9.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle9.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle9.NullValue = CType(resources.GetObject("DataGridViewCellStyle9.NullValue"), Object)
+        DataGridViewCellStyle9.SelectionBackColor = System.Drawing.Color.Gainsboro
+        DataGridViewCellStyle9.SelectionForeColor = System.Drawing.Color.Black
+        Me.DataGridViewImageColumn2.DefaultCellStyle = DataGridViewCellStyle9
         Me.DataGridViewImageColumn2.FillWeight = 40.0!
         Me.DataGridViewImageColumn2.HeaderText = ""
         Me.DataGridViewImageColumn2.Image = Global.zcmc_payroll_client_v2.My.Resources.Resources.remove_employee_24
@@ -491,6 +494,39 @@ Partial Class UcManageEmployee
         'tmrSlide
         '
         Me.tmrSlide.Interval = 10
+        '
+        'lblEmployeeID
+        '
+        Me.lblEmployeeID.AutoSize = True
+        Me.lblEmployeeID.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblEmployeeID.ForeColor = System.Drawing.Color.Black
+        Me.lblEmployeeID.Location = New System.Drawing.Point(18, 26)
+        Me.lblEmployeeID.Name = "lblEmployeeID"
+        Me.lblEmployeeID.Size = New System.Drawing.Size(77, 14)
+        Me.lblEmployeeID.TabIndex = 12
+        Me.lblEmployeeID.Text = "2026011551"
+        '
+        'record_row_number
+        '
+        Me.record_row_number.FillWeight = 15.0!
+        Me.record_row_number.HeaderText = "#"
+        Me.record_row_number.Name = "record_row_number"
+        '
+        'record_id
+        '
+        Me.record_id.HeaderText = "ID"
+        Me.record_id.Name = "record_id"
+        Me.record_id.Visible = False
+        '
+        'record_type
+        '
+        Me.record_type.HeaderText = "Type"
+        Me.record_type.Name = "record_type"
+        '
+        'record_value
+        '
+        Me.record_value.HeaderText = "Value"
+        Me.record_value.Name = "record_value"
         '
         'UcManageEmployee
         '
@@ -508,7 +544,7 @@ Partial Class UcManageEmployee
         Me.SplitContainer.ResumeLayout(False)
         CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel2.ResumeLayout(False)
-        CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dgvList, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
         Me.Panel3.ResumeLayout(False)
@@ -529,9 +565,7 @@ Partial Class UcManageEmployee
     Friend WithEvents dgvTable As DataGridView
     Friend WithEvents DataGridViewImageColumn1 As DataGridViewImageColumn
     Friend WithEvents DataGridViewImageColumn2 As DataGridViewImageColumn
-    Friend WithEvents DataGridView1 As DataGridView
-    Friend WithEvents record_type As DataGridViewTextBoxColumn
-    Friend WithEvents record_value As DataGridViewTextBoxColumn
+    Friend WithEvents dgvList As DataGridView
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents lblAssignedArea As Label
     Friend WithEvents lblDesignation As Label
@@ -552,4 +586,9 @@ Partial Class UcManageEmployee
     Friend WithEvents action_manage_deduction As DataGridViewButtonColumn
     Friend WithEvents action_manage_receivables As DataGridViewButtonColumn
     Friend WithEvents tmrSlide As Timer
+    Friend WithEvents lblEmployeeID As Label
+    Friend WithEvents record_row_number As DataGridViewTextBoxColumn
+    Friend WithEvents record_id As DataGridViewTextBoxColumn
+    Friend WithEvents record_type As DataGridViewTextBoxColumn
+    Friend WithEvents record_value As DataGridViewTextBoxColumn
 End Class

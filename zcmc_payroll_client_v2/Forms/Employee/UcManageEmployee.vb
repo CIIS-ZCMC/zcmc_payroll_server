@@ -1,8 +1,13 @@
 ﻿Public Class UcManageEmployee
+    Private service As New EmployeeService
+
+    Public isManageDeduction As Boolean = False
+    Public isManageReceivable As Boolean = False
+    Public isManageBoth As Boolean = False
 
     ' ===== Animation settings =====
     Private Const PANEL_WIDTH As Integer = 350
-    Private Const ANIMATION_STEP As Integer = 60
+    Private Const ANIMATION_STEP As Integer = 450
 
     Private isExpanding As Boolean = False
     Private isCollapsing As Boolean = False
@@ -16,15 +21,44 @@
         Return True
     End Function
 
-    Private Sub UcManageEmployee_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Async Sub UcManageEmployee_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If isManageDeduction Then
+            dgvTable.Columns(11).Visible = True
+            dgvTable.Columns(11).Visible = False
+        End If
+
+        If isManageReceivable Then
+            dgvTable.Columns(10).Visible = False
+            dgvTable.Columns(11).Visible = True
+        End If
+
+        If isManageBoth Then
+            dgvTable.Columns(10).Visible = True
+            dgvTable.Columns(11).Visible = True
+        End If
+
+
         SplitContainer.Panel2Collapsed = True
 
-        dgvTable.Rows.Add("1", "1", "EMP-001", "Juan Dela Cruz", "Admin Aide III", "HRMO", Nothing, "Included", "View", "Exclude", "Manage Deductions", "Manage Receivables")
-        dgvTable.Rows.Add("2", "2", "EMP-002", "Maria Santos", "Accounting I", "Finance", Nothing, "Included", "View", "Exclude", "Manage Deductions", "Manage Receivables")
-        dgvTable.Rows.Add("3", "3", "EMP-003", "Pedro Reyes", "Computer Programmer I", "IISU", Nothing, "Included", "View", "Exclude", "Manage Deductions", "Manage Receivables")
+
+        'Await LoadingHelper.RunAsync(
+        '    Async Function()
+        '        Await service.GetEmployee(dgvTable, False)
+        '    End Function,
+        '    True
+        ')
     End Sub
 
-    Private Sub btnIncludedEmployee_Click(sender As Object, e As EventArgs) Handles btnIncludedEmployee.Click
+    Private Async Sub btnIncludedEmployee_Click(sender As Object, e As EventArgs) Handles btnIncludedEmployee.Click
+        Await LoadingHelper.RunAsync(
+            Async Function()
+                Await service.GetEmployee(dgvTable, "isIncluded", False)
+            End Function,
+            True
+        )
+
+        HideEmployeeInfo()
+
         btnIncludedEmployee.BackColor = Color.FromArgb(15, 87, 33)
         btnIncludedEmployee.ForeColor = Color.White
 
@@ -32,7 +66,16 @@
         btnExcludedEmployee.BackColor = Color.LightGray
     End Sub
 
-    Private Sub btnExcludedEmployee_Click(sender As Object, e As EventArgs) Handles btnExcludedEmployee.Click
+    Private Async Sub btnExcludedEmployee_Click(sender As Object, e As EventArgs) Handles btnExcludedEmployee.Click
+        Await LoadingHelper.RunAsync(
+            Async Function()
+                Await service.GetEmployee(dgvTable, "isExcluded", False)
+            End Function,
+            True
+        )
+
+        HideEmployeeInfo()
+
         btnIncludedEmployee.BackColor = Color.LightGray
         btnIncludedEmployee.ForeColor = Color.Black
 
@@ -40,19 +83,37 @@
         btnExcludedEmployee.BackColor = Color.FromArgb(15, 87, 33)
     End Sub
 
-    Private Sub dgvView_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTable.CellContentClick
+    Private Async Sub dgvView_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTable.CellContentClick
         If e.RowIndex < 0 Then Exit Sub
 
-        If e.ColumnIndex = 8 Then
-            ' Load employee info
-            Dim row = dgvTable.SelectedRows(0)
-            lblName.Text = row.Cells(1).Value
-            lblDesignation.Text = row.Cells(2).Value
+        Dim row = dgvTable.SelectedRows(0)
 
+        If e.ColumnIndex = 8 Then
             ' Show panel with animation
             ShowEmployeeInfo()
+
+            ' Load employee info
+            lblEmployeeID.Text = row.Cells(2).Value
+            lblName.Text = row.Cells(3).Value
+            lblDesignation.Text = row.Cells(4).Value
+            lblAssignedArea.Text = row.Cells(5).Value
+
+            If isManageDeduction = True Then
+                Await LoadingHelper.RunAsync(
+                    Async Function()
+                        Await service.GetEmployeeDeductionList(dgvList, row.Cells(1).Value)
+                    End Function,
+                    True
+                )
+            Else
+
+
+            End If
+
         ElseIf e.ColumnIndex = 10 Then
             Dim obj As New FrmShowEmployeeDeduction
+            obj.lblEmployeeName.Text = row.Cells(3).Value
+            obj._employeeID = row.Cells(1).Value
             obj.ShowDialog()
         ElseIf e.ColumnIndex = 11 Then
             Dim obj As New FrmShowEmployeeReceivable

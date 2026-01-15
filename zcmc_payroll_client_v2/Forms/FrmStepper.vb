@@ -1,10 +1,21 @@
 ﻿Imports MaterialSkin
 
 Public Class FrmStepper
+    Private payrollPeriodService As New PayrollPeriodService()
+
     Private currentStep As Integer = 1
     Private Const TOTAL_STEPS As Integer = 8
 
-    Private Sub FrmStepper_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Async Sub FrmStepper_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        'Await payrollPeriodService.GetActivePayroll(lblMonthYear, True)
+
+        Await LoadingHelper.RunAsync(
+            Async Function()
+                Await payrollPeriodService.GetActivePayroll(lblMonthYear, True)
+            End Function,
+            True
+        )
+
         tblpStepper.Controls.Add(CreateStepper(1, "Import"), 0, 0)
         tblpStepper.Controls.Add(CreateStepper(2, "Deductions"), 1, 0)
         tblpStepper.Controls.Add(CreateStepper(3, "Receivables"), 2, 0)
@@ -77,9 +88,22 @@ Public Class FrmStepper
 
         Select Case steps
             Case 1 : RenderUserControl(New UcManageImports())
-            Case 2 : RenderUserControl(New UcManageEmployee())
-            Case 3 : RenderUserControl(New UcManageEmployee())
-            Case 4 : RenderUserControl(New UcManageEmployee())
+
+            Case 2
+                Dim uc As New UcManageEmployee()
+                uc.isManageDeduction = True
+                RenderUserControl(uc)
+
+            Case 3
+                Dim uc As New UcManageEmployee()
+                uc.isManageReceivable = True
+                RenderUserControl(uc)
+
+            Case 4
+                Dim uc As New UcManageEmployee()
+                uc.isManageBoth = True
+                RenderUserControl(uc)
+
             Case 5 : RenderUserControl(New UcPayrollStepOne())
             Case 6 : RenderUserControl(New UcPayrollStepTwo())
             Case 7 : RenderUserControl(New UcPayrollStepThree())
