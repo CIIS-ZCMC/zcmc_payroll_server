@@ -113,7 +113,7 @@ class EmployeeDeductionService
         return $this->interface->find($id);
     }
 
-    private function checkPayrollPeriodLock(): array
+    public function checkPayrollPeriodLock(): array
     {
         $payrollPeriod = PayrollPeriod::where('is_active', 1)->first();
 

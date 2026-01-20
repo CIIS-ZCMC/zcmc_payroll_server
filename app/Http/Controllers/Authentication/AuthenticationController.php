@@ -44,6 +44,7 @@ class AuthenticationController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Authentication successful',
             'statusCode' => 200,
         ], Response::HTTP_OK);

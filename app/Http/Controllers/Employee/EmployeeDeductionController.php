@@ -209,25 +209,52 @@ class EmployeeDeductionController extends Controller
 
     public function update($id, Request $request)
     {
-        $array = $request->validate([
+        $validated = $request->validate([
             'mode' => 'required|string',
             'payroll_period_id' => 'required|integer',
             'employee_id' => 'required|integer',
             'amount' => 'nullable|numeric',
             'percentage' => 'nullable|numeric',
             'frequency' => 'required|string',
-            'with_terms' => 'required|boolean',
-            'total_term' => 'required|integer',
+            'with_terms' => 'nullable|boolean',
+            'total_term' => 'nullable|integer',
             'reason' => 'required|string',
             'is_default' => 'required|boolean',
         ]);
 
-        $data = $this->service->handleUpdate($id, $array, $request->mode);
+        $payrollPeriod = $this->service->checkPayrollPeriodLock();
+
+        switch ($validated['mode']) {
+
+            case 'toComplete':
+                $data = $this->service->complete($id);
+                $message = 'Employee deduction marked as completed successfully.';
+                break;
+
+            case 'toStop':
+                Log::info('stop');
+                $data = $this->service->stop($id);
+                $message = 'Employee deduction stopped successfully.';
+                break;
+
+            case 'toUpdate':
+                Log::info('update');
+                $dto = array_merge($validated, $payrollPeriod);
+                $data = $this->service->update($id, $dto);
+                $message = 'Employee deduction updated successfully.';
+                break;
+
+            default:
+                return response()->json([
+                    'message' => 'Invalid mode provided.',
+                    'statusCode' => 422,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return response()->json([
-            'message' => 'Employee deduction updated successfully.',
-            'statusCode' => 200,
-            'data' => new EmployeeDeductionResource($data),
+            // 'data' => new EmployeeDeductionResource($data),
+            'success' => true,
+            'message' => $message,
         ], Response::HTTP_OK);
     }
 
