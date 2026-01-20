@@ -25,7 +25,7 @@ Partial Class FrmAuthorizationPin
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.txtAuthorizationPin = New System.Windows.Forms.TextBox()
-        Me.btnImport = New System.Windows.Forms.Button()
+        Me.btnSubmit = New System.Windows.Forms.Button()
         Me.panelDivider = New System.Windows.Forms.Panel()
         Me.panelTop = New System.Windows.Forms.Panel()
         Me.lblDeductionType = New System.Windows.Forms.Label()
@@ -36,6 +36,7 @@ Partial Class FrmAuthorizationPin
         '
         'panelContainer
         '
+        Me.panelContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.panelContainer.Controls.Add(Me.GroupBox1)
         Me.panelContainer.Controls.Add(Me.panelDivider)
         Me.panelContainer.Controls.Add(Me.panelTop)
@@ -51,11 +52,11 @@ Partial Class FrmAuthorizationPin
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.GroupBox1.Controls.Add(Me.txtAuthorizationPin)
-        Me.GroupBox1.Controls.Add(Me.btnImport)
+        Me.GroupBox1.Controls.Add(Me.btnSubmit)
         Me.GroupBox1.Font = New System.Drawing.Font("Segoe UI Semibold", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GroupBox1.Location = New System.Drawing.Point(12, 57)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(352, 119)
+        Me.GroupBox1.Size = New System.Drawing.Size(350, 117)
         Me.GroupBox1.TabIndex = 19
         Me.GroupBox1.TabStop = False
         '
@@ -69,16 +70,16 @@ Partial Class FrmAuthorizationPin
         Me.txtAuthorizationPin.TabIndex = 23
         Me.txtAuthorizationPin.UseSystemPasswordChar = True
         '
-        'btnImport
+        'btnSubmit
         '
-        Me.btnImport.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        Me.btnImport.ForeColor = System.Drawing.Color.White
-        Me.btnImport.Location = New System.Drawing.Point(26, 67)
-        Me.btnImport.Name = "btnImport"
-        Me.btnImport.Size = New System.Drawing.Size(307, 35)
-        Me.btnImport.TabIndex = 21
-        Me.btnImport.Text = "Submit"
-        Me.btnImport.UseVisualStyleBackColor = False
+        Me.btnSubmit.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.btnSubmit.ForeColor = System.Drawing.Color.White
+        Me.btnSubmit.Location = New System.Drawing.Point(26, 67)
+        Me.btnSubmit.Name = "btnSubmit"
+        Me.btnSubmit.Size = New System.Drawing.Size(307, 35)
+        Me.btnSubmit.TabIndex = 21
+        Me.btnSubmit.Text = "Submit"
+        Me.btnSubmit.UseVisualStyleBackColor = False
         '
         'panelDivider
         '
@@ -86,7 +87,7 @@ Partial Class FrmAuthorizationPin
         Me.panelDivider.Dock = System.Windows.Forms.DockStyle.Top
         Me.panelDivider.Location = New System.Drawing.Point(0, 41)
         Me.panelDivider.Name = "panelDivider"
-        Me.panelDivider.Size = New System.Drawing.Size(376, 10)
+        Me.panelDivider.Size = New System.Drawing.Size(374, 10)
         Me.panelDivider.TabIndex = 18
         '
         'panelTop
@@ -96,7 +97,7 @@ Partial Class FrmAuthorizationPin
         Me.panelTop.Dock = System.Windows.Forms.DockStyle.Top
         Me.panelTop.Location = New System.Drawing.Point(0, 0)
         Me.panelTop.Name = "panelTop"
-        Me.panelTop.Size = New System.Drawing.Size(376, 41)
+        Me.panelTop.Size = New System.Drawing.Size(374, 41)
         Me.panelTop.TabIndex = 0
         '
         'lblDeductionType
@@ -117,6 +118,7 @@ Partial Class FrmAuthorizationPin
         Me.BackColor = System.Drawing.Color.White
         Me.ClientSize = New System.Drawing.Size(376, 188)
         Me.Controls.Add(Me.panelContainer)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "FrmAuthorizationPin"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.panelContainer.ResumeLayout(False)
@@ -131,7 +133,7 @@ Partial Class FrmAuthorizationPin
     Friend WithEvents panelContainer As Panel
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents txtAuthorizationPin As TextBox
-    Friend WithEvents btnImport As Button
+    Friend WithEvents btnSubmit As Button
     Friend WithEvents panelDivider As Panel
     Friend WithEvents panelTop As Panel
     Friend WithEvents lblDeductionType As Label

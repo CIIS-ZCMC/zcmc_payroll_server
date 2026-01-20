@@ -51,7 +51,12 @@ Partial Class UcManageEmployee
         Me.action_manage_receivables = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.Panel2 = New System.Windows.Forms.Panel()
         Me.dgvList = New System.Windows.Forms.DataGridView()
+        Me.record_row_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.record_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.record_type = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.record_value = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.lblEmployeeID = New System.Windows.Forms.Label()
         Me.lblAssignedArea = New System.Windows.Forms.Label()
         Me.lblDesignation = New System.Windows.Forms.Label()
         Me.lblName = New System.Windows.Forms.Label()
@@ -65,11 +70,6 @@ Partial Class UcManageEmployee
         Me.DataGridViewImageColumn1 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.tmrSlide = New System.Windows.Forms.Timer(Me.components)
-        Me.lblEmployeeID = New System.Windows.Forms.Label()
-        Me.record_row_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.record_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.record_type = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.record_value = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.panelContainer.SuspendLayout()
         CType(Me.SplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer.Panel1.SuspendLayout()
@@ -101,7 +101,7 @@ Partial Class UcManageEmployee
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.SplitContainer.IsSplitterFixed = True
-        Me.SplitContainer.Location = New System.Drawing.Point(13, 126)
+        Me.SplitContainer.Location = New System.Drawing.Point(13, 59)
         Me.SplitContainer.Name = "SplitContainer"
         '
         'SplitContainer.Panel1
@@ -160,8 +160,10 @@ Partial Class UcManageEmployee
         Me.dgvTable.EnableHeadersVisualStyles = False
         Me.dgvTable.GridColor = System.Drawing.Color.WhiteSmoke
         Me.dgvTable.Location = New System.Drawing.Point(0, 0)
+        Me.dgvTable.MultiSelect = False
         Me.dgvTable.Name = "dgvTable"
         Me.dgvTable.ReadOnly = True
+        Me.dgvTable.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle3.BackColor = System.Drawing.Color.White
         DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -321,6 +323,28 @@ Partial Class UcManageEmployee
         Me.dgvList.Size = New System.Drawing.Size(356, 243)
         Me.dgvList.TabIndex = 7
         '
+        'record_row_number
+        '
+        Me.record_row_number.FillWeight = 15.0!
+        Me.record_row_number.HeaderText = "#"
+        Me.record_row_number.Name = "record_row_number"
+        '
+        'record_id
+        '
+        Me.record_id.HeaderText = "ID"
+        Me.record_id.Name = "record_id"
+        Me.record_id.Visible = False
+        '
+        'record_type
+        '
+        Me.record_type.HeaderText = "Type"
+        Me.record_type.Name = "record_type"
+        '
+        'record_value
+        '
+        Me.record_value.HeaderText = "Value"
+        Me.record_value.Name = "record_value"
+        '
         'GroupBox1
         '
         Me.GroupBox1.Controls.Add(Me.lblEmployeeID)
@@ -336,6 +360,17 @@ Partial Class UcManageEmployee
         Me.GroupBox1.TabIndex = 6
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Employee Information"
+        '
+        'lblEmployeeID
+        '
+        Me.lblEmployeeID.AutoSize = True
+        Me.lblEmployeeID.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblEmployeeID.ForeColor = System.Drawing.Color.Black
+        Me.lblEmployeeID.Location = New System.Drawing.Point(18, 26)
+        Me.lblEmployeeID.Name = "lblEmployeeID"
+        Me.lblEmployeeID.Size = New System.Drawing.Size(77, 14)
+        Me.lblEmployeeID.TabIndex = 12
+        Me.lblEmployeeID.Text = "2026011551"
         '
         'lblAssignedArea
         '
@@ -398,8 +433,8 @@ Partial Class UcManageEmployee
         'panelNavigator
         '
         Me.panelNavigator.Controls.Add(Me.Panel1)
-        Me.panelNavigator.Dock = System.Windows.Forms.DockStyle.Top
-        Me.panelNavigator.Location = New System.Drawing.Point(0, 53)
+        Me.panelNavigator.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.panelNavigator.Location = New System.Drawing.Point(0, 521)
         Me.panelNavigator.Name = "panelNavigator"
         Me.panelNavigator.Size = New System.Drawing.Size(1107, 67)
         Me.panelNavigator.TabIndex = 2
@@ -410,7 +445,7 @@ Partial Class UcManageEmployee
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Panel1.BackColor = System.Drawing.Color.White
-        Me.Panel1.Location = New System.Drawing.Point(13, 10)
+        Me.Panel1.Location = New System.Drawing.Point(14, 11)
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1082, 46)
         Me.Panel1.TabIndex = 0
@@ -495,39 +530,6 @@ Partial Class UcManageEmployee
         '
         Me.tmrSlide.Interval = 10
         '
-        'lblEmployeeID
-        '
-        Me.lblEmployeeID.AutoSize = True
-        Me.lblEmployeeID.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblEmployeeID.ForeColor = System.Drawing.Color.Black
-        Me.lblEmployeeID.Location = New System.Drawing.Point(18, 26)
-        Me.lblEmployeeID.Name = "lblEmployeeID"
-        Me.lblEmployeeID.Size = New System.Drawing.Size(77, 14)
-        Me.lblEmployeeID.TabIndex = 12
-        Me.lblEmployeeID.Text = "2026011551"
-        '
-        'record_row_number
-        '
-        Me.record_row_number.FillWeight = 15.0!
-        Me.record_row_number.HeaderText = "#"
-        Me.record_row_number.Name = "record_row_number"
-        '
-        'record_id
-        '
-        Me.record_id.HeaderText = "ID"
-        Me.record_id.Name = "record_id"
-        Me.record_id.Visible = False
-        '
-        'record_type
-        '
-        Me.record_type.HeaderText = "Type"
-        Me.record_type.Name = "record_type"
-        '
-        'record_value
-        '
-        Me.record_value.HeaderText = "Value"
-        Me.record_value.Name = "record_value"
-        '
         'UcManageEmployee
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -573,6 +575,12 @@ Partial Class UcManageEmployee
     Friend WithEvents Panel3 As Panel
     Friend WithEvents btnClose As Button
     Friend WithEvents lblMessage As Label
+    Friend WithEvents tmrSlide As Timer
+    Friend WithEvents lblEmployeeID As Label
+    Friend WithEvents record_row_number As DataGridViewTextBoxColumn
+    Friend WithEvents record_id As DataGridViewTextBoxColumn
+    Friend WithEvents record_type As DataGridViewTextBoxColumn
+    Friend WithEvents record_value As DataGridViewTextBoxColumn
     Friend WithEvents row_number As DataGridViewTextBoxColumn
     Friend WithEvents employeeID As DataGridViewTextBoxColumn
     Friend WithEvents employee_number As DataGridViewTextBoxColumn
@@ -585,10 +593,4 @@ Partial Class UcManageEmployee
     Friend WithEvents action_exclude_or_inlucde As DataGridViewButtonColumn
     Friend WithEvents action_manage_deduction As DataGridViewButtonColumn
     Friend WithEvents action_manage_receivables As DataGridViewButtonColumn
-    Friend WithEvents tmrSlide As Timer
-    Friend WithEvents lblEmployeeID As Label
-    Friend WithEvents record_row_number As DataGridViewTextBoxColumn
-    Friend WithEvents record_id As DataGridViewTextBoxColumn
-    Friend WithEvents record_type As DataGridViewTextBoxColumn
-    Friend WithEvents record_value As DataGridViewTextBoxColumn
 End Class

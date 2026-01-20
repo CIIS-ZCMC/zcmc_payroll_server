@@ -26,6 +26,8 @@ Partial Class FrmShowEmployeeDeduction
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmShowEmployeeDeduction))
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
@@ -54,6 +56,7 @@ Partial Class FrmShowEmployeeDeduction
         Me.billing_cycle = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.reason = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.is_default = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_deduction_status = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.action_edit = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.action_stop = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.panelContainer.SuspendLayout()
@@ -81,12 +84,11 @@ Partial Class FrmShowEmployeeDeduction
         '
         Me.dgvTable.AllowUserToAddRows = False
         Me.dgvTable.AllowUserToDeleteRows = False
-        Me.dgvTable.AllowUserToResizeColumns = False
-        Me.dgvTable.AllowUserToResizeRows = False
         Me.dgvTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvTable.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders
-        Me.dgvTable.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.dgvTable.BackgroundColor = System.Drawing.Color.White
+        Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
         DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
@@ -97,11 +99,11 @@ Partial Class FrmShowEmployeeDeduction
         DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
         Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.number, Me.employee_deduction_id, Me.payroll_period_id, Me.employee_id, Me.deduction_id, Me.deduction_name, Me.deduction_code, Me.deduction_amount, Me.percentage, Me.completed_on, Me.with_terms, Me.total_term, Me.terms_paid, Me.billing_cycle, Me.reason, Me.is_default, Me.action_edit, Me.action_stop})
+        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.number, Me.employee_deduction_id, Me.payroll_period_id, Me.employee_id, Me.deduction_id, Me.deduction_name, Me.deduction_code, Me.deduction_amount, Me.percentage, Me.completed_on, Me.with_terms, Me.total_term, Me.terms_paid, Me.billing_cycle, Me.reason, Me.is_default, Me.employee_deduction_status, Me.action_edit, Me.action_stop})
         DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle4.BackColor = System.Drawing.Color.White
         DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
-        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(222, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
         DataGridViewCellStyle4.Padding = New System.Windows.Forms.Padding(5)
         DataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.Gainsboro
         DataGridViewCellStyle4.SelectionForeColor = System.Drawing.Color.Black
@@ -114,7 +116,17 @@ Partial Class FrmShowEmployeeDeduction
         Me.dgvTable.Name = "dgvTable"
         Me.dgvTable.ReadOnly = True
         Me.dgvTable.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle5.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
+        DataGridViewCellStyle5.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvTable.RowHeadersDefaultCellStyle = DataGridViewCellStyle5
         Me.dgvTable.RowHeadersVisible = False
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Tahoma", 11.25!)
+        Me.dgvTable.RowsDefaultCellStyle = DataGridViewCellStyle6
         Me.dgvTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvTable.Size = New System.Drawing.Size(998, 486)
         Me.dgvTable.TabIndex = 10
@@ -311,30 +323,31 @@ Partial Class FrmShowEmployeeDeduction
         Me.is_default.Name = "is_default"
         Me.is_default.ReadOnly = True
         '
+        'employee_deduction_status
+        '
+        Me.employee_deduction_status.HeaderText = "Status"
+        Me.employee_deduction_status.Name = "employee_deduction_status"
+        Me.employee_deduction_status.ReadOnly = True
+        '
         'action_edit
         '
         DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle2.BackColor = System.Drawing.Color.SteelBlue
-        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.SteelBlue
-        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.SteelBlue
         Me.action_edit.DefaultCellStyle = DataGridViewCellStyle2
-        Me.action_edit.FillWeight = 40.0!
+        Me.action_edit.FillWeight = 50.0!
         Me.action_edit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.action_edit.HeaderText = ""
         Me.action_edit.Name = "action_edit"
         Me.action_edit.ReadOnly = True
-        Me.action_edit.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
         '
         'action_stop
         '
         DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle3.BackColor = System.Drawing.Color.IndianRed
-        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.IndianRed
-        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.IndianRed
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.IndianRed
         Me.action_stop.DefaultCellStyle = DataGridViewCellStyle3
-        Me.action_stop.FillWeight = 40.0!
+        Me.action_stop.FillWeight = 50.0!
         Me.action_stop.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.action_stop.HeaderText = ""
         Me.action_stop.Name = "action_stop"
@@ -367,10 +380,10 @@ Partial Class FrmShowEmployeeDeduction
     Friend WithEvents btnMinimize As Button
     Friend WithEvents btnClose As Button
     Friend WithEvents panelTop As Panel
-    Friend WithEvents dgvTable As DataGridView
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents lblEmployeeName As Label
     Friend WithEvents btnAdd As Button
+    Friend WithEvents dgvTable As DataGridView
     Friend WithEvents number As DataGridViewTextBoxColumn
     Friend WithEvents employee_deduction_id As DataGridViewTextBoxColumn
     Friend WithEvents payroll_period_id As DataGridViewTextBoxColumn
@@ -387,6 +400,7 @@ Partial Class FrmShowEmployeeDeduction
     Friend WithEvents billing_cycle As DataGridViewTextBoxColumn
     Friend WithEvents reason As DataGridViewTextBoxColumn
     Friend WithEvents is_default As DataGridViewTextBoxColumn
+    Friend WithEvents employee_deduction_status As DataGridViewTextBoxColumn
     Friend WithEvents action_edit As DataGridViewButtonColumn
     Friend WithEvents action_stop As DataGridViewButtonColumn
 End Class

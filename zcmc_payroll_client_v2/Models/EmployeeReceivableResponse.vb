@@ -3,6 +3,9 @@
     Public Property employee As EmployeeResponse
     Public Property payroll_period As PayrollPeriodResponse
     Public Property receivable As ReceivableResponse
+    Public Property employee_id As Integer
+    Public Property payroll_period_id As Integer
+    Public Property receivable_id As Integer
     Public Property amount As Decimal
     Public Property percentage As Decimal
     Public Property frequency As String

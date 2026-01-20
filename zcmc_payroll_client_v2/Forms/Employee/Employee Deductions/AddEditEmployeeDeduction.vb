@@ -26,6 +26,7 @@
     Public _dgv As DataGridView
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
+        Me.DialogResult = DialogResult.Cancel
         Me.Close()
     End Sub
 
@@ -43,17 +44,21 @@
 
         If add = True Then
             result = Await service.CreateSingle(dto)
-
-            ' Safety check (optional but recommended)
-            If result Is Nothing Then Return
-
-            MessageBox.Show(
-                result.Message,
-                If(result.Success, "Success", "Error"),
-                MessageBoxButtons.OK,
-                If(result.Success, MessageBoxIcon.Information, MessageBoxIcon.Error)
-            )
+        ElseIf edit = True Then
+            result = Await service.Update(_employeeDeductionID, dto, "toUpdate")
         End If
+
+        ' Safety check (optional but recommended)
+        If result Is Nothing Then Return
+
+        MessageBox.Show(
+            result.Message,
+            If(result.Success, "Success", "Error"),
+            MessageBoxButtons.OK,
+            If(result.Success, MessageBoxIcon.Information, MessageBoxIcon.Error)
+        )
+
+        Me.DialogResult = DialogResult.OK
     End Sub
 
     Private Async Sub AddEditEmployeeDeduction_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -80,7 +85,7 @@
 
             '' Match the loaded _deductionID to cmbDeductions
             For Each item As Object In cmbDeductions.Items
-                Dim deductionItem As DeductionResponse = TryCast(item, DeductionResponse)
+                Dim deductionItem As ComboItem = TryCast(item, ComboItem)
                 If deductionItem IsNot Nothing AndAlso deductionItem.id = _deductionID Then
                     cmbDeductions.SelectedItem = deductionItem
                     Exit For
@@ -212,7 +217,7 @@
         Dim dto As New EmployeeDeductionDto With {
             .EmployeeId = _employeeID,
             .DeductionId = CInt(cmbDeductions.SelectedValue),
-            .BillingCycle = cmbBillingCycle.Text.ToLower(),
+            .Frequency = cmbBillingCycle.Text.ToLower(),
             .WithTerms = cbHasTerm.Checked,
             .Reason = txtReason.Text,
             .IsDefault = rdbDefault.Checked

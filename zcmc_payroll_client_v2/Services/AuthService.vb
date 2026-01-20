@@ -22,4 +22,13 @@
         End If
         Return False
     End Function
+
+    Public Async Function AuthenticatePin(pin As String) As Task(Of Boolean)
+        Dim response = Await AuthApi.AuthenticatePin(pin)
+        If response.success = True Then
+            Return True
+        End If
+
+        Return False
+    End Function
 End Class

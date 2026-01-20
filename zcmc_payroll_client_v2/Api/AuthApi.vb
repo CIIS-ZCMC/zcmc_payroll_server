@@ -19,4 +19,8 @@ Public Class AuthApi
         Return Await ApiClient.PostAsync(Of LoginResponse)(URLSignin, Nothing)
     End Function
 
+    Public Shared Async Function AuthenticatePin(pin As String) As Task(Of ApiResponse(Of Boolean))
+        Return Await ApiClient.GetAsync(Of Boolean)($"{urlAuthenticate}?authorization_pin={pin}")
+    End Function
+
 End Class
