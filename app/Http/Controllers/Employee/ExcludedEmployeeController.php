@@ -20,7 +20,12 @@ class ExcludedEmployeeController extends Controller
 
     public function index(Request $request)
     {
-        $data = $this->service->index($request);
+        $paginate = $request->boolean('paginate', false);
+
+        $perPage = $request->per_page ?? 15;
+        $page = $request->page ?? 1;
+
+        $data = $paginate === true ? $this->service->paginate($perPage, $page) : $this->service->getAll();
 
         return response()->json([
             'responseData' => ExcludedEmployeeResource::collection($data),

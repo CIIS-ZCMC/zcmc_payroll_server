@@ -124,12 +124,12 @@ class EmployeeRepository implements EmployeeInterface
             'employeeDeductions' => function ($query) {
                 $query->whereHas('payrollPeriod', function ($q) {
                     $q->where('is_active', true)->whereNull('locked_at');
-                });
+                })->with('deductions');
             },
             'employeeReceivables' => function ($query) {
                 $query->whereHas('payrollPeriod', function ($q) {
                     $q->where('is_active', true)->whereNull('locked_at');
-                });
+                })->with('receivables');
             }
         ])->where('id', $id)->first();
     }

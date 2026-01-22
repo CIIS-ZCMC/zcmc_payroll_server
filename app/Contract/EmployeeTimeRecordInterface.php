@@ -12,4 +12,6 @@ interface EmployeeTimeRecordInterface
     public function update(int $id, array $data): EmployeeTimeRecord;
     public function createOrUpdate(array $data): EmployeeTimeRecord;
     public function deactivate(int $payroll_period_id, int $month, int $year): bool;
+    public function include(int $id): bool;
+    public function exclude(int $id): bool;
 }

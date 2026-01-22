@@ -426,6 +426,597 @@
                 ]
             }
         },
+        "/api/employee-deductions/{id}": {
+            "get": {
+                "tags": [
+                    "Employee Deductions"
+                ],
+                "summary": "Get employee deduction details by ID",
+                "operationId": "fb81f0a5c024539606af61adf25c701c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Employee Deduction ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee deduction retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Employee Deductions"
+                ],
+                "summary": "Update an employee deduction",
+                "operationId": "5c7bb2b5f4836f3418cde4bd19f004c3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Employee Deduction ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mode",
+                                    "payroll_period_id",
+                                    "employee_id",
+                                    "frequency",
+                                    "reason",
+                                    "is_default"
+                                ],
+                                "properties": {
+                                    "mode": {
+                                        "description": "Action to perform on the deduction",
+                                        "type": "string",
+                                        "enum": [
+                                            "toComplete",
+                                            "toStop",
+                                            "toUpdate"
+                                        ],
+                                        "example": "toUpdate"
+                                    },
+                                    "payroll_period_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1000.5,
+                                        "nullable": true
+                                    },
+                                    "percentage": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5.5,
+                                        "nullable": true
+                                    },
+                                    "frequency": {
+                                        "type": "string",
+                                        "example": "monthly"
+                                    },
+                                    "with_terms": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "total_term": {
+                                        "type": "integer",
+                                        "example": 12,
+                                        "nullable": true
+                                    },
+                                    "reason": {
+                                        "type": "string",
+                                        "example": "Salary loan"
+                                    },
+                                    "is_default": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deduction updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Employee deduction updated successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Payroll period is locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payroll is already locked"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Employee Deductions"
+                ],
+                "summary": "Delete an employee deduction",
+                "operationId": "fea6773ae6e6cf996359c327a6915493",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Employee Deduction ID to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deduction deleted successfully"
+                    },
+                    "403": {
+                        "description": "Payroll period is locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payroll is already locked"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employee-receivables": {
+            "post": {
+                "tags": [
+                    "Employee Receivables"
+                ],
+                "summary": "Create employee receivable(s)",
+                "operationId": "d4576bd4ea52515191904a5c0faea547",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "payroll_period_id",
+                                            "employee_id",
+                                            "receivable_id",
+                                            "frequency",
+                                            "reason",
+                                            "is_default"
+                                        ],
+                                        "properties": {
+                                            "payroll_period_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "employee_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "receivable_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "frequency": {
+                                                "type": "string",
+                                                "example": "monthly"
+                                            },
+                                            "amount": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 1000.5,
+                                                "nullable": true
+                                            },
+                                            "percentage": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 5.5,
+                                                "nullable": true
+                                            },
+                                            "reason": {
+                                                "type": "string",
+                                                "example": "Bonus"
+                                            },
+                                            "is_default": {
+                                                "type": "boolean",
+                                                "example": false
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "required": [
+                                            "payroll_period_id",
+                                            "receivables"
+                                        ],
+                                        "properties": {
+                                            "payroll_period_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "receivables": {
+                                                "type": "array",
+                                                "items": {
+                                                    "required": [
+                                                        "employee_number",
+                                                        "receivable_id",
+                                                        "frequency",
+                                                        "reason",
+                                                        "is_default"
+                                                    ],
+                                                    "properties": {
+                                                        "employee_number": {
+                                                            "type": "string",
+                                                            "example": "EMP001"
+                                                        },
+                                                        "receivable_id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "frequency": {
+                                                            "type": "string",
+                                                            "example": "monthly"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 1000.5,
+                                                            "nullable": true
+                                                        },
+                                                        "percentage": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 5.5,
+                                                            "nullable": true
+                                                        },
+                                                        "reason": {
+                                                            "type": "string",
+                                                            "example": "Bonus"
+                                                        },
+                                                        "is_default": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Receivable(s) created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data successfully saved."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Payroll period is locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payroll is already locked"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employee-receivables/{id}": {
+            "get": {
+                "tags": [
+                    "Employee Receivables"
+                ],
+                "summary": "Get employee receivable details by ID",
+                "operationId": "e0033e270d9f0e225df8911e0cd6386d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Employee Receivable ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Receivable retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Employee Receivables"
+                ],
+                "summary": "Update an employee receivable",
+                "operationId": "9aa0b54dc028f47c429e60f207bc4a3e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Employee Receivable ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mode",
+                                    "payroll_period_id",
+                                    "employee_id",
+                                    "frequency",
+                                    "reason",
+                                    "is_default"
+                                ],
+                                "properties": {
+                                    "mode": {
+                                        "type": "string",
+                                        "enum": [
+                                            "toComplete",
+                                            "toStop",
+                                            "toUpdate"
+                                        ],
+                                        "example": "toUpdate"
+                                    },
+                                    "payroll_period_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1000.5,
+                                        "nullable": true
+                                    },
+                                    "percentage": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5.5,
+                                        "nullable": true
+                                    },
+                                    "frequency": {
+                                        "type": "string",
+                                        "example": "monthly"
+                                    },
+                                    "reason": {
+                                        "type": "string",
+                                        "example": "Bonus"
+                                    },
+                                    "is_default": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Receivable updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Payroll period is locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payroll is already locked"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Employee Receivables"
+                ],
+                "summary": "Delete an employee receivable",
+                "operationId": "4b961999fd7fd5427e31294af8b50e90",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Employee Receivable ID to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Receivable deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data Successfully deleted"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Payroll period is locked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payroll is already locked"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/payroll-periods": {
             "get": {
                 "tags": [
@@ -1269,6 +1860,10 @@
         {
             "name": "Employee Deductions",
             "description": "Employee Deductions"
+        },
+        {
+            "name": "Employee Receivables",
+            "description": "Employee Receivables"
         },
         {
             "name": "Payroll Periods",

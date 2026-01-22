@@ -68,4 +68,9 @@ class EmployeeReceivableRepository implements EmployeeReceivableInterface
         $model->update(['status' => 'stopped', 'stopped_at' => now()]);
         return $model;
     }
+
+    public function find(int $id): EmployeeReceivable
+    {
+        return $this->model->find($id);
+    }
 }

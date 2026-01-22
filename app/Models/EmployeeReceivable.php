@@ -22,18 +22,16 @@ class EmployeeReceivable extends Model
         'percentage',
         'is_default',
         'status',
-        'date_to',
         'date_from',
+        'date_to',
         'stopped_at',
         'completed_at',
         'reason',
         'total_paid',
         'frequency',
-
     ];
 
     public $timestamps = true;
-
 
     //Version 2
     public function employee()

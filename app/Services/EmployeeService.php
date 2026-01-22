@@ -13,15 +13,6 @@ class EmployeeService
         //Nothing
     }
 
-    // public function index(string $isExcluded): Collection
-    // {
-    //     if ($isExcluded === 'true') {
-    //         return $this->interface->getEmployee('excluded');
-    //     }
-
-    //     return $this->interface->getEmployee('included');
-    // }
-
     public function getAll(): Collection
     {
         return $this->interface->getAll();

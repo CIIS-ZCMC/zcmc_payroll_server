@@ -47,7 +47,6 @@ class EmployeeReceivableRequest extends FormRequest
             'is_default' => 'boolean',
             'reason' => 'nullable|string|max:500',
             'status' => 'nullable|string',
-            'willDeduct' => 'nullable|string',
             'stopped_at' => 'nullable|date',
             'completed_at' => 'nullable|date',
         ];

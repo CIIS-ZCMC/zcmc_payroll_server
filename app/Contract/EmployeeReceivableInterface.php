@@ -16,4 +16,5 @@ interface EmployeeReceivableInterface
     public function delete(int $id): bool;
     public function complete(int $id): EmployeeReceivable;
     public function stop(int $id): EmployeeReceivable;
+    public function find(int $id): EmployeeReceivable;
 }

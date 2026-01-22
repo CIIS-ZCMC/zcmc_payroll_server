@@ -16,4 +16,5 @@ interface EmployeeDeductionInterface
     public function delete(int $id): bool;
     public function complete(int $id): EmployeeDeduction;
     public function stop(int $id): EmployeeDeduction;
+    public function find(int $id): EmployeeDeduction;
 }

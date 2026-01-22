@@ -24,17 +24,6 @@ class EmployeeDeductionController extends Controller
         //nothing
     }
 
-    public function index(Request $request)
-    {
-        $data = $this->service->index($request);
-
-        return response()->json([
-            'responseData' => EmployeeDeductionResource::collection($data),
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-        ], Response::HTTP_OK);
-    }
-
     /**
      * @OA\Post(
      *     path="/api/employee-deductions",
@@ -159,9 +148,167 @@ class EmployeeDeductionController extends Controller
         });
 
         return response()->json([
-            'success' => true,
             'message' => 'Data successfully saved.',
+            'success' => true,
         ], Response::HTTP_CREATED);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/employee-deductions/{id}",
+     *     summary="Get employee deduction details by ID",
+     *     tags={"Employee Deductions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Employee Deduction ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Employee deduction retrieved successfully",
+     *     )
+     * )
+     */
+    public function show($id)
+    {
+        $data = $this->service->find($id);
+
+        return response()->json([
+            'data' => EmployeeDeductionResource::make($data),
+            'message' => 'Data retrieved successfully.',
+            'success' => true,
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/employee-deductions/{id}",
+     *     summary="Update an employee deduction",
+     *     tags={"Employee Deductions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Employee Deduction ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"mode", "payroll_period_id", "employee_id", "frequency", "reason", "is_default"},
+     *             @OA\Property(property="mode", type="string", enum={"toComplete", "toStop", "toUpdate"}, example="toUpdate", description="Action to perform on the deduction"),
+     *             @OA\Property(property="payroll_period_id", type="integer", example=1),
+     *             @OA\Property(property="employee_id", type="integer", example=1),
+     *             @OA\Property(property="amount", type="number", format="float", nullable=true, example=1000.50),
+     *             @OA\Property(property="percentage", type="number", format="float", nullable=true, example=5.5),
+     *             @OA\Property(property="frequency", type="string", example="monthly"),
+     *             @OA\Property(property="with_terms", type="boolean", nullable=true, example=false),
+     *             @OA\Property(property="total_term", type="integer", nullable=true, example=12),
+     *             @OA\Property(property="reason", type="string", example="Salary loan"),
+     *             @OA\Property(property="is_default", type="boolean", example=false)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Deduction updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Employee deduction updated successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Payroll period is locked",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Payroll is already locked")
+     *         )
+     *     ),
+     * )
+     */
+    public function update($id, Request $request)
+    {
+        $validated = $request->validate([
+            'mode' => 'required|string',
+            'payroll_period_id' => 'required|integer',
+            'employee_id' => 'required|integer',
+            'amount' => 'nullable|numeric',
+            'percentage' => 'nullable|numeric',
+            'frequency' => 'required|string',
+            'with_terms' => 'nullable|boolean',
+            'total_term' => 'nullable|integer',
+            'reason' => 'required|string',
+            'is_default' => 'required|boolean',
+        ]);
+
+
+        switch ($validated['mode']) {
+            case 'toComplete':
+                $data = $this->service->complete($id);
+                $message = 'Employee deduction marked as completed successfully.';
+                break;
+
+            case 'toStop':
+                $data = $this->service->stop($id);
+                $message = 'Employee deduction stopped successfully.';
+                break;
+
+            case 'toUpdate':
+                $data = $this->service->update($id, $validated);
+                $message = 'Employee deduction updated successfully.';
+                break;
+
+            default:
+                return response()->json([
+                    'message' => 'Invalid mode provided.',
+                    'success' => false,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return response()->json([
+            // 'data' => new EmployeeDeductionResource($data),
+            'message' => $message,
+            'success' => true,
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/employee-deductions/{id}",
+     *     summary="Delete an employee deduction",
+     *     tags={"Employee Deductions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Employee Deduction ID to delete",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Deduction deleted successfully",
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Payroll period is locked",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Payroll is already locked")
+     *         )
+     *     )
+     * )
+     */
+    public function destroy($id)
+    {
+        $this->service->delete($id);
+
+        return response()->json([
+            'message' => "Data Successfully deleted",
+            'success' => true,
+        ], Response::HTTP_OK);
     }
 
     public function import(Request $request)
@@ -187,84 +334,5 @@ class EmployeeDeductionController extends Controller
                 'statusCode' => 422
             ], 422);
         }
-    }
-
-    public function show($id, Request $request)
-    {
-        $data = EmployeeDeduction::with([
-            'employee',
-            'payrollPeriod',
-            'deductions'
-        ])->whereNull('deleted_at')
-            ->where('employee_id', $id)
-            ->where('payroll_period_id', $request->payroll_period_id)
-            ->get();
-
-        return response()->json([
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-            'responseData' => EmployeeDeductionResource::collection($data),
-        ], Response::HTTP_OK);
-    }
-
-    public function update($id, Request $request)
-    {
-        $validated = $request->validate([
-            'mode' => 'required|string',
-            'payroll_period_id' => 'required|integer',
-            'employee_id' => 'required|integer',
-            'amount' => 'nullable|numeric',
-            'percentage' => 'nullable|numeric',
-            'frequency' => 'required|string',
-            'with_terms' => 'nullable|boolean',
-            'total_term' => 'nullable|integer',
-            'reason' => 'required|string',
-            'is_default' => 'required|boolean',
-        ]);
-
-        $payrollPeriod = $this->service->checkPayrollPeriodLock();
-
-        switch ($validated['mode']) {
-
-            case 'toComplete':
-                $data = $this->service->complete($id);
-                $message = 'Employee deduction marked as completed successfully.';
-                break;
-
-            case 'toStop':
-                Log::info('stop');
-                $data = $this->service->stop($id);
-                $message = 'Employee deduction stopped successfully.';
-                break;
-
-            case 'toUpdate':
-                Log::info('update');
-                $dto = array_merge($validated, $payrollPeriod);
-                $data = $this->service->update($id, $dto);
-                $message = 'Employee deduction updated successfully.';
-                break;
-
-            default:
-                return response()->json([
-                    'message' => 'Invalid mode provided.',
-                    'statusCode' => 422,
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        return response()->json([
-            // 'data' => new EmployeeDeductionResource($data),
-            'success' => true,
-            'message' => $message,
-        ], Response::HTTP_OK);
-    }
-
-    public function destroy($id)
-    {
-        $this->service->delete($id);
-
-        return response()->json([
-            'message' => "Data Successfully deleted",
-            'statusCode' => 200
-        ], Response::HTTP_OK);
     }
 }

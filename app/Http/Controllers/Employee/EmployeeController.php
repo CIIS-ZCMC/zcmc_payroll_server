@@ -54,8 +54,6 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        // $data = $this->service->index($request['is_excluded']);
-
         $type = $request->type;
         $data = [];
 
@@ -80,14 +78,14 @@ class EmployeeController extends Controller
         if (!$data) {
             return response()->json([
                 'message' => 'No data found for the specified payroll period.',
-                'statusCode' => 404
+                'success' => false
             ], Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'data' => EmployeeResource::collection($data),
             'message' => 'Data successfully retrieved',
-            'statusCode' => 200,
+            'success' => true,
         ], Response::HTTP_OK);
     }
 
@@ -116,40 +114,8 @@ class EmployeeController extends Controller
         return response()->json([
             'data' => EmployeeResource::make($data),
             'message' => 'Data successfully retrieved',
-            'statusCode' => 200,
+            'success' => true,
         ], Response::HTTP_OK);
     }
 
-    // private function getExcludedEmployees(Request $request)
-    // {
-    //     $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
-    //         ->where('month', $request->month_of)
-    //         ->where('year', $request->year_of)
-    //         ->where('period_type', $request->period_type)
-    //         ->first();
-
-    //     if (!$payroll_period) {
-    //         return response()->json([
-    //             'message' => 'Payroll period not found for the specified criteria.',
-    //             'statusCode' => 404
-    //         ], Response::HTTP_NOT_FOUND);
-    //     }
-
-    //     $data = ExcludedEmployee::where('payroll_period_id', $payroll_period->id)
-    //         ->with(['employee', 'payrollPeriod'])
-    //         ->get();
-
-    //     if (!$data) {
-    //         return response()->json([
-    //             'message' => 'No excluded employees found for the specified payroll period.',
-    //             'statusCode' => 404
-    //         ], Response::HTTP_NOT_FOUND);
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'Excluded employees retrieved successfully.',
-    //         'statusCode' => 200,
-    //         'responseData' => ExcludedEmployeeResource::collection($data)
-    //     ], Response::HTTP_OK);
-    // }
 }

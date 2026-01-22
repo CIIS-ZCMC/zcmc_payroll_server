@@ -24,23 +24,23 @@ class EmployeeReceivableData extends Data
     ) {
     }
 
-    public static function fromRequest(array $request): self
+    public static function fromRequest(array $data): self
     {
         return new self(
-            $request['payroll_period_id'],
-            $request['employee_id'],
-            $request['receivable_id'],
-            $request['frequency'],
-            $request['amount'] ?? null,
-            $request['percentage'] ?? null,
-            $request['date_from'] ?? null,
-            $request['date_to'] ?? null,
-            $request['total_paid'] ?? null,
-            $request['reason'] ?? null,
-            $request['status'] ?? null,
-            $request['is_default'],
-            $request['stopped_at'] ?? null,
-            $request['completed_at'] ?? null,
+            $data['payroll_period_id'],
+            $data['employee_id'],
+            $data['receivable_id'],
+            $data['frequency'],
+            $data['amount'] ?? null,
+            $data['percentage'] ?? null,
+            $data['date_from'] ?? null,
+            $data['date_to'] ?? null,
+            $data['total_paid'] ?? null,
+            $data['reason'] ?? null,
+            $data['status'] ?? null,
+            $data['is_default'],
+            $data['stopped_at'] ?? null,
+            $data['completed_at'] ?? null,
         );
     }
 

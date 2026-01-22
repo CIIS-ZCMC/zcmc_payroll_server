@@ -64,4 +64,14 @@ class EmployeeTimeRecordRepository implements EmployeeTimeRecordInterface
             ->where('year', '!=', $year)
             ->update(['is_active' => false]);
     }
+
+    public function include(int $id): bool
+    {
+        return $this->model->find($id)->update(['status' => "included"]);
+    }
+
+    public function exclude(int $id): bool
+    {
+        return $this->model->find($id)->update(['status' => "excluded"]);
+    }
 }

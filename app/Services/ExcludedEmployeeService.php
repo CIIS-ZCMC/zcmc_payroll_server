@@ -22,22 +22,9 @@ class ExcludedEmployeeService
         return $this->interface->getAll($payroll_period_id);
     }
 
-    public function paginate(int $perPage, int $page, int $payroll_period_id): LengthAwarePaginator
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
     {
-        return $this->interface->paginate($perPage, $page, $payroll_period_id);
-    }
-
-    public function index(Request $request): Collection|LengthAwarePaginator
-    {
-        $mode = $request->mode;
-        $perPage = $request->per_page ?? 15;
-        $page = $request->page ?? 1;
-
-        if ($mode === 'paginate') {
-            return $this->paginate($perPage, $page, $request->payroll_period_id);
-        }
-
-        return $this->getAll($request->payroll_period_id);
+        return $this->interface->paginate($perPage, $page);
     }
 
     public function create(ExcludedEmployeeData $data): ExcludedEmployee
@@ -69,6 +56,13 @@ class ExcludedEmployeeService
     public function delete(int $id): bool
     {
         return $this->interface->delete($id);
+    }
+
+    public function getCalculatedExcludedEmployee(int $payroll_period_id): array
+    {
+        $service = new CalculationService();
+        $result = $service->calculateNetPayForAll($payroll_period_id);
+        return $result['excluded'];
     }
 
 }
