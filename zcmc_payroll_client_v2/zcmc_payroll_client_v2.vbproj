@@ -114,6 +114,7 @@
     <Compile Include="Config\Routes.vb" />
     <Compile Include="Config\ServiceErrorCode.vb" />
     <Compile Include="DTO\EmployeeDeductionDto.vb" />
+    <Compile Include="DTO\EmployeeReceivableDto.vb" />
     <Compile Include="Form1.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -310,6 +311,7 @@
     <Compile Include="Services\EmployeeService.vb" />
     <Compile Include="Services\ImportDeductionService.vb" />
     <Compile Include="Services\PayrollPeriodService.vb" />
+    <Compile Include="Services\ReceivableService.vb" />
     <Compile Include="Services\ServiceResult.vb" />
   </ItemGroup>
   <ItemGroup>
@@ -405,7 +407,9 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Forms\Employee\Excluded Employee\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\zcmc_building.png" />
   </ItemGroup>

@@ -313,7 +313,7 @@ Partial Class FrmShowEmployeeDeduction
         '
         'reason
         '
-        Me.reason.HeaderText = "Reason"
+        Me.reason.HeaderText = "Remarks"
         Me.reason.Name = "reason"
         Me.reason.ReadOnly = True
         '
@@ -322,6 +322,7 @@ Partial Class FrmShowEmployeeDeduction
         Me.is_default.HeaderText = "Is Default"
         Me.is_default.Name = "is_default"
         Me.is_default.ReadOnly = True
+        Me.is_default.Visible = False
         '
         'employee_deduction_status
         '

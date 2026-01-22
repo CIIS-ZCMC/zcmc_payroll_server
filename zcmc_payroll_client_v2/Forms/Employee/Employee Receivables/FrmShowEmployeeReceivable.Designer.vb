@@ -23,21 +23,26 @@ Partial Class FrmShowEmployeeReceivable
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmShowEmployeeReceivable))
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.dgvTable = New System.Windows.Forms.DataGridView()
         Me.number = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.employee_deduction_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_receivable_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.payroll_period_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.employee_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.receivable_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.deduction_name = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.deduction_code = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_name = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_code = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.deduction_amount = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.completed_on = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.terms_paid = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.billing_cycle = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_completed_on = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_terms_paid = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_billing_cycle = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_reason = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_is_default = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.receivable_status = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.action_edit = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.action_stop = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.panelTop = New System.Windows.Forms.Panel()
@@ -72,40 +77,31 @@ Partial Class FrmShowEmployeeReceivable
         '
         Me.dgvTable.AllowUserToAddRows = False
         Me.dgvTable.AllowUserToDeleteRows = False
-        Me.dgvTable.AllowUserToResizeColumns = False
-        Me.dgvTable.AllowUserToResizeRows = False
-        DataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro
-        DataGridViewCellStyle1.Padding = New System.Windows.Forms.Padding(5)
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.GradientInactiveCaption
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.Black
-        Me.dgvTable.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvTable.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders
-        Me.dgvTable.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.dgvTable.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.RaisedVertical
-        Me.dgvTable.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable
-        Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
-        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.Padding = New System.Windows.Forms.Padding(10)
-        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle2
+        Me.dgvTable.BackgroundColor = System.Drawing.Color.White
+        Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
+        DataGridViewCellStyle1.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.Padding = New System.Windows.Forms.Padding(10)
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.number, Me.employee_deduction_id, Me.employee_id, Me.receivable_id, Me.deduction_name, Me.deduction_code, Me.deduction_amount, Me.completed_on, Me.terms_paid, Me.billing_cycle, Me.action_edit, Me.action_stop})
-        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
-        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(CType(CType(222, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
-        DataGridViewCellStyle3.Padding = New System.Windows.Forms.Padding(5)
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.GradientInactiveCaption
-        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.Desktop
-        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle3
+        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.number, Me.employee_receivable_id, Me.payroll_period_id, Me.employee_id, Me.receivable_id, Me.receivable_name, Me.receivable_code, Me.deduction_amount, Me.receivable_completed_on, Me.receivable_terms_paid, Me.receivable_billing_cycle, Me.receivable_reason, Me.receivable_is_default, Me.receivable_status, Me.action_edit, Me.action_stop})
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel)
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(222, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
+        DataGridViewCellStyle4.Padding = New System.Windows.Forms.Padding(5)
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.GradientInactiveCaption
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.Desktop
+        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle4
         Me.dgvTable.Dock = System.Windows.Forms.DockStyle.Fill
         Me.dgvTable.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvTable.EnableHeadersVisualStyles = False
@@ -115,7 +111,7 @@ Partial Class FrmShowEmployeeReceivable
         Me.dgvTable.RowHeadersVisible = False
         Me.dgvTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvTable.Size = New System.Drawing.Size(998, 486)
-        Me.dgvTable.TabIndex = 10
+        Me.dgvTable.TabIndex = 12
         '
         'number
         '
@@ -123,11 +119,17 @@ Partial Class FrmShowEmployeeReceivable
         Me.number.HeaderText = "#"
         Me.number.Name = "number"
         '
-        'employee_deduction_id
+        'employee_receivable_id
         '
-        Me.employee_deduction_id.HeaderText = "ID"
-        Me.employee_deduction_id.Name = "employee_deduction_id"
-        Me.employee_deduction_id.Visible = False
+        Me.employee_receivable_id.HeaderText = "ID"
+        Me.employee_receivable_id.Name = "employee_receivable_id"
+        Me.employee_receivable_id.Visible = False
+        '
+        'payroll_period_id
+        '
+        Me.payroll_period_id.HeaderText = "Payroll Period ID"
+        Me.payroll_period_id.Name = "payroll_period_id"
+        Me.payroll_period_id.Visible = False
         '
         'employee_id
         '
@@ -141,48 +143,74 @@ Partial Class FrmShowEmployeeReceivable
         Me.receivable_id.Name = "receivable_id"
         Me.receivable_id.Visible = False
         '
-        'deduction_name
+        'receivable_name
         '
-        Me.deduction_name.HeaderText = "Name"
-        Me.deduction_name.Name = "deduction_name"
+        Me.receivable_name.HeaderText = "Name"
+        Me.receivable_name.Name = "receivable_name"
         '
-        'deduction_code
+        'receivable_code
         '
-        Me.deduction_code.HeaderText = "Code"
-        Me.deduction_code.Name = "deduction_code"
+        Me.receivable_code.HeaderText = "Code"
+        Me.receivable_code.Name = "receivable_code"
         '
         'deduction_amount
         '
         Me.deduction_amount.HeaderText = "Amount"
         Me.deduction_amount.Name = "deduction_amount"
         '
-        'completed_on
+        'receivable_completed_on
         '
-        Me.completed_on.HeaderText = "Completed On"
-        Me.completed_on.Name = "completed_on"
+        Me.receivable_completed_on.HeaderText = "Completed On"
+        Me.receivable_completed_on.Name = "receivable_completed_on"
+        Me.receivable_completed_on.Visible = False
         '
-        'terms_paid
+        'receivable_terms_paid
         '
-        Me.terms_paid.HeaderText = "Terms Paid"
-        Me.terms_paid.Name = "terms_paid"
+        Me.receivable_terms_paid.HeaderText = "Terms Paid"
+        Me.receivable_terms_paid.Name = "receivable_terms_paid"
         '
-        'billing_cycle
+        'receivable_billing_cycle
         '
-        Me.billing_cycle.HeaderText = "Billing Cycle"
-        Me.billing_cycle.Name = "billing_cycle"
+        Me.receivable_billing_cycle.HeaderText = "Billing Cycle"
+        Me.receivable_billing_cycle.Name = "receivable_billing_cycle"
+        '
+        'receivable_reason
+        '
+        Me.receivable_reason.HeaderText = "Remarks"
+        Me.receivable_reason.Name = "receivable_reason"
+        '
+        'receivable_is_default
+        '
+        Me.receivable_is_default.HeaderText = "Is Default"
+        Me.receivable_is_default.Name = "receivable_is_default"
+        Me.receivable_is_default.Visible = False
+        '
+        'receivable_status
+        '
+        Me.receivable_status.HeaderText = "Status"
+        Me.receivable_status.Name = "receivable_status"
         '
         'action_edit
         '
-        Me.action_edit.FillWeight = 40.0!
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.SteelBlue
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.SteelBlue
+        Me.action_edit.DefaultCellStyle = DataGridViewCellStyle2
+        Me.action_edit.FillWeight = 50.0!
+        Me.action_edit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.action_edit.HeaderText = ""
         Me.action_edit.Name = "action_edit"
         '
         'action_stop
         '
-        Me.action_stop.FillWeight = 40.0!
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.IndianRed
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.IndianRed
+        Me.action_stop.DefaultCellStyle = DataGridViewCellStyle3
+        Me.action_stop.FillWeight = 50.0!
+        Me.action_stop.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.action_stop.HeaderText = ""
         Me.action_stop.Name = "action_stop"
-        Me.action_stop.Visible = False
         '
         'panelTop
         '
@@ -214,7 +242,7 @@ Partial Class FrmShowEmployeeReceivable
         Me.btnAdd.Font = New System.Drawing.Font("Segoe UI Semibold", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnAdd.ForeColor = System.Drawing.Color.White
         Me.btnAdd.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnAdd.Location = New System.Drawing.Point(830, 16)
+        Me.btnAdd.Location = New System.Drawing.Point(830, 14)
         Me.btnAdd.Name = "btnAdd"
         Me.btnAdd.Size = New System.Drawing.Size(138, 36)
         Me.btnAdd.TabIndex = 25
@@ -226,7 +254,7 @@ Partial Class FrmShowEmployeeReceivable
         '
         Me.lblEmployeeName.AutoSize = True
         Me.lblEmployeeName.Font = New System.Drawing.Font("Segoe UI", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblEmployeeName.Location = New System.Drawing.Point(6, 18)
+        Me.lblEmployeeName.Location = New System.Drawing.Point(6, 16)
         Me.lblEmployeeName.Name = "lblEmployeeName"
         Me.lblEmployeeName.Size = New System.Drawing.Size(204, 32)
         Me.lblEmployeeName.TabIndex = 0
@@ -303,15 +331,19 @@ Partial Class FrmShowEmployeeReceivable
     Friend WithEvents btnClose As Button
     Friend WithEvents dgvTable As DataGridView
     Friend WithEvents number As DataGridViewTextBoxColumn
-    Friend WithEvents employee_deduction_id As DataGridViewTextBoxColumn
+    Friend WithEvents employee_receivable_id As DataGridViewTextBoxColumn
+    Friend WithEvents payroll_period_id As DataGridViewTextBoxColumn
     Friend WithEvents employee_id As DataGridViewTextBoxColumn
     Friend WithEvents receivable_id As DataGridViewTextBoxColumn
-    Friend WithEvents deduction_name As DataGridViewTextBoxColumn
-    Friend WithEvents deduction_code As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_name As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_code As DataGridViewTextBoxColumn
     Friend WithEvents deduction_amount As DataGridViewTextBoxColumn
-    Friend WithEvents completed_on As DataGridViewTextBoxColumn
-    Friend WithEvents terms_paid As DataGridViewTextBoxColumn
-    Friend WithEvents billing_cycle As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_completed_on As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_terms_paid As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_billing_cycle As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_reason As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_is_default As DataGridViewTextBoxColumn
+    Friend WithEvents receivable_status As DataGridViewTextBoxColumn
     Friend WithEvents action_edit As DataGridViewButtonColumn
     Friend WithEvents action_stop As DataGridViewButtonColumn
 End Class

@@ -32,4 +32,13 @@
         cmb.DataSource = data
         cmb.EndUpdate()
     End Function
+
+    Public Function CheckDgvRows(dgvTable As DataGridView, lbl As Label)
+        If dgvTable.Rows.Count = 0 Then
+            lbl.Visible = True
+            lbl.Text = "No data is found"
+        Else
+            lbl.Visible = False
+        End If
+    End Function
 End Class

@@ -1,9 +1,13 @@
 ﻿Public Class UcManageEmployee
+    Dim helper As New Helpers
     Private service As New EmployeeService
 
     Public isManageDeduction As Boolean = False
     Public isManageReceivable As Boolean = False
     Public isManageBoth As Boolean = False
+
+    Public isInclude As Boolean = False
+    Public isExclude As Boolean = False
 
     ' ===== Animation settings =====
     Private Const PANEL_WIDTH As Integer = 350
@@ -23,33 +27,38 @@
 
     Private Async Sub UcManageEmployee_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If isManageDeduction Then
+            lblTitle.Text = "Manage Employee Deductions"
             dgvTable.Columns(11).Visible = True
             dgvTable.Columns(11).Visible = False
+            btnIncludedEmployee.PerformClick()
         End If
 
         If isManageReceivable Then
+            lblTitle.Text = "Manage Employee Receivables"
             dgvTable.Columns(10).Visible = False
             dgvTable.Columns(11).Visible = True
+            btnIncludedEmployee.PerformClick()
         End If
 
         If isManageBoth Then
+            lblTitle.Text = "Manage Excluded Employee"
+            dgvTable.Columns(8).Visible = False
             dgvTable.Columns(10).Visible = True
             dgvTable.Columns(11).Visible = True
+
+            btnIncludedEmployee.Enabled = False
+            btnExcludedEmployee.PerformClick()
         End If
 
+        helper.CheckDgvRows(dgvTable, lblMessage)
 
         SplitContainer.Panel2Collapsed = True
-
-
-        'Await LoadingHelper.RunAsync(
-        '    Async Function()
-        '        Await service.GetEmployee(dgvTable, False)
-        '    End Function,
-        '    True
-        ')
     End Sub
 
     Private Async Sub btnIncludedEmployee_Click(sender As Object, e As EventArgs) Handles btnIncludedEmployee.Click
+        isInclude = True
+        isExclude = False
+
         Await LoadingHelper.RunAsync(
             Async Function()
                 Await service.GetEmployee(dgvTable, "isIncluded", False)
@@ -58,6 +67,7 @@
         )
 
         HideEmployeeInfo()
+        helper.CheckDgvRows(dgvTable, lblMessage)
 
         btnIncludedEmployee.BackColor = Color.FromArgb(15, 87, 33)
         btnIncludedEmployee.ForeColor = Color.White
@@ -67,6 +77,9 @@
     End Sub
 
     Private Async Sub btnExcludedEmployee_Click(sender As Object, e As EventArgs) Handles btnExcludedEmployee.Click
+        isInclude = False
+        isExclude = True
+
         Await LoadingHelper.RunAsync(
             Async Function()
                 Await service.GetEmployee(dgvTable, "isExcluded", False)
@@ -75,6 +88,7 @@
         )
 
         HideEmployeeInfo()
+        helper.CheckDgvRows(dgvTable, lblMessage)
 
         btnIncludedEmployee.BackColor = Color.LightGray
         btnIncludedEmployee.ForeColor = Color.Black
@@ -105,18 +119,44 @@
                     End Function,
                     True
                 )
-            Else
-
-
+            ElseIf isManageReceivable = True Then
+                Await LoadingHelper.RunAsync(
+                    Async Function()
+                        Await service.GetEmployeeReceivableList(dgvList, row.Cells(1).Value)
+                    End Function,
+                    True
+                )
             End If
+        ElseIf e.ColumnIndex = 9 Then
+            If isInclude = True Then
+                Dim res = MessageBox.Show("Are you sure you want to exclude this employee: " & row.Cells(3).Value & "?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+                If res = DialogResult.Yes Then
+                    Using obj As New FrmAuthorizationPin
+                        If obj.ShowDialog() = DialogResult.OK Then
+                            ' Do exclude logic here
+                        End If
+                    End Using
+                End If
 
+            ElseIf isExclude = True Then
+                Dim res = MessageBox.Show("Are you sure you want to include this employee: " & row.Cells(3).Value & "?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+                If res = DialogResult.Yes Then
+                    Using obj As New FrmAuthorizationPin
+                        If obj.ShowDialog() = DialogResult.OK Then
+                            ' Do include logic here
+                        End If
+                    End Using
+                End If
+            End If
         ElseIf e.ColumnIndex = 10 Then
-            Dim obj As New FrmShowEmployeeDeduction
+                Dim obj As New FrmShowEmployeeDeduction
+                obj.lblEmployeeName.Text = row.Cells(3).Value
+                obj._employeeID = row.Cells(1).Value
+                obj.ShowDialog()
+            ElseIf e.ColumnIndex = 11 Then
+                Dim obj As New FrmShowEmployeeReceivable
             obj.lblEmployeeName.Text = row.Cells(3).Value
             obj._employeeID = row.Cells(1).Value
-            obj.ShowDialog()
-        ElseIf e.ColumnIndex = 11 Then
-            Dim obj As New FrmShowEmployeeReceivable
             obj.ShowDialog()
         End If
     End Sub

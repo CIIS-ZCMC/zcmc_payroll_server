@@ -65,11 +65,13 @@ Partial Class UcManageEmployee
         Me.panelNavigator = New System.Windows.Forms.Panel()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.panelTop = New System.Windows.Forms.Panel()
+        Me.lblTitle = New System.Windows.Forms.Label()
         Me.btnExcludedEmployee = New System.Windows.Forms.Button()
         Me.btnIncludedEmployee = New System.Windows.Forms.Button()
         Me.DataGridViewImageColumn1 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.tmrSlide = New System.Windows.Forms.Timer(Me.components)
+        Me.Panel4 = New System.Windows.Forms.Panel()
         Me.panelContainer.SuspendLayout()
         CType(Me.SplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer.Panel1.SuspendLayout()
@@ -82,6 +84,7 @@ Partial Class UcManageEmployee
         Me.Panel3.SuspendLayout()
         Me.panelNavigator.SuspendLayout()
         Me.panelTop.SuspendLayout()
+        Me.Panel4.SuspendLayout()
         Me.SuspendLayout()
         '
         'panelContainer
@@ -452,40 +455,53 @@ Partial Class UcManageEmployee
         '
         'panelTop
         '
-        Me.panelTop.Controls.Add(Me.btnExcludedEmployee)
-        Me.panelTop.Controls.Add(Me.btnIncludedEmployee)
+        Me.panelTop.Controls.Add(Me.Panel4)
         Me.panelTop.Dock = System.Windows.Forms.DockStyle.Top
         Me.panelTop.Location = New System.Drawing.Point(0, 0)
         Me.panelTop.Name = "panelTop"
-        Me.panelTop.Size = New System.Drawing.Size(1107, 53)
+        Me.panelTop.Size = New System.Drawing.Size(1107, 56)
         Me.panelTop.TabIndex = 0
+        '
+        'lblTitle
+        '
+        Me.lblTitle.AutoSize = True
+        Me.lblTitle.Font = New System.Drawing.Font("Tahoma", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.lblTitle.Location = New System.Drawing.Point(6, 9)
+        Me.lblTitle.Name = "lblTitle"
+        Me.lblTitle.Size = New System.Drawing.Size(344, 25)
+        Me.lblTitle.TabIndex = 2
+        Me.lblTitle.Text = "Zamboanga City Medical Center"
+        Me.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'btnExcludedEmployee
         '
+        Me.btnExcludedEmployee.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnExcludedEmployee.BackColor = System.Drawing.Color.Gainsboro
         Me.btnExcludedEmployee.FlatAppearance.BorderColor = System.Drawing.Color.White
         Me.btnExcludedEmployee.FlatAppearance.BorderSize = 0
         Me.btnExcludedEmployee.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnExcludedEmployee.Font = New System.Drawing.Font("Tahoma", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnExcludedEmployee.ForeColor = System.Drawing.Color.Black
-        Me.btnExcludedEmployee.Location = New System.Drawing.Point(174, 5)
+        Me.btnExcludedEmployee.Location = New System.Drawing.Point(924, 7)
         Me.btnExcludedEmployee.Name = "btnExcludedEmployee"
-        Me.btnExcludedEmployee.Size = New System.Drawing.Size(155, 39)
+        Me.btnExcludedEmployee.Size = New System.Drawing.Size(155, 29)
         Me.btnExcludedEmployee.TabIndex = 1
         Me.btnExcludedEmployee.Text = "Excluded Employee"
         Me.btnExcludedEmployee.UseVisualStyleBackColor = False
         '
         'btnIncludedEmployee
         '
+        Me.btnIncludedEmployee.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnIncludedEmployee.BackColor = System.Drawing.Color.Gainsboro
         Me.btnIncludedEmployee.FlatAppearance.BorderColor = System.Drawing.Color.White
         Me.btnIncludedEmployee.FlatAppearance.BorderSize = 0
         Me.btnIncludedEmployee.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnIncludedEmployee.Font = New System.Drawing.Font("Tahoma", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnIncludedEmployee.ForeColor = System.Drawing.Color.Black
-        Me.btnIncludedEmployee.Location = New System.Drawing.Point(13, 5)
+        Me.btnIncludedEmployee.Location = New System.Drawing.Point(763, 7)
         Me.btnIncludedEmployee.Name = "btnIncludedEmployee"
-        Me.btnIncludedEmployee.Size = New System.Drawing.Size(155, 39)
+        Me.btnIncludedEmployee.Size = New System.Drawing.Size(155, 29)
         Me.btnIncludedEmployee.TabIndex = 0
         Me.btnIncludedEmployee.Text = "Included Employee"
         Me.btnIncludedEmployee.UseVisualStyleBackColor = False
@@ -530,6 +546,20 @@ Partial Class UcManageEmployee
         '
         Me.tmrSlide.Interval = 10
         '
+        'Panel4
+        '
+        Me.Panel4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Panel4.BackColor = System.Drawing.Color.White
+        Me.Panel4.Controls.Add(Me.btnExcludedEmployee)
+        Me.Panel4.Controls.Add(Me.lblTitle)
+        Me.Panel4.Controls.Add(Me.btnIncludedEmployee)
+        Me.Panel4.Location = New System.Drawing.Point(14, 8)
+        Me.Panel4.Name = "Panel4"
+        Me.Panel4.Size = New System.Drawing.Size(1082, 43)
+        Me.Panel4.TabIndex = 3
+        '
         'UcManageEmployee
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -552,6 +582,8 @@ Partial Class UcManageEmployee
         Me.Panel3.ResumeLayout(False)
         Me.panelNavigator.ResumeLayout(False)
         Me.panelTop.ResumeLayout(False)
+        Me.Panel4.ResumeLayout(False)
+        Me.Panel4.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -593,4 +625,6 @@ Partial Class UcManageEmployee
     Friend WithEvents action_exclude_or_inlucde As DataGridViewButtonColumn
     Friend WithEvents action_manage_deduction As DataGridViewButtonColumn
     Friend WithEvents action_manage_receivables As DataGridViewButtonColumn
+    Friend WithEvents lblTitle As Label
+    Friend WithEvents Panel4 As Panel
 End Class
