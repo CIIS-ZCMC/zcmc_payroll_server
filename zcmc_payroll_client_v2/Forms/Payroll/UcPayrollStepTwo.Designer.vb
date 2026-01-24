@@ -25,14 +25,18 @@ Partial Class UcPayrollStepTwo
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.panelContent = New System.Windows.Forms.Panel()
         Me.lblMessage = New System.Windows.Forms.Label()
         Me.dgvTable = New System.Windows.Forms.DataGridView()
-        Me.employee_record_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.action_select = New System.Windows.Forms.DataGridViewCheckBoxColumn()
+        Me.row_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.employee_number = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.employee_name = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_designation = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.assigned_area = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.btnSelectAll = New System.Windows.Forms.Button()
         Me.txtSearch = New System.Windows.Forms.TextBox()
@@ -86,18 +90,13 @@ Partial Class UcPayrollStepTwo
         Me.dgvTable.AllowUserToDeleteRows = False
         Me.dgvTable.AllowUserToResizeColumns = False
         Me.dgvTable.AllowUserToResizeRows = False
-        DataGridViewCellStyle1.BackColor = System.Drawing.Color.Empty
         DataGridViewCellStyle1.Padding = New System.Windows.Forms.Padding(5)
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Empty
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.Empty
         Me.dgvTable.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvTable.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders
         Me.dgvTable.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.dgvTable.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.RaisedVertical
-        Me.dgvTable.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable
-        Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.[Single]
+        Me.dgvTable.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
         DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -108,7 +107,7 @@ Partial Class UcPayrollStepTwo
         DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
         Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle2
         Me.dgvTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.employee_record_id, Me.action_select, Me.employee_number, Me.employee_name})
+        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.action_select, Me.row_number, Me.employee_id, Me.employee_number, Me.employee_name, Me.employee_designation, Me.assigned_area})
         DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window
         DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -119,38 +118,63 @@ Partial Class UcPayrollStepTwo
         DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvTable.DefaultCellStyle = DataGridViewCellStyle3
         Me.dgvTable.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvTable.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.dgvTable.EnableHeadersVisualStyles = False
+        Me.dgvTable.GridColor = System.Drawing.Color.WhiteSmoke
         Me.dgvTable.Location = New System.Drawing.Point(0, 61)
         Me.dgvTable.Name = "dgvTable"
+        Me.dgvTable.ReadOnly = False
         Me.dgvTable.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         Me.dgvTable.RowHeadersVisible = False
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Tahoma", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dgvTable.RowsDefaultCellStyle = DataGridViewCellStyle4
         Me.dgvTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvTable.Size = New System.Drawing.Size(615, 515)
         Me.dgvTable.TabIndex = 33
         '
-        'employee_record_id
-        '
-        Me.employee_record_id.HeaderText = "ID"
-        Me.employee_record_id.Name = "employee_record_id"
-        Me.employee_record_id.Visible = False
-        '
         'action_select
         '
-        Me.action_select.FillWeight = 10.0!
+        Me.action_select.FillWeight = 20.0!
         Me.action_select.HeaderText = ""
         Me.action_select.Name = "action_select"
+        Me.action_select.ReadOnly = False
+        '
+        'row_number
+        '
+        Me.row_number.FillWeight = 40.0!
+        Me.row_number.HeaderText = "#"
+        Me.row_number.Name = "row_number"
+        Me.row_number.ReadOnly = True
+        '
+        'employee_id
+        '
+        Me.employee_id.HeaderText = "ID"
+        Me.employee_id.Name = "employee_id"
+        Me.employee_id.ReadOnly = True
+        Me.employee_id.Visible = False
         '
         'employee_number
         '
-        Me.employee_number.FillWeight = 50.0!
         Me.employee_number.HeaderText = "Employee ID"
         Me.employee_number.Name = "employee_number"
+        Me.employee_number.ReadOnly = True
         '
         'employee_name
         '
         Me.employee_name.HeaderText = "Name"
         Me.employee_name.Name = "employee_name"
+        Me.employee_name.ReadOnly = True
+        '
+        'employee_designation
+        '
+        Me.employee_designation.HeaderText = "Designation"
+        Me.employee_designation.Name = "employee_designation"
+        Me.employee_designation.ReadOnly = True
+        '
+        'assigned_area
+        '
+        Me.assigned_area.HeaderText = "Assign Area"
+        Me.assigned_area.Name = "assigned_area"
+        Me.assigned_area.ReadOnly = True
         '
         'GroupBox1
         '
@@ -170,9 +194,9 @@ Partial Class UcPayrollStepTwo
         Me.btnSelectAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnSelectAll.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnSelectAll.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        Me.btnSelectAll.Location = New System.Drawing.Point(528, 17)
+        Me.btnSelectAll.Location = New System.Drawing.Point(487, 17)
         Me.btnSelectAll.Name = "btnSelectAll"
-        Me.btnSelectAll.Size = New System.Drawing.Size(81, 27)
+        Me.btnSelectAll.Size = New System.Drawing.Size(122, 27)
         Me.btnSelectAll.TabIndex = 40
         Me.btnSelectAll.Text = "Select All"
         Me.btnSelectAll.UseVisualStyleBackColor = False
@@ -248,14 +272,17 @@ Partial Class UcPayrollStepTwo
     Friend WithEvents panelContent As Panel
     Friend WithEvents lblMessage As Label
     Friend WithEvents dgvTable As DataGridView
-    Friend WithEvents employee_record_id As DataGridViewTextBoxColumn
-    Friend WithEvents action_select As DataGridViewCheckBoxColumn
-    Friend WithEvents employee_number As DataGridViewTextBoxColumn
-    Friend WithEvents employee_name As DataGridViewTextBoxColumn
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents btnSelectAll As Button
     Friend WithEvents txtSearch As TextBox
     Friend WithEvents panelTop As Panel
     Friend WithEvents lblDescription As Label
     Friend WithEvents lblTitle As Label
+    Friend WithEvents action_select As DataGridViewCheckBoxColumn
+    Friend WithEvents row_number As DataGridViewTextBoxColumn
+    Friend WithEvents employee_id As DataGridViewTextBoxColumn
+    Friend WithEvents employee_number As DataGridViewTextBoxColumn
+    Friend WithEvents employee_name As DataGridViewTextBoxColumn
+    Friend WithEvents employee_designation As DataGridViewTextBoxColumn
+    Friend WithEvents assigned_area As DataGridViewTextBoxColumn
 End Class

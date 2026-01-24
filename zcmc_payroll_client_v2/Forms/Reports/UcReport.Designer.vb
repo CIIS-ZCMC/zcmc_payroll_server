@@ -108,6 +108,7 @@ Partial Class UcReport
         Me.cmbYear.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.cmbYear.Font = New System.Drawing.Font("Segoe UI", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cmbYear.FormattingEnabled = True
+        Me.cmbYear.Items.AddRange(New Object() {"2023", "2024", "2025", "2026"})
         Me.cmbYear.Location = New System.Drawing.Point(587, 64)
         Me.cmbYear.Name = "cmbYear"
         Me.cmbYear.Size = New System.Drawing.Size(86, 36)
@@ -121,6 +122,7 @@ Partial Class UcReport
         Me.cmbMonth.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.cmbMonth.Font = New System.Drawing.Font("Segoe UI", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cmbMonth.FormattingEnabled = True
+        Me.cmbMonth.Items.AddRange(New Object() {"April", "August", "December", "Febuary", "January", "July", "June", "March", "May", "November", "October", "September"})
         Me.cmbMonth.Location = New System.Drawing.Point(394, 64)
         Me.cmbMonth.Name = "cmbMonth"
         Me.cmbMonth.Size = New System.Drawing.Size(187, 36)
@@ -180,7 +182,7 @@ Partial Class UcReport
         Me.cmbEmploymentType.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.cmbEmploymentType.Font = New System.Drawing.Font("Segoe UI", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cmbEmploymentType.FormattingEnabled = True
-        Me.cmbEmploymentType.Items.AddRange(New Object() {"Job Order", "Permanent"})
+        Me.cmbEmploymentType.Items.AddRange(New Object() {"Job Order", "Regular"})
         Me.cmbEmploymentType.Location = New System.Drawing.Point(394, 108)
         Me.cmbEmploymentType.Name = "cmbEmploymentType"
         Me.cmbEmploymentType.Size = New System.Drawing.Size(279, 36)

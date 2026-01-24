@@ -35,6 +35,7 @@
     Public Property year As String
     Public Property date_from As String
     Public Property date_to As String
+    Public Property status As String
     'Public Property is_night_shift As Integer 
     Public Property is_active As Integer
     Public Property locked_at As String

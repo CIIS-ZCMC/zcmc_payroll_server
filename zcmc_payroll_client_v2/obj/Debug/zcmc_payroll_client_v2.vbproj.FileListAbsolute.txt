@@ -40,3 +40,5 @@ D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_c
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.UcManageReceivable.resources
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.AddEditDeductionGroup.resources
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.exe.config
+D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmLoading.resources
+D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmYesNo.resources

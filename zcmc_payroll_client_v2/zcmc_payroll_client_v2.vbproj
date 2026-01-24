@@ -14,6 +14,21 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>C:\Users\kimhorace\Desktop\zcmc_payroll_v2\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -102,9 +117,11 @@
     <Compile Include="Api\DeductionApi.vb" />
     <Compile Include="Api\DeductionGroupApi.vb" />
     <Compile Include="Api\DeductionRuleApi.vb" />
+    <Compile Include="Api\EmployeeAdjustmentApi.vb" />
     <Compile Include="Api\EmployeeApi.vb" />
     <Compile Include="Api\EmployeeDeductionApi.vb" />
     <Compile Include="Api\EmployeeReceivableApi.vb" />
+    <Compile Include="Api\GeneralPayrollApi.vb" />
     <Compile Include="Api\ImportDeductionApi.vb" />
     <Compile Include="Api\PayrollPeriodApi.vb" />
     <Compile Include="Api\ReceivableApi.vb" />
@@ -113,6 +130,7 @@
     <Compile Include="Config\AppState.vb" />
     <Compile Include="Config\Routes.vb" />
     <Compile Include="Config\ServiceErrorCode.vb" />
+    <Compile Include="DTO\Context\PayrollWizardContext.vb" />
     <Compile Include="DTO\EmployeeDeductionDto.vb" />
     <Compile Include="DTO\EmployeeReceivableDto.vb" />
     <Compile Include="Form1.vb">
@@ -193,6 +211,36 @@
     </Compile>
     <Compile Include="Forms\Imports\UcManageImports.vb">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmError.Designer.vb">
+      <DependentUpon>FrmError.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmError.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmInformation.Designer.vb">
+      <DependentUpon>FrmInformation.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmInformation.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmLoading.Designer.vb">
+      <DependentUpon>FrmLoading.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmLoading.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmWarning.Designer.vb">
+      <DependentUpon>FrmWarning.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmWarning.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmYesNo.Designer.vb">
+      <DependentUpon>FrmYesNo.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Modals\FrmYesNo.vb">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Payroll\UcPayrollStepFour.Designer.vb">
       <DependentUpon>UcPayrollStepFour.vb</DependentUpon>
@@ -278,6 +326,7 @@
     <Compile Include="Models\DeductionGroupResponse.vb" />
     <Compile Include="Models\DeductionResponse.vb" />
     <Compile Include="Models\DeductionRuleResponse.vb" />
+    <Compile Include="Models\EmployeeAdjustmentResponse.vb" />
     <Compile Include="Models\EmployeeComputedSalaryResponse.vb" />
     <Compile Include="Models\EmployeeDeductionResponse.vb" />
     <Compile Include="Models\EmployeePayrollResponse.vb" />
@@ -306,9 +355,11 @@
     <Compile Include="Services\AuthService.vb" />
     <Compile Include="Services\DeductionGroupService.vb" />
     <Compile Include="Services\DeductionService.vb" />
+    <Compile Include="Services\EmployeeAdjustmentService.vb" />
     <Compile Include="Services\EmployeeDeductionService.vb" />
     <Compile Include="Services\EmployeeReceivableService.vb" />
     <Compile Include="Services\EmployeeService.vb" />
+    <Compile Include="Services\GeneralPayrollService.vb" />
     <Compile Include="Services\ImportDeductionService.vb" />
     <Compile Include="Services\PayrollPeriodService.vb" />
     <Compile Include="Services\ReceivableService.vb" />
@@ -353,6 +404,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Imports\UcManageImports.resx">
       <DependentUpon>UcManageImports.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Modals\FrmError.resx">
+      <DependentUpon>FrmError.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Modals\FrmInformation.resx">
+      <DependentUpon>FrmInformation.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Modals\FrmLoading.resx">
+      <DependentUpon>FrmLoading.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Modals\FrmWarning.resx">
+      <DependentUpon>FrmWarning.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Modals\FrmYesNo.resx">
+      <DependentUpon>FrmYesNo.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Payroll\UcPayrollStepFour.resx">
       <DependentUpon>UcPayrollStepFour.vb</DependentUpon>
@@ -407,9 +473,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Forms\Employee\Excluded Employee\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\zcmc_building.png" />
   </ItemGroup>
@@ -440,6 +504,18 @@
     <None Include="Resources\employee_24.png" />
     <None Include="Resources\payroll_24.png" />
     <None Include="Resources\dashboard_24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

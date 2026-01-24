@@ -12,7 +12,7 @@
                 Dim reason As String = If(data.excluded?.reason, "")
                 Dim btnIncludeExclude As String = If(type = "isIncluded", "Exclude", "Include")
 
-                dgv.Rows.Add(i, data.id, data.employee_number, data.full_name, data.designation, data.assigned_area.details.name, reason, data.status,
+                dgv.Rows.Add(i, data.id, data.employee_number, data.full_name, data.designation, data.assigned_area.details.name, reason, data.employee_time_records.status,
                              "View", btnIncludeExclude, "Manage Deduction", "Manage Receivable")
                 i += 1
             Next

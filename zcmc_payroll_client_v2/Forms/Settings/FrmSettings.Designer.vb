@@ -227,6 +227,7 @@ Partial Class FrmSettings
         'btnSettings
         '
         Me.btnSettings.Dock = System.Windows.Forms.DockStyle.Top
+        Me.btnSettings.Enabled = False
         Me.btnSettings.FlatAppearance.BorderSize = 0
         Me.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnSettings.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -263,6 +264,7 @@ Partial Class FrmSettings
         'btnRefetchEmployee
         '
         Me.btnRefetchEmployee.Dock = System.Windows.Forms.DockStyle.Top
+        Me.btnRefetchEmployee.Enabled = False
         Me.btnRefetchEmployee.FlatAppearance.BorderSize = 0
         Me.btnRefetchEmployee.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnRefetchEmployee.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))

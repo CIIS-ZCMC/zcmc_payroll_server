@@ -1,6 +1,7 @@
 ﻿Public Class UcManageEmployee
     Dim helper As New Helpers
     Private service As New EmployeeService
+    Private adjustmentService As New EmployeeAdjustmentService
 
     Public isManageDeduction As Boolean = False
     Public isManageReceivable As Boolean = False
@@ -21,7 +22,22 @@
     }
 
     Public Function IsValid() As Boolean
-        ' validate step logic
+        ' Only validate when in Excluded step (manage both)
+        If isManageBoth Then
+
+            Dim result = MessageBox.Show(
+                "You are about to proceed to payroll setup and generation. Have you completed managing all deductions and receivables?",
+                "Confirm Action",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            )
+
+            If result = DialogResult.No Then
+                Return False
+            End If
+
+        End If
+
         Return True
     End Function
 
@@ -43,11 +59,19 @@
         If isManageBoth Then
             lblTitle.Text = "Manage Excluded Employee"
             dgvTable.Columns(8).Visible = False
+            dgvTable.Columns(9).Visible = False
             dgvTable.Columns(10).Visible = True
             dgvTable.Columns(11).Visible = True
 
             btnIncludedEmployee.Enabled = False
-            btnExcludedEmployee.PerformClick()
+            btnExcludedEmployee.Enabled = False
+
+            Await LoadingHelper.RunAsync(
+                Async Function()
+                    Await adjustmentService.GetEmployeeAdjustment(dgvTable, "isIncluded", False)
+                End Function,
+                True
+            )
         End If
 
         helper.CheckDgvRows(dgvTable, lblMessage)

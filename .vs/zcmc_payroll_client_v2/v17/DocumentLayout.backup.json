@@ -3,16 +3,8 @@
   "WorkspaceRootPath": "D:\\System\\zcmc_payroll_client_v2\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\services\\employeeservice.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\services\\employeeservice.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\employee\\employee deductions\\frmshowemployeededuction.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\employee\\employee deductions\\frmshowemployeededuction.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\services\\employeereceivableservice.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\services\\employeereceivableservice.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\modals\\frmloading.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\modals\\frmloading.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,42 +26,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FrmShowEmployeeDeduction.vb",
-              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Employee\\Employee Deductions\\FrmShowEmployeeDeduction.vb",
-              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Employee\\Employee Deductions\\FrmShowEmployeeDeduction.vb",
-              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Employee\\Employee Deductions\\FrmShowEmployeeDeduction.vb",
-              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Employee\\Employee Deductions\\FrmShowEmployeeDeduction.vb",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAiwBMAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-01-20T07:57:01.644Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "EmployeeReceivableService.vb",
-              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Services\\EmployeeReceivableService.vb",
-              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Services\\EmployeeReceivableService.vb",
-              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Services\\EmployeeReceivableService.vb",
-              "RelativeToolTip": "zcmc_payroll_client_v2\\Services\\EmployeeReceivableService.vb",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-01-20T07:50:48.476Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "EmployeeService.vb",
-              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Services\\EmployeeService.vb",
-              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Services\\EmployeeService.vb",
-              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Services\\EmployeeService.vb",
-              "RelativeToolTip": "zcmc_payroll_client_v2\\Services\\EmployeeService.vb",
-              "ViewState": "AgIAAC8AAAAAAAAAAAAswEgAAAAjAAAAAAAAAA==",
+              "Title": "FrmLoading.vb [Design]",
+              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb",
+              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb",
+              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb [Design]",
+              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-01-20T07:50:00.354Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-24T08:38:08.742Z",
+              "EditorCaption": " [Design]"
             }
           ]
         }

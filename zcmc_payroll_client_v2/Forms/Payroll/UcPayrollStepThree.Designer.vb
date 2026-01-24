@@ -23,17 +23,17 @@ Partial Class UcPayrollStepThree
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.panelTop = New System.Windows.Forms.Panel()
-        Me.lblTitle = New System.Windows.Forms.Label()
         Me.lblDescription = New System.Windows.Forms.Label()
+        Me.lblTitle = New System.Windows.Forms.Label()
         Me.panelContainer = New System.Windows.Forms.Panel()
-        Me.pictureSuccess = New System.Windows.Forms.PictureBox()
-        Me.lblSuccess = New System.Windows.Forms.Label()
         Me.panelContent = New System.Windows.Forms.Panel()
         Me.progressbarValidating = New MetroFramework.Controls.MetroProgressBar()
+        Me.lblSuccess = New System.Windows.Forms.Label()
+        Me.pictureSuccess = New System.Windows.Forms.PictureBox()
         Me.panelTop.SuspendLayout()
         Me.panelContainer.SuspendLayout()
-        CType(Me.pictureSuccess, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.panelContent.SuspendLayout()
+        CType(Me.pictureSuccess, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'panelTop
@@ -47,18 +47,6 @@ Partial Class UcPayrollStepThree
         Me.panelTop.Size = New System.Drawing.Size(615, 66)
         Me.panelTop.TabIndex = 32
         '
-        'lblTitle
-        '
-        Me.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.lblTitle.AutoSize = True
-        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTitle.ForeColor = System.Drawing.Color.White
-        Me.lblTitle.Location = New System.Drawing.Point(161, 6)
-        Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(292, 21)
-        Me.lblTitle.TabIndex = 2
-        Me.lblTitle.Text = "Create Payroll - Step 3 of 4 : Generate"
-        '
         'lblDescription
         '
         Me.lblDescription.Anchor = System.Windows.Forms.AnchorStyles.Top
@@ -71,6 +59,18 @@ Partial Class UcPayrollStepThree
         Me.lblDescription.TabIndex = 3
         Me.lblDescription.Text = "Validating and computing of employee records"
         '
+        'lblTitle
+        '
+        Me.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.lblTitle.AutoSize = True
+        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTitle.ForeColor = System.Drawing.Color.White
+        Me.lblTitle.Location = New System.Drawing.Point(161, 6)
+        Me.lblTitle.Name = "lblTitle"
+        Me.lblTitle.Size = New System.Drawing.Size(292, 21)
+        Me.lblTitle.TabIndex = 2
+        Me.lblTitle.Text = "Create Payroll - Step 3 of 4 : Generate"
+        '
         'panelContainer
         '
         Me.panelContainer.Controls.Add(Me.panelContent)
@@ -80,30 +80,6 @@ Partial Class UcPayrollStepThree
         Me.panelContainer.Name = "panelContainer"
         Me.panelContainer.Size = New System.Drawing.Size(615, 642)
         Me.panelContainer.TabIndex = 2
-        '
-        'pictureSuccess
-        '
-        Me.pictureSuccess.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.pictureSuccess.BackColor = System.Drawing.Color.White
-        Me.pictureSuccess.BackgroundImage = Global.zcmc_payroll_client_v2.My.Resources.Resources.approved_32
-        Me.pictureSuccess.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.pictureSuccess.Location = New System.Drawing.Point(67, 213)
-        Me.pictureSuccess.Name = "pictureSuccess"
-        Me.pictureSuccess.Size = New System.Drawing.Size(56, 55)
-        Me.pictureSuccess.TabIndex = 22
-        Me.pictureSuccess.TabStop = False
-        '
-        'lblSuccess
-        '
-        Me.lblSuccess.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.lblSuccess.AutoSize = True
-        Me.lblSuccess.Font = New System.Drawing.Font("Segoe UI Semibold", 21.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSuccess.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        Me.lblSuccess.Location = New System.Drawing.Point(129, 220)
-        Me.lblSuccess.Name = "lblSuccess"
-        Me.lblSuccess.Size = New System.Drawing.Size(418, 40)
-        Me.lblSuccess.TabIndex = 23
-        Me.lblSuccess.Text = "Payroll Generated Successfully" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         '
         'panelContent
         '
@@ -124,6 +100,30 @@ Partial Class UcPayrollStepThree
         Me.progressbarValidating.Size = New System.Drawing.Size(480, 23)
         Me.progressbarValidating.TabIndex = 24
         '
+        'lblSuccess
+        '
+        Me.lblSuccess.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.lblSuccess.AutoSize = True
+        Me.lblSuccess.Font = New System.Drawing.Font("Segoe UI Semibold", 21.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblSuccess.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.lblSuccess.Location = New System.Drawing.Point(129, 220)
+        Me.lblSuccess.Name = "lblSuccess"
+        Me.lblSuccess.Size = New System.Drawing.Size(418, 40)
+        Me.lblSuccess.TabIndex = 23
+        Me.lblSuccess.Text = "Payroll Generated Successfully" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
+        '
+        'pictureSuccess
+        '
+        Me.pictureSuccess.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.pictureSuccess.BackColor = System.Drawing.Color.White
+        Me.pictureSuccess.BackgroundImage = Global.zcmc_payroll_client_v2.My.Resources.Resources.approved_32
+        Me.pictureSuccess.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.pictureSuccess.Location = New System.Drawing.Point(67, 213)
+        Me.pictureSuccess.Name = "pictureSuccess"
+        Me.pictureSuccess.Size = New System.Drawing.Size(56, 55)
+        Me.pictureSuccess.TabIndex = 22
+        Me.pictureSuccess.TabStop = False
+        '
         'UcPayrollStepThree
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -135,9 +135,9 @@ Partial Class UcPayrollStepThree
         Me.panelTop.ResumeLayout(False)
         Me.panelTop.PerformLayout()
         Me.panelContainer.ResumeLayout(False)
-        CType(Me.pictureSuccess, System.ComponentModel.ISupportInitialize).EndInit()
         Me.panelContent.ResumeLayout(False)
         Me.panelContent.PerformLayout()
+        CType(Me.pictureSuccess, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub

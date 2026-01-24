@@ -3,6 +3,8 @@
 Public Class FrmStepper
     Private payrollPeriodService As New PayrollPeriodService()
 
+    Private payrollContext As New PayrollWizardContext()
+
     Private currentStep As Integer = 1
     Private Const TOTAL_STEPS As Integer = 8
 
@@ -22,7 +24,7 @@ Public Class FrmStepper
         tblpStepper.Controls.Add(CreateStepper(4, "Excluded"), 3, 0)
         tblpStepper.Controls.Add(CreateStepper(5, "Set"), 4, 0)
         tblpStepper.Controls.Add(CreateStepper(6, "Choose"), 5, 0)
-        tblpStepper.Controls.Add(CreateStepper(7, "Generate"), 6, 0)
+        tblpStepper.Controls.Add(CreateStepper(7, "Preview"), 6, 0)
         tblpStepper.Controls.Add(CreateStepper(8, "View"), 7, 0)
 
         LoadStep(1) ' default
@@ -104,9 +106,28 @@ Public Class FrmStepper
                 uc.isManageBoth = True
                 RenderUserControl(uc)
 
-            Case 5 : RenderUserControl(New UcPayrollStepOne())
-            Case 6 : RenderUserControl(New UcPayrollStepTwo())
-            Case 7 : RenderUserControl(New UcPayrollStepThree())
+            Case 5
+                Dim uc As New UcPayrollStepOne()
+                uc.Context = payrollContext
+                RenderUserControl(uc)
+
+            Case 6
+                Dim uc As New UcPayrollStepTwo()
+                uc.Context = payrollContext
+                RenderUserControl(uc)
+
+            Case 7
+                'Dim ctx = payrollContext ' or pass Context from Step1/Step2
+
+                'Dim msg As String = $"Employment Type: {ctx.EmploymentType}" & vbCrLf &
+                '        $"Days of Duty: {ctx.DaysOfDuty}" & vbCrLf &
+                '        $"Salary Period: {ctx.SalaryPeriod}" & vbCrLf &
+                '        $"Payroll Type: {ctx.PayrollType}" & vbCrLf &
+                '        $"Included Employees: {String.Join(", ", ctx.IncludedEmployeeIds)}"
+
+                'MessageBox.Show(msg, "Payroll Context Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                RenderUserControl(New UcPayrollStepThree())
             Case 8 : RenderUserControl(New UcPayrollStepFour())
         End Select
     End Sub
@@ -143,6 +164,10 @@ Public Class FrmStepper
                 Return CType(pnlUserControlDisplay.Controls(0), UcManageImports).IsValid()
             Case 2
                 Return CType(pnlUserControlDisplay.Controls(0), UcManageEmployee).IsValid()
+            Case 4
+                Return CType(pnlUserControlDisplay.Controls(0), UcManageEmployee).IsValid()
+            Case 5
+                Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepOne).IsValid()
             Case Else
                 Return True
         End Select

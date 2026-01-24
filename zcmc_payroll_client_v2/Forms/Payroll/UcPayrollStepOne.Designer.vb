@@ -23,9 +23,6 @@ Partial Class UcPayrollStepOne
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.panelContainer = New System.Windows.Forms.Panel()
-        Me.panelTop = New System.Windows.Forms.Panel()
-        Me.lblDescription = New System.Windows.Forms.Label()
-        Me.lblTitle = New System.Windows.Forms.Label()
         Me.panelContent = New System.Windows.Forms.Panel()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.PictureBoxReminder = New System.Windows.Forms.PictureBox()
@@ -44,8 +41,10 @@ Partial Class UcPayrollStepOne
         Me.rdbRegular = New System.Windows.Forms.RadioButton()
         Me.lblPayrollMonth = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
+        Me.panelTop = New System.Windows.Forms.Panel()
+        Me.lblDescription = New System.Windows.Forms.Label()
+        Me.lblTitle = New System.Windows.Forms.Label()
         Me.panelContainer.SuspendLayout()
-        Me.panelTop.SuspendLayout()
         Me.panelContent.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
         CType(Me.PictureBoxReminder, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -53,6 +52,7 @@ Partial Class UcPayrollStepOne
         Me.GroupBox4.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
+        Me.panelTop.SuspendLayout()
         Me.SuspendLayout()
         '
         'panelContainer
@@ -64,41 +64,6 @@ Partial Class UcPayrollStepOne
         Me.panelContainer.Name = "panelContainer"
         Me.panelContainer.Size = New System.Drawing.Size(615, 642)
         Me.panelContainer.TabIndex = 0
-        '
-        'panelTop
-        '
-        Me.panelTop.BackColor = System.Drawing.Color.FromArgb(CType(CType(10, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(48, Byte), Integer))
-        Me.panelTop.Controls.Add(Me.lblDescription)
-        Me.panelTop.Controls.Add(Me.lblTitle)
-        Me.panelTop.Dock = System.Windows.Forms.DockStyle.Top
-        Me.panelTop.Location = New System.Drawing.Point(0, 0)
-        Me.panelTop.Name = "panelTop"
-        Me.panelTop.Size = New System.Drawing.Size(615, 66)
-        Me.panelTop.TabIndex = 34
-        '
-        'lblDescription
-        '
-        Me.lblDescription.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.lblDescription.AutoSize = True
-        Me.lblDescription.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.lblDescription.ForeColor = System.Drawing.Color.White
-        Me.lblDescription.Location = New System.Drawing.Point(128, 31)
-        Me.lblDescription.Name = "lblDescription"
-        Me.lblDescription.Size = New System.Drawing.Size(358, 19)
-        Me.lblDescription.TabIndex = 3
-        Me.lblDescription.Text = "This change will be only applied to the selected employee"
-        '
-        'lblTitle
-        '
-        Me.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top
-        Me.lblTitle.AutoSize = True
-        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTitle.ForeColor = System.Drawing.Color.White
-        Me.lblTitle.Location = New System.Drawing.Point(184, 6)
-        Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(247, 21)
-        Me.lblTitle.TabIndex = 2
-        Me.lblTitle.Text = "Create Payroll - Step 1 of 4 : Set"
         '
         'panelContent
         '
@@ -336,6 +301,41 @@ Partial Class UcPayrollStepOne
         Me.Label1.TabIndex = 38
         Me.Label1.Text = "Payroll for the month of:"
         '
+        'panelTop
+        '
+        Me.panelTop.BackColor = System.Drawing.Color.FromArgb(CType(CType(10, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(48, Byte), Integer))
+        Me.panelTop.Controls.Add(Me.lblDescription)
+        Me.panelTop.Controls.Add(Me.lblTitle)
+        Me.panelTop.Dock = System.Windows.Forms.DockStyle.Top
+        Me.panelTop.Location = New System.Drawing.Point(0, 0)
+        Me.panelTop.Name = "panelTop"
+        Me.panelTop.Size = New System.Drawing.Size(615, 66)
+        Me.panelTop.TabIndex = 34
+        '
+        'lblDescription
+        '
+        Me.lblDescription.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.lblDescription.AutoSize = True
+        Me.lblDescription.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.lblDescription.ForeColor = System.Drawing.Color.White
+        Me.lblDescription.Location = New System.Drawing.Point(128, 31)
+        Me.lblDescription.Name = "lblDescription"
+        Me.lblDescription.Size = New System.Drawing.Size(358, 19)
+        Me.lblDescription.TabIndex = 3
+        Me.lblDescription.Text = "This change will be only applied to the selected employee"
+        '
+        'lblTitle
+        '
+        Me.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.lblTitle.AutoSize = True
+        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTitle.ForeColor = System.Drawing.Color.White
+        Me.lblTitle.Location = New System.Drawing.Point(184, 6)
+        Me.lblTitle.Name = "lblTitle"
+        Me.lblTitle.Size = New System.Drawing.Size(247, 21)
+        Me.lblTitle.TabIndex = 2
+        Me.lblTitle.Text = "Create Payroll - Step 1 of 4 : Set"
+        '
         'UcPayrollStepOne
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -345,8 +345,6 @@ Partial Class UcPayrollStepOne
         Me.Name = "UcPayrollStepOne"
         Me.Size = New System.Drawing.Size(615, 642)
         Me.panelContainer.ResumeLayout(False)
-        Me.panelTop.ResumeLayout(False)
-        Me.panelTop.PerformLayout()
         Me.panelContent.ResumeLayout(False)
         Me.panelContent.PerformLayout()
         Me.GroupBox5.ResumeLayout(False)
@@ -359,6 +357,8 @@ Partial Class UcPayrollStepOne
         Me.GroupBox3.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
+        Me.panelTop.ResumeLayout(False)
+        Me.panelTop.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
