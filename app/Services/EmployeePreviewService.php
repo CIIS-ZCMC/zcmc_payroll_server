@@ -3,10 +3,11 @@
 namespace App\Services;
 
 use App\Models\Employee;
+use Illuminate\Support\Collection;
 
-class CalculationService
+class EmployeePreviewService
 {
-    public function calculateNetPayIndividually(int $employeeId, int $payrollPeriodId): array
+    public function getEmployeePreview(int $employeeId, int $payrollPeriodId): array
     {
         // Get employee with necessary relationships
         $employee = Employee::with([
@@ -43,7 +44,7 @@ class CalculationService
         ];
     }
 
-    public function calculateNetPayForAll(int $payrollPeriodId): array
+    public function getEmployeePreviewForAll(int $payrollPeriodId): array
     {
         $result = [
             'included' => [],
@@ -53,19 +54,22 @@ class CalculationService
         // Get all employees with necessary relationships
         $employees = Employee::with([
             'employeeTimeRecords' => function ($query) use ($payrollPeriodId) {
-                $query->where('payroll_period_id', $payrollPeriodId);
+                $query->where('payroll_period_id', $payrollPeriodId)->where('is_active', true);
             },
             'employeeReceivables' => function ($query) use ($payrollPeriodId) {
                 $query->where('payroll_period_id', $payrollPeriodId);
             },
             'employeeDeductions' => function ($query) use ($payrollPeriodId) {
                 $query->where('payroll_period_id', $payrollPeriodId);
+            },
+            'excludedEmployees' => function ($query) use ($payrollPeriodId) {
+                $query->where('payroll_period_id', $payrollPeriodId);
             }
-        ])->get();
+        ])->orderBy('last_name')->get();
 
         foreach ($employees as $employee) {
             // Get computed salary (base salary from time records)
-            $computedSalary = $employee->employeeTimeRecords->first()->base_salary ?? 0;
+            $computedSalary = $employee->employeeTimeRecords->first()->basic_pay ?? 0;
 
             // Calculate total receivables
             $totalReceivables = $employee->employeeReceivables->sum('amount');
@@ -77,21 +81,36 @@ class CalculationService
             $grossPay = $computedSalary + $totalReceivables;
             $netPay = $grossPay - $totalDeductions;
 
+            $area = json_decode($employee->assigned_area, true);
+
             $employeeData = [
-                'employee_id' => $employee->id,
-                'employee_name' => $employee->first_name . ' ' . $employee->last_name,
+                'id' => $employee->id,
                 'employee_number' => $employee->employee_number,
-                'payroll_period_id' => $payrollPeriodId,
-                'computed_salary' => $computedSalary,
-                'total_receivables' => $totalReceivables,
-                'total_deductions' => $totalDeductions,
-                'gross_pay' => $grossPay,
-                'net_pay' => $netPay,
-                'currency' => 'PHP'
+                'full_name' => $employee->last_name . ', ' . $employee->first_name . ' ' . ($employee->middle_name ? strtoupper(substr($employee->middle_name, 0, 1)) . '.' : ''),
+                'designation' => $employee->designation,
+                'assigned_area' => [
+                    'details' => [
+                        'id' => $area['details']['id'] ?? null,
+                        'name' => $area['details']['name'] ?? null,
+                        'code' => $area['details']['code'] ?? null,
+                    ],
+                    'sector' => $area['sector'] ?? null
+                ],
+                'reason' => $employee->excludedEmployees->reason ?? 'Salary Below Threshold',
+                'status' => $employee->employeeTimeRecords->first()->status,
+                'payroll_records' => [
+                    'payroll_period_id' => $payrollPeriodId,
+                    'total_receivables' => $totalReceivables,
+                    'total_deductions' => $totalDeductions,
+                    'basic_pay' => $computedSalary,
+                    'gross_pay' => $grossPay,
+                    'net_pay' => $netPay,
+                    'currency' => 'PHP'
+                ]
             ];
 
             // Categorize based on salary
-            if ($computedSalary < 5000) {
+            if ($netPay < 5000) {
                 $result['excluded'][] = $employeeData;
             } else {
                 $result['included'][] = $employeeData;

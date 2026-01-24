@@ -56,7 +56,7 @@ class Employee extends Model
 
     public function excludedEmployees()
     {
-        return $this->hasMany(ExcludedEmployee::class);
+        return $this->belongsTo(ExcludedEmployee::class);
     }
 
     public function employeePayroll()

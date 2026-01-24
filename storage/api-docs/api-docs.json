@@ -102,6 +102,91 @@
                 ]
             }
         },
+        "/api/employee-adjustments": {
+            "get": {
+                "tags": [
+                    "Employee Adjustments"
+                ],
+                "summary": "Get employee adjustments (included/excluded)",
+                "operationId": "1e5e0dc26dfcd21c326f7236dd3efad5",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filter type for employee adjustments",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "isIncluded",
+                                "isExcluded"
+                            ],
+                            "example": "isIncluded"
+                        }
+                    },
+                    {
+                        "name": "payroll_period_id",
+                        "in": "query",
+                        "description": "Payroll period ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee adjustments retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request - missing parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The type field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "type": [
+                                                    "The type field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/employees": {
             "get": {
                 "tags": [
@@ -1852,6 +1937,10 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Employee Adjustments",
+            "description": "Employee Adjustments"
         },
         {
             "name": "Employees",

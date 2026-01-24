@@ -133,4 +133,34 @@ class EmployeeRepository implements EmployeeInterface
             }
         ])->where('id', $id)->first();
     }
+
+    public function findEmployeeWithPayrollPeriod(int $id, int $payroll_period_id): Employee
+    {
+        return $this->model->with([
+            'employeeTimeRecords' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', $payroll_period_id)->where('is_active', true);
+            },
+            'employeeReceivables' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', $payroll_period_id);
+            },
+            'employeeDeductions' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', $payroll_period_id);
+            }
+        ])->findOrFail($id);
+    }
+
+    public function getAllEmployeeWithPayrollPeriod(int $payroll_period_id): Collection
+    {
+        return $this->model->with([
+            'employeeTimeRecords' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', $payroll_period_id)->where('is_active', true);
+            },
+            'employeeReceivables' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', $payroll_period_id);
+            },
+            'employeeDeductions' => function ($query) use ($payroll_period_id) {
+                $query->where('payroll_period_id', $payroll_period_id);
+            }
+        ])->get();
+    }
 }

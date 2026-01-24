@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeReceivableRequest;
 use App\Http\Resources\EmployeeReceivableResource;
 use App\Models\Employee;
-use App\Models\EmployeeReceivable;
 use App\Services\EmployeeReceivableService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

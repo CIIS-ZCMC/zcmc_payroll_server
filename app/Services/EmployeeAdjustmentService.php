@@ -5,13 +5,29 @@ namespace App\Services;
 use App\Contract\EmployeeAdjustmentInterface;
 use App\Data\EmployeeAdjustmentData;
 use App\Models\EmployeeAdjustment;
+use Illuminate\Support\Collection;
 
 class EmployeeAdjustmentService
 {
     public function __construct(
-        private EmployeeAdjustmentInterface $interface
+        private EmployeeAdjustmentInterface $interface,
+        private EmployeePreviewService $preview
     ) {
         //nothing
+    }
+
+    //Calculate salary of employees with deduction and receivables
+    public function getIncludedEmployee(int $payroll_period_id): array
+    {
+        $data = $this->preview->getEmployeePreviewForAll($payroll_period_id);
+        return $data['included'];
+    }
+
+    //Calculate salary of employees without deduction and receivables
+    public function getExcludedEmployee(int $payroll_period_id): array
+    {
+        $data = $this->preview->getEmployeePreviewForAll($payroll_period_id);
+        return $data['excluded'];
     }
 
     public function create(EmployeeAdjustmentData $data): EmployeeAdjustment

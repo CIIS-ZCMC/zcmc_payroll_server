@@ -16,4 +16,6 @@ interface EmployeeInterface
     public function getIncludedEmployee(): Collection;
     public function getExcludedEmployee(): Collection;
     public function find(int $id): Employee;
+    public function findEmployeeWithPayrollPeriod(int $id, int $payroll_period_id): Employee;
+    public function getAllEmployeeWithPayrollPeriod(int $payroll_period_id): Collection;
 }

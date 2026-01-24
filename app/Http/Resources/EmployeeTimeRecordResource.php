@@ -50,6 +50,7 @@ class EmployeeTimeRecordResource extends JsonResource
             'year' => $this->year,
             'date_from' => $this->from,
             'date_to' => $this->to,
+            'status' => $this->status,
             // 'is_night_shift' => $this->is_night_shift,
             'is_active' => $this->is_active,
             'locked_at' => $this->locked_at,
