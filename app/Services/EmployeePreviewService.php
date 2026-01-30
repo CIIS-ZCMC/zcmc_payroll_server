@@ -2,14 +2,16 @@
 
 namespace App\Services;
 
+use App\Http\Resources\EmployeePreviewResource;
+use App\Http\Resources\PaginationResource;
 use App\Models\Employee;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class EmployeePreviewService
 {
-    public function getEmployeePreview(int $employeeId, int $payrollPeriodId): array
+    public function find(int $employeeId, int $payrollPeriodId)
     {
-        // Get employee with necessary relationships
         $employee = Employee::with([
             'employeeTimeRecords' => function ($query) use ($payrollPeriodId) {
                 $query->where('payroll_period_id', $payrollPeriodId);
@@ -23,101 +25,139 @@ class EmployeePreviewService
         ])->findOrFail($employeeId);
 
         // Get computed salary (base salary from time records)
-        $computedSalary = $employee->employeeTimeRecords->first()->base_salary ?? 0;
+        $computedSalary = $employee->employeeTimeRecords->first()->basic_pay ?? 0;
+
         // Calculate total receivables
         $totalReceivables = $employee->employeeReceivables->sum('amount');
+
         // Calculate total deductions
         $totalDeductions = $employee->employeeDeductions->sum('amount');
+
         // Calculate gross pay and net pay
         $grossPay = $computedSalary + $totalReceivables;
+
         $netPay = $grossPay - $totalDeductions;
 
+        $area = json_decode($employee->assigned_area, true);
+
         return [
-            'employee_id' => $employeeId,
-            'payroll_period_id' => $payrollPeriodId,
-            'computed_salary' => $computedSalary,
-            'total_receivables' => $totalReceivables,
-            'total_deductions' => $totalDeductions,
-            'gross_pay' => $grossPay,
-            'net_pay' => $netPay,
-            'currency' => 'PHP'
+            'id' => $employee->id,
+            'employee_number' => $employee->employee_number,
+            'full_name' => $employee->last_name . ', ' . $employee->first_name . ' ' . ($employee->middle_name ? strtoupper(substr($employee->middle_name, 0, 1)) . '.' : ''),
+            'designation' => $employee->designation,
+            'assigned_area' => [
+                'details' => [
+                    'id' => $area['details']['id'] ?? null,
+                    'name' => $area['details']['name'] ?? null,
+                    'code' => $area['details']['code'] ?? null,
+                ],
+                'sector' => $area['sector'] ?? null
+            ],
+            'reason' => $employee->excludedEmployees->reason ?? 'Salary Below Threshold',
+            'status' => $employee->employeeTimeRecords->first()->status,
+            'payroll_records' => [
+                'payroll_period_id' => $payrollPeriodId,
+                'total_receivables' => $totalReceivables,
+                'total_deductions' => $totalDeductions,
+                'basic_pay' => $computedSalary,
+                'gross_pay' => $grossPay,
+                'net_pay' => $netPay,
+                'currency' => 'PHP'
+            ]
         ];
     }
 
-    public function getEmployeePreviewForAll(int $payrollPeriodId): array
+    public function preview(string $type, int $payrollPeriodId, array $selectedEmployeeIds, int $perPage, int $page): array
     {
-        $result = [
-            'included' => [],
-            'excluded' => []
-        ];
+        $employees = $this->fetchEmployees($payrollPeriodId, $selectedEmployeeIds);
 
-        // Get all employees with necessary relationships
-        $employees = Employee::with([
-            'employeeTimeRecords' => function ($query) use ($payrollPeriodId) {
-                $query->where('payroll_period_id', $payrollPeriodId)->where('is_active', true);
-            },
-            'employeeReceivables' => function ($query) use ($payrollPeriodId) {
-                $query->where('payroll_period_id', $payrollPeriodId);
-            },
-            'employeeDeductions' => function ($query) use ($payrollPeriodId) {
-                $query->where('payroll_period_id', $payrollPeriodId);
-            },
-            'excludedEmployees' => function ($query) use ($payrollPeriodId) {
-                $query->where('payroll_period_id', $payrollPeriodId);
-            }
-        ])->orderBy('last_name')->get();
+        [$included, $excluded] = $this->calculateAndClassify($employees);
+
+        $collection = match ($type) {
+            'included' => collect($included),
+            'excluded' => collect($excluded),
+            default => collect([...$included, ...$excluded]),
+        };
+
+        $paginator = $this->paginate($collection, $perPage, $page);
+
+        return [
+            'data' => EmployeePreviewResource::collection($paginator),
+            'meta' => new PaginationResource($paginator),
+        ];
+    }
+
+    private function fetchEmployees(int $payrollPeriodId, array $selectedEmployeeIds): Collection
+    {
+        $query = Employee::with([
+            'employeeTimeRecords' => fn($q) =>
+                $q->where('payroll_period_id', $payrollPeriodId)
+                    ->where('is_active', true),
+
+            'employeeReceivables' => fn($q) =>
+                $q->where('payroll_period_id', $payrollPeriodId),
+
+            'employeeDeductions' => fn($q) =>
+                $q->where('payroll_period_id', $payrollPeriodId),
+
+            'excludedEmployees' => fn($q) =>
+                $q->where('payroll_period_id', $payrollPeriodId),
+        ])
+            ->orderBy('last_name');
+
+        if (!empty($selectedEmployeeIds)) {
+            $query->whereIn('id', $selectedEmployeeIds);
+        }
+
+        return $query->get();
+    }
+
+    private function calculateAndClassify(Collection $employees): array
+    {
+        $included = [];
+        $excluded = [];
 
         foreach ($employees as $employee) {
-            // Get computed salary (base salary from time records)
-            $computedSalary = $employee->employeeTimeRecords->first()->basic_pay ?? 0;
+            $record = $employee->employeeTimeRecords;
 
-            // Calculate total receivables
-            $totalReceivables = $employee->employeeReceivables->sum('amount');
+            $basic = $record->basic_pay ?? 0;
+            $receivables = $employee->employeeReceivables->sum('amount');
+            $deductions = $employee->employeeDeductions->sum('amount');
 
-            // Calculate total deductions
-            $totalDeductions = $employee->employeeDeductions->sum('amount');
+            $gross = $basic + $receivables;
+            $net = $gross - $deductions;
 
-            // Calculate gross pay and net pay
-            $grossPay = $computedSalary + $totalReceivables;
-            $netPay = $grossPay - $totalDeductions;
-
-            $area = json_decode($employee->assigned_area, true);
-
-            $employeeData = [
-                'id' => $employee->id,
-                'employee_number' => $employee->employee_number,
-                'full_name' => $employee->last_name . ', ' . $employee->first_name . ' ' . ($employee->middle_name ? strtoupper(substr($employee->middle_name, 0, 1)) . '.' : ''),
-                'designation' => $employee->designation,
-                'assigned_area' => [
-                    'details' => [
-                        'id' => $area['details']['id'] ?? null,
-                        'name' => $area['details']['name'] ?? null,
-                        'code' => $area['details']['code'] ?? null,
-                    ],
-                    'sector' => $area['sector'] ?? null
+            $payload = [
+                'employee' => $employee,
+                'payroll' => [
+                    'payroll_period_id' => $record->payroll_period_id,
+                    'employee_time_record_id' => $record->id,
+                    'basic_pay' => $basic,
+                    'total_receivables' => $receivables,
+                    'total_deductions' => $deductions,
+                    'gross_pay' => $gross,
+                    'net_pay' => $net,
                 ],
-                'reason' => $employee->excludedEmployees->reason ?? 'Salary Below Threshold',
-                'status' => $employee->employeeTimeRecords->first()->status,
-                'payroll_records' => [
-                    'payroll_period_id' => $payrollPeriodId,
-                    'total_receivables' => $totalReceivables,
-                    'total_deductions' => $totalDeductions,
-                    'basic_pay' => $computedSalary,
-                    'gross_pay' => $grossPay,
-                    'net_pay' => $netPay,
-                    'currency' => 'PHP'
-                ]
             ];
 
-            // Categorize based on salary
-            if ($netPay < 5000) {
-                $result['excluded'][] = $employeeData;
+            if ($net < 5000) {
+                $excluded[] = $payload;
             } else {
-                $result['included'][] = $employeeData;
+                $included[] = $payload;
             }
         }
 
-        return $result;
+        return [$included, $excluded];
+    }
+
+    private function paginate(Collection $data, int $perPage, int $page): LengthAwarePaginator
+    {
+        return new LengthAwarePaginator(
+            $data->forPage($page, $perPage)->values(),
+            $data->count(),
+            $perPage,
+            $page,
+        );
     }
 }
 

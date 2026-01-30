@@ -36,14 +36,8 @@ class EmployeePayrollController extends Controller
 
     public function index(Request $request)
     {
-        $data = $this->service->index($request);
 
-        return response()->json([
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-            'responseData' => EmployeePayrollResource::collection(resource: $data),
-        ], Response::HTTP_OK);
-
+        return 'generated employee payroll';
     }
     private function CalculateNightDifferential($totalNightDutyHours, $monthlyRate)
     {

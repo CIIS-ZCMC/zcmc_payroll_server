@@ -33,14 +33,14 @@ class EmployeeService
         return $this->interface->update($id, $data);
     }
 
-    public function getIncludedEmployee(): Collection
+    public function getIncludedEmployee(int $perPage, int $page): LengthAwarePaginator
     {
-        return $this->interface->getIncludedEmployee();
+        return $this->interface->getIncludedEmployee($perPage, $page);
     }
 
-    public function getExcludedEmployee(): Collection
+    public function getExcludedEmployee(int $perPage, int $page): LengthAwarePaginator
     {
-        return $this->interface->getExcludedEmployee();
+        return $this->interface->getExcludedEmployee($perPage, $page);
     }
 
     public function find(int $id)

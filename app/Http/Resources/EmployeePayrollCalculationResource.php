@@ -15,8 +15,14 @@ class EmployeePayrollCalculationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'employee' => new EmployeeResource($this->whenLoaded('employee')),
-            ''
+            'employee_id' => $this->payroll->employee_id,
+            'payroll_period_id' => $this->payroll_period_id,
+            'total_receivables' => $this->total_receivables,
+            'total_deductions' => $this->total_deductions,
+            'basic_pay' => $this->basic_pay,
+            'gross_pay' => $this->gross_pay,
+            'net_pay' => $this->net_pay,
+            'currency' => $this->currency
         ];
     }
 }

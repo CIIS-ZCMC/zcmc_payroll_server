@@ -133,6 +133,29 @@
                             "type": "integer",
                             "example": 1
                         }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
                     }
                 ],
                 "responses": {
@@ -202,15 +225,6 @@
                         "schema": {
                             "type": "string",
                             "default": "all"
-                        }
-                    },
-                    {
-                        "name": "paginate",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
                         }
                     },
                     {
@@ -703,6 +717,146 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Payroll is already locked"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employee-preview": {
+            "get": {
+                "tags": [
+                    "Employee Preview"
+                ],
+                "summary": "Get employee preview calculations",
+                "operationId": "8d1ed9780d4088dbdb829d8b56ee7e9b",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Type of preview to calculate",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "selected",
+                                "included",
+                                "excluded"
+                            ],
+                            "example": "all"
+                        }
+                    },
+                    {
+                        "name": "selected_employees",
+                        "in": "query",
+                        "description": "Array of employee IDs to calculate preview for",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "example": [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5
+                            ]
+                        }
+                    },
+                    {
+                        "name": "payroll_period_id",
+                        "in": "query",
+                        "description": "Payroll period ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Default employee preview response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "generated employee preview"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The selected employees field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "selected_employees": [
+                                                    "The selected employees field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
                                         }
                                     },
                                     "type": "object"
@@ -1949,6 +2103,10 @@
         {
             "name": "Employee Deductions",
             "description": "Employee Deductions"
+        },
+        {
+            "name": "Employee Preview",
+            "description": "Employee Preview"
         },
         {
             "name": "Employee Receivables",

@@ -17,7 +17,8 @@ class EmployeePayrollData extends Data
         public float $total_deductions,
         public float $total_receivables,
         public float $net_pay,
-    ) {}
+    ) {
+    }
 
     public static function fromRequest(Request $request): self
     {

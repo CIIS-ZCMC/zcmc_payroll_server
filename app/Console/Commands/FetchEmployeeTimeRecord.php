@@ -12,7 +12,11 @@ class FetchEmployeeTimeRecord extends Command
      *
      * @var string
      */
-    protected $signature = 'command:fetch-employee-time_records';
+    protected $signature = 'command:fetch-employee-time_records
+                            {--year= : The year to fetch time records}
+                            {--month= : The month to fetch time records}
+                            {--employment-type= : Employment type (regular, job_order)}
+                            {--period-type= : Period type (first_half or second_half)}';
 
     /**
      * The console command description.
@@ -44,25 +48,58 @@ class FetchEmployeeTimeRecord extends Command
     public function handle()
     {
         $today = now();
-        $day = $today->day;
-        $month = $today->month;
-        $year = $today->year;
 
-        // Check if today is a processing day for regular employees
-        if ($day === 13 || $day === 27) {
-            $periodType = $day === 13 ? 'first_half' : 'second_half';
-            $this->processEmployees('regular', $year, $month, $periodType);
+        $year = $this->option('year') ?? $today->year;
+        $month = $this->option('month') ?? $today->month;
+        $employmentType = $this->option('employment-type');
+        $periodType = $this->option('period-type');
+
+        /**
+         * ✅ MANUAL MODE
+         */
+        if ($employmentType && $periodType) {
+            $this->processEmployees($employmentType, $year, $month, $periodType);
+            $this->info('Manual employee time record fetching completed.');
+            return Command::SUCCESS;
         }
 
-        // Check if today is a processing day for job order employees
-        if (($day === 16) || ($day === 1 && $today->isFirstOfMonth())) {
-            $periodType = $day === 16 ? 'first_half' : 'second_half';
 
-            // If it's the 1st of the month, we need to adjust the month for second half of previous month
-            $processMonth = $periodType === 'first_half' ? $month : ($month === 1 ? 12 : $month - 1);
-            $processYear = $periodType === 'first_half' ? $year : ($month === 1 ? $year - 1 : $year);
+        $day = $today->day;
 
-            $this->processEmployees('job_order', $processYear, $processMonth, $periodType);
+        // // Check if today is a processing day for regular employees
+        // if ($day === 13 || $day === 27) {
+        //     $periodType = $day === 13 ? 'first_half' : 'second_half';
+        //     $this->processEmployees('regular', $year, $month, $periodType);
+        // }
+
+        // // Check if today is a processing day for job order employees
+        // if (($day === 16) || ($day === 1 && $today->isFirstOfMonth())) {
+        //     $periodType = $day === 16 ? 'first_half' : 'second_half';
+
+        //     // If it's the 1st of the month, we need to adjust the month for second half of previous month
+        //     $processMonth = $periodType === 'first_half' ? $month : ($month === 1 ? 12 : $month - 1);
+        //     $processYear = $periodType === 'first_half' ? $year : ($month === 1 ? $year - 1 : $year);
+
+        //     $this->processEmployees('job_order', $processYear, $processMonth, $periodType);
+        // }
+
+        // Regular employees
+        if ($day === 13) {
+            $this->processEmployees('regular', $year, $month, 'first_half');
+        }
+
+        if ($day === 27) {
+            $this->processEmployees('regular', $year, $month, 'second_half');
+        }
+
+        // Job order employees
+        if ($day === 16) {
+            $this->processEmployees('job_order', $year, $month, 'first_half');
+        }
+
+        if ($day === 1) {
+            $prev = $today->copy()->subMonth();
+            $this->processEmployees('job_order', $prev->year, $prev->month, 'second_half');
         }
 
         $this->info('Employee time record fetching completed.');
@@ -89,8 +126,8 @@ class FetchEmployeeTimeRecord extends Command
         ));
 
         try {
-            $fetchService = app(FetchEmployeeService::class);
-            $result = $fetchService->getEmployeesForPeriod($year, $month, $employmentType, $periodType);
+            $service = app(FetchEmployeeService::class);
+            $result = $service->getEmployeesForPeriod($year, $month, $employmentType, $periodType);
 
             if ($result === null) {
                 $this->warn(sprintf(

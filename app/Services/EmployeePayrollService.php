@@ -45,7 +45,6 @@ class EmployeePayrollService
     {
         return $this->interface->update($id, $data);
     }
-
     public function createOrUpdate(array $data): EmployeePayroll
     {
         $employees = $data['selected_employees'];

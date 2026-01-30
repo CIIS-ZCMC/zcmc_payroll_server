@@ -5,6 +5,7 @@ use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Employee\EmployeeAdjustmentController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Employee\EmployeeDeductionController;
+use App\Http\Controllers\Employee\EmployeePreviewController;
 use App\Http\Controllers\Employee\EmployeeReceivableController;
 use App\Http\Controllers\Employee\EmployeeTimeRecordController;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
@@ -63,8 +64,9 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('employee-deductions', EmployeeDeductionController::class);
     Route::apiResource('employee-receivables', EmployeeReceivableController::class);
     Route::apiResource('employee-time-records', EmployeeTimeRecordController::class);
-    Route::apiResource('employee-adjustments', EmployeeAdjustmentController::class)->only(['index', 'store', 'show']);
+    Route::apiResource('employee-adjustments', EmployeeAdjustmentController::class)->only(['store', 'show']);
     Route::apiResource('employee-deduction-trail', EmployeeDeductionTrailController::class)->only(['index', 'store', 'show', 'destroy']);
+    Route::apiResource('employee-preview', EmployeePreviewController::class)->only(['index', 'show']);
     Route::apiResource('excluded-employees', ExcludedEmployeeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     //Payroll Period
