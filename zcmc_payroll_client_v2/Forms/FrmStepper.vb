@@ -117,17 +117,19 @@ Public Class FrmStepper
                 RenderUserControl(uc)
 
             Case 7
-                'Dim ctx = payrollContext ' or pass Context from Step1/Step2
+                'Dim ctx = payrollContext ' or pass context from step1/step2
 
-                'Dim msg As String = $"Employment Type: {ctx.EmploymentType}" & vbCrLf &
-                '        $"Days of Duty: {ctx.DaysOfDuty}" & vbCrLf &
-                '        $"Salary Period: {ctx.SalaryPeriod}" & vbCrLf &
-                '        $"Payroll Type: {ctx.PayrollType}" & vbCrLf &
-                '        $"Included Employees: {String.Join(", ", ctx.IncludedEmployeeIds)}"
+                'Dim msg As String = $"employment type: {ctx.EmploymentType}" & vbCrLf &
+                '        $"days of duty: {ctx.DaysOfDuty}" & vbCrLf &
+                '        $"salary period: {ctx.SalaryPeriod}" & vbCrLf &
+                '        $"payroll type: {ctx.PayrollType}" & vbCrLf &
+                '        $"included employees: {String.Join(", ", ctx.IncludedEmployeeIds)}"
 
                 'MessageBox.Show(msg, "Payroll Context Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-                RenderUserControl(New UcPayrollStepThree())
+                Dim uc As New UcPayrollStepThree()
+                uc.Context = payrollContext
+                RenderUserControl(uc)
             Case 8 : RenderUserControl(New UcPayrollStepFour())
         End Select
     End Sub
@@ -168,6 +170,10 @@ Public Class FrmStepper
                 Return CType(pnlUserControlDisplay.Controls(0), UcManageEmployee).IsValid()
             Case 5
                 Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepOne).IsValid()
+            Case 6
+                Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepTwo).IsValid()
+            Case 7
+                Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepThree).IsValid()
             Case Else
                 Return True
         End Select

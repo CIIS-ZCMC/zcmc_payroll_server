@@ -41,4 +41,35 @@
             lbl.Visible = False
         End If
     End Function
+
+    Public Sub UpdatePaginationControls(pagination As PaginationContext, cmbPage As ComboBox, lblPerPage As Label, lblPage As Label,
+                                        btnPrevious As Button, btnNext As Button, pageChangedHandler As EventHandler)
+
+        If cmbPage.Items.Count = 0 OrElse cmbPage.Items.Count <> pagination.LastPage Then
+            cmbPage.Items.Clear()
+            For i As Integer = 1 To pagination.LastPage
+                cmbPage.Items.Add(i)
+            Next
+        End If
+
+        If cmbPage.SelectedItem Is Nothing OrElse CInt(cmbPage.SelectedItem) <> pagination.Page Then
+            RemoveHandler cmbPage.SelectedIndexChanged, pageChangedHandler
+            cmbPage.SelectedItem = pagination.Page
+            AddHandler cmbPage.SelectedIndexChanged, pageChangedHandler
+        End If
+
+        btnPrevious.Enabled = pagination.Page > 1
+        btnNext.Enabled = pagination.Page < pagination.LastPage
+
+        Dim startRecord As Integer = ((pagination.Page - 1) * pagination.PerPage) + 1
+        Dim endRecord As Integer = Math.Min(pagination.Page * pagination.PerPage, pagination.Total)
+
+        If pagination.Total = 0 Then
+            lblPerPage.Text = "No records found"
+        Else
+            lblPerPage.Text = $"{startRecord}-{endRecord} of {pagination.Total} employees"
+        End If
+
+        lblPage.Text = $"of {pagination.LastPage}"
+    End Sub
 End Class

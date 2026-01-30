@@ -39,16 +39,16 @@ Partial Class UcPayrollStepFour
         Me.gross_salary = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.total_deductions = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.net_pay = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.txtSearch = New System.Windows.Forms.TextBox()
         Me.panelTop = New System.Windows.Forms.Panel()
         Me.lblDescription = New System.Windows.Forms.Label()
         Me.lblTitle = New System.Windows.Forms.Label()
+        Me.txtSearch = New System.Windows.Forms.TextBox()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.panelContainer.SuspendLayout()
         Me.panelContent.SuspendLayout()
         CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.GroupBox1.SuspendLayout()
         Me.panelTop.SuspendLayout()
+        Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
         'panelContainer
@@ -77,10 +77,7 @@ Partial Class UcPayrollStepFour
         Me.dgvTable.AllowUserToDeleteRows = False
         Me.dgvTable.AllowUserToResizeColumns = False
         Me.dgvTable.AllowUserToResizeRows = False
-        DataGridViewCellStyle1.BackColor = System.Drawing.Color.Empty
         DataGridViewCellStyle1.Padding = New System.Windows.Forms.Padding(5)
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Empty
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.Empty
         Me.dgvTable.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvTable.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvTable.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders
@@ -176,28 +173,6 @@ Partial Class UcPayrollStepFour
         Me.net_pay.HeaderText = "Net Pay"
         Me.net_pay.Name = "net_pay"
         '
-        'GroupBox1
-        '
-        Me.GroupBox1.Controls.Add(Me.txtSearch)
-        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.GroupBox1.Location = New System.Drawing.Point(0, 0)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(957, 61)
-        Me.GroupBox1.TabIndex = 32
-        Me.GroupBox1.TabStop = False
-        '
-        'txtSearch
-        '
-        Me.txtSearch.BackColor = System.Drawing.Color.White
-        Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtSearch.Font = New System.Drawing.Font("Segoe UI Semibold", 9.75!, CType((System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Italic), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtSearch.ForeColor = System.Drawing.Color.Gray
-        Me.txtSearch.Location = New System.Drawing.Point(6, 18)
-        Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(186, 25)
-        Me.txtSearch.TabIndex = 35
-        Me.txtSearch.Text = "Type Employee Name"
-        '
         'panelTop
         '
         Me.panelTop.BackColor = System.Drawing.Color.FromArgb(CType(CType(10, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(48, Byte), Integer))
@@ -233,6 +208,28 @@ Partial Class UcPayrollStepFour
         Me.lblTitle.TabIndex = 2
         Me.lblTitle.Text = "Create Payroll - Step 2 of 4 : Selection of Employee"
         '
+        'txtSearch
+        '
+        Me.txtSearch.BackColor = System.Drawing.Color.White
+        Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.txtSearch.Font = New System.Drawing.Font("Segoe UI Semibold", 9.75!, CType((System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Italic), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtSearch.ForeColor = System.Drawing.Color.Gray
+        Me.txtSearch.Location = New System.Drawing.Point(6, 18)
+        Me.txtSearch.Name = "txtSearch"
+        Me.txtSearch.Size = New System.Drawing.Size(186, 25)
+        Me.txtSearch.TabIndex = 35
+        Me.txtSearch.Text = "Type Employee Name"
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.txtSearch)
+        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.GroupBox1.Location = New System.Drawing.Point(0, 0)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(957, 61)
+        Me.GroupBox1.TabIndex = 32
+        Me.GroupBox1.TabStop = False
+        '
         'UcPayrollStepFour
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -244,18 +241,16 @@ Partial Class UcPayrollStepFour
         Me.panelContainer.ResumeLayout(False)
         Me.panelContent.ResumeLayout(False)
         CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
         Me.panelTop.ResumeLayout(False)
         Me.panelTop.PerformLayout()
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
 
     Friend WithEvents panelContainer As Panel
     Friend WithEvents panelContent As Panel
-    Friend WithEvents GroupBox1 As GroupBox
-    Friend WithEvents txtSearch As TextBox
     Friend WithEvents panelTop As Panel
     Friend WithEvents lblDescription As Label
     Friend WithEvents lblTitle As Label
@@ -271,4 +266,6 @@ Partial Class UcPayrollStepFour
     Friend WithEvents gross_salary As DataGridViewTextBoxColumn
     Friend WithEvents total_deductions As DataGridViewTextBoxColumn
     Friend WithEvents net_pay As DataGridViewTextBoxColumn
+    Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents txtSearch As TextBox
 End Class

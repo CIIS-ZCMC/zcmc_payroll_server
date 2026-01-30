@@ -19,6 +19,8 @@
     Public urlEmployeeTimeRecord As String = "employee-time-records"
     Public urlEmployeeAdjustment As String = "employee-adjustments"
     Public urlEmployeeDeductionTrail As String = "employee-deduction-trail"
+    Public urlEmployeePreview As String = "employee-preview"
+
 
     Public urlPayrollPeriod As String = "payroll-periods"
     Public urlPayrollPeriodList As String = "payroll-period-lists"

@@ -1,11 +1,17 @@
-﻿Public Class EmployeeService
-    Public Async Function GetEmployee(dgv As DataGridView, type As String, paginate As Boolean, Optional perPage As Integer = 15, Optional page As Integer = 1) As Task(Of EmployeeResponse)
+﻿Imports System.Runtime.Remoting.Contexts
+
+Public Class EmployeeService
+    Public Async Function GetEmployee(dgv As DataGridView, type As String, paginate As Boolean, context As PaginationContext) As Task(Of EmployeeResponse)
         Try
             dgv.Rows.Clear()
 
-            Dim response = Await EmployeeApi.GetAll(type, paginate, perPage, page)
+            Dim response = Await EmployeeApi.GetAll(type, context.PerPage, context.Page)
 
             If response Is Nothing OrElse response.data Is Nothing Then Exit Function
+
+            context.Page = response.meta.current_page
+            context.LastPage = response.meta.last_page
+            context.Total = response.meta.total
 
             Dim i As Integer = 1
             For Each data As EmployeeResponse In response.data

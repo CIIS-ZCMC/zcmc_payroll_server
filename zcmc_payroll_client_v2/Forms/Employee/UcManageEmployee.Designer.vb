@@ -62,16 +62,23 @@ Partial Class UcManageEmployee
         Me.lblName = New System.Windows.Forms.Label()
         Me.Panel3 = New System.Windows.Forms.Panel()
         Me.btnClose = New System.Windows.Forms.Button()
-        Me.panelNavigator = New System.Windows.Forms.Panel()
-        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.panelButton = New System.Windows.Forms.Panel()
+        Me.panelPagination = New System.Windows.Forms.Panel()
+        Me.btnPrevious = New System.Windows.Forms.Button()
+        Me.lblPage = New System.Windows.Forms.Label()
+        Me.cmbPage = New System.Windows.Forms.ComboBox()
+        Me.btnNext = New System.Windows.Forms.Button()
+        Me.lblPerPage = New System.Windows.Forms.Label()
+        Me.cmbPerPage = New System.Windows.Forms.ComboBox()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.panelTop = New System.Windows.Forms.Panel()
-        Me.lblTitle = New System.Windows.Forms.Label()
+        Me.Panel4 = New System.Windows.Forms.Panel()
         Me.btnExcludedEmployee = New System.Windows.Forms.Button()
+        Me.lblTitle = New System.Windows.Forms.Label()
         Me.btnIncludedEmployee = New System.Windows.Forms.Button()
         Me.DataGridViewImageColumn1 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.tmrSlide = New System.Windows.Forms.Timer(Me.components)
-        Me.Panel4 = New System.Windows.Forms.Panel()
         Me.panelContainer.SuspendLayout()
         CType(Me.SplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer.Panel1.SuspendLayout()
@@ -82,7 +89,8 @@ Partial Class UcManageEmployee
         CType(Me.dgvList, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox1.SuspendLayout()
         Me.Panel3.SuspendLayout()
-        Me.panelNavigator.SuspendLayout()
+        Me.panelButton.SuspendLayout()
+        Me.panelPagination.SuspendLayout()
         Me.panelTop.SuspendLayout()
         Me.Panel4.SuspendLayout()
         Me.SuspendLayout()
@@ -90,7 +98,7 @@ Partial Class UcManageEmployee
         'panelContainer
         '
         Me.panelContainer.Controls.Add(Me.SplitContainer)
-        Me.panelContainer.Controls.Add(Me.panelNavigator)
+        Me.panelContainer.Controls.Add(Me.panelButton)
         Me.panelContainer.Controls.Add(Me.panelTop)
         Me.panelContainer.Dock = System.Windows.Forms.DockStyle.Fill
         Me.panelContainer.Location = New System.Drawing.Point(0, 0)
@@ -433,25 +441,128 @@ Partial Class UcManageEmployee
         Me.btnClose.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnClose.UseVisualStyleBackColor = False
         '
-        'panelNavigator
+        'panelButton
         '
-        Me.panelNavigator.Controls.Add(Me.Panel1)
-        Me.panelNavigator.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.panelNavigator.Location = New System.Drawing.Point(0, 521)
-        Me.panelNavigator.Name = "panelNavigator"
-        Me.panelNavigator.Size = New System.Drawing.Size(1107, 67)
-        Me.panelNavigator.TabIndex = 2
+        Me.panelButton.Controls.Add(Me.panelPagination)
+        Me.panelButton.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.panelButton.Location = New System.Drawing.Point(0, 521)
+        Me.panelButton.Name = "panelButton"
+        Me.panelButton.Size = New System.Drawing.Size(1107, 67)
+        Me.panelButton.TabIndex = 2
         '
-        'Panel1
+        'panelPagination
         '
-        Me.Panel1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.panelPagination.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Panel1.BackColor = System.Drawing.Color.White
-        Me.Panel1.Location = New System.Drawing.Point(14, 11)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(1082, 46)
-        Me.Panel1.TabIndex = 0
+        Me.panelPagination.BackColor = System.Drawing.Color.White
+        Me.panelPagination.Controls.Add(Me.btnPrevious)
+        Me.panelPagination.Controls.Add(Me.lblPage)
+        Me.panelPagination.Controls.Add(Me.cmbPage)
+        Me.panelPagination.Controls.Add(Me.btnNext)
+        Me.panelPagination.Controls.Add(Me.lblPerPage)
+        Me.panelPagination.Controls.Add(Me.cmbPerPage)
+        Me.panelPagination.Controls.Add(Me.Label1)
+        Me.panelPagination.Location = New System.Drawing.Point(14, 11)
+        Me.panelPagination.Name = "panelPagination"
+        Me.panelPagination.Size = New System.Drawing.Size(1082, 46)
+        Me.panelPagination.TabIndex = 0
+        '
+        'btnPrevious
+        '
+        Me.btnPrevious.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnPrevious.BackColor = System.Drawing.Color.White
+        Me.btnPrevious.FlatAppearance.BorderSize = 0
+        Me.btnPrevious.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnPrevious.Font = New System.Drawing.Font("Tahoma", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnPrevious.ForeColor = System.Drawing.Color.Black
+        Me.btnPrevious.Location = New System.Drawing.Point(839, 9)
+        Me.btnPrevious.Name = "btnPrevious"
+        Me.btnPrevious.Size = New System.Drawing.Size(62, 25)
+        Me.btnPrevious.TabIndex = 17
+        Me.btnPrevious.Text = "Prev"
+        Me.btnPrevious.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.btnPrevious.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnPrevious.UseVisualStyleBackColor = False
+        '
+        'lblPage
+        '
+        Me.lblPage.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.lblPage.AutoSize = True
+        Me.lblPage.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblPage.ForeColor = System.Drawing.Color.Black
+        Me.lblPage.Location = New System.Drawing.Point(968, 14)
+        Me.lblPage.Name = "lblPage"
+        Me.lblPage.Size = New System.Drawing.Size(43, 14)
+        Me.lblPage.TabIndex = 16
+        Me.lblPage.Text = "of 500"
+        Me.lblPage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'cmbPage
+        '
+        Me.cmbPage.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.cmbPage.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.cmbPage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cmbPage.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.cmbPage.Font = New System.Drawing.Font("Tahoma", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cmbPage.FormattingEnabled = True
+        Me.cmbPage.Items.AddRange(New Object() {"10", "20", "25", "50", "100"})
+        Me.cmbPage.Location = New System.Drawing.Point(907, 9)
+        Me.cmbPage.Name = "cmbPage"
+        Me.cmbPage.Size = New System.Drawing.Size(55, 24)
+        Me.cmbPage.TabIndex = 15
+        '
+        'btnNext
+        '
+        Me.btnNext.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnNext.BackColor = System.Drawing.Color.White
+        Me.btnNext.FlatAppearance.BorderSize = 0
+        Me.btnNext.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.btnNext.Font = New System.Drawing.Font("Tahoma", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnNext.ForeColor = System.Drawing.Color.Black
+        Me.btnNext.Location = New System.Drawing.Point(1017, 9)
+        Me.btnNext.Name = "btnNext"
+        Me.btnNext.Size = New System.Drawing.Size(62, 25)
+        Me.btnNext.TabIndex = 14
+        Me.btnNext.Text = "Next"
+        Me.btnNext.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnNext.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnNext.UseVisualStyleBackColor = False
+        '
+        'lblPerPage
+        '
+        Me.lblPerPage.AutoSize = True
+        Me.lblPerPage.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblPerPage.ForeColor = System.Drawing.Color.Black
+        Me.lblPerPage.Location = New System.Drawing.Point(166, 14)
+        Me.lblPerPage.Name = "lblPerPage"
+        Me.lblPerPage.Size = New System.Drawing.Size(136, 14)
+        Me.lblPerPage.TabIndex = 13
+        Me.lblPerPage.Text = "1-25 of 500 Employeee"
+        '
+        'cmbPerPage
+        '
+        Me.cmbPerPage.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.cmbPerPage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cmbPerPage.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.cmbPerPage.Font = New System.Drawing.Font("Tahoma", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cmbPerPage.FormattingEnabled = True
+        Me.cmbPerPage.Items.AddRange(New Object() {"15", "20", "25", "50", "100"})
+        Me.cmbPerPage.Location = New System.Drawing.Point(105, 9)
+        Me.cmbPerPage.Name = "cmbPerPage"
+        Me.cmbPerPage.Size = New System.Drawing.Size(55, 24)
+        Me.cmbPerPage.TabIndex = 12
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.ForeColor = System.Drawing.Color.Black
+        Me.Label1.Location = New System.Drawing.Point(8, 14)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(91, 14)
+        Me.Label1.TabIndex = 11
+        Me.Label1.Text = "Items per page"
         '
         'panelTop
         '
@@ -462,17 +573,19 @@ Partial Class UcManageEmployee
         Me.panelTop.Size = New System.Drawing.Size(1107, 56)
         Me.panelTop.TabIndex = 0
         '
-        'lblTitle
+        'Panel4
         '
-        Me.lblTitle.AutoSize = True
-        Me.lblTitle.Font = New System.Drawing.Font("Tahoma", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        Me.lblTitle.Location = New System.Drawing.Point(6, 9)
-        Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(344, 25)
-        Me.lblTitle.TabIndex = 2
-        Me.lblTitle.Text = "Zamboanga City Medical Center"
-        Me.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.Panel4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Panel4.BackColor = System.Drawing.Color.White
+        Me.Panel4.Controls.Add(Me.btnExcludedEmployee)
+        Me.Panel4.Controls.Add(Me.lblTitle)
+        Me.Panel4.Controls.Add(Me.btnIncludedEmployee)
+        Me.Panel4.Location = New System.Drawing.Point(14, 8)
+        Me.Panel4.Name = "Panel4"
+        Me.Panel4.Size = New System.Drawing.Size(1082, 43)
+        Me.Panel4.TabIndex = 3
         '
         'btnExcludedEmployee
         '
@@ -489,6 +602,18 @@ Partial Class UcManageEmployee
         Me.btnExcludedEmployee.TabIndex = 1
         Me.btnExcludedEmployee.Text = "Excluded Employee"
         Me.btnExcludedEmployee.UseVisualStyleBackColor = False
+        '
+        'lblTitle
+        '
+        Me.lblTitle.AutoSize = True
+        Me.lblTitle.Font = New System.Drawing.Font("Tahoma", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.lblTitle.Location = New System.Drawing.Point(6, 9)
+        Me.lblTitle.Name = "lblTitle"
+        Me.lblTitle.Size = New System.Drawing.Size(344, 25)
+        Me.lblTitle.TabIndex = 2
+        Me.lblTitle.Text = "Zamboanga City Medical Center"
+        Me.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'btnIncludedEmployee
         '
@@ -546,20 +671,6 @@ Partial Class UcManageEmployee
         '
         Me.tmrSlide.Interval = 10
         '
-        'Panel4
-        '
-        Me.Panel4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Panel4.BackColor = System.Drawing.Color.White
-        Me.Panel4.Controls.Add(Me.btnExcludedEmployee)
-        Me.Panel4.Controls.Add(Me.lblTitle)
-        Me.Panel4.Controls.Add(Me.btnIncludedEmployee)
-        Me.Panel4.Location = New System.Drawing.Point(14, 8)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(1082, 43)
-        Me.Panel4.TabIndex = 3
-        '
         'UcManageEmployee
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
@@ -580,7 +691,9 @@ Partial Class UcManageEmployee
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
         Me.Panel3.ResumeLayout(False)
-        Me.panelNavigator.ResumeLayout(False)
+        Me.panelButton.ResumeLayout(False)
+        Me.panelPagination.ResumeLayout(False)
+        Me.panelPagination.PerformLayout()
         Me.panelTop.ResumeLayout(False)
         Me.Panel4.ResumeLayout(False)
         Me.Panel4.PerformLayout()
@@ -592,8 +705,8 @@ Partial Class UcManageEmployee
     Friend WithEvents panelTop As Panel
     Friend WithEvents btnExcludedEmployee As Button
     Friend WithEvents btnIncludedEmployee As Button
-    Friend WithEvents panelNavigator As Panel
-    Friend WithEvents Panel1 As Panel
+    Friend WithEvents panelButton As Panel
+    Friend WithEvents panelPagination As Panel
     Friend WithEvents SplitContainer As SplitContainer
     Friend WithEvents Panel2 As Panel
     Friend WithEvents dgvTable As DataGridView
@@ -627,4 +740,11 @@ Partial Class UcManageEmployee
     Friend WithEvents action_manage_receivables As DataGridViewButtonColumn
     Friend WithEvents lblTitle As Label
     Friend WithEvents Panel4 As Panel
+    Friend WithEvents cmbPerPage As ComboBox
+    Friend WithEvents Label1 As Label
+    Friend WithEvents lblPerPage As Label
+    Friend WithEvents btnNext As Button
+    Friend WithEvents lblPage As Label
+    Friend WithEvents cmbPage As ComboBox
+    Friend WithEvents btnPrevious As Button
 End Class

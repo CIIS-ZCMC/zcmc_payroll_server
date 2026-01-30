@@ -120,6 +120,8 @@
     <Compile Include="Api\EmployeeAdjustmentApi.vb" />
     <Compile Include="Api\EmployeeApi.vb" />
     <Compile Include="Api\EmployeeDeductionApi.vb" />
+    <Compile Include="Api\EmployeePayrollApi.vb" />
+    <Compile Include="Api\EmployeePreviewApi.vb" />
     <Compile Include="Api\EmployeeReceivableApi.vb" />
     <Compile Include="Api\GeneralPayrollApi.vb" />
     <Compile Include="Api\ImportDeductionApi.vb" />
@@ -130,8 +132,10 @@
     <Compile Include="Config\AppState.vb" />
     <Compile Include="Config\Routes.vb" />
     <Compile Include="Config\ServiceErrorCode.vb" />
+    <Compile Include="DTO\Context\PaginationContext.vb" />
     <Compile Include="DTO\Context\PayrollWizardContext.vb" />
     <Compile Include="DTO\EmployeeDeductionDto.vb" />
+    <Compile Include="DTO\EmployeePayrollDto.vb" />
     <Compile Include="DTO\EmployeeReceivableDto.vb" />
     <Compile Include="Form1.vb">
       <SubType>Form</SubType>
@@ -330,6 +334,7 @@
     <Compile Include="Models\EmployeeComputedSalaryResponse.vb" />
     <Compile Include="Models\EmployeeDeductionResponse.vb" />
     <Compile Include="Models\EmployeePayrollResponse.vb" />
+    <Compile Include="Models\EmployeePreviewResponse.vb" />
     <Compile Include="Models\EmployeeReceivableResponse.vb" />
     <Compile Include="Models\EmployeeResponse.vb" />
     <Compile Include="Models\EmployeeSalaryResponse.vb" />
@@ -355,8 +360,8 @@
     <Compile Include="Services\AuthService.vb" />
     <Compile Include="Services\DeductionGroupService.vb" />
     <Compile Include="Services\DeductionService.vb" />
-    <Compile Include="Services\EmployeeAdjustmentService.vb" />
     <Compile Include="Services\EmployeeDeductionService.vb" />
+    <Compile Include="Services\EmployeePreviewService.vb" />
     <Compile Include="Services\EmployeeReceivableService.vb" />
     <Compile Include="Services\EmployeeService.vb" />
     <Compile Include="Services\GeneralPayrollService.vb" />

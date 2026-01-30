@@ -1,7 +1,10 @@
 ﻿Public Class UcManageEmployee
     Dim helper As New Helpers
+
     Private service As New EmployeeService
-    Private adjustmentService As New EmployeeAdjustmentService
+    Private preview As New EmployeePreviewService
+
+    Public Property Pagination As New PaginationContext()
 
     Public isManageDeduction As Boolean = False
     Public isManageReceivable As Boolean = False
@@ -9,6 +12,9 @@
 
     Public isInclude As Boolean = False
     Public isExclude As Boolean = False
+
+    Dim perPage As Integer = 10
+    Dim page As Integer = 1
 
     ' ===== Animation settings =====
     Private Const PANEL_WIDTH As Integer = 350
@@ -42,6 +48,11 @@
     End Function
 
     Private Async Sub UcManageEmployee_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        cmbPerPage.SelectedIndex = 0
+
+        Pagination.PerPage = CInt(cmbPerPage.SelectedItem)
+        Pagination.Page = 1
+
         If isManageDeduction Then
             lblTitle.Text = "Manage Employee Deductions"
             dgvTable.Columns(11).Visible = True
@@ -66,12 +77,12 @@
             btnIncludedEmployee.Enabled = False
             btnExcludedEmployee.Enabled = False
 
-            Await LoadingHelper.RunAsync(
-                Async Function()
-                    Await adjustmentService.GetEmployeeAdjustment(dgvTable, "isIncluded", False)
-                End Function,
-                True
-            )
+            'Await LoadingHelper.RunAsync(
+            '    Async Function()
+            '        Await adjustmentService.GetEmployeeAdjustment(dgvTable, "isExcluded", False)
+            '    End Function,
+            '    True
+            ')
         End If
 
         helper.CheckDgvRows(dgvTable, lblMessage)
@@ -83,12 +94,8 @@
         isInclude = True
         isExclude = False
 
-        Await LoadingHelper.RunAsync(
-            Async Function()
-                Await service.GetEmployee(dgvTable, "isIncluded", False)
-            End Function,
-            True
-        )
+        Pagination.Page = 1
+        Await LoadEmployees()
 
         HideEmployeeInfo()
         helper.CheckDgvRows(dgvTable, lblMessage)
@@ -104,12 +111,8 @@
         isInclude = False
         isExclude = True
 
-        Await LoadingHelper.RunAsync(
-            Async Function()
-                Await service.GetEmployee(dgvTable, "isExcluded", False)
-            End Function,
-            True
-        )
+        Pagination.Page = 1
+        Await LoadEmployees()
 
         HideEmployeeInfo()
         helper.CheckDgvRows(dgvTable, lblMessage)
@@ -231,4 +234,58 @@
             End If
         End If
     End Sub
+
+    Private Async Sub cmbPerPage_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPerPage.SelectedIndexChanged
+        If cmbPerPage.SelectedItem Is Nothing Then Exit Sub
+
+        Pagination.PerPage = CInt(cmbPerPage.SelectedItem)
+        Pagination.Page = 1
+
+        Await LoadEmployees()
+    End Sub
+
+    Private Async Sub cmbPage_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPage.SelectedIndexChanged
+        If cmbPage.SelectedItem Is Nothing Then Exit Sub
+
+        Pagination.Page = CInt(cmbPage.SelectedItem)
+        Await LoadEmployees()
+    End Sub
+
+
+    Private Async Sub btnPrevious_Click(sender As Object, e As EventArgs) Handles btnPrevious.Click
+        If Pagination.Page <= 1 Then Exit Sub
+
+        Pagination.Page -= 1
+        Await LoadEmployees()
+    End Sub
+
+    Private Async Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click
+        If Pagination.Page >= Pagination.LastPage Then Exit Sub
+
+        Pagination.Page += 1
+        Await LoadEmployees()
+    End Sub
+
+    Private Async Function LoadEmployees() As Task
+        Dim type As String = If(isInclude, "isIncluded", "isExcluded")
+
+        If isManageBoth Then
+            Await LoadingHelper.RunAsync(
+                Async Function()
+                    Await preview.GetExcluded(dgvTable, Nothing, Pagination)
+                End Function,
+                True
+            )
+        Else
+            Await LoadingHelper.RunAsync(
+                Async Function()
+                    Await service.GetEmployee(dgvTable, type, True, Pagination)
+                End Function,
+                True
+            )
+        End If
+
+        helper.UpdatePaginationControls(Pagination, cmbPage, lblPerPage, lblPage, btnPrevious, btnNext, AddressOf cmbPage_SelectedIndexChanged)
+        helper.CheckDgvRows(dgvTable, lblMessage)
+    End Function
 End Class

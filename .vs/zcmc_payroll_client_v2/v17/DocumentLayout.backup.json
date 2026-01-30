@@ -1,12 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\System\\zcmc_payroll_client_v2\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|d:\\system\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\forms\\modals\\frmloading.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
-      "RelativeMoniker": "D:0:0:{3ACE45AB-CD12-4A78-97E9-FAD1FE433F1D}|zcmc_payroll_client_v2\\zcmc_payroll_client_v2.vbproj|solutionrelative:zcmc_payroll_client_v2\\forms\\modals\\frmloading.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -14,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -23,18 +18,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "FrmLoading.vb [Design]",
-              "DocumentMoniker": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb",
-              "RelativeDocumentMoniker": "zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb",
-              "ToolTip": "D:\\System\\zcmc_payroll_client_v2\\zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb [Design]",
-              "RelativeToolTip": "zcmc_payroll_client_v2\\Forms\\Modals\\FrmLoading.vb [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-01-24T08:38:08.742Z",
-              "EditorCaption": " [Design]"
             }
           ]
         }
