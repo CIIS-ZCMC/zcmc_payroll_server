@@ -96,4 +96,13 @@ class PayrollPeriodRepository implements PayrollPeriodInterface
         return $this->model->find($id)->locked_at !== null;
     }
 
+    public function upsert(array $data): int
+    {
+        return $this->model->upsert(
+            $data,
+            ['month', 'year', 'employment_type', 'period_type'],
+            ['period_start', 'period_end', 'is_active', 'locked_at']
+        );
+    }
+
 }

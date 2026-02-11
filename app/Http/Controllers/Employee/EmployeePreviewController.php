@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PaginationResource;
+use App\Models\Employee;
 use App\Services\EmployeePreviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

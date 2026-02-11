@@ -31,7 +31,7 @@ class EmployeeDeductionController extends Controller
      *     description="Store single or multiple employee deductions. For bulk operations, use the 'deductions' array.",
      *     tags={"Employee Deductions"},
      *     security={{"bearerAuth": {}}},
-     *     @OA\RequestBody(
+     *     @OA\RequestBody( 
      *         required=true,
      *         @OA\JsonContent(
      *             oneOf={
@@ -40,7 +40,7 @@ class EmployeeDeductionController extends Controller
      *                     @OA\Property(property="payroll_period_id", type="integer", example=1),
      *                     @OA\Property(property="employee_id", type="integer", example=123),
      *                     @OA\Property(property="deduction_id", type="integer", example=1),
-     *                     @OA\Property(property="frequency", type="string", example="monthly"),
+     *                     @OA\Property(property="billing_cycle", type="string", example="monthly"),
      *                     @OA\Property(property="amount", type="number", format="float", example=1000.00),
      *                     @OA\Property(property="percentage", type="number", format="float", example=10.5),
      *                     @OA\Property(property="date_from", type="string", format="date", example="2025-01-01"),
@@ -52,7 +52,7 @@ class EmployeeDeductionController extends Controller
      *                     @OA\Property(property="isDifferential", type="string", example="no"),
      *                     @OA\Property(property="reason", type="string", example="Monthly loan payment"),
      *                     @OA\Property(property="status", type="string", example="active"),
-     *                     @OA\Property(property="willDeduct", type="string", example="yes"),
+     *                     @OA\Property(property="deduct_at", type="string", example="yes"),
      *                     @OA\Property(property="stopped_at", type="string", format="date-time", example=null),
      *                     @OA\Property(property="completed_at", type="string", format="date-time", example=null)
      *                 ),
@@ -124,7 +124,8 @@ class EmployeeDeductionController extends Controller
                     $employeeId = Employee::where('employee_number', $item['employee_number'])->value('id');
 
                     if (!$employeeId) {
-                        abort(422, "Employee {$item['employee_number']} not found.");
+                        // abort(422, "Employee {$item['employee_number']} not found.");
+                        continue;
                     }
 
                     $dtos[] = EmployeeDeductionData::fromRequest(array_merge(
@@ -198,14 +199,14 @@ class EmployeeDeductionController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             required={"mode", "payroll_period_id", "employee_id", "frequency", "reason", "is_default"},
+     *         @OA\JsonContent( 
+     *             required={"mode", "payroll_period_id", "employee_id", "billing_cycle", "reason", "is_default"},
      *             @OA\Property(property="mode", type="string", enum={"toComplete", "toStop", "toUpdate"}, example="toUpdate", description="Action to perform on the deduction"),
      *             @OA\Property(property="payroll_period_id", type="integer", example=1),
      *             @OA\Property(property="employee_id", type="integer", example=1),
      *             @OA\Property(property="amount", type="number", format="float", nullable=true, example=1000.50),
      *             @OA\Property(property="percentage", type="number", format="float", nullable=true, example=5.5),
-     *             @OA\Property(property="frequency", type="string", example="monthly"),
+     *             @OA\Property(property="billing_cycle", type="string", example="monthly"),
      *             @OA\Property(property="with_terms", type="boolean", nullable=true, example=false),
      *             @OA\Property(property="total_term", type="integer", nullable=true, example=12),
      *             @OA\Property(property="reason", type="string", example="Salary loan"),
@@ -237,7 +238,7 @@ class EmployeeDeductionController extends Controller
             'employee_id' => 'required|integer',
             'amount' => 'nullable|numeric',
             'percentage' => 'nullable|numeric',
-            'frequency' => 'required|string',
+            'billing_cycle' => 'required|string',
             'with_terms' => 'nullable|boolean',
             'total_term' => 'nullable|integer',
             'reason' => 'required|string',

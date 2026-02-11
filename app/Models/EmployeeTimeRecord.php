@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeTimeRecord extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'employee_time_records';
 
@@ -16,13 +17,6 @@ class EmployeeTimeRecord extends Model
     protected $fillable = [
         'employee_id',
         'payroll_period_id',
-        'minutes',
-        'daily',
-        'hourly',
-        'absent_rate',
-        'undertime_rate',
-        'base_salary',
-        'basic_pay',
         'total_working_minutes',
         'total_working_minutes_with_leave',
         'total_working_hours',
@@ -41,27 +35,26 @@ class EmployeeTimeRecord extends Model
         'no_of_invalid_entry',
         'no_of_day_off',
         'no_of_schedule',
-        'night_differentials',
+        'night_duties',
         'absent_dates',
-        'schedules',
         'month',
         'year',
         'from',
         'to',
-        'is_night_shift',
+        'status',
         'is_active',
-        'status'
+        'locked_at',
     ];
 
-    protected $casts = [
-        'minutes' => 'encrypted',
-        'daily' => 'encrypted',
-        'hourly' => 'encrypted',
-        'absent_rate' => 'encrypted',
-        'undertime_rate' => 'encrypted',
-        'base_salary' => 'encrypted',
-        'basic_pay' => 'encrypted',
-    ];
+    // protected $casts = [
+    //     'minutes' => 'encrypted',
+    //     'daily' => 'encrypted',
+    //     'hourly' => 'encrypted',
+    //     'absent_rate' => 'encrypted',
+    //     'undertime_rate' => 'encrypted',
+    //     'base_salary' => 'encrypted',
+    //     'basic_pay' => 'encrypted',
+    // ];
 
     public function employee()
     {

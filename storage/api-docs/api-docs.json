@@ -102,114 +102,6 @@
                 ]
             }
         },
-        "/api/employee-adjustments": {
-            "get": {
-                "tags": [
-                    "Employee Adjustments"
-                ],
-                "summary": "Get employee adjustments (included/excluded)",
-                "operationId": "1e5e0dc26dfcd21c326f7236dd3efad5",
-                "parameters": [
-                    {
-                        "name": "type",
-                        "in": "query",
-                        "description": "Filter type for employee adjustments",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "isIncluded",
-                                "isExcluded"
-                            ],
-                            "example": "isIncluded"
-                        }
-                    },
-                    {
-                        "name": "payroll_period_id",
-                        "in": "query",
-                        "description": "Payroll period ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Number of items per page",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "maximum": 100,
-                            "minimum": 1,
-                            "example": 15
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Page number",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Employee adjustments retrieved successfully"
-                    },
-                    "400": {
-                        "description": "Bad request - missing parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The type field is required."
-                                        },
-                                        "errors": {
-                                            "type": "object",
-                                            "example": {
-                                                "type": [
-                                                    "The type field is required."
-                                                ]
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/employees": {
             "get": {
                 "tags": [
@@ -320,7 +212,7 @@
                                                 "type": "integer",
                                                 "example": 1
                                             },
-                                            "frequency": {
+                                            "billing_cycle": {
                                                 "type": "string",
                                                 "example": "monthly"
                                             },
@@ -372,7 +264,7 @@
                                                 "type": "string",
                                                 "example": "active"
                                             },
-                                            "willDeduct": {
+                                            "deduct_at": {
                                                 "type": "string",
                                                 "example": "yes"
                                             },
@@ -580,7 +472,7 @@
                                     "mode",
                                     "payroll_period_id",
                                     "employee_id",
-                                    "frequency",
+                                    "billing_cycle",
                                     "reason",
                                     "is_default"
                                 ],
@@ -615,7 +507,7 @@
                                         "example": 5.5,
                                         "nullable": true
                                     },
-                                    "frequency": {
+                                    "billing_cycle": {
                                         "type": "string",
                                         "example": "monthly"
                                     },
@@ -890,7 +782,7 @@
                                             "payroll_period_id",
                                             "employee_id",
                                             "receivable_id",
-                                            "frequency",
+                                            "billing_cycle",
                                             "reason",
                                             "is_default"
                                         ],
@@ -907,7 +799,7 @@
                                                 "type": "integer",
                                                 "example": 1
                                             },
-                                            "frequency": {
+                                            "billing_cycle": {
                                                 "type": "string",
                                                 "example": "monthly"
                                             },
@@ -950,7 +842,7 @@
                                                     "required": [
                                                         "employee_number",
                                                         "receivable_id",
-                                                        "frequency",
+                                                        "billing_cycle",
                                                         "reason",
                                                         "is_default"
                                                     ],
@@ -963,7 +855,7 @@
                                                             "type": "integer",
                                                             "example": 1
                                                         },
-                                                        "frequency": {
+                                                        "billing_cycle": {
                                                             "type": "string",
                                                             "example": "monthly"
                                                         },
@@ -1099,7 +991,7 @@
                                     "mode",
                                     "payroll_period_id",
                                     "employee_id",
-                                    "frequency",
+                                    "billing_cycle",
                                     "reason",
                                     "is_default"
                                 ],
@@ -1133,7 +1025,7 @@
                                         "example": 5.5,
                                         "nullable": true
                                     },
-                                    "frequency": {
+                                    "billing_cycle": {
                                         "type": "string",
                                         "example": "monthly"
                                     },
@@ -1241,6 +1133,98 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Payroll is already locked"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employee-payrolls": {
+            "get": {
+                "tags": [
+                    "Employee Payroll"
+                ],
+                "summary": "Get employee payroll",
+                "operationId": "0419f10f18ba4c8a53727d9e670f15c4",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Default employee payroll response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "generated employee payroll"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The selected employees field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "selected_employees": [
+                                                    "The selected employees field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
                                         }
                                     },
                                     "type": "object"
@@ -2093,10 +2077,6 @@
             "description": "Authentication"
         },
         {
-            "name": "Employee Adjustments",
-            "description": "Employee Adjustments"
-        },
-        {
             "name": "Employees",
             "description": "Employees"
         },
@@ -2111,6 +2091,10 @@
         {
             "name": "Employee Receivables",
             "description": "Employee Receivables"
+        },
+        {
+            "name": "Employee Payroll",
+            "description": "Employee Payroll"
         },
         {
             "name": "Payroll Periods",

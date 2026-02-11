@@ -38,7 +38,7 @@ class EmployeeReceivableRepository implements EmployeeReceivableInterface
         return $this->model->upsert(
             $data,
             ['payroll_period_id', 'employee_id', 'receivable_id'],
-            ['amount', 'frequency', 'is_default', 'updated_at']
+            ['amount', 'billing_cycle', 'is_default', 'updated_at']
         );
     }
 

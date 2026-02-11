@@ -42,7 +42,7 @@ class EmployeeDeductionRequest extends FormRequest
             'payroll_period_id' => 'required|integer',
             'employee_id' => 'required|integer',
             'deduction_id' => 'required|integer',
-            'frequency' => 'required|string',
+            'billing_cycle' => 'required|string',
             'amount' => 'nullable|numeric',
             'percentage' => 'nullable|numeric',
             'date_from' => 'nullable|date',
@@ -54,7 +54,7 @@ class EmployeeDeductionRequest extends FormRequest
             'isDifferential' => 'nullable|string',
             'reason' => 'nullable|string|max:500',
             'status' => 'nullable|string',
-            'willDeduct' => 'nullable|string',
+            'deduct_at' => 'nullable|string',
             'stopped_at' => 'nullable|date',
             'completed_at' => 'nullable|date',
         ];

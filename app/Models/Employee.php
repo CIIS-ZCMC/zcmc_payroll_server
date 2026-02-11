@@ -29,6 +29,17 @@ class Employee extends Model
     ];
     public $timestamps = true;
 
+    protected $appends = ['full_name'];
+
+    public function getFullNameAttribute(): string
+    {
+        $middleInitial = $this->middle_name
+            ? strtoupper(substr($this->middle_name, 0, 1)) . '.'
+            : '';
+
+        return "{$this->last_name}, {$this->first_name} {$middleInitial}";
+    }
+
     public function employeeSalary()
     {
         return $this->hasOne(EmployeeSalary::class)->latestOfMany();
@@ -36,12 +47,12 @@ class Employee extends Model
 
     public function employeeTimeRecords()
     {
-        return $this->hasOne(EmployeeTimeRecord::class); // Change hasMany to hasOne
+        return $this->hasOne(EmployeeTimeRecord::class);
     }
 
-    public function employeeComputedSalaries()
+    public function employeeComputedSalary()
     {
-        return $this->hasMany(EmployeeComputedSalary::class);
+        return $this->hasOne(EmployeeComputedSalary::class);
     }
 
     public function employeeDeductions()

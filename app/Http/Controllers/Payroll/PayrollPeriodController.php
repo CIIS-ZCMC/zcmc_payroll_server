@@ -77,6 +77,7 @@ class PayrollPeriodController extends Controller
     public function index(Request $request)
     {
         $has_filter = $request->boolean('has_filter', false);
+
         $parameters = [
             'employment_type' => $request->employment_type,
             'period_type' => $request->period_type,

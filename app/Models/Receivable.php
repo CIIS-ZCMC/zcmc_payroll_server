@@ -20,14 +20,11 @@ class Receivable extends Model
         'name',
         'code',
         'type',
-        'hasDate',
-        'date_start',
-        'date_end',
-        'condition_operator',
-        'condition_value',
+        'billing_cycle',
         'percent_value',
         'fixed_amount',
-        'billing_cycle',
+        'date_start',
+        'date_end',
         'status',
     ];
 

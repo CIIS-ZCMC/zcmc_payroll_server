@@ -17,23 +17,41 @@ class CreateEmployeeReceivablesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('payroll_period_id')->nullable();
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
+
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')->references('id')->on('employees');
+
             $table->unsignedBigInteger('receivable_id');
             $table->foreign('receivable_id')->references('id')->on('receivables');
-            $table->string('frequency');
-            $table->double('amount')->nullable();
-            $table->double('percentage')->nullable();
+
+            $table->string('billing_cycle');
+            $table->decimal('amount')->nullable();
+            $table->decimal('percentage')->nullable();
+
             $table->string('date_from')->nullable();
             $table->string('date_to')->nullable();
+
             $table->integer('total_paid')->nullable();
-            $table->boolean('is_default');
+
             $table->string('reason')->nullable();
             $table->string('status')->nullable();
-            $table->string('stopped_at')->nullable();
-            $table->string('completed_at')->nullable();
+
+            $table->boolean('is_default');
+
+            $table->date('effective_date')->nullable();
+            $table->date('received_at')->nullable();
+
+            $table->dateTime('stopped_at')->nullable();
+            $table->dateTime('completed_at')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
+
+            $table->unique(
+                ['employee_id', 'receivable_id', 'payroll_period_id'],
+                'employee_receivable_unique'
+            );
+
         });
     }
 

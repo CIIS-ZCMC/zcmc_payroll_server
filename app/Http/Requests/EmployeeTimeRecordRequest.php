@@ -51,7 +51,7 @@ class EmployeeTimeRecordRequest extends FormRequest
             'no_of_invalid_entry' => 'required|integer',
             'no_of_day_off' => 'required|integer',
             'no_of_schedule' => 'required|integer',
-            'night_differentials' => 'nullable|array',
+            'night_duties' => 'nullable|array',
             'absent_dates' => 'nullable|string',
             'month' => 'required|integer|between:1,12',
             'year' => 'required|integer|digits:4',

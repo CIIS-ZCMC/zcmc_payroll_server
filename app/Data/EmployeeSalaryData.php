@@ -14,10 +14,9 @@ class EmployeeSalaryData extends Data
         public string $base_salary,
         public int $salary_grade,
         public int $salary_step,
-        public string $month,
-        public string $year,
         public bool $is_active,
-    ) { }
+    ) {
+    }
 
     public static function fromRequest(Request $request): self
     {
@@ -28,8 +27,6 @@ class EmployeeSalaryData extends Data
             $request['base_salary'],
             $request['salary_grade'],
             $request['salary_step'],
-            $request['month'],
-            $request['year'],
             $request['is_active'],
         );
     }
@@ -43,8 +40,6 @@ class EmployeeSalaryData extends Data
             'base_salary' => $this->base_salary,
             'salary_grade' => $this->salary_grade,
             'salary_step' => $this->salary_step,
-            'month' => $this->month,
-            'year' => $this->year,
             'is_active' => $this->is_active,
         ];
     }

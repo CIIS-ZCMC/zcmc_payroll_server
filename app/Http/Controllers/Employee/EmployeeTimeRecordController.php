@@ -71,7 +71,7 @@ class EmployeeTimeRecordController extends Controller
             'no_of_invalid_entry' => 'nullable|integer',
             'no_of_day_off' => 'nullable|integer',
             'no_of_schedule' => 'nullable|integer',
-            'night_differentials' => 'nullable|integer',
+            'night_duties' => 'nullable|integer',
             'absent_dates' => 'nullable|string',
             'month' => 'nullable|integer|between:1,12',
             'year' => 'nullable|integer|digits:4',

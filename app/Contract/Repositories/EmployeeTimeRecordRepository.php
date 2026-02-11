@@ -74,4 +74,40 @@ class EmployeeTimeRecordRepository implements EmployeeTimeRecordInterface
     {
         return $this->model->find($id)->update(['status' => "excluded"]);
     }
+
+    public function upsert(array $data): int
+    {
+        return $this->model->upsert(
+            $data,
+            ['employee_id', 'payroll_period_id'],
+            [
+                'total_working_minutes',
+                'total_working_minutes_with_leave',
+                'total_working_hours',
+                'total_working_hours_with_leave',
+                'total_overtime_minutes',
+                'total_undertime_minutes',
+                'total_official_business_minutes',
+                'total_official_time_minutes',
+                'total_leave_minutes',
+                'total_night_duty_hours',
+                'no_of_present_days',
+                'no_of_present_days_with_leave',
+                'no_of_leave_wo_pay',
+                'no_of_leave_w_pay',
+                'no_of_absences',
+                'no_of_invalid_entry',
+                'no_of_day_off',
+                'no_of_schedule',
+                'night_duties',
+                'absent_dates',
+                'month',
+                'year',
+                'from',
+                'to',
+                'status',
+                'is_active'
+            ]
+        );
+    }
 }

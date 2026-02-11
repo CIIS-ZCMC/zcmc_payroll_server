@@ -14,4 +14,5 @@ interface ExcludedEmployeeInterface
     public function update(int $id, array $data): ExcludedEmployee;
     public function delete(int $id): bool;
     public function createOrUpdate(array $data): ExcludedEmployee;
+    public function upsert(array $data): int;
 }

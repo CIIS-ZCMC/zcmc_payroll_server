@@ -60,7 +60,7 @@ class EmployeeDeductionService
         }
 
         return $this->interface->update($id, [
-            'frequency' => $data['frequency'],
+            'billing_cycle' => $data['billing_cycle'],
             'amount' => $amount,
             'percentage' => $percentage,
             'with_terms' => $data['with_terms'],

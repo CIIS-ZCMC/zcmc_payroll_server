@@ -21,11 +21,13 @@ class EmployeeResource extends JsonResource
             'id' => $this->id,
             'employee_profile_id' => $this->employee_profile_id,
             'employee_number' => $this->employee_number,
-            'full_name' => $this->last_name . ', ' . $this->first_name . ' ' . ($this->middle_name ? strtoupper(substr($this->middle_name, 0, 1)) . '.' : ''),
+
+            'full_name' => $this->full_name,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'middle_name' => $this->middle_name,
             'ext_name' => $this->ext_name,
+
             'designation' => $this->designation,
             'assigned_area' => [
                 'details' => [
@@ -35,14 +37,22 @@ class EmployeeResource extends JsonResource
                 ],
                 'sector' => $area['sector'] ?? null
             ],
+
             'status' => $this->status,
             'is_newly_hired' => $this->is_newly_hired,
             'is_excluded' => $this->is_excluded,
+            'is_resigned' => $this->is_resigned,
+
             'salary' => new EmployeeSalaryResource($this->whenLoaded('employeeSalary')),
+
             'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
+
             'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('employeeReceivables')),
+
             'deduction_group' => $this->groupDeductionsByGroup(),
+
             'employee_time_records' => new EmployeeTimeRecordResource($this->whenLoaded('employeeTimeRecords')),
+
             'excluded' => $this->whenLoaded('excludedEmployees', function () {
                 return new ExcludedEmployeeResource($this->excludedEmployees->first());
             })

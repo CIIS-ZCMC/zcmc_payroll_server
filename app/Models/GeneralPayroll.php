@@ -19,16 +19,15 @@ class GeneralPayroll extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'payroll_period_id',
         'generated_by_id',
         'generated_by_name',
-        'payroll_period_id',
         'total_employees',
         'total_deductions',
         'total_receivables',
         'total_gross',
         'total_net',
-        'month',
-        'year',
+        'total_night_differential',
     ];
 
     public function payrollPeriod()

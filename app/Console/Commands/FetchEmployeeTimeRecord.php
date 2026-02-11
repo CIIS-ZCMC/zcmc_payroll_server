@@ -12,7 +12,7 @@ class FetchEmployeeTimeRecord extends Command
      *
      * @var string
      */
-    protected $signature = 'command:fetch-employee-time_records
+    protected $signature = 'command:fetch-employee-time-records
                             {--year= : The year to fetch time records}
                             {--month= : The month to fetch time records}
                             {--employment-type= : Employment type (regular, job_order)}

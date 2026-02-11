@@ -34,4 +34,13 @@ class EmployeeSalaryRepository implements EmployeeSalaryInterface
             $data
         );
     }
+
+    public function upsert(array $data): int
+    {
+        return $this->model->upsert(
+            $data,
+            ['employee_id', 'payroll_period_id'],
+            ['base_salary', 'salary_grade', 'salary_step', 'is_active']
+        );
+    }
 }

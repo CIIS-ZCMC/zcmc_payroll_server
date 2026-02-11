@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PayrollStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -31,6 +32,10 @@ class Deduction extends Model
         'billing_cycle',
         'status',
     ];
+
+    // protected $casts = [
+    //     'status' => PayrollStatus::class,
+    // ];
 
     public $timestamps = true;
 

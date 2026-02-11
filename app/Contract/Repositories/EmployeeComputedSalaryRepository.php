@@ -17,6 +17,7 @@ class EmployeeComputedSalaryRepository implements EmployeeComputedSalaryInterfac
         return $this->model->updateOrCreate(
             [
                 'employee_id' => $data['employee_id'],
+                'payroll_period_id' => $data['payroll_period_id'],
                 'employee_time_record_id' => $data['employee_time_record_id']
             ],
             $data

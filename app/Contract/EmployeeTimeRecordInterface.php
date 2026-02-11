@@ -14,4 +14,5 @@ interface EmployeeTimeRecordInterface
     public function deactivate(int $payroll_period_id, int $month, int $year): bool;
     public function include(int $id): bool;
     public function exclude(int $id): bool;
+    public function upsert(array $data): int;
 }

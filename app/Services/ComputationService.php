@@ -81,7 +81,7 @@ class ComputationService
                     [
                         'amount' => $amount,
                         'status' => "active",
-                        'frequency' => "monthly",
+                        'billing_cycle' => "monthly",
                         'is_default' => true
                     ]
                 );
@@ -154,18 +154,20 @@ class ComputationService
             $hazard = Receivable::where('id', 2)->first();
 
             if ($hazard) {
-                EmployeeReceivable::updateOrCreate(
-                    [
-                        'payroll_period_id' => $payroll_period_id,
-                        'employee_id' => $employee_id,
-                        'receivable_id' => $hazard->id
-                    ],
-                    [
-                        'amount' => $amount,
-                        'status' => "active",
-                        'frequency' => "monthly",
-                        'is_default' => true
-                    ]
+                $request_data = [
+                    'payroll_period_id' => $payroll_period_id,
+                    'employee_id' => $employee_id,
+                    'receivable_id' => $hazard->id,
+                    'amount' => $amount,
+                    'billing_cycle' => "monthly",
+                    'status' => "active",
+                    'is_default' => true
+                ];
+
+                Employeereceivable::upsert(
+                    $request_data,
+                    ['payroll_period_id', 'employee_id', 'receivable_id'],
+                    ['amount', 'billing_cycle', 'status',]
                 );
             }
         }
@@ -203,26 +205,21 @@ class ComputationService
                 $amount = $employment_type === 'Permanent Part-time' ? $pera_half_amount : $pera_full_amount;
             }
             if ($payroll_period_id !== null && $employee_id !== null) {
-                $find = EmployeeReceivable::where('payroll_period_id', $payroll_period_id)
-                    ->where('employee_id', $employee_id)
-                    ->where('receivable_id', $pera->id)
-                    ->first();
-
                 $request_data = [
                     'payroll_period_id' => $payroll_period_id,
                     'employee_id' => $employee_id,
                     'receivable_id' => $pera->id,
                     'amount' => $amount,
+                    'billing_cycle' => "monthly",
                     'status' => "active",
-                    'frequency' => "monthly",
                     'is_default' => true
                 ];
 
-                if (!$find) {
-                    EmployeeReceivable::create($request_data);
-                } else {
-                    $find->update($request_data);
-                }
+                Employeereceivable::upsert(
+                    $request_data,
+                    ['payroll_period_id', 'employee_id', 'receivable_id'],
+                    ['amount', 'billing_cycle', 'status',]
+                );
 
                 return [
                     'id' => $pera->id,

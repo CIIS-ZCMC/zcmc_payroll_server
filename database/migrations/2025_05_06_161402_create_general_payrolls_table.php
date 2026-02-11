@@ -15,17 +15,21 @@ class CreateGeneralPayrollsTable extends Migration
     {
         Schema::create('general_payrolls', function (Blueprint $table) {
             $table->id();
-            $table->string('generated_by_id');
-            $table->string('generated_by_name');
+
             $table->unsignedBigInteger('payroll_period_id')->nullable();
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
+
+            $table->integer('generated_by_id');
+            $table->string('generated_by_name');
+
             $table->integer('total_employees');
-            $table->double('total_deductions');
-            $table->double('total_receivables');
-            $table->double('total_gross');
-            $table->double('total_net');
-            $table->string('month');
-            $table->string('year');
+
+            $table->decimal('total_deductions', 15, 2);
+            $table->decimal('total_receivables', 15, 2);
+            $table->decimal('total_gross', 15, 2);
+            $table->decimal('total_net', 15, 2);
+            $table->decimal('total_night_differential', 15, 2);
+
             $table->softDeletes();
             $table->timestamps();
         });

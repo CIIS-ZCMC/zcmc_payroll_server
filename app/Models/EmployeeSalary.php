@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeSalary extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'employee_salaries';
 
@@ -20,8 +21,6 @@ class EmployeeSalary extends Model
         'base_salary',
         'salary_grade',
         'salary_step',
-        'month',
-        'year',
         'is_active'
     ];
 

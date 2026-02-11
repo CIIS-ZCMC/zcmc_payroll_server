@@ -67,14 +67,14 @@ class EmployeePreviewService
         ];
     }
 
-    public function preview(string $type, int $payrollPeriodId, array $selectedEmployeeIds, int $perPage, int $page): array
+    public function preview(string $type, int $payrollPeriodId, array $selectedEmployeeIds, int $perPage, int $page)
     {
         $employees = $this->fetchEmployees($payrollPeriodId, $selectedEmployeeIds);
 
         [$included, $excluded] = $this->calculateAndClassify($employees);
 
         $collection = match ($type) {
-            'included' => collect($included),
+            'included' => collect(value: $included),
             'excluded' => collect($excluded),
             default => collect([...$included, ...$excluded]),
         };
@@ -90,10 +90,13 @@ class EmployeePreviewService
     private function fetchEmployees(int $payrollPeriodId, array $selectedEmployeeIds): Collection
     {
         $query = Employee::with([
+            'employeeSalary' => fn($q) =>
+                $q->where('payroll_period_id', $payrollPeriodId),
+            'employeeComputedSalary' => fn($q) =>
+                $q->where('payroll_period_id', $payrollPeriodId),
             'employeeTimeRecords' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId)
                     ->where('is_active', true),
-
             'employeeReceivables' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId),
 
@@ -118,14 +121,20 @@ class EmployeePreviewService
         $excluded = [];
 
         foreach ($employees as $employee) {
-            $record = $employee->employeeTimeRecords;
+            $record = $employee->employeeTimeRecords; // hasOne returns single record or null
+            $computedSalary = $employee->employeeComputedSalary;
 
-            $basic = $record->basic_pay ?? 0;
-            $receivables = $employee->employeeReceivables->sum('amount');
-            $deductions = $employee->employeeDeductions->sum('amount');
+            if (!$record) {
+                \Log::warning("Employee {$employee->id} ({$employee->employee_number}) has no time record for payroll period");
+                continue; // Skip if no time record
+            }
 
-            $gross = $basic + $receivables;
-            $net = $gross - $deductions;
+            $basic = $computedSalary->basic_pay ?? 0;
+            $receivables = round($employee->employeeReceivables->sum('amount'), 2);
+            $deductions = round($employee->employeeDeductions->sum('amount'), 2);
+
+            $gross = round($basic + $receivables, 2);
+            $net = round($gross - $deductions, 2);
 
             $payload = [
                 'employee' => $employee,

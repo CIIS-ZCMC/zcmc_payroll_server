@@ -8,6 +8,7 @@ use App\Contract\EmployeeSalaryInterface;
 use App\Contract\EmployeeTimeRecordInterface;
 use App\Contract\ExcludedEmployeeInterface;
 use App\Contract\PayrollPeriodInterface;
+use App\Enums\PayrollStatus;
 use App\Helpers\Helpers;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +59,7 @@ class FetchEmployeeService
                 'period_type' => $cachedMetaData['period_type'],
                 'period_start' => $period['period_start'],
                 'period_end' => $period['period_end'],
+                'status' => PayrollStatus::ACTIVE,
                 'is_active' => true
             ]);
 
@@ -181,11 +183,9 @@ class FetchEmployeeService
             'employee_id' => $employee['id'],
             'payroll_period_id' => $payrollPeriod['id'],
             'employment_type' => $employeeData['employment_type']['name'],
-            'base_salary' => encrypt($employeeData['time_record']['base_salary']),
+            'base_salary' => $employeeData['time_record']['base_salary'], //encrypt($employeeData['time_record']['base_salary']),
             'salary_grade' => $employeeData['salary_grade'],
             'salary_step' => $employeeData['salary_step'],
-            'month' => $cachedMetaData['month'],
-            'year' => $cachedMetaData['year'],
             'is_active' => true
         ]);
 
@@ -206,13 +206,6 @@ class FetchEmployeeService
         $employeeTimeRecord = $this->interfaceEmployeeTimeRecord->createOrUpdate([
             'employee_id' => $employee['id'],
             'payroll_period_id' => $payrollPeriod['id'],
-            'minutes' => $time_record['rates']['minutes'],
-            'daily' => $time_record['rates']['daily'],
-            'hourly' => $time_record['rates']['hourly'],
-            'absent_rate' => $time_record['absent_rate'],
-            'undertime_rate' => $time_record['undertime_rate'],
-            'base_salary' => $time_record['base_salary'],
-            'basic_pay' => $time_record['basic_pay'], // Basic Pay no recievables yet
             'total_working_minutes' => $time_record['total_working_minutes'],
             'total_working_minutes_with_leave' => $time_record['total_working_minutes_with_leave'],
             'total_working_hours' => $time_record['total_working_hours'],
@@ -228,26 +221,33 @@ class FetchEmployeeService
             'no_of_leave_wo_pay' => $time_record['no_of_leave_wo_pay'],
             'no_of_leave_w_pay' => $time_record['no_of_leave_w_pay'],
             'no_of_absences' => $time_record['no_of_absences'],
-            'no_of_day_off' => $time_record['no_of_day_off'],
             'no_of_invalid_entry' => $time_record['no_of_invalid_entry'],
+            'no_of_day_off' => $time_record['no_of_day_off'],
             'no_of_schedule' => $time_record['no_of_schedule'],
-            'night_differentials' => json_encode($time_record['night_differentials']),
+            'night_duties' => json_encode($time_record['night_differentials']),
             'absent_dates' => json_encode($time_record['absent_dates']),
             'month' => $cachedMetaData['month'],
             'year' => $cachedMetaData['year'],
             'from' => $cachedMetaData['period_start'],
             'to' => $cachedMetaData['period_end'],
-            'status' => $time_record['is_out'] === true ? 'excluded' : 'included',
+            'status' => $time_record['is_out'] === true ? PayrollStatus::EXCLUDED : PayrollStatus::INCLUDED,
             'is_active' => true,
         ]);
 
         Log::info('Creating/Updating Employee Computed Salary of employee ID:' . $employeeData['employee_number']);
         $this->interfaceEmployeeComputedSalary->createOrUpdate([
             'employee_id' => $employee['id'],
+            'payroll_period_id' => $payrollPeriod['id'],
             'employee_time_record_id' => $employeeTimeRecord['id'],
-            'computed_salary' => encrypt($employeeTimeRecord['net_pay'])
+            'basic_pay' => $time_record['basic_pay'],
+            'minutes_rate' => $time_record['rates']['minutes'],
+            'daily_rate' => $time_record['rates']['daily'],
+            'hourly_rate' => $time_record['rates']['hourly'],
+            'absent_rate' => $time_record['absent_rate'],
+            'undertime_rate' => $time_record['undertime_rate'],
         ]);
 
+        Log::info('Creating/Updating Employee Computed Salary of employee ID:' . $employeeData['employee_number']);
         $this->interfaceEmployeeTimeRecord->deactivate(
             $payrollPeriod['id'],
             $cachedMetaData['month'],

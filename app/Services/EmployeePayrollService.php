@@ -7,11 +7,14 @@ use App\Models\EmployeePayroll;
 use App\Models\EmployeeTimeRecord;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
+use App\Services\GuardService;
 
 class EmployeePayrollService
 {
-    public function __construct(private EmployeePayrollInterface $interface)
-    {
+    public function __construct(
+        private EmployeePayrollInterface $interface,
+        private GuardService $guard
+    ) {
         //Nothing
     }
 
@@ -36,18 +39,26 @@ class EmployeePayrollService
         return $data;
     }
 
+    public function paginate(int $perPage, int $page)
+    {
+        return $this->interface->paginate($perPage, $page);
+    }
+
     public function create(array $data)
     {
+        $this->guard->ensureNotLocked();
         return $this->interface->create($data);
     }
 
     public function update($id, array $data)
     {
+        $this->guard->ensureNotLocked();
         return $this->interface->update($id, $data);
     }
-    public function createOrUpdate(array $data): EmployeePayroll
+    public function updateOrInsert(array $data): int
     {
-        $employees = $data['selected_employees'];
+        $this->guard->ensureNotLocked();
+        return $this->interface->upsert($data);
     }
 
     private function getEmployee()

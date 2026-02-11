@@ -16,12 +16,14 @@ class EmployeeComputedSalary extends Model
 
     protected $fillable = [
         'employee_id',
+        'payroll_period_id',
         'employee_time_record_id',
-        'computed_salary'
-    ];
-
-    protected $casts = [
-        'computed_salary' => 'encrypted',
+        'basic_pay',
+        'minutes_rate',
+        'daily_rate',
+        'hourly_rate',
+        'absent_rate',
+        'undertime_rate'
     ];
 
     public $timestamps = true;
@@ -29,6 +31,11 @@ class EmployeeComputedSalary extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function payrollPeriod()
+    {
+        return $this->belongsTo(PayrollPeriod::class);
     }
 
     public function employeeTimeRecord()

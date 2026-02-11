@@ -38,7 +38,7 @@ class EmployeeDeductionRepository implements EmployeeDeductionInterface
         return $this->model->upsert(
             $data,
             ['payroll_period_id', 'employee_id', 'deduction_id'],
-            ['amount', 'frequency', 'total_term', 'total_paid', 'willDeduct', 'with_terms', 'is_default', 'updated_at']
+            ['amount', 'billing_cycle', 'total_term', 'total_paid', 'deduct_at', 'with_terms', 'is_default', 'updated_at']
         );
     }
 

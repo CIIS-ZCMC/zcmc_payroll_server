@@ -39,7 +39,7 @@ class EmployeeReceivableRequest extends FormRequest
             'payroll_period_id' => 'required|integer',
             'employee_id' => 'required|integer',
             'receivable_id' => 'required|integer',
-            'frequency' => 'required|string',
+            'billing_cycle' => 'required|string',
             'amount' => 'nullable|numeric',
             'percentage' => 'nullable|numeric',
             'date_from' => 'nullable|date',

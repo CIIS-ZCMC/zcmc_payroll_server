@@ -30,11 +30,11 @@ class EmployeeReceivableController extends Controller
      *         @OA\JsonContent(
      *             oneOf={
      *                 @OA\Schema(
-     *                     required={"payroll_period_id", "employee_id", "receivable_id", "frequency", "reason", "is_default"},
+     *                     required={"payroll_period_id", "employee_id", "receivable_id", "billing_cycle", "reason", "is_default"},
      *                     @OA\Property(property="payroll_period_id", type="integer", example=1),
      *                     @OA\Property(property="employee_id", type="integer", example=1),
      *                     @OA\Property(property="receivable_id", type="integer", example=1),
-     *                     @OA\Property(property="frequency", type="string", example="monthly"),
+     *                     @OA\Property(property="billing_cycle", type="string", example="monthly"),
      *                     @OA\Property(property="amount", type="number", format="float", nullable=true, example=1000.50),
      *                     @OA\Property(property="percentage", type="number", format="float", nullable=true, example=5.5),
      *                     @OA\Property(property="reason", type="string", example="Bonus"),
@@ -47,10 +47,10 @@ class EmployeeReceivableController extends Controller
      *                         property="receivables",
      *                         type="array",
      *                         @OA\Items(
-     *                             required={"employee_number", "receivable_id", "frequency", "reason", "is_default"},
+     *                             required={"employee_number", "receivable_id", "billing_cycle", "reason", "is_default"},
      *                             @OA\Property(property="employee_number", type="string", example="EMP001"),
      *                             @OA\Property(property="receivable_id", type="integer", example=1),
-     *                             @OA\Property(property="frequency", type="string", example="monthly"),
+     *                             @OA\Property(property="billing_cycle", type="string", example="monthly"),
      *                             @OA\Property(property="amount", type="number", format="float", nullable=true, example=1000.50),
      *                             @OA\Property(property="percentage", type="number", format="float", nullable=true, example=5.5),
      *                             @OA\Property(property="reason", type="string", example="Bonus"),
@@ -166,14 +166,14 @@ class EmployeeReceivableController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             required={"mode", "payroll_period_id", "employee_id", "frequency", "reason", "is_default"},
+     *         @OA\JsonContent( 
+     *             required={"mode", "payroll_period_id", "employee_id", "billing_cycle", "reason", "is_default"},
      *             @OA\Property(property="mode", type="string", enum={"toComplete", "toStop", "toUpdate"}, example="toUpdate"),
      *             @OA\Property(property="payroll_period_id", type="integer", example=1),
      *             @OA\Property(property="employee_id", type="integer", example=1),
      *             @OA\Property(property="amount", type="number", format="float", nullable=true, example=1000.50),
      *             @OA\Property(property="percentage", type="number", format="float", nullable=true, example=5.5),
-     *             @OA\Property(property="frequency", type="string", example="monthly"),
+     *             @OA\Property(property="billing_cycle", type="string", example="monthly"),
      *             @OA\Property(property="reason", type="string", example="Bonus"),
      *             @OA\Property(property="is_default", type="boolean", example=false)
      *         )
@@ -203,7 +203,7 @@ class EmployeeReceivableController extends Controller
             'employee_id' => 'required|integer',
             'amount' => 'nullable|numeric',
             'percentage' => 'nullable|numeric',
-            'frequency' => 'required|string',
+            'billing_cycle' => 'required|string',
             'reason' => 'required|string',
             'is_default' => 'required|boolean',
         ]);

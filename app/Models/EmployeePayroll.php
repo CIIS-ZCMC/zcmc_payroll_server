@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeePayroll extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $table = 'employee_payrolls';
 
     protected $primaryKey = 'id';
@@ -18,12 +19,21 @@ class EmployeePayroll extends Model
         'payroll_period_id',
         'month',
         'year',
-        'gross_salary',
-        'total_deductions',
+        'basic_pay',
         'total_receivables',
+        'gross_pay',
+        'total_deductions',
         'net_pay',
-        'deleted_at',
+        'night_differential',
     ];
+
+    // protected $casts = [
+    //     'basic_pay' => 'encrypted',
+    //     'total_receivables' => 'encrypted',
+    //     'gross_pay' => 'encrypted',
+    //     'total_deductions' => 'encrypted',
+    //     'net_pay' => 'encrypted',
+    // ];
 
     public $timestamps = true;
 

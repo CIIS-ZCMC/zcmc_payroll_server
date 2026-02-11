@@ -8,8 +8,10 @@ use Illuminate\Support\Collection;
 
 class EmployeeService
 {
-    public function __construct(private EmployeeInterface $interface)
-    {
+    public function __construct(
+        private EmployeeInterface $interface,
+        private GuardService $guard,
+    ) {
         //Nothing
     }
 
@@ -46,5 +48,11 @@ class EmployeeService
     public function find(int $id)
     {
         return $this->interface->find($id);
+    }
+
+    public function storeGeneralPayroll()
+    {
+        $this->guard->ensureNotLocked();
+
     }
 }

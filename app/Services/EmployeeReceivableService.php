@@ -60,7 +60,7 @@ class EmployeeReceivableService
         }
 
         return $this->interface->update($id, [
-            'frequency' => $data['frequency'],
+            'billing_cycle' => $data['billing_cycle'],
             'amount' => $amount,
             'percentage' => $percentage,
             'is_default' => $data['is_default'],

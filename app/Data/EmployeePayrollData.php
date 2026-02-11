@@ -11,28 +11,14 @@ class EmployeePayrollData extends Data
         public int $employee_id,
         public int $employee_time_record_id,
         public int $payroll_period_id,
-        public string $month,
-        public string $year,
-        public float $gross_salary,
-        public float $total_deductions,
+        public int $month,
+        public int $year,
+        public float $basic_pay,
         public float $total_receivables,
+        public float $gross_pay,
+        public float $total_deductions,
         public float $net_pay,
     ) {
-    }
-
-    public static function fromRequest(Request $request): self
-    {
-        return new self(
-            $request['employee_id'],
-            $request['employee_time_record_id'],
-            $request['payroll_period_id'],
-            $request['month'],
-            $request['year'],
-            $request['gross_salary'],
-            $request['total_deductions'],
-            $request['total_receivables'],
-            $request['net_pay'],
-        );
     }
 
     public function toArray(): array
@@ -43,9 +29,10 @@ class EmployeePayrollData extends Data
             'payroll_period_id' => $this->payroll_period_id,
             'month' => $this->month,
             'year' => $this->year,
-            'gross_salary' => $this->gross_salary,
-            'total_deductions' => $this->total_deductions,
+            'basic_pay' => $this->basic_pay,
             'total_receivables' => $this->total_receivables,
+            'gross_pay' => $this->gross_pay,
+            'total_deductions' => $this->total_deductions,
             'net_pay' => $this->net_pay,
         ];
     }

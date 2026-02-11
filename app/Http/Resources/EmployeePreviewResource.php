@@ -38,6 +38,7 @@ class EmployeePreviewResource extends JsonResource
             'status' => $time?->status,
             'payroll' => [
                 'payroll_period_id' => $payroll['payroll_period_id'],
+                'employee_time_record_id' => $payroll['employee_time_record_id'],
                 'total_receivables' => $payroll['total_receivables'],
                 'total_deductions' => $payroll['total_deductions'],
                 'basic_pay' => $payroll['basic_pay'],

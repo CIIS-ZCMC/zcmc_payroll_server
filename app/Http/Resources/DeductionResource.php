@@ -18,6 +18,7 @@ class DeductionResource extends JsonResource
         return [
             'id' => $this->id,
             'uuid' => $this->deduction_uuid,
+            'deduction_group_id' => $this->deduction_group_id,
             'name' => $this->name,
             'code' => $this->code,
             'type' => $this->type,
@@ -27,7 +28,6 @@ class DeductionResource extends JsonResource
             'date_start' => $this->date_start,
             'date_end' => $this->date_end,
             'status' => $this->status,
-            'deduction_group_id' => $this->deduction_group_id,
             'deduction_group' => DeductionGroupResource::make($this->whenLoaded('deductionGroup')),
             'deduction_rule' => DeductionRuleResource::collection($this->whenLoaded('deductionRule')),
             'deleted_at' => Carbon::parse($this->deleted_at)->format('M d, Y'),

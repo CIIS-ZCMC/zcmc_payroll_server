@@ -17,4 +17,5 @@ interface PayrollPeriodInterface
     public function createOrUpdate(array $data): PayrollPeriod;
     public function findPeriod(int $year, int $month, string $periodType, string $employmentType): ?PayrollPeriod;
     public function isLocked(int $id): bool;
+    public function upsert(array $data): int;
 }
