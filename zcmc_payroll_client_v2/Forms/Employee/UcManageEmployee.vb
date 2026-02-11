@@ -27,7 +27,7 @@
         .Interval = 10
     }
 
-    Public Function IsValid() As Boolean
+    Public Async Function IsValid() As Task(Of Boolean)
         ' Only validate when in Excluded step (manage both)
         If isManageBoth Then
 

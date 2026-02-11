@@ -6,7 +6,5 @@
     Public Property base_salary As Integer
     Public Property salary_grade As Integer
     Public Property salary_step As Integer
-    Public Property month As String
-    Public Property year As String
     Public Property is_active As Integer
 End Class

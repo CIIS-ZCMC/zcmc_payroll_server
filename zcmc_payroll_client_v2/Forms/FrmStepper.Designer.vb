@@ -219,12 +219,12 @@ Partial Class FrmStepper
         Me.lblMonthYear.BackColor = System.Drawing.Color.Transparent
         Me.lblMonthYear.Font = New System.Drawing.Font("Tahoma", 15.75!, System.Drawing.FontStyle.Underline)
         Me.lblMonthYear.ForeColor = System.Drawing.Color.White
-        Me.lblMonthYear.Location = New System.Drawing.Point(963, 10)
+        Me.lblMonthYear.Location = New System.Drawing.Point(774, 18)
         Me.lblMonthYear.Name = "lblMonthYear"
-        Me.lblMonthYear.Size = New System.Drawing.Size(158, 41)
+        Me.lblMonthYear.Size = New System.Drawing.Size(347, 25)
         Me.lblMonthYear.TabIndex = 8
-        Me.lblMonthYear.Text = "December 2025"
-        Me.lblMonthYear.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.lblMonthYear.Text = "December 2025 : First Half"
+        Me.lblMonthYear.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
         'btnSet
         '
@@ -316,7 +316,7 @@ Partial Class FrmStepper
         Me.Controls.Add(Me.panelContainer)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "FrmStepper"
-        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.panelContainer.ResumeLayout(False)
         Me.pnlContent.ResumeLayout(False)

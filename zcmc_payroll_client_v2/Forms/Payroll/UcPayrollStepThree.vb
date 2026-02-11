@@ -1,13 +1,38 @@
-﻿Public Class UcPayrollStepThree
+﻿Imports System.Linq.Expressions
+
+Public Class UcPayrollStepThree
     Public Property Context As PayrollWizardContext
     Public Property Pagination As New PaginationContext()
 
-    Private service As New EmployeePreviewService
+    Private preview As New EmployeePreviewService
+    Private service As New EmployeePayrollService
 
     Dim helper As New Helpers
 
-    Public Function IsValid() As Boolean
+    Public Async Function IsValid() As Task(Of Boolean)
         ' validate step logic
+        Dim result = MessageBox.Show(
+                "You are about to proceed to generate payroll . Have you completed managing all deductions and receivables?",
+                "Confirm Action",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            )
+
+        If result = DialogResult.No Then
+            Return False
+        End If
+
+        Using obj As New FrmAuthorizationPin
+            If obj.ShowDialog() = DialogResult.OK Then
+                Dim res = Await StoreEmployeePayroll()
+
+                If res = True Then
+                    obj.Close()
+                    Return True
+                End If
+            End If
+        End Using
+
         Return True
     End Function
 
@@ -16,12 +41,7 @@
         lblPayrollType.Text = $"{Context.EmploymentType.ToString()} - {Context.PayrollType.ToString()}"
         lblPeriod.Text = $"{helper.GetMonthName(ActivePayroll.month)} {ActivePayroll.period_start} - {ActivePayroll.period_end}, {ActivePayroll.year}"
 
-        'Await service.GetSelected(dgvTable, lblMessage, Context.IncludedEmployeeIds, Pagination)
         Await LoadEmployees()
-    End Sub
-
-    Private Sub dgvTable_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTable.CellContentClick
-
     End Sub
 
     Private Async Sub cmbPerPage_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPerPage.SelectedIndexChanged
@@ -57,11 +77,37 @@
     Private Async Function LoadEmployees() As Task
         Await LoadingHelper.RunAsync(
             Async Function()
-                Await service.GetSelected(dgvTable, lblMessage, Context.IncludedEmployeeIds, Pagination)
+                Await preview.GetSelected(dgvTable, lblMessage, Context.IncludedEmployeeIds, Pagination, Context.EmployeePayrolls)
             End Function,
             True
         )
 
         helper.UpdatePaginationControls(Pagination, cmbPage, lblPerPage, lblPage, btnPrevious, btnNext, AddressOf cmbPage_SelectedIndexChanged)
+    End Function
+
+    Private Async Function StoreEmployeePayroll() As Task(Of Boolean)
+        Dim loadingForm As New FrmLoading
+
+        Try
+            loadingForm.Show()
+            loadingForm.StartLoading("Saving payroll...")
+
+            Dim res = Await service.Create("general", Context.EmployeePayrolls)
+
+            If res.Success Then
+                Return True
+            Else
+                MessageBox.Show(res.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Return False
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
+
+        Finally
+            loadingForm.StopLoading()
+            loadingForm.Close()
+        End Try
     End Function
 End Class

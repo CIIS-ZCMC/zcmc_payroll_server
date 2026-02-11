@@ -3,14 +3,6 @@
     Public Property employee As EmployeeResponse
     Public Property payroll_period As PayrollPeriodResponse
     Public Property computed_salary As EmployeeComputedSalaryResponse
-    Public Property minutes As Decimal
-    Public Property daily As Decimal
-    Public Property hourly As Decimal
-    Public Property absent_rate As Decimal
-    Public Property undertime_rate As Decimal
-    Public Property base_salary As Decimal
-    Public Property initial_net_pay As Decimal
-    Public Property net_pay As Decimal
     Public Property total_working_minutes As Decimal
     Public Property total_working_minutes_with_leave As Decimal
     Public Property total_working_hours As Decimal
@@ -27,19 +19,18 @@
     Public Property no_of_leave_w_pay As Decimal
     Public Property no_of_absences As Decimal
     Public Property no_of_invalid_entry As Decimal
-    Public Property no_of_day_off As Integer
-    Public Property no_of_schedule As Integer
-    Public Property night_differentials As String
+    Public Property no_of_day_off As String
+    Public Property no_of_schedule As String
+    Public Property night_duties As String
     Public Property absent_dates As String
     Public Property month As String
     Public Property year As String
     Public Property date_from As String
     Public Property date_to As String
     Public Property status As String
-    'Public Property is_night_shift As Integer 
     Public Property is_active As Integer
     Public Property locked_at As String
-    Public Property deleted_at As String
     Public Property created_at As String
     Public Property updated_at As String
+    Public Property deleted_at As String
 End Class

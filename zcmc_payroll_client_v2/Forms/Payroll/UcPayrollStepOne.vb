@@ -1,7 +1,7 @@
 ﻿Public Class UcPayrollStepOne
     Public Property Context As PayrollWizardContext
 
-    Function IsValid() As Boolean
+    Public Async Function IsValid() As Task(Of Boolean)
         If Not ValidateInputs() Then
             Return False
         End If

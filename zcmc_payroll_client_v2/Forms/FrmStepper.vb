@@ -30,11 +30,11 @@ Public Class FrmStepper
         LoadStep(1) ' default
     End Sub
 
-    Private Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click
+    Private Async Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click
         If currentStep < TOTAL_STEPS Then
-            If Not CanProceed(currentStep) Then Exit Sub
+            If Not Await CanProceed(currentStep) Then Exit Sub
             LoadStep(currentStep + 1)
-        End If
+            End If
     End Sub
 
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
@@ -117,16 +117,6 @@ Public Class FrmStepper
                 RenderUserControl(uc)
 
             Case 7
-                'Dim ctx = payrollContext ' or pass context from step1/step2
-
-                'Dim msg As String = $"employment type: {ctx.EmploymentType}" & vbCrLf &
-                '        $"days of duty: {ctx.DaysOfDuty}" & vbCrLf &
-                '        $"salary period: {ctx.SalaryPeriod}" & vbCrLf &
-                '        $"payroll type: {ctx.PayrollType}" & vbCrLf &
-                '        $"included employees: {String.Join(", ", ctx.IncludedEmployeeIds)}"
-
-                'MessageBox.Show(msg, "Payroll Context Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
                 Dim uc As New UcPayrollStepThree()
                 uc.Context = payrollContext
                 RenderUserControl(uc)
@@ -160,7 +150,7 @@ Public Class FrmStepper
         End If
     End Sub
 
-    Private Function CanProceed(steps As Integer) As Boolean
+    Private Function CanProceed(steps As Integer) As Task(Of Boolean)
         Select Case steps
             Case 1
                 Return CType(pnlUserControlDisplay.Controls(0), UcManageImports).IsValid()
@@ -175,7 +165,7 @@ Public Class FrmStepper
             Case 7
                 Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepThree).IsValid()
             Case Else
-                Return True
+                Return Task.FromResult(True)
         End Select
     End Function
 

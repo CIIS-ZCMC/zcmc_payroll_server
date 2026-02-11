@@ -32,12 +32,24 @@
         Try
             Dim response = Await PayrollPeriodApi.GetActivePayroll(hasFilter, employmentType, periodType, month, year)
 
+            If response Is Nothing Then
+                Debug.Print(response.message)
+            End If
+
             Dim data As PayrollPeriodResponse = response.data
 
             If response IsNot Nothing Then
                 AppState.PayrollPeriodId = data.id
                 AppState.PayrollPeriod = data
-                lbl.Text = $"{helper.GetMonthName(data.month)} {data.year}"
+
+                Dim period_type As String = ""
+                If data.period_type = "first_half" Then
+                    period_type = "First Half"
+                ElseIf data.period_type = "second_half" Then
+                    period_type = "Second Half"
+                End If
+
+                lbl.Text = $"{helper.GetMonthName(data.month)} {data.year}: {period_type}"
             End If
 
             Return Nothing

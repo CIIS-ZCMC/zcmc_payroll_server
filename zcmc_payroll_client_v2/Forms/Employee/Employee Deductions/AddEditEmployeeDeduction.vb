@@ -217,7 +217,7 @@
         Dim dto As New EmployeeDeductionDto With {
             .EmployeeId = _employeeID,
             .DeductionId = CInt(cmbDeductions.SelectedValue),
-            .Frequency = cmbBillingCycle.Text.ToLower(),
+            .BillingCycle = cmbBillingCycle.Text.ToLower(),
             .WithTerms = cbHasTerm.Checked,
             .Reason = txtReason.Text,
             .IsDefault = rdbDefault.Checked

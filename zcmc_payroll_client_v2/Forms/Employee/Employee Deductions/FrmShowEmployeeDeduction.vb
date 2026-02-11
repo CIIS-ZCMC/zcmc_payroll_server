@@ -50,7 +50,7 @@
                         .PayrollPeriodId = row.Cells(2).Value,
                         .EmployeeId = row.Cells(3).Value,
                         .DeductionId = row.Cells(4).Value,
-                        .Frequency = row.Cells(13).Value,
+                        .BillingCycle = row.Cells(13).Value,
                         .Reason = row.Cells(14).Value,
                         .IsDefault = row.Cells(15).Value
                     }

@@ -90,7 +90,7 @@ Public Class EmployeeService
             For Each item In data.deductions
                 Dim value As String = If(item?.amount, item.percentage)
                 Dim rowIndex As Integer = dgv.Rows.Add(i, item.id, item.payroll_period_id, item.employee_id, item.deduction_id, item.deduction.name, item.deduction.code,
-                             item.amount, item.percentage, item.completed_at, item.with_terms, item.total_term, item.total_paid, item.frequency,
+                             item.amount, item.percentage, item.completed_at, item.with_terms, item.total_term, item.total_paid, item.billing_cycle,
                              item.reason, item.is_default, item.status, "Edit", "Stop")
                 i += 1
             Next
@@ -115,7 +115,7 @@ Public Class EmployeeService
             For Each item In data.receivables
                 Dim value As String = If(item?.amount, item.percentage)
                 Dim rowIndex As Integer = dgv.Rows.Add(i, item.id, item.payroll_period_id, item.employee_id, item.receivable_id, item.receivable.name, item.receivable.code,
-                             item.amount, item.completed_at, item.total_paid, item.frequency, item.reason, item.is_default, item.status, "Edit", "Stop")
+                             item.amount, item.completed_at, item.total_paid, item.billing_cycle, item.reason, item.is_default, item.status, "Edit", "Stop")
                 i += 1
             Next
 

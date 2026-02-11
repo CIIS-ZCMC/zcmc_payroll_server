@@ -190,7 +190,7 @@
         Dim dto As New EmployeeReceivableDto With {
             .EmployeeId = _employeeID,
             .ReceivableId = CInt(cmbReceivable.SelectedValue),
-            .Frequency = cmbBillingCycle.Text.ToLower(),
+            .BillingCycle = cmbBillingCycle.Text.ToLower(),
             .Reason = txtReason.Text,
             .IsDefault = rdbDefault.Checked
         }

@@ -52,6 +52,7 @@ Partial Class UcPayrollStepTwo
         Me.employee_name = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.employee_designation = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.assigned_area = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.employee_time_record_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.panelContainer.SuspendLayout()
         Me.panelContent.SuspendLayout()
         CType(Me.dgvTable, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -119,7 +120,7 @@ Partial Class UcPayrollStepTwo
         DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
         Me.dgvTable.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle2
         Me.dgvTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.action_select, Me.row_number, Me.employee_id, Me.employee_number, Me.employee_name, Me.employee_designation, Me.assigned_area})
+        Me.dgvTable.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.action_select, Me.row_number, Me.employee_id, Me.employee_number, Me.employee_name, Me.employee_designation, Me.assigned_area, Me.employee_time_record_id})
         DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window
         DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -356,6 +357,7 @@ Partial Class UcPayrollStepTwo
         Me.employee_id.HeaderText = "ID"
         Me.employee_id.Name = "employee_id"
         Me.employee_id.ReadOnly = True
+        Me.employee_id.Visible = False
         '
         'employee_number
         '
@@ -380,6 +382,11 @@ Partial Class UcPayrollStepTwo
         Me.assigned_area.HeaderText = "Assign Area"
         Me.assigned_area.Name = "assigned_area"
         Me.assigned_area.ReadOnly = True
+        '
+        'employee_time_record_id
+        '
+        Me.employee_time_record_id.HeaderText = "Employee Time Record ID"
+        Me.employee_time_record_id.Name = "employee_time_record_id"
         '
         'UcPayrollStepTwo
         '
@@ -430,4 +437,5 @@ Partial Class UcPayrollStepTwo
     Friend WithEvents employee_name As DataGridViewTextBoxColumn
     Friend WithEvents employee_designation As DataGridViewTextBoxColumn
     Friend WithEvents assigned_area As DataGridViewTextBoxColumn
+    Friend WithEvents employee_time_record_id As DataGridViewTextBoxColumn
 End Class

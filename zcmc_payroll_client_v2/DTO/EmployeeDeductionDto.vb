@@ -3,7 +3,7 @@
     Public Property PayrollPeriodId As Integer
     Public Property EmployeeId As Integer
     Public Property DeductionId As Integer
-    Public Property Frequency As String ''This is a billing_cycle
+    Public Property BillingCycle As String ''This is a billing_cycle
     Public Property WithTerms As Boolean
     Public Property TotalTerm As Integer?
     Public Property Amount As Decimal?

@@ -12,8 +12,7 @@ Public Class UcPayrollStepTwo
     Private isRestoring As Boolean = False
     Private isRowClickToggle As Boolean = False
 
-
-    Public Function IsValid() As Boolean
+    Public Async Function IsValid() As Task(Of Boolean)
         If Context.IncludedEmployeeIds.Count = 0 Then
             MessageBox.Show("Please select at least one employee for the payroll.", "Message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return False
@@ -31,14 +30,6 @@ Public Class UcPayrollStepTwo
         AddHandler dgvTable.CurrentCellDirtyStateChanged, AddressOf dgvTable_CurrentCellDirtyStateChanged
         AddHandler dgvTable.CellValueChanged, AddressOf dgvTable_CellValueChanged
 
-        'Await LoadingHelper.RunAsync(
-        '    Async Function()
-        '        Await service.GetIncluded(dgvTable, lblMessage, Nothing, Pagination)
-        '    End Function,
-        '    True
-        ')
-
-        'Await LoadEmployees()
         RestoreCheckedState()
     End Sub
 
@@ -53,15 +44,6 @@ Public Class UcPayrollStepTwo
 
         If e.RowIndex < 0 Then Exit Sub
         If dgvTable.Columns(e.ColumnIndex).Name <> "action_select" Then Exit Sub
-
-        'Dim row As DataGridViewRow = dgvTable.Rows(e.RowIndex)
-
-        'Dim isChecked As Boolean = False
-        'If row.Cells(0).Value IsNot Nothing Then
-        '    isChecked = CBool(row.Cells(0).Value)
-        'End If
-
-        'Dim employeeId As Integer = CInt(row.Cells(2).Value)
 
         Dim row = dgvTable.Rows(e.RowIndex)
         Dim employeeId As Integer = CInt(row.Cells(2).Value)
@@ -131,6 +113,7 @@ Public Class UcPayrollStepTwo
             End If
         Next
     End Sub
+
     Private Async Sub cmbPerPage_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPerPage.SelectedIndexChanged
         If cmbPerPage.SelectedItem Is Nothing Then Exit Sub
 

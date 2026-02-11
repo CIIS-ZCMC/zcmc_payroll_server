@@ -22,11 +22,13 @@ Partial Class FrmLoading
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.panelContainer = New System.Windows.Forms.Panel()
         Me.panelContent = New System.Windows.Forms.Panel()
+        Me.pbLoading = New System.Windows.Forms.ProgressBar()
         Me.lblMessage = New System.Windows.Forms.Label()
         Me.pictureSuccess = New System.Windows.Forms.PictureBox()
-        Me.pbLoading = New System.Windows.Forms.ProgressBar()
+        Me.TimerLoading = New System.Windows.Forms.Timer(Me.components)
         Me.panelContainer.SuspendLayout()
         Me.panelContent.SuspendLayout()
         CType(Me.pictureSuccess, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -52,6 +54,19 @@ Partial Class FrmLoading
         Me.panelContent.Size = New System.Drawing.Size(451, 83)
         Me.panelContent.TabIndex = 33
         '
+        'pbLoading
+        '
+        Me.pbLoading.BackColor = System.Drawing.Color.WhiteSmoke
+        Me.pbLoading.Dock = System.Windows.Forms.DockStyle.Top
+        Me.pbLoading.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
+        Me.pbLoading.Location = New System.Drawing.Point(0, 0)
+        Me.pbLoading.MarqueeAnimationSpeed = 30
+        Me.pbLoading.Name = "pbLoading"
+        Me.pbLoading.Size = New System.Drawing.Size(451, 23)
+        Me.pbLoading.TabIndex = 24
+        Me.pbLoading.Value = 10
+        Me.pbLoading.Visible = False
+        '
         'lblMessage
         '
         Me.lblMessage.Anchor = System.Windows.Forms.AnchorStyles.Top
@@ -76,19 +91,6 @@ Partial Class FrmLoading
         Me.pictureSuccess.TabIndex = 22
         Me.pictureSuccess.TabStop = False
         '
-        'pbLoading
-        '
-        Me.pbLoading.BackColor = System.Drawing.Color.WhiteSmoke
-        Me.pbLoading.Dock = System.Windows.Forms.DockStyle.Top
-        Me.pbLoading.ForeColor = System.Drawing.Color.FromArgb(CType(CType(15, Byte), Integer), CType(CType(87, Byte), Integer), CType(CType(33, Byte), Integer))
-        Me.pbLoading.Location = New System.Drawing.Point(0, 0)
-        Me.pbLoading.MarqueeAnimationSpeed = 30
-        Me.pbLoading.Name = "pbLoading"
-        Me.pbLoading.Size = New System.Drawing.Size(451, 23)
-        Me.pbLoading.TabIndex = 24
-        Me.pbLoading.Value = 10
-        Me.pbLoading.Visible = False
-        '
         'FrmLoading
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -97,7 +99,7 @@ Partial Class FrmLoading
         Me.Controls.Add(Me.panelContainer)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "FrmLoading"
-        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "FrmLoading"
         Me.panelContainer.ResumeLayout(False)
         Me.panelContent.ResumeLayout(False)
@@ -112,4 +114,5 @@ Partial Class FrmLoading
     Friend WithEvents lblMessage As Label
     Friend WithEvents pictureSuccess As PictureBox
     Friend WithEvents pbLoading As ProgressBar
+    Friend WithEvents TimerLoading As Timer
 End Class

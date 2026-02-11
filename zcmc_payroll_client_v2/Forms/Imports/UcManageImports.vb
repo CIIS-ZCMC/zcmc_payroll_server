@@ -6,7 +6,7 @@
     Private DeductionImports As New Dictionary(Of String, DataTable) ''Cache imported data here
     Public CachedEmployeeDeductionRecords As New List(Of Dictionary(Of String, Object)) ''Record is from DataGridViewLeft
 
-    Public Function IsValid() As Boolean
+    Public Async Function IsValid() As Task(Of Boolean)
         ' validate step logic
         Return True
     End Function

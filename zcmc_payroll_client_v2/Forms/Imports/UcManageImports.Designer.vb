@@ -72,6 +72,12 @@ Partial Class UcManageImports
         Me.panelDgvLeft = New System.Windows.Forms.Panel()
         Me.lblMessageLeft = New System.Windows.Forms.Label()
         Me.dgvLeft = New System.Windows.Forms.DataGridView()
+        Me.panelDividerLeftBottom = New System.Windows.Forms.Panel()
+        Me.panelBottomLeft = New System.Windows.Forms.Panel()
+        Me.btnManageDescrepancies = New System.Windows.Forms.Button()
+        Me.btnDescrepancies = New System.Windows.Forms.Button()
+        Me.btnViewRecords = New System.Windows.Forms.Button()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.employee_deduction_id = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.DataGridViewTextBoxColumn1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.DataGridViewTextBoxColumn2 = New System.Windows.Forms.DataGridViewTextBoxColumn()
@@ -79,13 +85,7 @@ Partial Class UcManageImports
         Me.DataGridViewTextBoxColumn4 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.DataGridViewTextBoxColumn5 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.comboBoxColumn = New System.Windows.Forms.DataGridViewComboBoxColumn()
-        Me.willDeduct = New System.Windows.Forms.DataGridViewCheckBoxColumn()
-        Me.panelDividerLeftBottom = New System.Windows.Forms.Panel()
-        Me.panelBottomLeft = New System.Windows.Forms.Panel()
-        Me.btnManageDescrepancies = New System.Windows.Forms.Button()
-        Me.btnDescrepancies = New System.Windows.Forms.Button()
-        Me.btnViewRecords = New System.Windows.Forms.Button()
-        Me.Label1 = New System.Windows.Forms.Label()
+        Me.deduct_at = New System.Windows.Forms.DataGridViewCheckBoxColumn()
         Me.panelContainer.SuspendLayout()
         Me.tblpnlContent.SuspendLayout()
         Me.Panel3.SuspendLayout()
@@ -633,7 +633,7 @@ Partial Class UcManageImports
         Me.dgvLeft.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle9
         Me.dgvLeft.ColumnHeadersHeight = 50
         Me.dgvLeft.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing
-        Me.dgvLeft.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.employee_deduction_id, Me.DataGridViewTextBoxColumn1, Me.DataGridViewTextBoxColumn2, Me.DataGridViewTextBoxColumn3, Me.DataGridViewTextBoxColumn4, Me.DataGridViewTextBoxColumn5, Me.comboBoxColumn, Me.willDeduct})
+        Me.dgvLeft.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.employee_deduction_id, Me.DataGridViewTextBoxColumn1, Me.DataGridViewTextBoxColumn2, Me.DataGridViewTextBoxColumn3, Me.DataGridViewTextBoxColumn4, Me.DataGridViewTextBoxColumn5, Me.comboBoxColumn, Me.deduct_at})
         DataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window
         DataGridViewCellStyle10.Font = New System.Drawing.Font("Tahoma", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -662,62 +662,6 @@ Partial Class UcManageImports
         Me.dgvLeft.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvLeft.Size = New System.Drawing.Size(503, 479)
         Me.dgvLeft.TabIndex = 28
-        '
-        'employee_deduction_id
-        '
-        Me.employee_deduction_id.HeaderText = "ID"
-        Me.employee_deduction_id.Name = "employee_deduction_id"
-        Me.employee_deduction_id.ReadOnly = True
-        Me.employee_deduction_id.Visible = False
-        '
-        'DataGridViewTextBoxColumn1
-        '
-        Me.DataGridViewTextBoxColumn1.HeaderText = "Employee No."
-        Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
-        Me.DataGridViewTextBoxColumn1.ReadOnly = True
-        '
-        'DataGridViewTextBoxColumn2
-        '
-        Me.DataGridViewTextBoxColumn2.HeaderText = "Fullname"
-        Me.DataGridViewTextBoxColumn2.Name = "DataGridViewTextBoxColumn2"
-        Me.DataGridViewTextBoxColumn2.ReadOnly = True
-        '
-        'DataGridViewTextBoxColumn3
-        '
-        Me.DataGridViewTextBoxColumn3.HeaderText = "Amount"
-        Me.DataGridViewTextBoxColumn3.Name = "DataGridViewTextBoxColumn3"
-        Me.DataGridViewTextBoxColumn3.ReadOnly = True
-        '
-        'DataGridViewTextBoxColumn4
-        '
-        Me.DataGridViewTextBoxColumn4.HeaderText = "Term (months)"
-        Me.DataGridViewTextBoxColumn4.Name = "DataGridViewTextBoxColumn4"
-        Me.DataGridViewTextBoxColumn4.ReadOnly = True
-        '
-        'DataGridViewTextBoxColumn5
-        '
-        Me.DataGridViewTextBoxColumn5.HeaderText = "Months Paid"
-        Me.DataGridViewTextBoxColumn5.Name = "DataGridViewTextBoxColumn5"
-        Me.DataGridViewTextBoxColumn5.ReadOnly = True
-        Me.DataGridViewTextBoxColumn5.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.DataGridViewTextBoxColumn5.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-        '
-        'comboBoxColumn
-        '
-        Me.comboBoxColumn.HeaderText = "Mode Type"
-        Me.comboBoxColumn.Name = "comboBoxColumn"
-        Me.comboBoxColumn.ReadOnly = True
-        Me.comboBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.comboBoxColumn.Visible = False
-        '
-        'willDeduct
-        '
-        Me.willDeduct.HeaderText = "Will Deduct"
-        Me.willDeduct.Name = "willDeduct"
-        Me.willDeduct.ReadOnly = True
-        Me.willDeduct.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.willDeduct.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
-        Me.willDeduct.Visible = False
         '
         'panelDividerLeftBottom
         '
@@ -796,6 +740,62 @@ Partial Class UcManageImports
     "etected. You can edit the values here for the cross-matching correction purposes" &
     "."
         '
+        'employee_deduction_id
+        '
+        Me.employee_deduction_id.HeaderText = "ID"
+        Me.employee_deduction_id.Name = "employee_deduction_id"
+        Me.employee_deduction_id.ReadOnly = True
+        Me.employee_deduction_id.Visible = False
+        '
+        'DataGridViewTextBoxColumn1
+        '
+        Me.DataGridViewTextBoxColumn1.HeaderText = "Employee No."
+        Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
+        Me.DataGridViewTextBoxColumn1.ReadOnly = True
+        '
+        'DataGridViewTextBoxColumn2
+        '
+        Me.DataGridViewTextBoxColumn2.HeaderText = "Fullname"
+        Me.DataGridViewTextBoxColumn2.Name = "DataGridViewTextBoxColumn2"
+        Me.DataGridViewTextBoxColumn2.ReadOnly = True
+        '
+        'DataGridViewTextBoxColumn3
+        '
+        Me.DataGridViewTextBoxColumn3.HeaderText = "Amount"
+        Me.DataGridViewTextBoxColumn3.Name = "DataGridViewTextBoxColumn3"
+        Me.DataGridViewTextBoxColumn3.ReadOnly = True
+        '
+        'DataGridViewTextBoxColumn4
+        '
+        Me.DataGridViewTextBoxColumn4.HeaderText = "Term (months)"
+        Me.DataGridViewTextBoxColumn4.Name = "DataGridViewTextBoxColumn4"
+        Me.DataGridViewTextBoxColumn4.ReadOnly = True
+        '
+        'DataGridViewTextBoxColumn5
+        '
+        Me.DataGridViewTextBoxColumn5.HeaderText = "Months Paid"
+        Me.DataGridViewTextBoxColumn5.Name = "DataGridViewTextBoxColumn5"
+        Me.DataGridViewTextBoxColumn5.ReadOnly = True
+        Me.DataGridViewTextBoxColumn5.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridViewTextBoxColumn5.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
+        '
+        'comboBoxColumn
+        '
+        Me.comboBoxColumn.HeaderText = "Mode Type"
+        Me.comboBoxColumn.Name = "comboBoxColumn"
+        Me.comboBoxColumn.ReadOnly = True
+        Me.comboBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.comboBoxColumn.Visible = False
+        '
+        'deduct_at
+        '
+        Me.deduct_at.HeaderText = "Deduct At"
+        Me.deduct_at.Name = "deduct_at"
+        Me.deduct_at.ReadOnly = True
+        Me.deduct_at.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.deduct_at.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
+        Me.deduct_at.Visible = False
+        '
         'UcManageImports
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -859,14 +859,6 @@ Partial Class UcManageImports
     Friend WithEvents panelDgvLeft As Panel
     Friend WithEvents lblMessageLeft As Label
     Friend WithEvents dgvLeft As DataGridView
-    Friend WithEvents employee_deduction_id As DataGridViewTextBoxColumn
-    Friend WithEvents DataGridViewTextBoxColumn1 As DataGridViewTextBoxColumn
-    Friend WithEvents DataGridViewTextBoxColumn2 As DataGridViewTextBoxColumn
-    Friend WithEvents DataGridViewTextBoxColumn3 As DataGridViewTextBoxColumn
-    Friend WithEvents DataGridViewTextBoxColumn4 As DataGridViewTextBoxColumn
-    Friend WithEvents DataGridViewTextBoxColumn5 As DataGridViewTextBoxColumn
-    Friend WithEvents comboBoxColumn As DataGridViewComboBoxColumn
-    Friend WithEvents willDeduct As DataGridViewCheckBoxColumn
     Friend WithEvents panelDividerLeftBottom As Panel
     Friend WithEvents panelBottomLeft As Panel
     Friend WithEvents btnManageDescrepancies As Button
@@ -880,4 +872,12 @@ Partial Class UcManageImports
     Friend WithEvents deduction_code As DataGridViewTextBoxColumn
     Friend WithEvents action_import As DataGridViewButtonColumn
     Friend WithEvents action_clear As DataGridViewButtonColumn
+    Friend WithEvents employee_deduction_id As DataGridViewTextBoxColumn
+    Friend WithEvents DataGridViewTextBoxColumn1 As DataGridViewTextBoxColumn
+    Friend WithEvents DataGridViewTextBoxColumn2 As DataGridViewTextBoxColumn
+    Friend WithEvents DataGridViewTextBoxColumn3 As DataGridViewTextBoxColumn
+    Friend WithEvents DataGridViewTextBoxColumn4 As DataGridViewTextBoxColumn
+    Friend WithEvents DataGridViewTextBoxColumn5 As DataGridViewTextBoxColumn
+    Friend WithEvents comboBoxColumn As DataGridViewComboBoxColumn
+    Friend WithEvents deduct_at As DataGridViewCheckBoxColumn
 End Class

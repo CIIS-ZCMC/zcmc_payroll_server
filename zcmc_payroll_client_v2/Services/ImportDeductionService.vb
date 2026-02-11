@@ -45,8 +45,8 @@
 
                 ' Checkbox setup
                 Dim willDeduct As Boolean = False
-                If item.willDeduct IsNot Nothing Then
-                    willDeduct = Convert.ToBoolean(item.willDeduct)
+                If item.deduct_at IsNot Nothing Then
+                    willDeduct = Convert.ToBoolean(item.deduct_at)
                 End If
 
                 Dim rowIndex As Integer = dgv.Rows.Add(

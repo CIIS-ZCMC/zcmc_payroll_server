@@ -361,6 +361,7 @@
     <Compile Include="Services\DeductionGroupService.vb" />
     <Compile Include="Services\DeductionService.vb" />
     <Compile Include="Services\EmployeeDeductionService.vb" />
+    <Compile Include="Services\EmployeePayrollService.vb" />
     <Compile Include="Services\EmployeePreviewService.vb" />
     <Compile Include="Services\EmployeeReceivableService.vb" />
     <Compile Include="Services\EmployeeService.vb" />
