@@ -12,13 +12,13 @@ use App\Http\Controllers\Employee\ExcludedEmployeeController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
 use App\Http\Controllers\Payroll\GeneralPayrollController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
+use App\Http\Controllers\Payroll\PayrollProcessController;
 use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\Settings\DeductionController;
 use App\Http\Controllers\Settings\DeductionGroupController;
 use App\Http\Controllers\Settings\DeductionRuleController;
 use App\Http\Controllers\Settings\ReceivableController;
 use App\Http\Controllers\Trail\EmployeeDeductionTrailController;
-use App\Http\Controllers\UMIS\EmployeeProfileController;
 use App\Http\Controllers\UMIS\FetchEmployeeController;
 use Illuminate\Support\Facades\Route;
 
@@ -70,6 +70,7 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('excluded-employees', ExcludedEmployeeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     //Payroll Period
+    Route::apiResource('payroll-process', PayrollProcessController::class)->only(['store', 'show', 'update']);
     Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index', 'update']);
     Route::get("payroll-period-lists", [PayrollPeriodController::class, 'payrollPeriodList']);
 
