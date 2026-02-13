@@ -22,6 +22,11 @@ zcmc_payroll_client_v2
   resource lookups using this strongly typed resource class.
 </summary>
 </member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources._13_month_128">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
 <member name="P:zcmc_payroll_client_v2.My.Resources.Resources.approved_32">
 <summary>
   Looks up a localized resource of type System.Drawing.Bitmap.
@@ -67,6 +72,16 @@ zcmc_payroll_client_v2
   Looks up a localized resource of type System.Drawing.Bitmap.
 </summary>
 </member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.night_payroll_128">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.paycheck_128">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
 <member name="P:zcmc_payroll_client_v2.My.Resources.Resources.payroll_24">
 <summary>
   Looks up a localized resource of type System.Drawing.Bitmap.
@@ -108,6 +123,11 @@ zcmc_payroll_client_v2
 </summary>
 </member>
 <member name="P:zcmc_payroll_client_v2.My.Resources.Resources.sign_out_24">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:zcmc_payroll_client_v2.My.Resources.Resources.special_payroll_128">
 <summary>
   Looks up a localized resource of type System.Drawing.Bitmap.
 </summary>

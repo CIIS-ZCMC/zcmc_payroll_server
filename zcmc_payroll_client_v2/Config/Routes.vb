@@ -21,7 +21,7 @@
     Public urlEmployeeDeductionTrail As String = "employee-deduction-trail"
     Public urlEmployeePreview As String = "employee-preview"
 
-
+    Public urlPayrollProcess As String = "payroll-processes"
     Public urlPayrollPeriod As String = "payroll-periods"
     Public urlPayrollPeriodList As String = "payroll-period-lists"
     Public urlEmployeePayroll As String = "employee-payrolls"

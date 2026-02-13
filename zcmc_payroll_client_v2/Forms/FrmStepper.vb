@@ -1,4 +1,5 @@
-﻿Imports MaterialSkin
+﻿Imports System.Linq.Expressions
+Imports MaterialSkin
 
 Public Class FrmStepper
     Private payrollPeriodService As New PayrollPeriodService()
@@ -18,16 +19,26 @@ Public Class FrmStepper
             True
         )
 
-        tblpStepper.Controls.Add(CreateStepper(1, "Import"), 0, 0)
-        tblpStepper.Controls.Add(CreateStepper(2, "Deductions"), 1, 0)
-        tblpStepper.Controls.Add(CreateStepper(3, "Receivables"), 2, 0)
-        tblpStepper.Controls.Add(CreateStepper(4, "Excluded"), 3, 0)
-        tblpStepper.Controls.Add(CreateStepper(5, "Set"), 4, 0)
-        tblpStepper.Controls.Add(CreateStepper(6, "Choose"), 5, 0)
-        tblpStepper.Controls.Add(CreateStepper(7, "Preview"), 6, 0)
-        tblpStepper.Controls.Add(CreateStepper(8, "View"), 7, 0)
+        Select Case AppState.PayrollType
+            Case "regular", "job_order"
+                tblpStepper.Controls.Add(CreateStepper(1, "Import"), 0, 0)
+                tblpStepper.Controls.Add(CreateStepper(2, "Deductions"), 1, 0)
+                tblpStepper.Controls.Add(CreateStepper(3, "Receivables"), 2, 0)
+                tblpStepper.Controls.Add(CreateStepper(4, "Excluded"), 3, 0)
+                tblpStepper.Controls.Add(CreateStepper(5, "Set"), 4, 0)
+                tblpStepper.Controls.Add(CreateStepper(6, "Select"), 5, 0)
+                tblpStepper.Controls.Add(CreateStepper(7, "Review"), 6, 0)
+                tblpStepper.Controls.Add(CreateStepper(8, "View"), 7, 0)
 
-        LoadStep(1) ' default
+            Case "night_differential"
+                tblpStepper.Controls.Add(CreateStepper(1, "Set"), 0, 0)
+                tblpStepper.Controls.Add(CreateStepper(2, "Select"), 1, 0)
+                tblpStepper.Controls.Add(CreateStepper(3, "Review"), 2, 0)
+                tblpStepper.Controls.Add(CreateStepper(4, "View"), 3, 0)
+        End Select
+
+
+        LoadStep(currentStep) ' default
     End Sub
 
     Private Async Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click

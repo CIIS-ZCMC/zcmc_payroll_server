@@ -126,6 +126,7 @@
     <Compile Include="Api\GeneralPayrollApi.vb" />
     <Compile Include="Api\ImportDeductionApi.vb" />
     <Compile Include="Api\PayrollPeriodApi.vb" />
+    <Compile Include="Api\PayrollProcessApi.vb" />
     <Compile Include="Api\ReceivableApi.vb" />
     <Compile Include="Api\ReceivableRuleApi.vb" />
     <Compile Include="Config\AppConfig.vb" />
@@ -137,6 +138,7 @@
     <Compile Include="DTO\EmployeeDeductionDto.vb" />
     <Compile Include="DTO\EmployeePayrollDto.vb" />
     <Compile Include="DTO\EmployeeReceivableDto.vb" />
+    <Compile Include="DTO\PayrollProcessDto.vb" />
     <Compile Include="Form1.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -196,6 +198,12 @@
       <DependentUpon>FrmMain.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrmMain.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmPayrollType.Designer.vb">
+      <DependentUpon>FrmPayrollType.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FrmPayrollType.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmStepper.Designer.vb">
@@ -344,6 +352,7 @@
     <Compile Include="Models\ImportDeductionResponse.vb" />
     <Compile Include="Models\LoginResponse.vb" />
     <Compile Include="Models\PayrollPeriodResponse.vb" />
+    <Compile Include="Models\PayrollProcessResponse.vb" />
     <Compile Include="Models\ReceivableResponse.vb" />
     <Compile Include="Models\ReceivableRuleResponse.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -368,6 +377,7 @@
     <Compile Include="Services\GeneralPayrollService.vb" />
     <Compile Include="Services\ImportDeductionService.vb" />
     <Compile Include="Services\PayrollPeriodService.vb" />
+    <Compile Include="Services\PayrollProcessService.vb" />
     <Compile Include="Services\ReceivableService.vb" />
     <Compile Include="Services\ServiceResult.vb" />
   </ItemGroup>
@@ -401,6 +411,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmMain.resx">
       <DependentUpon>FrmMain.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmPayrollType.resx">
+      <DependentUpon>FrmPayrollType.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmStepper.resx">
       <DependentUpon>FrmStepper.vb</DependentUpon>
@@ -488,6 +501,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="MetroFramework.txt" />
+    <None Include="Resources\13_month_128.jpg" />
+    <None Include="Resources\special_payroll_128.png" />
+    <None Include="Resources\paycheck_128.png" />
+    <None Include="Resources\night_payroll_128.png" />
     <None Include="Resources\refetch_24.png" />
     <None Include="Resources\report_24.png" />
     <None Include="Resources\approved_32.png" />

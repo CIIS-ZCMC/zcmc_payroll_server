@@ -121,11 +121,11 @@
   <data name="zcmc_building" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\zcmc_building.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="report_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\report_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="round_pending_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\round_pending_32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="special_payroll_128" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\special_payroll_128.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="completed-payroll_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\completed-payroll_32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -138,6 +138,9 @@
   </data>
   <data name="view_employee_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\view_employee_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="refetch_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\refetch_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="employee_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\employee_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -157,17 +160,26 @@
   <data name="back-button_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\back-button_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="minimize_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\minimize_162.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="zcmc_logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\zcmc_logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="night_payroll_128" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\night_payroll_128.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="approved_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\approved_32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="minimize_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\minimize_162.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="paycheck_128" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\paycheck_128.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="round_success_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\round_success_32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="report_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\report_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="close_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\close_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -178,7 +190,7 @@
   <data name="sign-out_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sign-out_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="refetch_24" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\refetch_24.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="13_month_128" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\13_month_128.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
