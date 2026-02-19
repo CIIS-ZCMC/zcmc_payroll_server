@@ -65,7 +65,6 @@ Partial Class FrmLoading
         Me.pbLoading.Size = New System.Drawing.Size(451, 23)
         Me.pbLoading.TabIndex = 24
         Me.pbLoading.Value = 10
-        Me.pbLoading.Visible = False
         '
         'lblMessage
         '

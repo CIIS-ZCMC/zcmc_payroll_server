@@ -3,24 +3,48 @@ Imports MaterialSkin
 
 Public Class FrmStepper
     Private payrollPeriodService As New PayrollPeriodService()
+    Private payrollProcessService As New PayrollProcessService()
 
     Private payrollContext As New PayrollWizardContext()
 
     Private currentStep As Integer = 1
-    Private Const TOTAL_STEPS As Integer = 8
+    Private TOTAL_STEPS As Integer
+
+    'Private Const TOTAL_STEPS As Integer = 8
+
+    Private _session As PayrollSession
+    Public Sub New(session As PayrollSession)
+        InitializeComponent()
+        _session = session
+    End Sub
 
     Private Async Sub FrmStepper_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'Await payrollPeriodService.GetActivePayroll(lblMonthYear, True)
 
-        Await LoadingHelper.RunAsync(
-            Async Function()
-                Await payrollPeriodService.GetActivePayroll(lblMonthYear, True)
-            End Function,
-            True
-        )
+        'Await LoadingHelper.RunAsync(
+        '    Async Function()
+        '        Await payrollPeriodService.GetActivePayroll(lblMonthYear, True)
+        '    End Function,
+        '    True
+        ')
 
-        Select Case AppState.PayrollType
-            Case "regular", "job_order"
+        'Me.Enabled = False
+
+        'Dim frm As New FrmPayrollType
+        'frm.ShowDialog()
+
+        'currentStep = AppState.CurrentPayrollProcess.current_step
+
+        'Me.Enabled = True
+
+        lblMonthYear.Text = $"{_session.PayrollPeriod.month}/{_session.PayrollPeriod.year}"
+
+        tblpStepper.Controls.Clear()
+
+        Select Case _session.PayrollType
+            Case PayrollTypes.regular, PayrollTypes.job_order
+                TOTAL_STEPS = 8
+
                 tblpStepper.Controls.Add(CreateStepper(1, "Import"), 0, 0)
                 tblpStepper.Controls.Add(CreateStepper(2, "Deductions"), 1, 0)
                 tblpStepper.Controls.Add(CreateStepper(3, "Receivables"), 2, 0)
@@ -30,22 +54,56 @@ Public Class FrmStepper
                 tblpStepper.Controls.Add(CreateStepper(7, "Review"), 6, 0)
                 tblpStepper.Controls.Add(CreateStepper(8, "View"), 7, 0)
 
-            Case "night_differential"
+            Case PayrollTypes.night_differential
+                TOTAL_STEPS = 4
+
                 tblpStepper.Controls.Add(CreateStepper(1, "Set"), 0, 0)
                 tblpStepper.Controls.Add(CreateStepper(2, "Select"), 1, 0)
                 tblpStepper.Controls.Add(CreateStepper(3, "Review"), 2, 0)
                 tblpStepper.Controls.Add(CreateStepper(4, "View"), 3, 0)
         End Select
 
+        currentStep = _session.CurrentPayrollProcess.current_step
+
+        If currentStep < 1 OrElse currentStep > TOTAL_STEPS Then
+            currentStep = 1
+        End If
 
         LoadStep(currentStep) ' default
     End Sub
 
     Private Async Sub btnNext_Click(sender As Object, e As EventArgs) Handles btnNext.Click
-        If currentStep < TOTAL_STEPS Then
-            If Not Await CanProceed(currentStep) Then Exit Sub
-            LoadStep(currentStep + 1)
-            End If
+        'If currentStep < TOTAL_STEPS Then
+        '    If Not Await CanProceed(currentStep) Then Exit Sub
+
+        '    Dim nextStep = currentStep + 1
+        '    Await payrollProcessService.UpdateProcess(_session.CurrentPayrollProcess.id, nextStep, processStatus)
+        '    _session.CurrentPayrollProcess.current_step = nextStep
+
+        '    LoadStep(nextStep)
+        '    'LoadStep(currentStep + 1)
+        'End If
+
+        If currentStep = TOTAL_STEPS Then
+            Await payrollProcessService.UpdateProcess(_session.CurrentPayrollProcess.id, currentStep, PayrollProcessStatus.complete.ToString())
+
+            MessageBox.Show("Payroll Completed Successfully.")
+            Me.Close()
+            Exit Sub
+        End If
+
+        If Not Await CanProceed(currentStep) Then Exit Sub
+
+        Dim nextStep = currentStep + 1
+        Dim result = Await payrollProcessService.UpdateProcess(_session.CurrentPayrollProcess.id, nextStep, PayrollProcessStatus.in_progress.ToString())
+
+        If Not result.Success Then
+            MessageBox.Show(result.Message)
+            Exit Sub
+        End If
+
+        _session.CurrentPayrollProcess.current_step = nextStep
+        LoadStep(nextStep)
     End Sub
 
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
@@ -99,6 +157,76 @@ Public Class FrmStepper
         HighlightStepper(steps)
         UpdateNavigationButtons()
 
+        Select Case _session.PayrollType
+            Case PayrollTypes.regular, PayrollTypes.job_order
+                LoadRegularSteps(steps)
+
+            Case PayrollTypes.night_differential
+                LoadNightDiffSteps(steps)
+        End Select
+    End Sub
+
+    Private Sub HighlightStepper(activeStep As Integer)
+        For Each pnl As Panel In tblpStepper.Controls.OfType(Of Panel)()
+            Dim index As Integer = CInt(pnl.Tag)
+            Dim pic = pnl.Controls.OfType(Of PictureBox)().First()
+
+            If index < activeStep Then
+                pic.Image = My.Resources.round_success_32   ' completed
+            ElseIf index = activeStep Then
+                pic.Image = My.Resources.round_processing_32   ' active
+            Else
+                pic.Image = My.Resources.round_pending_32 ' pending
+            End If
+        Next
+    End Sub
+
+    Private Sub UpdateNavigationButtons()
+        btnBack.Enabled = (currentStep > 1)
+        btnNext.Enabled = (currentStep < TOTAL_STEPS)
+
+        If currentStep = TOTAL_STEPS Then
+            btnNext.Text = "Finish"
+        Else
+            btnNext.Text = "Next"
+        End If
+    End Sub
+
+    Private Function CanProceed(steps As Integer) As Task(Of Boolean)
+        If _session.PayrollType = PayrollTypes.regular OrElse _session.PayrollType = PayrollTypes.job_order Then
+            Select Case steps
+                Case 1
+                    Return CType(pnlUserControlDisplay.Controls(0), UcManageImports).IsValid()
+                Case 2
+                    Return CType(pnlUserControlDisplay.Controls(0), UcManageEmployee).IsValid()
+                Case 4
+                    Return CType(pnlUserControlDisplay.Controls(0), UcManageEmployee).IsValid()
+                Case 5
+                    Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepOne).IsValid()
+                Case 6
+                    Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepTwo).IsValid()
+                Case 7
+                    Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepThree).IsValid()
+                Case Else
+                    Return Task.FromResult(True)
+            End Select
+
+        ElseIf _session.PayrollType = PayrollTypes.night_differential Then
+            Select Case steps
+                Case 1
+                    Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepOne).IsValid()
+                Case 2
+                    Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepOne).IsValid()
+                Case 3
+                    Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepOne).IsValid()
+                Case Else
+                    Return Task.FromResult(True)
+            End Select
+        End If
+
+    End Function
+
+    Private Sub LoadRegularSteps(steps As Integer)
         Select Case steps
             Case 1 : RenderUserControl(New UcManageImports())
 
@@ -135,50 +263,14 @@ Public Class FrmStepper
         End Select
     End Sub
 
-    Private Sub HighlightStepper(activeStep As Integer)
-        For Each pnl As Panel In tblpStepper.Controls.OfType(Of Panel)()
-            Dim index As Integer = CInt(pnl.Tag)
-            Dim pic = pnl.Controls.OfType(Of PictureBox)().First()
-
-            If index < activeStep Then
-                pic.Image = My.Resources.round_success_32   ' completed
-            ElseIf index = activeStep Then
-                pic.Image = My.Resources.round_processing_32   ' active
-            Else
-                pic.Image = My.Resources.round_pending_32 ' pending
-            End If
-        Next
-    End Sub
-
-    Private Sub UpdateNavigationButtons()
-        btnBack.Enabled = (currentStep > 1)
-        btnNext.Enabled = (currentStep < TOTAL_STEPS)
-
-        If currentStep = TOTAL_STEPS Then
-            btnNext.Text = "Finish"
-        Else
-            btnNext.Text = "Next"
-        End If
-    End Sub
-
-    Private Function CanProceed(steps As Integer) As Task(Of Boolean)
+    Private Sub LoadNightDiffSteps(steps As Integer)
         Select Case steps
-            Case 1
-                Return CType(pnlUserControlDisplay.Controls(0), UcManageImports).IsValid()
-            Case 2
-                Return CType(pnlUserControlDisplay.Controls(0), UcManageEmployee).IsValid()
-            Case 4
-                Return CType(pnlUserControlDisplay.Controls(0), UcManageEmployee).IsValid()
-            Case 5
-                Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepOne).IsValid()
-            Case 6
-                Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepTwo).IsValid()
-            Case 7
-                Return CType(pnlUserControlDisplay.Controls(0), UcPayrollStepThree).IsValid()
-            Case Else
-                Return Task.FromResult(True)
+            Case 1 : RenderUserControl(New UcPayrollStepOne)
+            Case 2 : RenderUserControl(New UcPayrollStepOne)
+            Case 3 : RenderUserControl(New UcPayrollStepOne)
+            Case 4 : RenderUserControl(New UcPayrollStepOne)
         End Select
-    End Function
+    End Sub
 
     Private Sub btnSet_Click(sender As Object, e As EventArgs) Handles btnSet.Click
 

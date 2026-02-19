@@ -82,7 +82,7 @@ Public Class EmployeeService
             dgv.Rows.Clear()
             Dim response = Await EmployeeApi.Show(id)
 
-            If response Is Nothing OrElse response.data Is Nothing Then Exit Function
+            'If response Is Nothing OrElse response.data Is Nothing Then Exit Function
 
             Dim data As EmployeeResponse = response.data
 

@@ -72,4 +72,9 @@
 
         lblPage.Text = $"of {pagination.LastPage}"
     End Sub
+
+    Public Function GetMonthNumber(monthName As String) As Integer
+        Dim dt As DateTime = DateTime.ParseExact(monthName, "MMMM", Globalization.CultureInfo.InvariantCulture)
+        Return dt.Month
+    End Function
 End Class

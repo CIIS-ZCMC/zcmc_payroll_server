@@ -12,9 +12,14 @@
         Me.WindowState = FormWindowState.Minimized
     End Sub
 
-    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+    Private Async Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         Dim obj As New AddEditEmployeeReceivable
-        obj.ShowDialog()
+        obj._employeeID = _employeeID
+        obj.add = True
+        If obj.ShowDialog() = DialogResult.OK Then
+            Await service.ShowEmployeeReceivable(dgvTable, _employeeID)
+            obj.Close()
+        End If
     End Sub
 
     Private Async Sub FrmShowEmployeeReceivable_Load(sender As Object, e As EventArgs) Handles MyBase.Load

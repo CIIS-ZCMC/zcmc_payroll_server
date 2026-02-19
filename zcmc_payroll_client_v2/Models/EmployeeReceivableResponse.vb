@@ -9,14 +9,14 @@
     Public Property billing_cycle As String
     Public Property amount As Decimal
     Public Property percentage As Decimal
-    Public Property date_from As Date
-    Public Property date_to As Date
+    Public Property date_from As String
+    Public Property date_to As String
     Public Property total_paid As Integer
     Public Property reason As String
     Public Property status As String
     Public Property is_default As Boolean
-    Public Property effective_date As Date
-    Public Property received_at As Date
+    Public Property effective_date As String
+    Public Property received_at As String
     Public Property stopped_at As String
     Public Property completed_at As String
     Public Property created_at As String

@@ -123,6 +123,8 @@
     <Compile Include="Api\EmployeePayrollApi.vb" />
     <Compile Include="Api\EmployeePreviewApi.vb" />
     <Compile Include="Api\EmployeeReceivableApi.vb" />
+    <Compile Include="Api\FetchEmployeeApi.vb" />
+    <Compile Include="Api\FetchProgressApi.vb" />
     <Compile Include="Api\GeneralPayrollApi.vb" />
     <Compile Include="Api\ImportDeductionApi.vb" />
     <Compile Include="Api\PayrollPeriodApi.vb" />
@@ -131,13 +133,19 @@
     <Compile Include="Api\ReceivableRuleApi.vb" />
     <Compile Include="Config\AppConfig.vb" />
     <Compile Include="Config\AppState.vb" />
+    <Compile Include="Config\PayrollSession.vb" />
     <Compile Include="Config\Routes.vb" />
     <Compile Include="Config\ServiceErrorCode.vb" />
+    <Compile Include="Config\UserSession.vb" />
     <Compile Include="DTO\Context\PaginationContext.vb" />
+    <Compile Include="DTO\Context\PayrollPeriodContext.vb" />
     <Compile Include="DTO\Context\PayrollWizardContext.vb" />
     <Compile Include="DTO\EmployeeDeductionDto.vb" />
     <Compile Include="DTO\EmployeePayrollDto.vb" />
     <Compile Include="DTO\EmployeeReceivableDto.vb" />
+    <Compile Include="DTO\Enum\PayrollProcessStatus.vb" />
+    <Compile Include="DTO\Enum\PayrollTypes.vb" />
+    <Compile Include="DTO\PayrollPeriodDto.vb" />
     <Compile Include="DTO\PayrollProcessDto.vb" />
     <Compile Include="Form1.vb">
       <SubType>Form</SubType>
@@ -332,7 +340,6 @@
     <Compile Include="Helpers\ComboItem.vb" />
     <Compile Include="Helpers\Helpers.vb" />
     <Compile Include="Helpers\LoadingHelper.vb" />
-    <Compile Include="Helpers\ValidateInputs.vb" />
     <Compile Include="Models\ApiResponse.vb" />
     <Compile Include="Models\AssignedAreaResponse.vb" />
     <Compile Include="Models\DeductionGroupResponse.vb" />
@@ -348,6 +355,7 @@
     <Compile Include="Models\EmployeeSalaryResponse.vb" />
     <Compile Include="Models\EmployeeTimeRecordResponse.vb" />
     <Compile Include="Models\ExcludedEmployeeResponse.vb" />
+    <Compile Include="Models\FetchProgressResponse.vb" />
     <Compile Include="Models\GeneralPayrollResponse.vb" />
     <Compile Include="Models\ImportDeductionResponse.vb" />
     <Compile Include="Models\LoginResponse.vb" />
@@ -374,6 +382,8 @@
     <Compile Include="Services\EmployeePreviewService.vb" />
     <Compile Include="Services\EmployeeReceivableService.vb" />
     <Compile Include="Services\EmployeeService.vb" />
+    <Compile Include="Services\FetchEmployeeService.vb" />
+    <Compile Include="Services\FetchProgressService.vb" />
     <Compile Include="Services\GeneralPayrollService.vb" />
     <Compile Include="Services\ImportDeductionService.vb" />
     <Compile Include="Services\PayrollPeriodService.vb" />

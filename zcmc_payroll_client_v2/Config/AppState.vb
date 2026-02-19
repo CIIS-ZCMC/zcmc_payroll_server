@@ -4,5 +4,7 @@
 
     Public Shared Property PayrollPeriodId As Integer
     Public Shared Property PayrollPeriod As PayrollPeriodResponse
-    Public Shared Property PayrollType As String
+    Public Shared Property PayrollType As Integer
+    Public Shared Property CurrentPayrollProcess As PayrollProcessResponse
+    Public Shared Property PayrollPeriodContext As PayrollPeriodContext
 End Class

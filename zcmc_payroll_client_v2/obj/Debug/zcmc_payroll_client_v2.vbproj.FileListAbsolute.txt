@@ -44,5 +44,5 @@ D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_c
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmError.resources
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmInformation.resources
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmWarning.resources
-D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.exe.config
 D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.FrmPayrollType.resources
+D:\System\zcmc_payroll_client_v2\zcmc_payroll_client_v2\obj\Debug\zcmc_payroll_client_v2.exe.config

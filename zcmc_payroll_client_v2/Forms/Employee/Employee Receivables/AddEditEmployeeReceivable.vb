@@ -59,6 +59,9 @@
     End Sub
 
     Private Async Sub AddEditEmployeeReceivable_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Debug.WriteLine($"_payroll_period_id: {_payroll_period_id}")
+        Debug.WriteLine($"_employeeID: {_employeeID}")
+
         Dim list = Await serviceReceivable.DropDownReceivable()
         helper.BindDropDown(cmbReceivable, list, " ")
 

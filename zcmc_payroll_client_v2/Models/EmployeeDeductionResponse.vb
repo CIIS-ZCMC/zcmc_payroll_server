@@ -18,7 +18,7 @@
     Public Property status As String
     Public Property isDifferential As String
     Public Property is_default As Boolean
-    Public Property effective_date As Date
+    Public Property effective_date As String
     Public Property deduct_at As String
     Public Property stopped_at As String
     Public Property completed_at As String

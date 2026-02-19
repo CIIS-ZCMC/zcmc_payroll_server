@@ -14,9 +14,14 @@
 
         If loginResult IsNot Nothing Then
             ' Successful login
-            'FrmMain.Show()
-            FrmStepper.Show()
-            'Form1.Show()
+            Dim frm As New FrmPayrollType()
+            If frm.ShowDialog() = DialogResult.OK Then
+                Dim session As PayrollSession = frm.ResultSession
+
+                Dim stepper As New FrmStepper(session)
+                stepper.Show()
+            End If
+
             Me.Hide()
         Else
             MessageBox.Show("Login failed. Please check your credentials.")

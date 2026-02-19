@@ -1,6 +1,8 @@
 ﻿Public Class AddEditEmployeeDeduction
     Dim helper As New Helpers
 
+    Private _session As PayrollSession
+
     Private service As New EmployeeDeductionService
     Private serviceDeduction As New DeductionService
 

@@ -9,8 +9,9 @@
     Public urlReceivable As String = "receivables"
     Public urlReceivableRule As String = "receivable-rules"
 
-
     Public urlFetchEmployee As String = "fetch-employees"
+    Public urlFetchProgress As String = "fetch-progress"
+
     Public urlExcludedEmployee As String = "excluded-employees"
 
     Public urlEmployee As String = "employees"
@@ -21,7 +22,7 @@
     Public urlEmployeeDeductionTrail As String = "employee-deduction-trail"
     Public urlEmployeePreview As String = "employee-preview"
 
-    Public urlPayrollProcess As String = "payroll-processes"
+    Public urlPayrollProcess As String = "payroll-process"
     Public urlPayrollPeriod As String = "payroll-periods"
     Public urlPayrollPeriodList As String = "payroll-period-lists"
     Public urlEmployeePayroll As String = "employee-payrolls"

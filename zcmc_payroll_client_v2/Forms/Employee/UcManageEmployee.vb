@@ -176,12 +176,12 @@
                 End If
             End If
         ElseIf e.ColumnIndex = 10 Then
-                Dim obj As New FrmShowEmployeeDeduction
-                obj.lblEmployeeName.Text = row.Cells(3).Value
-                obj._employeeID = row.Cells(1).Value
-                obj.ShowDialog()
-            ElseIf e.ColumnIndex = 11 Then
-                Dim obj As New FrmShowEmployeeReceivable
+            Dim obj As New FrmShowEmployeeDeduction
+            obj.lblEmployeeName.Text = row.Cells(3).Value
+            obj._employeeID = row.Cells(1).Value
+            obj.ShowDialog()
+        ElseIf e.ColumnIndex = 11 Then
+            Dim obj As New FrmShowEmployeeReceivable
             obj.lblEmployeeName.Text = row.Cells(3).Value
             obj._employeeID = row.Cells(1).Value
             obj.ShowDialog()

@@ -3,6 +3,7 @@
     Public Property month As String
     Public Property year As String
     Public Property employment_type As String
+    Public Property payroll_type As Integer
     Public Property period_type As String
     Public Property period_start As Integer
     Public Property period_end As Integer
