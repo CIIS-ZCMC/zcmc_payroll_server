@@ -24,7 +24,7 @@ class EmployeePayrollRequest extends FormRequest
     public function rules()
     {
         return [
-            'payroll_type' => 'required|in:general,night,special',
+            'payroll_type' => 'required|integer|in:0,1,2,3,4',
             'employee_payroll' => 'required|array|min:1',
             'employee_payroll.*.employee_id' => 'required|integer|exists:employees,id',
             'employee_payroll.*.employee_time_record_id' => 'required|integer',

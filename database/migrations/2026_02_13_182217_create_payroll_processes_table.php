@@ -17,11 +17,11 @@ class CreatePayrollProcessesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('payroll_period_id')->nullable();
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
-            $table->string('payroll_type');
+            $table->integer('payroll_type');
             $table->integer('current_step');
             $table->string('status');
             $table->string('started_by');
-            $table->dateTime('started_at');
+            $table->dateTime('started_at')->default(now());
             $table->timestamps();
 
             $table->unique(['payroll_period_id', 'payroll_type'], 'payroll_process_unique');

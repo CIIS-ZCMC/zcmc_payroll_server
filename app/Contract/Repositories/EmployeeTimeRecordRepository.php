@@ -23,7 +23,7 @@ class EmployeeTimeRecordRepository implements EmployeeTimeRecordInterface
                 'employee' => function ($query) {
                     $query->with([
                         'employeeSalary',
-                        'employeeComputedSalaries',
+                        'employeeComputedSalary',
                         'employeeDeductions',
                         'employeeReceivables',
                         'employeeTimeRecords'

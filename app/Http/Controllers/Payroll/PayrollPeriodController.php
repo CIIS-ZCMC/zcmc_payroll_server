@@ -95,6 +95,7 @@ class PayrollPeriodController extends Controller
         ], Response::HTTP_OK);
     }
 
+
     /**
      * @OA\Put(
      *     path="/api/payroll-periods/{id}",

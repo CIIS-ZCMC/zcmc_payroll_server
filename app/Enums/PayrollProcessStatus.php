@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-class PayrollProcess
+class PayrollProcessStatus
 {
     const IN_PROGRESS = 'in_progress';
     const COMPLETE = 'complete';

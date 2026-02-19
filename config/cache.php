@@ -73,18 +73,17 @@ return [
             ],
         ],
 
-        'redis' => [
-            'driver' => 'redis',
-            'connection' => 'default',
-            'lock_connection' => 'default',
-            'prefix' => env('CACHE_PREFIX', 'laravel_cache:'),
-        ],
+        // 'redis' => [
+        //     'driver' => 'redis',
+        //     'connection' => 'default',
+        //     'lock_connection' => 'default',
+        //     'prefix' => env('CACHE_PREFIX', 'laravel_cache:'),
+        // ],
 
         'umis' => [
             'driver' => 'redis',
             'connection' => 'umis',
             'lock_connection' => 'umis',
-            'prefix' => ''
         ],
 
         'dynamodb' => [

@@ -8,24 +8,24 @@ class UmisHttpRequestHelper
 {
     private static function __clientInstance()
     {
-        return new Client(['base_uri' => env('UMIS').'/', 'timeout' => 30]);
+        return new Client(['base_uri' => env('UMIS') . '/', 'timeout' => 300]);
     }
 
     private static function __constructHeader()
     {
         return [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.env('UMIS_API_KEY'),
+            'Authorization' => 'Bearer ' . env('UMIS_API_KEY'),
             'X-With-Credential' => 'true'
         ];
     }
 
     private static function __processRequestResponse($response)
     {
-        $status =  $response->getStatusCode();
+        $status = $response->getStatusCode();
         $data = json_decode($response->getBody(), true);
 
-        if(!($status >= 200 & $status < 300)){
+        if (!($status >= 200 & $status < 300)) {
             return [
                 'is_failed' => true,
                 'message' => $data['message']
@@ -42,7 +42,7 @@ class UmisHttpRequestHelper
     {
         $client = self::__clientInstance();
 
-        $response = $client->post('/api/' . $end_point,[
+        $response = $client->post('/api/' . $end_point, [
             'json' => $data,
             'headers' => self::__constructHeader()
         ]);

@@ -13,9 +13,9 @@ interface EmployeeInterface
     public function create(array $data): Employee;
     public function update(int $id, array $data): Employee;
     public function createOrUpdate(array $data): Employee;
+    public function find(int $id): Employee;
     public function getIncludedEmployee(int $perPage, int $page): LengthAwarePaginator;
     public function getExcludedEmployee(int $perPage, int $page): LengthAwarePaginator;
-    public function find(int $id): Employee;
     public function findEmployeeWithPayrollPeriod(int $id, int $payroll_period_id): Employee;
     public function getAllEmployeeWithPayrollPeriod(int $payroll_period_id): Collection;
 }

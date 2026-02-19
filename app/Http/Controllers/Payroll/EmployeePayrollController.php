@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Payroll;
 
 use App\Data\EmployeePayrollData;
+use App\Enums\PayrollType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeePayrollRequest;
 use App\Http\Resources\EmployeePayrollResource;
@@ -341,11 +342,11 @@ class EmployeePayrollController extends Controller
     public function store(EmployeePayrollRequest $request)
     {
         switch ($request->payroll_type) {
-            case 'Night Differential':
+            case PayrollType::NIGHT:
                 // $this->processNightDifferential();
                 break;
 
-            case 'general':
+            case PayrollType::REGULAR:
                 $dto = EmployeePayrollData::collection($request->employee_payroll)->toArray();
                 $this->service->updateOrInsert($dto);
                 break;

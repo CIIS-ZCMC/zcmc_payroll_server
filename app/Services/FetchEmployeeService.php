@@ -10,14 +10,14 @@ use App\Contract\ExcludedEmployeeInterface;
 use App\Contract\PayrollPeriodInterface;
 use App\Enums\PayrollStatus;
 use App\Helpers\Helpers;
+use App\Helpers\UmisHttpRequestHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class FetchEmployeeService
 {
-    private const CACHE_PREFIX = 'zamboanga_city_medical_center_portal_cache_:umis:employees:';
-
     public function __construct(
         private PayrollPeriodInterface $interfacePayrollPeriod,
         private EmployeeInterface $interfaceEmployee,
@@ -137,9 +137,9 @@ class FetchEmployeeService
         return null;
     }
 
-    public function hasCacheForPeriod(int $year, int $month): bool
+    public function hasCacheForPeriod(int $year, int $month, string $employment_type, string $period_type): bool
     {
-        $cacheKey = "{$year}-{$month}";
+        $cacheKey = "{$year}-{$month}:{$employment_type}:{$period_type}";
         return Cache::store('umis')->has($cacheKey);
     }
 
@@ -283,5 +283,27 @@ class FetchEmployeeService
 
         return $employee;
 
+    }
+
+    public function triggerUmisCache(int $year, int $month, string $employment_type, string $period_type)
+    {
+        return UmisHttpRequestHelper::post("precache-employee-time-records", [
+            'year' => $year,
+            'month' => $month,
+            'employment_type' => $employment_type,
+            'period_type' => $period_type,
+        ]);
+    }
+
+    public function getCacheProgress()
+    {
+        $cacheKey = "zamboanga_city_medical_center_portal_cache_:precache_employee_progress::progress";
+        $progress = Redis::connection()->get($cacheKey);
+
+        if (!$progress) {
+            return null;
+        }
+
+        return unserialize($progress);
     }
 }

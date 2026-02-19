@@ -21,7 +21,7 @@ class CreatePayrollPeriodsTable extends Migration
             $table->string("month");
             $table->string("year");
             $table->string("employment_type");
-            $table->string("payroll_type")->default(PayrollType::GENERAL);
+            $table->integer("payroll_type")->default(PayrollType::REGULAR);
             $table->string("period_type");
 
             $table->integer('period_start');

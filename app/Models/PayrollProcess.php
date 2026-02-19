@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class PayrollProcess extends Model
 {
     use HasFactory;
-    
-    protected $table = "payroll_process";
+
+    protected $table = "payroll_processes";
 
     protected $primaryKey = 'id';
 

@@ -9,8 +9,8 @@ class PayrollProcessData extends Data
 {
 
     public function __construct(
-        public string $payroll_period_id,
-        public string $payroll_type,
+        public int $payroll_period_id,
+        public int $payroll_type,
         public string $current_step,
         public string $status,
         public string $started_by,
@@ -26,7 +26,7 @@ class PayrollProcessData extends Data
             $request['current_step'],
             $request['status'],
             $request['started_by'],
-            $request['started_at'],
+            $request['started_at'] ?? now()->toDateTimeString(),
         );
     }
 

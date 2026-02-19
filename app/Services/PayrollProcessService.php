@@ -29,4 +29,9 @@ class PayrollProcessService
     {
         return $this->service->update($id, $data);
     }
+
+    public function updateProcess($id, int $currentStep, string $status): PayrollProcess
+    {
+        return $this->service->updateProcess($id, $currentStep, $status);
+    }
 }

@@ -28,7 +28,7 @@ class EmployeeRepository implements EmployeeInterface
         return $this->model
             ->with([
                 'employeeSalary',
-                'employeeComputedSalaries',
+                'employeeComputedSalary',
                 'excludedEmployees' => function ($query) {
                     $query->where('payroll_period_id', $this->payrollPeriodId);
                 },
@@ -81,7 +81,7 @@ class EmployeeRepository implements EmployeeInterface
     {
         return $this->model->with([
             'employeeSalary',
-            'employeeComputedSalaries',
+            'employeeComputedSalary',
             'excludedEmployees' => function ($query) {
                 $query->where('payroll_period_id', $this->payrollPeriodId);
             },
@@ -152,7 +152,7 @@ class EmployeeRepository implements EmployeeInterface
     {
         return $this->model->with([
             'employeeSalary',
-            'employeeComputedSalaries',
+            'employeeComputedSalary',
             'employeeTimeRecords' => function ($query) {
                 $query->whereHas('payrollPeriod', function ($q) {
                     $q->where('is_active', true)->whereNull('locked_at');

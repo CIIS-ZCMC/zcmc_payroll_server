@@ -60,7 +60,7 @@ class ReportsController extends Controller
                 ])->where('status', 'included');
             },
             'employee.employeeSalary',
-            'employee.employeeComputedSalaries'
+            'employee.employeeComputedSalary'
         ])->where('payroll_period_id', $payroll_period->id)
             ->orderBy(
                 Employee::select('last_name')
@@ -284,7 +284,7 @@ class ReportsController extends Controller
                 ])->where('status', 'included');
             },
             'employee.employeeSalary',
-            'employee.employeeComputedSalaries'
+            'employee.employeeComputedSalary'
         ])->where('payroll_period_id', $payroll_period->id)
             ->join('employees', 'employee_payrolls.employee_id', '=', 'employees.id')
             ->orderBy('employees.last_name')

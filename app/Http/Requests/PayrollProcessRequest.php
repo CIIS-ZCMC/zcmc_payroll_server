@@ -21,10 +21,14 @@ class PayrollProcessRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-
+            'payroll_period_id' => 'required|integer',
+            'payroll_type' => 'required|integer',
+            'current_step' => 'required|integer',
+            'status' => 'required|string',
+            'started_by' => 'required|string',
         ];
     }
 }

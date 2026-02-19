@@ -2060,6 +2060,151 @@
                     }
                 ]
             }
+        },
+        "/api/fetch-employees": {
+            "get": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Retrieve employees with optional filtering",
+                "operationId": "82a0294a813a83880150c50784ae96f4",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Filter by year (e.g., 2025)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Filter by month (1-12)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 12,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "employment_type",
+                        "in": "query",
+                        "description": "Type of employment",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "regular",
+                                "job_order"
+                            ],
+                            "example": "regular"
+                        }
+                    },
+                    {
+                        "name": "period_type",
+                        "in": "query",
+                        "description": "Type of period",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "first_half",
+                                "second_half"
+                            ],
+                            "example": "first_half"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employees retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Trigger Umis Cache",
+                "operationId": "05d7c768e4ad6e8ea30bcdaa5fb3a081",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "year",
+                                    "month",
+                                    "employment_type",
+                                    "period_type"
+                                ],
+                                "properties": {
+                                    "year": {
+                                        "type": "integer",
+                                        "example": 2025
+                                    },
+                                    "month": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "employment_type": {
+                                        "type": "string",
+                                        "example": "regular"
+                                    },
+                                    "period_type": {
+                                        "type": "string",
+                                        "example": "first_half"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successfully triggered cache."
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/fetching-progress": {
+            "get": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Retrieve fetching progress",
+                "operationId": "a62f9f98db04a2cce889642d32828667",
+                "responses": {
+                    "200": {
+                        "description": "Employees retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2111,6 +2256,10 @@
         {
             "name": "Receivables",
             "description": "Receivables"
+        },
+        {
+            "name": "Redis",
+            "description": "Redis"
         }
     ]
 }

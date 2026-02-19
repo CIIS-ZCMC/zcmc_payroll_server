@@ -14,7 +14,7 @@ class PayrollProcessRepository implements PayrollProcessInterface
         //nothing
     }
 
-    public function find(int $payrollPeriodId, string $payrollType): PayrollProcess
+    public function find(int $payrollPeriodId, int $payrollType): PayrollProcess
     {
         return $this->model->with('payrollPeriod')
             ->where('payroll_period_id', $payrollPeriodId)
@@ -31,6 +31,18 @@ class PayrollProcessRepository implements PayrollProcessInterface
     {
         $model = $this->model->find($id);
         $model->update($data);
+        return $model->fresh();
+    }
+
+    public function updateProcess(int $id, int $currentStep, string $status): PayrollProcess
+    {
+        $model = $this->model->find($id);
+
+        $model->update([
+            'current_step' => $currentStep,
+            'status' => $status
+        ]);
+
         return $model->fresh();
     }
 }

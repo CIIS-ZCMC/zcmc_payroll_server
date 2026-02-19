@@ -8,6 +8,7 @@ use App\Http\Requests\PayrollProcessRequest;
 use App\Http\Resources\PayrollProcessResource;
 use App\Services\PayrollProcessService;
 use Illuminate\Http\Request;
+use Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class PayrollProcessController extends Controller
@@ -19,6 +20,7 @@ class PayrollProcessController extends Controller
 
     public function store(PayrollProcessRequest $request)
     {
+        Log::info('store');
         $dto = PayrollProcessData::fromRequest($request);
         $data = $this->service->create($dto);
 
@@ -31,6 +33,7 @@ class PayrollProcessController extends Controller
 
     public function show($id, Request $request)
     {
+        Log::info('show');
         $payrollType = $request->get('payroll_type');
         $data = $this->service->find($id, $payrollType);
 
@@ -43,8 +46,16 @@ class PayrollProcessController extends Controller
 
     public function update(int $id, Request $request)
     {
-        $dto = PayrollProcessData::fromRequest($request);
-        $data = $this->service->update($id, $dto->toArray());
+        $dto = [
+            'current_step' => $request->get('current_step'),
+            'status' => $request->get('status')
+        ];
+
+        $data = $this->service->updateProcess(
+            $id,
+            $dto['current_step'],
+            $dto['status']
+        );
 
         return response()->json([
             'data' => PayrollProcessResource::make($data),

@@ -20,6 +20,7 @@ use App\Http\Controllers\Settings\DeductionRuleController;
 use App\Http\Controllers\Settings\ReceivableController;
 use App\Http\Controllers\Trail\EmployeeDeductionTrailController;
 use App\Http\Controllers\UMIS\FetchEmployeeController;
+use App\Http\Controllers\UMIS\FetchingProgressController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,7 +58,8 @@ Route::middleware('auth.token')->group(function () {
     // Route::post('fetch_record_step_4', [EmployeeProfileController::class, 'fetchStep4']);
 
     //Fetch from Redis
-    Route::get('fetch-employees', [FetchEmployeeController::class, 'index']);
+    Route::apiResource('fetch-employees', FetchEmployeeController::class)->only(['index', 'store']);
+    Route::apiResource('fetch-progress', FetchingProgressController::class)->only(['index']);
 
     //Employee
     Route::apiResource('employees', EmployeeController::class)->only(['index', 'show']);
