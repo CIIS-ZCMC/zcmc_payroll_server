@@ -8,7 +8,7 @@ class UmisHttpRequestHelper
 {
     private static function __clientInstance()
     {
-        return new Client(['base_uri' => env('UMIS') . '/', 'timeout' => 300]);
+        return new Client(['base_uri' => env('UMIS_API') . '/', 'timeout' => 300]);
     }
 
     private static function __constructHeader()

@@ -33,14 +33,17 @@ class FetchEmployeeService
     public function createOrUpdate(array $data, int $year, int $month, string $employment_type, string $period_type): array
     {
         $metadataCacheKey = "{$year}-{$month}:{$employment_type}:{$period_type}:metadata";
-        if (!Cache::store('umis')->has($metadataCacheKey)) {
+
+        if (!Redis::connection('umis')->get($metadataCacheKey)) {
             throw new \Exception("Cache data not found for the specified period");
         }
 
-        $cachedMetaData = Cache::store('umis')->get($metadataCacheKey);
+        $cachedMetaData = Redis::connection('umis')->get($metadataCacheKey);
         if ($cachedMetaData === null) {
             throw new \Exception("Invalid cache data");
         }
+
+        $cachedMetaData = unserialize($cachedMetaData);
 
         try {
             DB::beginTransaction();
@@ -92,12 +95,19 @@ class FetchEmployeeService
 
     public function getEmployeesForPeriod(int $year, int $month, string $employment_type, string $period_type)
     {
-
         $cacheKey = "{$year}-{$month}:{$employment_type}:{$period_type}";
+
+        $cachedData = Redis::connection('umis')->get($cacheKey);
+
         try {
-            if (Cache::store('umis')->has($cacheKey)) {
-                $cachedData = Cache::store('umis')->get($cacheKey);
-                $data = json_decode($cachedData, true);
+            // if (Cache::store('umis')->has($cacheKey)) {
+            // $cachedData = Cache::store('umis')->get($cacheKey);
+            // $cachedData = Redis::connection('umis')->get($cacheKey);
+            // $data = json_decode($cachedData, true);
+
+            if ($cachedData) {
+                $unserilizeData = unserialize($cachedData);
+                $data = json_decode($unserilizeData, true);
 
                 if (json_last_error() === JSON_ERROR_NONE) {
                     $data = array_filter($data, function ($employee) {
@@ -109,7 +119,6 @@ class FetchEmployeeService
                         'month' => $month,
                         'employee_count' => count($data)
                     ]);
-
 
                     return $this->createOrUpdate($data, $year, $month, $employment_type, $period_type);
                 } else {
@@ -297,13 +306,13 @@ class FetchEmployeeService
 
     public function getCacheProgress()
     {
-        $cacheKey = "zamboanga_city_medical_center_portal_cache_:precache_employee_progress::progress";
-        $progress = Redis::connection()->get($cacheKey);
+        // $cacheKey = "zamboanga_city_medical_center_portal_cache_:precache_employee_progress::progress";
+        // $progress = Redis::connection()->get($cacheKey);
 
-        if (!$progress) {
-            return null;
-        }
+        // if (!$progress) {
+        //     return null;
+        // }
 
-        return unserialize($progress);
+        // return unserialize($progress);
     }
 }
