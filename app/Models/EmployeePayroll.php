@@ -24,7 +24,7 @@ class EmployeePayroll extends Model
         'gross_pay',
         'total_deductions',
         'net_pay',
-        'night_differential',
+        // 'night_differential',
     ];
 
     // protected $casts = [

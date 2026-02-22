@@ -12,7 +12,7 @@ class PayrollType
     // FOR PAYROLL PROCESS
     const REGULAR = 0;
     const JOBORDER = 1;
-    const SPECIAL = 2;
-    const THIRTEENTH_MONTH = 3;
-    const NIGHT = 4;
+    const NIGHT = 2;
+    const SPECIAL = 3;
+    const THIRTEENTH_MONTH = 4;
 }
