@@ -103,14 +103,21 @@ class EmployeePreviewController extends Controller
             'page' => 'sometimes|integer|min:1',
         ]);
 
-        $result = $this->service->preview(
-            $validated['type'],
-            $validated['payroll_period_id'],
-            $validated['selected_employees'] ?? [],
-            $validated['per_page'] ?? 15,
-            $validated['page'] ?? 1
-        );
-
+        if ($validated['type'] === 'all') {
+            $result = $this->service->getAll(
+                $validated['type'],
+                $validated['payroll_period_id'],
+                $validated['selected_employees'] ?? []
+            );
+        } else {
+            $result = $this->service->preview(
+                $validated['type'],
+                $validated['payroll_period_id'],
+                $validated['selected_employees'] ?? [],
+                $validated['per_page'] ?? 15,
+                $validated['page'] ?? 1
+            );
+        }
         return response()->json([
             'data' => $result['data'],
             'meta' => $result['meta'],

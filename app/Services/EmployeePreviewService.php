@@ -67,6 +67,24 @@ class EmployeePreviewService
         ];
     }
 
+    public function getAll(string $type, int $payrollPeriodId, array $selectedEmployeeIds)
+    {
+        $employees = $this->fetchEmployees($payrollPeriodId, $selectedEmployeeIds);
+
+        [$included, $excluded] = $this->calculateAndClassify($employees);
+
+        $collection = match ($type) {
+            'included' => collect(value: $included),
+            'excluded' => collect($excluded),
+            default => collect([...$included, ...$excluded]),
+        };
+
+        return [
+            'data' => EmployeePreviewResource::collection($collection),
+            'meta' => null,
+        ];
+    }
+
     public function preview(string $type, int $payrollPeriodId, array $selectedEmployeeIds, int $perPage, int $page)
     {
         $employees = $this->fetchEmployees($payrollPeriodId, $selectedEmployeeIds);
