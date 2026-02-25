@@ -19,6 +19,7 @@ use App\Contract\ExcludedEmployeeInterface;
 use App\Contract\GeneralPayrollInterface;
 use App\Contract\PayrollPeriodInterface;
 use App\Contract\PayrollProcessInterface;
+use App\Contract\PayrollReportInterface;
 use App\Contract\ReceivableInterface;
 use App\Contract\Repositories\DeductionGroupRepository;
 use App\Contract\Repositories\DeductionRepository;
@@ -37,8 +38,8 @@ use App\Contract\Repositories\ExcludedEmployeeRepository;
 use App\Contract\Repositories\GeneralPayrollRepository;
 use App\Contract\Repositories\PayrollPeriodRepository;
 use App\Contract\Repositories\PayrollProcessRepository;
+use App\Contract\Repositories\PayrollReportRepository;
 use App\Contract\Repositories\ReceivableRepository;
-use App\Models\EmployeeComputedSalary;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -139,6 +140,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             PayrollProcessInterface::class,
             PayrollProcessRepository::class
+        );
+
+        $this->app->bind(
+            PayrollReportInterface::class,
+            PayrollReportRepository::class
         );
     }
 

@@ -90,8 +90,9 @@ class PayrollPeriodController extends Controller
         $resource_data = $has_filter === false ? PayrollPeriodResource::collection($data) : new PayrollPeriodResource($data);
 
         return response()->json([
-            'message' => 'Payroll period retrieved successfully.',
             'data' => $resource_data,
+            'message' => 'Payroll period retrieved successfully.',
+            'success' => true,
         ], Response::HTTP_OK);
     }
 

@@ -17,6 +17,14 @@ class EmployeePayrollResource extends JsonResource
         return [
             'id' => $this->id,
 
+            'month' => $this->month,
+            'year' => $this->year,
+            'basic_pay' => $this->basic_pay,
+            'total_receivables' => $this->total_receivables,
+            'gross_pay' => $this->gross_pay,
+            'total_deductions' => $this->total_deductions,
+            'net_pay' => $this->net_pay,
+
             'employee_id' => $this->employee_id,
             'employee' => new EmployeeResource($this->whenLoaded('employee')),
 
@@ -26,13 +34,6 @@ class EmployeePayrollResource extends JsonResource
             'payroll_period_id' => $this->payroll_period_id,
             'payroll_period' => new PayrollPeriodResource($this->whenLoaded('payrollPeriod')),
 
-            'month' => $this->month,
-            'year' => $this->year,
-            'basic_pay' => $this->basic_pay,
-            'total_receivables' => $this->total_receivables,
-            'gross_pay' => $this->gross_pay,
-            'total_deductions' => $this->total_deductions,
-            'net_pay' => $this->net_pay,
         ];
     }
 }
