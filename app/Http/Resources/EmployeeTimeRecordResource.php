@@ -46,7 +46,9 @@ class EmployeeTimeRecordResource extends JsonResource
             'no_of_schedule' => $this->no_of_schedule,
 
             'night_duties' => $this->night_duties,
-            'absent_dates' => $this->absent_dates,
+
+            'absent_dates' => $this->absent_dates_formatted['dates'],
+            'absent_count' => $this->absent_dates_formatted['count'],
 
             'month' => $this->month,
             'year' => $this->year,

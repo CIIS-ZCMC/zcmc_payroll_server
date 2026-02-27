@@ -89,4 +89,30 @@ class EmployeeTimeRecord extends Model
             }
         ])->where('payroll_period_id', $payroll_period_id)->get();
     }
+
+    public function getAbsentDatesFormattedAttribute()
+    {
+        $decode_date = json_decode($this->absent_dates, true);
+
+        if (is_array($decode_date) && count($decode_date) > 0) {
+
+            $days = array_map(function ($date) {
+                return (int) date('j', strtotime($date));
+            }, $decode_date);
+
+            sort($days);
+
+            $month = date('F', strtotime($decode_date[0]));
+
+            return [
+                'dates' => $month . ' ' . implode(', ', $days),
+                'count' => count($days)
+            ];
+        }
+
+        return [
+            'dates' => "No Absent",
+            'count' => 0
+        ];
+    }
 }

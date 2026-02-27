@@ -14,6 +14,10 @@ class EmployeePayrollResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $net = $this->net_pay ?? 0;
+        $first_half = round(floor($net / 2), 2);
+        $second_half = round($net - $first_half, 2);
+
         return [
             'id' => $this->id,
 
@@ -24,6 +28,8 @@ class EmployeePayrollResource extends JsonResource
             'gross_pay' => $this->gross_pay,
             'total_deductions' => $this->total_deductions,
             'net_pay' => $this->net_pay,
+            'first_half' => $first_half,
+            'second_half' => $second_half,
 
             'employee_id' => $this->employee_id,
             'employee' => new EmployeeResource($this->whenLoaded('employee')),

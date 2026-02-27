@@ -29,6 +29,7 @@ class EmployeeResource extends JsonResource
                     'group_id' => $group?->id,
                     'group_name' => $group?->name,
                     'group_total' => $items->sum('amount'),
+                    'employee_id' => $this->id,
                     'deduction_details' => $items->map(function ($deduction) {
                         return [
                             'id' => $deduction->id,
