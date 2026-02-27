@@ -298,7 +298,7 @@ class EmployeeProfileController extends Controller
                 //  Salary rate computations (SALARY VALUES GROUP)
                 $basicSalary = $salary_details['amount'];
                 $rates = $this->salaryRate($basicSalary);
-                $initialNetPay = $this->netPay($basicSalary, $noOfPresentDaysWithLeave); //Initial pay, calculate only number present days
+                $initialNetPay = $this->netPay($basicSalary, $noOfPresentDaysWithLeave, $noOfAbsences, $noOfLeaveWoPay); //Initial pay, calculate only number present days
                 $absentRate = $this->absentRate($noOfAbsences, $rates['daily']);
                 $undertimeRate = $this->undertimeRate($totalUnderTimeMinutes, $rates['minutes']);
 
@@ -891,11 +891,13 @@ class EmployeeProfileController extends Controller
         return 0;
     }
 
-    public function netPay($base_salary, $total_present_days)
+    public function netPay($base_salary, $total_present_days, $total_absent_days, $no_of_leave_wo_pay)
     {
         if ($total_present_days >= 1) {
             $rate = round($base_salary / $this->Working_Days, 2);
-            return round($rate * $total_present_days, 2);
+            $total_wo_pay = $total_absent_days + $no_of_leave_wo_pay;
+            $absent_deduction = $rate * $total_wo_pay;
+            return $base_salary - $absent_deduction;
         }
 
         return 0;
