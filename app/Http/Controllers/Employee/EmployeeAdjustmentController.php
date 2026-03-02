@@ -20,7 +20,7 @@ class EmployeeAdjustmentController extends Controller
     {
         $dto = EmployeeAdjustmentData::fromRequest($request);
         $data = $this->service->create($dto);
-
+        
         return response()->json([
             'message' => 'Employee Adjustment created',
             'statusCode' => 200,
