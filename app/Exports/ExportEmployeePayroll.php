@@ -37,18 +37,17 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
      */
     public function collection()
     {
-        // return collect($this->data);
         $rows = [];
 
         $data = collect($this->data);
 
-        foreach ($data as $employee) {
+        foreach ($data->employeePayroll as $employee) {
             // Convert the resource to array
             $row = [
-                $employee['employee_name'] ?? '',
-                $employee['designation'] ?? '',
-                $employee['base_salary'] ?? 0,
-                $employee['basic_pay'] ?? 0,
+                $employee->employee->full_name ?? '',
+                $employee->employee->designation ?? '',
+                $employee->employee->employeeSalary->base_salary ?? 0,
+                $employee->employee->employeeComputedSalary->basic_pay ?? 0,
             ];
 
             if ($receivables = $this->receivableGroups) {
@@ -56,6 +55,9 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
                     $row[] = $this->getReceivableAmount($employee['employee_receivables'] ?? [], $receivable->code);
                 }
             }
+
+            $WTAX = null; // map grouped deduction tax
+            $PHIC = null; // map grouped deduction philhealth
 
             $row = array_merge($row, [
                 $employee['gross_pay'] ?? 0,

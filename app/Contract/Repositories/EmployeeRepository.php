@@ -15,8 +15,18 @@ class EmployeeRepository implements EmployeeInterface
 
     public function __construct(private Employee $model)
     {
-        $this->payrollPeriodId = PayrollPeriod::activeId();
+        //
     }
+
+    private function payrollPeriodId(): ?int
+    {
+        if ($this->payrollPeriodId === null) {
+            $this->payrollPeriodId = PayrollPeriod::activeId();
+        }
+
+        return $this->payrollPeriodId;
+    }
+
 
     public function getAll(): Collection
     {
@@ -30,16 +40,16 @@ class EmployeeRepository implements EmployeeInterface
                 'employeeSalary',
                 'employeeComputedSalary',
                 'excludedEmployees' => function ($query) {
-                    $query->where('payroll_period_id', $this->payrollPeriodId);
+                    $query->where('payroll_period_id', $this->payrollPeriodId());
                 },
                 'employeeDeductions' => function ($query) {
-                    $query->where('payroll_period_id', $this->payrollPeriodId);
+                    $query->where('payroll_period_id', $this->payrollPeriodId());
                 },
                 'employeeReceivables' => function ($query) {
-                    $query->where('payroll_period_id', $this->payrollPeriodId);
+                    $query->where('payroll_period_id', $this->payrollPeriodId());
                 },
                 'employeeTimeRecords' => function ($query) {
-                    $query->where('payroll_period_id', $this->payrollPeriodId);
+                    $query->where('payroll_period_id', $this->payrollPeriodId());
                 }
             ])
             ->orderBy('last_name')
@@ -83,28 +93,28 @@ class EmployeeRepository implements EmployeeInterface
             'employeeSalary',
             'employeeComputedSalary',
             'excludedEmployees' => function ($query) {
-                $query->where('payroll_period_id', $this->payrollPeriodId);
+                $query->where('payroll_period_id', $this->payrollPeriodId());
             },
             'employeeDeductions' => function ($q) {
-                $q->where('payroll_period_id', $this->payrollPeriodId);
+                $q->where('payroll_period_id', $this->payrollPeriodId());
             },
             'employeeReceivables' => function ($q) {
-                $q->where('payroll_period_id', $this->payrollPeriodId);
+                $q->where('payroll_period_id', $this->payrollPeriodId());
             },
             'employeeTimeRecords' => function ($q) {
-                $q->where('payroll_period_id', $this->payrollPeriodId);
+                $q->where('payroll_period_id', $this->payrollPeriodId());
             },
             'employeeTimeRecords.employee.employeeSalary' => function ($q) {
-                $q->where('payroll_period_id', $this->payrollPeriodId);
+                $q->where('payroll_period_id', $this->payrollPeriodId());
             },
             'employeeTimeRecords.employeeComputedSalary' => function ($q) {
-                $q->where('payroll_period_id', $this->payrollPeriodId);
+                $q->where('payroll_period_id', $this->payrollPeriodId());
             },
             'employeeTimeRecords.payrollPeriod' => function ($query) {
-                $query->where('id', $this->payrollPeriodId);
+                $query->where('id', $this->payrollPeriodId());
             }
         ])->whereHas('employeeTimeRecords', function ($query) use ($status) {
-            $query->where('status', $status)->where('payroll_period_id', $this->payrollPeriodId);
+            $query->where('status', $status)->where('payroll_period_id', $this->payrollPeriodId());
         })->orderBy('last_name')->get();
     }
 

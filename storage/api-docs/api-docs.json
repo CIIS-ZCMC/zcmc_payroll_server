@@ -1370,6 +1370,67 @@
                 }
             }
         },
+        "/api/payroll-summary": {
+            "get": {
+                "tags": [
+                    "Payroll Summary"
+                ],
+                "summary": "Get payroll summary",
+                "description": "Retrieve payroll summary for a specific payroll period",
+                "operationId": "99a96e031934fe029529a3c6795e7aa7",
+                "parameters": [
+                    {
+                        "name": "payroll_period_id",
+                        "in": "query",
+                        "description": "Payroll period ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payroll summary retrieved successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Payroll Summary"
+                ],
+                "summary": "Create or update payroll summary",
+                "description": "Create a new payroll summary or update an existing one",
+                "operationId": "0d21383ef971c5cd3ec141ee0400f369",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "payroll_period_id": {
+                                        "description": "Payroll period ID",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Payroll summary created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
         "/api/deductions": {
             "get": {
                 "tags": [
@@ -2244,6 +2305,10 @@
         {
             "name": "Payroll Periods",
             "description": "Payroll Periods"
+        },
+        {
+            "name": "Payroll Summary",
+            "description": "Payroll Summary"
         },
         {
             "name": "Deductions",

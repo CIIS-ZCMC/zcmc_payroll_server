@@ -30,6 +30,7 @@ class PayrollReportResource extends JsonResource
             'locked_at' => $this->locked_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'payroll_summary' => new PayrollSummaryResource($this->whenLoaded('payrollSummary')),
             'employee_payrolls' => EmployeePayrollResource::collection($this->whenLoaded('employeePayrolls'))
         ];
     }

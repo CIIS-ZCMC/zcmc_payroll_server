@@ -6,12 +6,34 @@ use App\Contract\EmployeePayrollInterface;
 use App\Models\EmployeePayroll;
 use App\Models\PayrollPeriod;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class EmployeePayrollRepository implements EmployeePayrollInterface
 {
     public function __construct(private EmployeePayroll $model)
     {
         //nothing
+    }
+
+    public function getAll(int $payrollPeriodId): Collection
+    {
+        return $this->model
+        ->select('employee_payrolls.*')
+        ->join('employees', 'employees.id', '=', 'employee_payrolls.employee_id')
+        ->where('payroll_period_id', $payrollPeriodId)
+        ->with([
+            'employee',
+            'payrollPeriod',
+            'employeeTimeRecord',
+            'employee.employeeDeductions' => function ($query) use ($payrollPeriodId) {
+                $query->where('payroll_period_id', $payrollPeriodId);
+            },
+            'employee.employeeReceivables' => function ($query) use ($payrollPeriodId) {
+                $query->where('payroll_period_id', $payrollPeriodId);
+            },
+        ])
+        ->orderBy('employees.last_name')
+        ->get();
     }
 
     public function paginate(int $perPage, int $page): LengthAwarePaginator

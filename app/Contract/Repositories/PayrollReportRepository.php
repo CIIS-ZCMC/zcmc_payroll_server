@@ -47,6 +47,10 @@ class PayrollReportRepository implements PayrollReportInterface
                 'employeePayrolls.employee.excludedEmployees' => function ($query) use ($payrollPeriodId) {
                     $query->where('payroll_period_id', $payrollPeriodId);
                 },
+
+                'payrollSummary' => function ($query) use ($payrollPeriodId) {
+                    $query->where('payroll_period_id', $payrollPeriodId);
+                },
             ])->first();
     }
 }
