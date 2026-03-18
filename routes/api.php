@@ -86,6 +86,6 @@ Route::middleware('auth.token')->group(function () {
 
     //Report
     // Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);
-    Route::apiResource('payroll-reports', PayrollReportController::class)->only(['index']);
+    Route::apiResource('payroll-reports', PayrollReportController::class)->only(['index', 'store']);
     Route::apiResource('payroll-summary', PayrollSummaryController::class)->only(['index', 'store']);
 });

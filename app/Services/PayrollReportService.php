@@ -23,7 +23,7 @@ class PayrollReportService
     {
         $query = $this->service->getEmployeePayrollReport($payrollPeriodId);
 
-        $data = PayrollReportResource::collection($query);
+        $data = PayrollReportResource::make($query)->resolve();
 
         $templatePath = storage_path('app/templates/employee_payroll.xlsx');
         $spreadsheet = IOFactory::load($templatePath);
@@ -90,7 +90,7 @@ class PayrollReportService
 
         $i = 0;
 
-        foreach ($data->employee_payrolls as $index => $employee) {
+        foreach ($data['employee_payrolls'] as $index => $employee) {
             $i++;
 
             $currentRow = $startRow + ($index * $blockHeight);
@@ -151,7 +151,7 @@ class PayrollReportService
         $sheet2->setTitle('Detailed Report');
 
         //Get Header
-        $export = new ExportEmployeePayroll($data);
+        return $export = new ExportEmployeePayroll($data);
         $exportData = $export->collection()->toArray();
         $headings = $export->headings()[0];
 

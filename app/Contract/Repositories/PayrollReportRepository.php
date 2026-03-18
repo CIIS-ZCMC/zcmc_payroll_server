@@ -4,13 +4,15 @@ namespace App\Contract\Repositories;
 
 use App\Contract\PayrollReportInterface;
 use App\Models\PayrollPeriod;
+use Illuminate\Support\Collection;
+
 class PayrollReportRepository implements PayrollReportInterface
 {
     public function __construct(private PayrollPeriod $model)
     {
     }
 
-    public function getEmployeePayrollReport(int $payrollPeriodId)
+    public function getEmployeePayrollReport(int $payrollPeriodId): PayrollPeriod
     {
         return $this->model->where('id', $payrollPeriodId)
             ->with([

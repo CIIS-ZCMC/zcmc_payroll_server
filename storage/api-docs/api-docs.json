@@ -1370,6 +1370,67 @@
                 }
             }
         },
+        "/api/payroll-report": {
+            "get": {
+                "tags": [
+                    "Payroll Report"
+                ],
+                "summary": "Get payroll report",
+                "description": "Retrieve payroll report for a specific payroll period",
+                "operationId": "869f189d6e8b8468cf77412360fc47e5",
+                "parameters": [
+                    {
+                        "name": "payroll_period_id",
+                        "in": "query",
+                        "description": "Payroll period ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payroll report retrieved successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Payroll Report"
+                ],
+                "summary": "Export payroll report",
+                "description": "Export payroll report for a specific payroll period",
+                "operationId": "e367b202a3e309adf036021ead10b026",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "payroll_period_id": {
+                                        "description": "Payroll period ID",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Payroll report exported successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
         "/api/payroll-summary": {
             "get": {
                 "tags": [
@@ -2305,6 +2366,10 @@
         {
             "name": "Payroll Periods",
             "description": "Payroll Periods"
+        },
+        {
+            "name": "Payroll Report",
+            "description": "Payroll Report"
         },
         {
             "name": "Payroll Summary",
