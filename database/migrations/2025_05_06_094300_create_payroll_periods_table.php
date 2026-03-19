@@ -39,7 +39,7 @@ class CreatePayrollPeriodsTable extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->unique(['month', 'year', 'employment_type', 'payroll_type'], 'payroll_period_unique');
+            $table->unique(['month', 'year', 'employment_type', 'period_type'], 'payroll_period_unique');
         });
     }
 

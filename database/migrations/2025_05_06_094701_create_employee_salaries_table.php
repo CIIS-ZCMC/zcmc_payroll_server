@@ -24,7 +24,7 @@ class CreateEmployeeSalariesTable extends Migration
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
 
             $table->string('employment_type');
-            $table->decimal('base_salary', 10, 2);
+            $table->decimal('base_salary', 11, 2);
 
             $table->integer('salary_grade');
             $table->integer('salary_step');

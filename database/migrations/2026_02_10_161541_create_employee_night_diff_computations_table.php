@@ -22,7 +22,7 @@ class CreateEmployeeNightDiffComputationsTable extends Migration
             $table->unsignedBigInteger('payroll_period_id');
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
 
-            $table->decimal('total_night_hours', 10, 2);
+            $table->decimal('total_night_hours', 15, 2);
             $table->decimal('total_night_amount', 15, 2);
 
             $table->decimal('hourly_rate');

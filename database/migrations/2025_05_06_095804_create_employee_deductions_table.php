@@ -26,8 +26,8 @@ class CreateEmployeeDeductionsTable extends Migration
             $table->foreign('deduction_id')->references('id')->on('deductions');
 
             $table->string('billing_cycle');
-            $table->decimal('amount')->nullable();
-            $table->decimal('percentage')->nullable();
+            $table->decimal('amount', 11,2)->nullable();
+            $table->decimal('percentage',11,2)->nullable();
 
             $table->string('date_from')->nullable();
             $table->string('date_to')->nullable();

@@ -21,8 +21,8 @@ class CreateEmployeeDeductionTrailsTable extends Migration
             $table->integer('total_term');
             $table->integer('total_term_paid');
 
-            $table->decimal('amount_paid', 10, 2);
-            $table->decimal('balance', 10, 2)->default(0);
+            $table->decimal('amount_paid', 11, 2);
+            $table->decimal('balance', 11, 2)->default(0);
 
             $table->dateTime('date_paid');
 

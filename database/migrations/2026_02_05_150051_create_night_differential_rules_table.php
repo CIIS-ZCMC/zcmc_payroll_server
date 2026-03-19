@@ -20,7 +20,7 @@ class CreateNightDifferentialRulesTable extends Migration
             $table->time('start_time');
             $table->time('end_time');
 
-            $table->decimal('rate_percent', 5, 2);
+            $table->decimal('rate_percent', 11, 2);
 
             $table->date('effective_date');
 

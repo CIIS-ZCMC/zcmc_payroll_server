@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\FetchEmployeeService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class FetchEmployeeTimeRecord extends Command
 {
@@ -158,7 +159,7 @@ class FetchEmployeeTimeRecord extends Command
                 $periodType,
                 $e->getMessage()
             ));
-            \Log::error('Error in FetchEmployeeTimeRecord', [
+            Log::error('Error in FetchEmployeeTimeRecord', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

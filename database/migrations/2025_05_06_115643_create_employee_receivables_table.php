@@ -25,8 +25,8 @@ class CreateEmployeeReceivablesTable extends Migration
             $table->foreign('receivable_id')->references('id')->on('receivables');
 
             $table->string('billing_cycle');
-            $table->decimal('amount')->nullable();
-            $table->decimal('percentage')->nullable();
+            $table->decimal('amount',11, 2)->nullable();
+            $table->decimal('percentage',11, 2)->nullable();
 
             $table->string('date_from')->nullable();
             $table->string('date_to')->nullable();

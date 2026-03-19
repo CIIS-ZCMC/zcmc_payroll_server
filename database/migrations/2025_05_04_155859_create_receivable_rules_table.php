@@ -20,8 +20,8 @@ class CreateReceivableRulesTable extends Migration
             $table->unsignedBigInteger('receivable_id');
             $table->foreign('receivable_id')->references('id')->on('receivables');
 
-            $table->decimal('min_salary', 10, 2)->nullable();
-            $table->decimal('max_salary', 10, 2)->nullable();
+            $table->decimal('min_salary', 11, 2)->nullable();
+            $table->decimal('max_salary', 11, 2)->nullable();
 
             $table->string('apply_type')->comment('Type of deduction: fixed or percentage');
             $table->string('value')->comment('If fixed, this is the fixed amount; if percentage, its the rate (e.g. 5 for 5%)');

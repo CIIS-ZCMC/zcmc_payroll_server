@@ -20,8 +20,8 @@ class CreateDeductionRulesTable extends Migration
             $table->unsignedBigInteger('deduction_id');
             $table->foreign('deduction_id')->references('id')->on('deductions');
 
-            $table->decimal('min_salary', 10, 2)->nullable();
-            $table->decimal('max_salary', 10, 2)->nullable();
+            $table->decimal('min_salary', 11, 2)->nullable();
+            $table->decimal('max_salary', 11, 2)->nullable();
 
             $table->string('apply_type')->comment('Type of deduction: fixed or percentage');
             $table->string('value')->comment('If fixed, this is the fixed amount; if percentage, its the rate (e.g. 5 for 5%)');

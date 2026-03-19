@@ -25,11 +25,11 @@ class CreateEmployeeComputedSalaries extends Migration
             $table->foreign('employee_time_record_id')->references('id')->on('employee_time_records');
 
             $table->decimal('basic_pay')->comment("Without night differential computation and deductions");
-            $table->decimal('minutes_rate');
-            $table->decimal('daily_rate');
-            $table->decimal('hourly_rate');
-            $table->decimal('absent_rate');
-            $table->decimal('undertime_rate');
+            $table->decimal('minutes_rate',11,2);
+            $table->decimal('daily_rate',11,2);
+            $table->decimal('hourly_rate',11,2);
+            $table->decimal('absent_rate',11,2);
+            $table->decimal('undertime_rate',11,2);
 
             $table->softDeletes();
             $table->timestamps();

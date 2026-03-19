@@ -27,8 +27,8 @@ class CreateEmployeeNightDutiesTable extends Migration
             $table->dateTime('time_in');
             $table->dateTime('time_out');
 
-            $table->decimal('night_minutes', 10, 2);
-            $table->decimal('night_hours', 10, 2);
+            $table->decimal('night_minutes', 11, 2);
+            $table->decimal('night_hours', 11, 2);
 
             $table->timestamps();
         });

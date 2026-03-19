@@ -21,8 +21,8 @@ class CreateEmployeeReceivableTrailsTable extends Migration
             $table->integer('total_term');
             $table->integer('total_term_received');
 
-            $table->decimal('amount_received', 10, 2);
-            $table->decimal('balance', 10, 2)->default(0);
+            $table->decimal('amount_received', 11, 2);
+            $table->decimal('balance', 11, 2)->default(0);
 
             $table->date('date_received');
 

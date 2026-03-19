@@ -30,25 +30,25 @@ class CreateEmployeeTimeRecordsTable extends Migration
             // $table->text('base_salary');
             // $table->text('basic_pay')->comment('basic_pay of employee, receivables is not included');
 
-            $table->decimal('total_working_minutes', 10, 2);
-            $table->decimal('total_working_minutes_with_leave', 10, 2);
-            $table->decimal('total_working_hours', 10, 2);
-            $table->decimal('total_working_hours_with_leave', 10, 2);
-            $table->decimal('total_overtime_minutes', 10, 2);
-            $table->decimal('total_undertime_minutes', 10, 2);
-            $table->decimal('total_official_business_minutes', 10, 2);
-            $table->decimal('total_official_time_minutes', 10, 2);
-            $table->decimal('total_leave_minutes', 10, 2);
-            $table->decimal('total_night_duty_hours', 10, 2);
+            $table->decimal('total_working_minutes', 11, 2);
+            $table->decimal('total_working_minutes_with_leave', 11, 2);
+            $table->decimal('total_working_hours', 11, 2);
+            $table->decimal('total_working_hours_with_leave', 11, 2);
+            $table->decimal('total_overtime_minutes', 11, 2);
+            $table->decimal('total_undertime_minutes', 11, 2);
+            $table->decimal('total_official_business_minutes', 11, 2);
+            $table->decimal('total_official_time_minutes', 11, 2);
+            $table->decimal('total_leave_minutes', 11, 2);
+            $table->decimal('total_night_duty_hours', 11, 2);
 
-            $table->decimal('no_of_present_days', 10, 2);
-            $table->decimal('no_of_present_days_with_leave', 10, 2);
-            $table->decimal('no_of_leave_wo_pay', 10, 2);
-            $table->decimal('no_of_leave_w_pay', 10, 2);
-            $table->decimal('no_of_absences', 10, 2);
-            $table->decimal('no_of_invalid_entry', 10, 2);
-            $table->decimal('no_of_day_off', 10, 2);
-            $table->decimal('no_of_schedule', 10, 2);
+            $table->decimal('no_of_present_days', 11, 2);
+            $table->decimal('no_of_present_days_with_leave', 11, 2);
+            $table->decimal('no_of_leave_wo_pay', 11, 2);
+            $table->decimal('no_of_leave_w_pay', 11, 2);
+            $table->decimal('no_of_absences', 11, 2);
+            $table->decimal('no_of_invalid_entry', 11, 2);
+            $table->decimal('no_of_day_off', 11, 2);
+            $table->decimal('no_of_schedule', 11, 2);
 
             $table->longText('night_duties');
             $table->longText('absent_dates');

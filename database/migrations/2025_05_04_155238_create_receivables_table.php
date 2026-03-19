@@ -24,8 +24,8 @@ class CreateReceivablesTable extends Migration
             $table->string('type')->default('fixed')->comment('fixed / percentage / conditional');
 
             $table->string('billing_cycle')->default(BillingCycle::MONTHLY);
-            $table->decimal('percent_value', 10, 2)->nullable();
-            $table->decimal('fixed_amount', 10, 2)->nullable();
+            $table->decimal('percent_value', 11, 2)->nullable();
+            $table->decimal('fixed_amount', 11, 2)->nullable();
 
             $table->date('date_start')->nullable();
             $table->date('date_end')->nullable();
