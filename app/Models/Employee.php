@@ -42,7 +42,7 @@ class Employee extends Model
 
     public function employeeSalary()
     {
-        return $this->hasOne(EmployeeSalary::class)->latestOfMany();
+        return $this->hasOne(EmployeeSalary::class);
     }
 
     public function employeeTimeRecords()

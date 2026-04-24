@@ -3,13 +3,9 @@
 namespace App\Http\Controllers\Payroll;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\EmployeeTimeRecordResource;
 use App\Http\Resources\PayrollPeriodResource;
-use App\Models\EmployeeTimeRecord;
-use App\Models\PayrollPeriod;
 use App\Services\PayrollPeriodService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class PayrollPeriodController extends Controller
@@ -26,11 +22,11 @@ class PayrollPeriodController extends Controller
      *     tags={"Payroll Periods"},
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
-     *         name="has_filter",
+     *         name="get_method",
      *         in="query",
-     *         description="Set to false to get all payroll periods",
+     *         description="Set to true to get all payroll periods",
      *         required=false,
-     *         @OA\Schema(type="boolean", default=true)
+     *         @OA\Schema(type="boolean", default=false)
      *     ),
      *     @OA\Parameter(
      *         name="employment_type",
@@ -76,7 +72,17 @@ class PayrollPeriodController extends Controller
      */
     public function index(Request $request)
     {
-        $has_filter = $request->boolean('has_filter', false);
+        $get_method = $request->boolean('get_method');
+
+        if ($get_method) {
+            $data = $this->service->getAll();
+
+            return response()->json([
+                'data' => PayrollPeriodResource::collection($data),
+                'message' => 'Payroll periods retrieved successfully.',
+                'success' => true,
+            ], Response::HTTP_OK);
+        }
 
         $parameters = [
             'employment_type' => $request->employment_type,
@@ -85,12 +91,10 @@ class PayrollPeriodController extends Controller
             'year' => $request->year
         ];
 
-        $data = $this->service->index($has_filter, $parameters);
-
-        $resource_data = $has_filter === false ? PayrollPeriodResource::collection($data) : new PayrollPeriodResource($data);
+        $data = $this->service->findPeriod($parameters);
 
         return response()->json([
-            'data' => $resource_data,
+            'data' => PayrollPeriodResource::make($data),
             'message' => 'Payroll period retrieved successfully.',
             'success' => true,
         ], Response::HTTP_OK);
@@ -145,6 +149,4 @@ class PayrollPeriodController extends Controller
             'data' => new PayrollPeriodResource($data),
         ], Response::HTTP_OK);
     }
-
-
 }

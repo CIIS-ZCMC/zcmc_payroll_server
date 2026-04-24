@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeDeduction extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
     protected $table = 'employee_deductions';
     protected $primaryKey = 'id';
     protected $fillable = [
@@ -33,6 +35,15 @@ class EmployeeDeduction extends Model
         'completed_at',
     ];
     public $timestamps = true;
+
+    //Spatie
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-deduction')
+            ->logOnly(['payroll_period_id', 'employee_id', 'deduction_id'])
+            ->logOnlyDirty();
+    }
 
     //Version 2
     public function employee()

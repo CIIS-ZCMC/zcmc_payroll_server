@@ -41,7 +41,7 @@ class PayrollSummaryController extends Controller
      */
     public function index(Request $request)
     {
-        $data = $this->service->getPayrollSummary($request->payroll_period_id);
+        $data = $this->service->findByPayrollPeriodId($request->payroll_period_id);
 
         return response()->json([
             'data' => PayrollSummaryResource::make($data),
@@ -74,8 +74,9 @@ class PayrollSummaryController extends Controller
      */
     public function store(PayrollSummaryRequest $request)
     {
-        $data = $this->service->createOrUpdate($request->all());
-
+        $validated = $request->validated();
+        $data = $this->service->createOrUpdate($validated['payroll_period_id'], $request->user);
+        
         return response()->json([
             'data' => PayrollSummaryResource::make($data),
             'message' => 'Payroll summary created successfully.',

@@ -5,59 +5,57 @@ namespace App\Services;
 use App\Contract\EmployeePayrollInterface;
 use App\Contract\PayrollSummaryInterface;
 use App\Models\EmployeeDeduction;
+use App\Models\EmployeePayroll;
 use App\Models\PayrollSummary;
 use Illuminate\Support\Facades\DB;
 
 Class PayrollSummaryService
 {
-    public function __construct(
-        private PayrollSummaryInterface $interface,
-        private EmployeePayrollInterface $payroll
-    ) {
-        //
+    public function __construct(private PayrollSummaryInterface $interface)
+    {
+        // Nothing
     }
 
-    public function getPayrollSummary(int $payrollPeriodId)
+    public function getAll()
     {
-        return $this->interface->getPayrollSummary($payrollPeriodId);
+        return $this->interface->getAll();
+    }
+    
+    public function find($id)
+    {
+        return $this->interface->find($id);
     }
 
-    public function createOrUpdate(array $data): PayrollSummary
+    public function findByPayrollPeriodId($payrollPeriodId)
     {
-        return DB::transaction(function () use ($data) {
+        return $this->interface->findByPayrollPeriodId($payrollPeriodId);
+    }
+    
+    public function createOrUpdate(int $payrollPeriodId, object $userData)
+    {   
+        $summary = EmployeePayroll::where('payroll_period_id', $payrollPeriodId)
+        ->selectRaw('
+            COUNT(*) as total_employees,
+            SUM(basic_pay) as total_basic_pay,
+            SUM(total_receivables) as total_receivables,
+            SUM(gross_pay) as total_gross_pay,
+            SUM(total_deductions) as total_deductions,
+            SUM(net_pay) as total_net_pay
+        ')
+        ->first();
 
-            $payrollPeriodId = $data['payroll_period_id'];
+        $data = [
+            'payroll_period_id' => $payrollPeriodId,
+            'generated_by_id' => $userData->id,
+            'generated_by_name' => $userData->name,
+            'total_employees' => (int) $summary->total_employees,
+            'total_deductions' => (float) $summary->total_deductions,
+            'total_receivables' => (float) $summary->total_receivables,
+            'total_gross' => (float) $summary->total_gross_pay,
+            'total_net' => (float) $summary->total_net_pay,
+            'total_night_differential' => (float) $summary->total_night_differential ?? 0,
+        ];
 
-            $employees = $this->payroll->getAll($payrollPeriodId);
-
-            $totalEmployees = $employees->count();
-
-            $totalGrossPay = $employees->sum('gross_pay');
-            $totalNetPay = $employees->sum('net_pay');
-            $totalNightDiff = $employees->sum('night_differential');
-
-            $totalDeductions = EmployeeDeduction::where('payroll_period_id', $payrollPeriodId)
-                ->sum('amount');
-
-            $totalReceivables = $employees->sum(function ($employeePayroll) {
-                return $employeePayroll->employee->employeeReceivables->sum('amount');
-            });
-
-            $summaryData = [
-                'payroll_period_id' => $payrollPeriodId,
-                'generated_by_id' => $data['user']['id'],
-                'generated_by_name' => $data['user']['name'],
-                'total_employees' => $totalEmployees,
-                'total_deductions' => $totalDeductions,
-                'total_receivables' => $totalReceivables,
-                'total_gross' => $totalGrossPay,
-                'total_net' => $totalNetPay,
-                'total_night_differential' => $totalNightDiff,
-            ];
-
-            $summary = $this->interface->createOrUpdate($summaryData);
-
-            return $summary;
-        });
+        return $this->interface->createOrUpdate($data);
     }
 }

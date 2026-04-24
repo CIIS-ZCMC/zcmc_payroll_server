@@ -6,6 +6,7 @@ use App\Contract\PayrollSummaryInterface;
 use App\Models\EmployeeDeduction;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollSummary;
+use Illuminate\Support\Collection;
 
 class PayrollSummaryRepository implements PayrollSummaryInterface
 {
@@ -14,48 +15,25 @@ class PayrollSummaryRepository implements PayrollSummaryInterface
         //
     }
 
-    public function getPayrollSummary(int $payrollPeriodId)
+    public function getAll(): Collection
     {
-        return $this->model->where('payroll_period_id', $payrollPeriodId)
-            ->with([
-                'payrollPeriod.employeePayrolls' => function ($query) use ($payrollPeriodId) {
-                    $query->where('payroll_period_id', $payrollPeriodId);
-                },
+        return $this->model->all();
+    }
 
-                'payrollPeriod.employeePayrolls.employee',
+    public function find(int $id): ?PayrollSummary
+    {
+        return $this->model->find($id);
+    }
 
-                'payrollPeriod.employeePayrolls.employee.employeeSalary' => function ($query) use ($payrollPeriodId) {
-                    $query->where('payroll_period_id', $payrollPeriodId);
-                },
-
-                'payrollPeriod.employeePayrolls.employee.employeeComputedSalary' => function ($query) use ($payrollPeriodId) {
-                    $query->where('payroll_period_id', $payrollPeriodId);
-                },
-
-                'payrollPeriod.employeePayrolls.employee.employeeDeductions' => function ($query) use ($payrollPeriodId) {
-                    $query->where('payroll_period_id', $payrollPeriodId);
-                },
-
-                'payrollPeriod.employeePayrolls.employee.employeeDeductions.deductions.deductionGroup',
-
-                'payrollPeriod.employeePayrolls.employee.employeeReceivables' => function ($query) use ($payrollPeriodId) {
-                    $query->where('payroll_period_id', $payrollPeriodId);
-                },
-
-                'payrollPeriod.employeePayrolls.employee.employeeReceivables.receivables',
-
-                'payrollPeriod.employeePayrolls.employee.employeeTimeRecords' => function ($query) use ($payrollPeriodId) {
-                    $query->where('payroll_period_id', $payrollPeriodId);
-                },
-
-                'payrollPeriod.employeePayrolls.employee.excludedEmployees' => function ($query) use ($payrollPeriodId) {
-                    $query->where('payroll_period_id', $payrollPeriodId);
-                },
-            ])->first();
+    public function findByPayrollPeriodId(int $payrollPeriodId): ?PayrollSummary
+    {
+        return $this->model->where('payroll_period_id', $payrollPeriodId)->first();
     }
 
     public function createOrUpdate(array $data): PayrollSummary
     {
-        return $this->model->updateOrCreate(['payroll_period_id' => $data['payroll_period_id']], $data);
+        return $this->model->updateOrCreate([
+            'payroll_period_id' => $data['payroll_period_id'],
+        ],  $data);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contract\PayrollReportInterface;
 use App\Exports\ExportEmployeePayroll;
 use App\Http\Resources\PayrollReportResource;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PayrollReportService
@@ -137,13 +138,51 @@ class PayrollReportService
             $sheet->setCellValue("AA" . ($currentRow + 5), '');
             $sheet->setCellValue("AB" . ($currentRow + 5), '');
 
-            //=========== Set Data/Pass Data ================
+            //=========== Set Data/Pass Data =============1===
 
             // 1st,2nd,3rd & 4th Column
-            $sheet->setCellValue("A" . ($currentRow), $i);
-            $sheet->setCellValue("B" . ($currentRow), $employee['employee_number']);
-            $sheet->setCellValue("B" . ($currentRow + 1), $employee['full_name']);
-            $sheet->setCellValue("D" . ($currentRow + 5), $employee['base_salary']);
+            $employeeSalary = $employee['employee']['employeeSalary'];
+
+            $receivables = optional(collect($employee['employee']['employeeReceivables'] ?? []));
+            $pera = optional($receivables->where('receivable_id', 1)->first())->amount ?? 0;
+            $hazard = optional($receivables->where('receivable_id', 2)->first())->amount ?? 0;
+
+            $deductions = optional(collect($employee['employee']['employeeDeductions'] ?? []));
+            $wtax = optional($deductions->where('deduction_id', 1)->first())->amount ?? 0;
+            $phic = optional($deductions->where('deduction_id', 2)->first())->amount ?? 0;
+
+            // 1st Column
+            $sheet->setCellValue("A" . $currentRow, $i);
+            $sheet->setCellValue("B" . $currentRow, $employee['employee']['employee_number']);
+            $sheet->setCellValue("B" . ($currentRow + 1), $employee['employee']['full_name']);
+            $sheet->setCellValue("D" . ($currentRow + 5), $employeeSalary['base_salary']);
+
+            $sheet->setCellValue("D" . ($currentRow + 6), $pera);
+            $sheet->setCellValue("D" . ($currentRow + 7), $hazard);
+
+            $sheet->setCellValue("C" . ($currentRow + 8), $employeeSalary['salary_grade']);
+            $sheet->setCellValue("E" . ($currentRow + 8), $employeeSalary['salary_step']);
+
+            // 2nd Column and 3rd Column
+            $sheet->setCellValue("F" . ($currentRow), $employee['employee']['designation']);
+            $sheet->setCellValue("G" . ($currentRow), $employee['basic_pay']);
+            $sheet->setCellValue("L" . ($currentRow), $employee['gross_pay']);
+
+            //Deductions column
+            $sheet->setCellValue("M" . ($currentRow), $wtax);
+            $sheet->setCellValue("M" . ($currentRow + 4), $phic);
+
+            Log::info('data ' . json_encode($employee['employee']));
+
+            // $sheet->setCellValue("H" . ($currentRow + 8), $employee['total_employee_receivables']);
+            // $sheet->setCellValue("N" . ($currentRow + 8), $employee['total_gsis_deduction']);
+            // $sheet->setCellValue("R" . ($currentRow + 8), $employee['total_pagibig_deduction']);
+            // $sheet->setCellValue("V" . ($currentRow + 8), $employee['total_other_deduction']);
+            // $sheet->setCellValue("Z" . ($currentRow), $employee['total_employee_deductions']);
+            // $sheet->setCellValue("AA" . ($currentRow), $employee['net_pay_first_half']);
+            // $sheet->setCellValue("AA" . ($currentRow + 4), $employee['net_pay_second_half']);
+            // $sheet->setCellValue("AA" . ($currentRow + 8), $employee['net_pay']);
+
         }
 
         //Create Sheet
@@ -151,7 +190,7 @@ class PayrollReportService
         $sheet2->setTitle('Detailed Report');
 
         //Get Header
-        return $export = new ExportEmployeePayroll($data);
+        $export = new ExportEmployeePayroll($data);
         $exportData = $export->collection()->toArray();
         $headings = $export->headings()[0];
 

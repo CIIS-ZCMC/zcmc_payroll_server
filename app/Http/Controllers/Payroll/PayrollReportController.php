@@ -40,8 +40,20 @@ class PayrollReportController extends Controller
      */
     public function index(Request $request): mixed
     {
-        $data = $this->service->getEmployeePayrollReport($request->payroll_period_id);
+        $method = $request->input('method');
+        $payrollPeriodId = $request->input('payroll_period_id');
 
+        if ($method === 'export') {
+            return $this->service->exportEmployeePayrollReport($payrollPeriodId);
+
+            return response()->json([
+                'message' => 'Payroll report exported successfully.',
+                'success' => true,
+            ], Response::HTTP_OK);
+        }
+
+       $data = $this->service->getEmployeePayrollReport($payrollPeriodId);
+       
         return response()->json([
             'data' => PayrollReportResource::make($data),
             'message' => 'Payroll period retrieved successfully.',
@@ -74,7 +86,7 @@ class PayrollReportController extends Controller
     public function store(Request $request): mixed 
     {
         //Unfinish
-      return  $this->service->exportEmployeePayrollReport($request->payroll_period_id);
+      return $this->service->exportEmployeePayrollReport($request->payroll_period_id);
 
         return response()->json([
             'message' => 'Payroll report exported successfully.',

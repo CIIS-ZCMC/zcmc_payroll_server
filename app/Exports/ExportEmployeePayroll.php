@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\DeductionGroup;
 use App\Models\Receivable;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -39,61 +40,61 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
     {
         $rows = [];
 
-        $data = collect($this->data);
+        $data = $this->data;
 
-        foreach ($data->employeePayroll as $employee) {
+        foreach ($data['employee_payrolls'] as $employee) {
             // Convert the resource to array
             $row = [
                 $employee->employee->full_name ?? '',
-                $employee->employee->designation ?? '',
-                $employee->employee->employeeSalary->base_salary ?? 0,
-                $employee->employee->employeeComputedSalary->basic_pay ?? 0,
+                // $employee->employee->designation ?? '',
+                // $employee->employee->employeeSalary->base_salary ?? 0,
+                // $employee->employee->employeeComputedSalary->basic_pay ?? 0,
             ];
 
-            if ($receivables = $this->receivableGroups) {
-                foreach ($receivables as $receivable) {
-                    $row[] = $this->getReceivableAmount($employee['employee_receivables'] ?? [], $receivable->code);
-                }
-            }
+            // if ($receivables = $this->receivableGroups) {
+            //     foreach ($receivables as $receivable) {
+            //         $row[] = $this->getReceivableAmount($employee['employee_receivables'] ?? [], $receivable->code);
+            //     }
+            // }
 
-            $WTAX = null; // map grouped deduction tax
-            $PHIC = null; // map grouped deduction philhealth
+            // $WTAX = null; // map grouped deduction tax
+            // $PHIC = null; // map grouped deduction philhealth
 
-            $row = array_merge($row, [
-                $employee['gross_pay'] ?? 0,
-                $employee['wtax'] ?? 0,
-                $employee['philhealth_deductions'] ?? 0,
-            ]);
+            // $row = array_merge($row, [
+            //     $employee['gross_pay'] ?? 0,
+            //     $employee['wtax'] ?? 0,
+            //     $employee['philhealth_deductions'] ?? 0,
+            // ]);
 
-            // Add GSIS Deductions Data
-            if ($gsisGroup = $this->deductionGroups->where('code', 'GSIS')->first()) {
-                foreach ($gsisGroup->deductions as $deduction) {
-                    $row[] = $this->getDeductionAmount($employee['gsis_deductions'] ?? [], $deduction->code);
-                }
-            }
+            // // Add GSIS Deductions Data
+            // if ($gsisGroup = $this->deductionGroups->where('code', 'GSIS')->first()) {
+            //     foreach ($gsisGroup->deductions as $deduction) {
+            //         $row[] = $this->getDeductionAmount($employee['gsis_deductions'] ?? [], $deduction->code);
+            //     }
+            // }
 
-            // Add Pag-IBIG Deductions Data
-            if ($pagibigGroup = $this->deductionGroups->where('code', 'Pag-Ibig')->first()) {
-                foreach ($pagibigGroup->deductions as $deduction) {
-                    $row[] = $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], $deduction->code);
-                }
-            }
+            // // Add Pag-IBIG Deductions Data
+            // if ($pagibigGroup = $this->deductionGroups->where('code', 'Pag-Ibig')->first()) {
+            //     foreach ($pagibigGroup->deductions as $deduction) {
+            //         $row[] = $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], $deduction->code);
+            //     }
+            // }
 
-            // Add Other Deductions Data
-            if ($otherGroup = $this->deductionGroups->where('code', 'Others')->first()) {
-                foreach ($otherGroup->deductions as $deduction) {
-                    $row[] = $this->getDeductionAmount($employee['other_deductions'] ?? [], $deduction->code);
-                }
-            }
+            // // Add Other Deductions Data
+            // if ($otherGroup = $this->deductionGroups->where('code', 'Others')->first()) {
+            //     foreach ($otherGroup->deductions as $deduction) {
+            //         $row[] = $this->getDeductionAmount($employee['other_deductions'] ?? [], $deduction->code);
+            //     }
+            // }
 
-            $row = array_merge($row, [
-                $employee['total_employee_deductions'] ?? 0,
-                $employee['net_pay_first_half'] ?? 0,
-                $employee['net_pay_second_half'] ?? 0,
-                $employee['net_pay'] ?? 0,
-                $employee['remarks'] ?? 0,
-                $employee['days_of_absent'] ?? 0,
-            ]);
+            // $row = array_merge($row, [
+            //     $employee['total_employee_deductions'] ?? 0,
+            //     $employee['net_pay_first_half'] ?? 0,
+            //     $employee['net_pay_second_half'] ?? 0,
+            //     $employee['net_pay'] ?? 0,
+            //     $employee['remarks'] ?? 0,
+            //     $employee['days_of_absent'] ?? 0,
+            // ]);
 
 
             $rows[] = $row;
