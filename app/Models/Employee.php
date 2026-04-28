@@ -74,4 +74,43 @@ class Employee extends Model
     {
         return $this->hasMany(EmployeePayroll::class);
     }
+
+    public function groupedDeductions($deductions = null)
+    {
+        $deductions = collect($deductions ?? $this->employeeDeductions);
+    
+        return $deductions
+            ->filter(fn ($item) => $item->deductions) // prevent null
+            ->groupBy(fn ($item) => $item->deductions->deduction_group_id)
+            ->map(function ($items) {
+                $group = $items->first()->deductions->deductionGroup;
+    
+                return [
+                    'group_id' => $group?->id,
+                    'group_name' => $group?->name,
+                    'group_total' => $items->sum('amount'),
+                    'employee_id' => $this->id,
+                    'deduction_details' => $items->map(function ($deduction) {
+                        return [
+                            'id' => $deduction->id,
+                            'employee_id' => $deduction->employee_id,
+                            'payroll_period_id' => $deduction->payroll_period_id,
+                            'deduction_id' => $deduction->deduction_id,
+                            'deduction_group_id' => $deduction->deductions?->deduction_group_id,
+                            'name' => $deduction->deductions?->name,
+                            'code' => $deduction->deductions?->code,
+                            'amount' => $deduction->amount,
+                            'billing_cycle' => $deduction->billing_cycle,
+                        ];
+                    })->values(),
+                ];
+            })
+            ->values();
+    }
+
+    public function getGroupedDeductionsAttribute()
+    {
+        return $this->groupedDeductions($this->employeeDeductions ?? collect());
+    }
 }
+

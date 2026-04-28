@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payroll;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PayrollReportResource;
+use App\Services\ExportPayrollService;
 use App\Services\PayrollReportService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
