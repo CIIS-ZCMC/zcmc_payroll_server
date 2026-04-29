@@ -220,49 +220,49 @@ class ExportPayrollService
         // 1st Column
         $sheet->setCellValue("A" . $currentRow, $index);
         $sheet->setCellValue("B" . $currentRow, $employee['employee']['employee_number']);
-        $sheet->setCellValue("B" . ($currentRow + 1), $employee['employee']['full_name']);
-        $sheet->setCellValue("D" . ($currentRow + 5), $employeeSalary['base_salary']);
+        $sheet->setCellValue("B" . $currentRow + 1, $employee['employee']['full_name']);
+        $sheet->setCellValue("D" . $currentRow + 5, $employeeSalary['base_salary']);
 
-        $sheet->setCellValue("D" . ($currentRow + 6), $pera);
-        $sheet->setCellValue("D" . ($currentRow + 7), $hazard);
+        $sheet->setCellValue("D" . $currentRow + 6, $pera);
+        $sheet->setCellValue("D" . $currentRow + 7, $hazard);
 
-        $sheet->setCellValue("C" . ($currentRow + 8), $employeeSalary['salary_grade']);
-        $sheet->setCellValue("E" . ($currentRow + 8), $employeeSalary['salary_step']);
+        $sheet->setCellValue("C" . $currentRow + 8, $employeeSalary['salary_grade']);
+        $sheet->setCellValue("E" . $currentRow + 8, $employeeSalary['salary_step']);
 
         // 2nd Column and 3rd Column
-        $sheet->setCellValue("F" . ($currentRow), $employee['employee']['designation']);
-        $sheet->setCellValue("G" . ($currentRow), $employee['basic_pay']);
-        $sheet->setCellValue("L" . ($currentRow), $employee['gross_pay']);
-        $sheet->setCellValue("H" . ($currentRow + 8), $employee['total_receivables']);
+        $sheet->setCellValue("F" . $currentRow, $employee['employee']['designation']);
+        $sheet->setCellValue("G" . $currentRow, $employee['basic_pay']);
+        $sheet->setCellValue("L" . $currentRow, $employee['gross_pay']);
+        $sheet->setCellValue("H" . $currentRow + 8, $employee['total_receivables']);
 
         //Deductions column
-        $sheet->setCellValue("M" . ($currentRow), $wtax);
-        $sheet->setCellValue("M" . ($currentRow + 4), $phic);
-        $sheet->setCellValue("N" . ($currentRow + 8), $total_gsis);
-        $sheet->setCellValue("R" . ($currentRow + 8), $total_pagibig);
-        $sheet->setCellValue("V" . ($currentRow + 8), $total_other);
-        $sheet->setCellValue("Z" . ($currentRow), $employee['total_deductions']);
+        $sheet->setCellValue("M" . $currentRow, $wtax);
+        $sheet->setCellValue("M" . $currentRow + 4, $phic);
+        $sheet->setCellValue("N" . $currentRow + 8, $total_gsis);
+        $sheet->setCellValue("R" . $currentRow + 8, $total_pagibig);
+        $sheet->setCellValue("V" . $currentRow + 8, $total_other);
+        $sheet->setCellValue("Z" . $currentRow, $employee['total_deductions']);
 
-        $sheet->setCellValue("AA" . ($currentRow), $employee['first_half']);
-        $sheet->setCellValue("AA" . ($currentRow + 4), $employee['second_half']);
-        $sheet->setCellValue("AA" . ($currentRow + 8), $employee['net_pay']);
+        $sheet->setCellValue("AA" . $currentRow, $employee['first_half']);
+        $sheet->setCellValue("AA" . $currentRow + 4, $employee['second_half']);
+        $sheet->setCellValue("AA" . $currentRow + 8, $employee['net_pay']);
 
         $month = $employee['month'] ?? null;
         $year = $employee['year'] ?? date('Y');
         $lastDay = $month ? date('j', strtotime("$year-$month-01 +1 month -1 day")) : '-';
         
-        $sheet->setCellValue("AB" . ($currentRow), '1-15');
-        $sheet->setCellValue("AB" . ($currentRow + 4), '16-' . $lastDay);
+        $sheet->setCellValue("AB" . $currentRow, '1-15');
+        $sheet->setCellValue("AB" . $currentRow + 4, '16-' . $lastDay);
 
-        $sheet->setCellValue("AC" . ($currentRow), $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['dates']);
-        $sheet->setCellValue("AD" . ($currentRow), $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['count']);
+        $sheet->setCellValue("AC" . $currentRow, $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['dates']);
+        $sheet->setCellValue("AD" . $currentRow, $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['count']);
 
         // ================= SUB REPORTS =================
         $receivableRow = $currentRow;
         foreach ($employee['employee']['employeeReceivables'] as $rec) {
 
-            $sheet->mergeCells("H" . ($receivableRow) . ":I" . ($receivableRow));
-            $sheet->mergeCells("J" . ($receivableRow) . ":K" . ($receivableRow));
+            $sheet->mergeCells("H" . $receivableRow . ":I" . $receivableRow);
+            $sheet->mergeCells("J" . $receivableRow . ":K" . $receivableRow);
 
             $sheet->setCellValue("H{$receivableRow}", $rec['receivables']['code']);
             $sheet->setCellValue("J{$receivableRow}", $rec['amount']);
@@ -271,8 +271,8 @@ class ExportPayrollService
 
         $gsisDeductionRow = $currentRow;
         foreach ($gsisDeductions as $rec) {
-            $sheet->mergeCells("N" . ($gsisDeductionRow) . ":O" . ($gsisDeductionRow));
-            $sheet->mergeCells("P" . ($gsisDeductionRow) . ":Q" . ($gsisDeductionRow));
+            $sheet->mergeCells("N" . $gsisDeductionRow . ":O" . $gsisDeductionRow);
+            $sheet->mergeCells("P" . $gsisDeductionRow . ":Q" . $gsisDeductionRow);
 
             $sheet->setCellValue("N{$gsisDeductionRow}", $rec['deductions']['code']);
             $sheet->setCellValue("P{$gsisDeductionRow}", $rec['amount']);
@@ -282,8 +282,8 @@ class ExportPayrollService
         $pagibigDeductionRow = $currentRow;
         foreach ($pagibigDeductions as $rec) {
 
-            $sheet->mergeCells("R" . ($pagibigDeductionRow) . ":S" . ($pagibigDeductionRow));
-            $sheet->mergeCells("T" . ($pagibigDeductionRow) . ":U" . ($pagibigDeductionRow));
+            $sheet->mergeCells("R" . $pagibigDeductionRow . ":S" . $pagibigDeductionRow);
+            $sheet->mergeCells("T" . $pagibigDeductionRow . ":U" . $pagibigDeductionRow);
 
             $sheet->setCellValue("R{$pagibigDeductionRow}", $rec['deductions']['code']);
             $sheet->setCellValue("T{$pagibigDeductionRow}", $rec['amount']);
@@ -293,8 +293,8 @@ class ExportPayrollService
         $otherDeductionRow = $currentRow;
         foreach ($otherDeductions as $rec) {
 
-            $sheet->mergeCells("V" . ($otherDeductionRow) . ":W" . ($otherDeductionRow));
-            $sheet->mergeCells("X" . ($otherDeductionRow) . ":Y" . ($otherDeductionRow));
+            $sheet->mergeCells("V" . $otherDeductionRow . ":W" . $otherDeductionRow);
+            $sheet->mergeCells("X" . $otherDeductionRow . ":Y" . $otherDeductionRow);
 
             $sheet->setCellValue("V{$otherDeductionRow}", $rec['deductions']['code']);
             $sheet->setCellValue("X{$otherDeductionRow}", $rec['amount']);

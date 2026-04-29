@@ -46,56 +46,66 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
             // Convert the resource to array
             $row = [
                 $employee->employee->full_name ?? '',
-                // $employee->employee->designation ?? '',
-                // $employee->employee->employeeSalary->base_salary ?? 0,
-                // $employee->employee->employeeComputedSalary->basic_pay ?? 0,
+                $employee->employee->designation ?? '',
+                $employee->employee->employeeSalary->base_salary ?? 0,
+                $employee->basic_pay ?? 0,
             ];
 
-            // if ($receivables = $this->receivableGroups) {
-            //     foreach ($receivables as $receivable) {
-            //         $row[] = $this->getReceivableAmount($employee['employee_receivables'] ?? [], $receivable->code);
-            //     }
-            // }
+            
+            if ($receivables = $this->receivableGroups) {
+                foreach ($receivables as $receivable) {
+                    $row[] = $this->getReceivableAmount($employee->employee->employeeReceivables ?? [], $receivable->code);
+                }
+            }
 
-            // $WTAX = null; // map grouped deduction tax
-            // $PHIC = null; // map grouped deduction philhealth
+            $deductions = optional(collect($employee->employee->employeeDeductions ?? []));
+            $WTAX = optional($deductions->where('deduction_id', 1)->first())->amount ?? 0;
+            $PHIC = optional($deductions->where('deduction_id', 2)->first())->amount ?? 0;
 
-            // $row = array_merge($row, [
-            //     $employee['gross_pay'] ?? 0,
-            //     $employee['wtax'] ?? 0,
-            //     $employee['philhealth_deductions'] ?? 0,
-            // ]);
+            $row = array_merge($row, [
+                $employee->gross_pay ?? 0,
+                $WTAX,
+                $PHIC,
+            ]);
 
-            // // Add GSIS Deductions Data
-            // if ($gsisGroup = $this->deductionGroups->where('code', 'GSIS')->first()) {
-            //     foreach ($gsisGroup->deductions as $deduction) {
-            //         $row[] = $this->getDeductionAmount($employee['gsis_deductions'] ?? [], $deduction->code);
-            //     }
-            // }
+            // Add GSIS Deductions Data
+            if ($gsisGroup = $this->deductionGroups->where('id', 2)->first()) {
+                foreach ($gsisGroup->deductions as $deduction) {
+                    // Find the specific deduction from employee deductions
+                    $employeeDeduction = $deductions->where('deduction_id', $deduction->id)->first();
+                    $amount = $employeeDeduction ? $employeeDeduction->amount : 0;
+                    $row[] = $amount;
+                }
+            }
 
-            // // Add Pag-IBIG Deductions Data
-            // if ($pagibigGroup = $this->deductionGroups->where('code', 'Pag-Ibig')->first()) {
-            //     foreach ($pagibigGroup->deductions as $deduction) {
-            //         $row[] = $this->getDeductionAmount($employee['pagibig_deductions'] ?? [], $deduction->code);
-            //     }
-            // }
+            if ($pagibigGroup = $this->deductionGroups->where('id', 4)->first()) {
+                foreach ($pagibigGroup->deductions as $deduction) {
+                    // Find the specific deduction from employee deductions
+                    $employeeDeduction = $deductions->where('deduction_id', $deduction->id)->first();
+                    $amount = $employeeDeduction ? $employeeDeduction->amount : 0;
+                    $row[] = $amount;
+                }
+            }
 
-            // // Add Other Deductions Data
-            // if ($otherGroup = $this->deductionGroups->where('code', 'Others')->first()) {
-            //     foreach ($otherGroup->deductions as $deduction) {
-            //         $row[] = $this->getDeductionAmount($employee['other_deductions'] ?? [], $deduction->code);
-            //     }
-            // }
-
-            // $row = array_merge($row, [
-            //     $employee['total_employee_deductions'] ?? 0,
-            //     $employee['net_pay_first_half'] ?? 0,
-            //     $employee['net_pay_second_half'] ?? 0,
-            //     $employee['net_pay'] ?? 0,
-            //     $employee['remarks'] ?? 0,
-            //     $employee['days_of_absent'] ?? 0,
-            // ]);
-
+            $otherGroups = $this->deductionGroups->whereNotIn('id', [1, 2, 4, 5]);
+            foreach ($otherGroups as $otherGroup) {
+                foreach ($otherGroup->deductions as $deduction) {
+                    // Find the specific deduction from employee deductions
+                    $employeeDeduction = $deductions->where('deduction_id', $deduction->id)->first();
+                    $amount = $employeeDeduction ? $employeeDeduction->amount : 0;
+                    $row[] = $amount;
+                }
+            }
+            
+            $employeeTimeRecords = $employee->employee->employeeTimeRecords;
+            $row = array_merge($row, [
+                $employee->total_deductions ?? 0,
+                $employee->first_half ?? 0,
+                $employee->second_half ?? 0,
+                $employee->net_pay ?? 0,
+                $employeeTimeRecords->absent_dates_formatted['dates'] ?? null,
+                (int)($employeeTimeRecords->absent_dates_formatted['count'] ?? 0),
+            ]);
 
             $rows[] = $row;
         }
@@ -213,8 +223,8 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
         }
 
         foreach ($deductions as $deduction) {
-            if (isset($deduction['code']) && $deduction['code'] === $code) {
-                return $deduction['amount'] ?? 0;
+            if (isset($deduction->deductions->code) && $deduction->deductions->code === $code) {
+                return $deduction->amount ?? 0;
             }
         }
         return 0;
@@ -227,8 +237,8 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
         }
 
         foreach ($receivables as $receivable) {
-            if (isset($receivable['code']) && $receivable['code'] === $code) {
-                return $receivable['amount'] ?? 0;
+            if (isset($receivable->receivables->code) && $receivable->receivables->code === $code) {
+                return $receivable->amount ?? 0;
             }
         }
         return 0;

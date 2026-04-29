@@ -45,12 +45,7 @@ class PayrollReportController extends Controller
         $payrollPeriodId = $request->input('payroll_period_id');
 
         if ($method === 'export') {
-            return $this->service->exportEmployeePayrollReport($payrollPeriodId);
-
-            return response()->json([
-                'message' => 'Payroll report exported successfully.',
-                'success' => true,
-            ], Response::HTTP_OK);
+           return $this->service->exportEmployeePayrollReport($payrollPeriodId);
         }
 
        $data = $this->service->getEmployeePayrollReport($payrollPeriodId);
