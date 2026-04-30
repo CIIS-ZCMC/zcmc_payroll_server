@@ -140,13 +140,14 @@ class PayrollPeriodController extends Controller
      */
     public function update(int $id, Request $request)
     {
-        $set_period = $request->boolean('set_period', true);
+        $method = $request->input('method', 'set_period');
 
-        $data = $set_period ? $this->service->setPeriod($id) : $this->service->lock($id);
+        $data = $method === 'set_period' ? $this->service->setPeriod($id) : $this->service->lock($id);
 
         return response()->json([
-            'message' => $set_period ? 'Payroll period set successfully.' : 'Payroll period locked successfully.',
+            'message' => $method === 'set_period' ? 'Payroll period set successfully.' : 'Payroll period locked successfully.',
             'data' => new PayrollPeriodResource($data),
+            'success' => true,
         ], Response::HTTP_OK);
     }
 }

@@ -2,18 +2,16 @@
 
 namespace App\Services;
 
-use App\Contract\PayrollReportInterface;
 use App\Exports\ExportEmployeePayroll;
-use App\Http\Resources\PayrollReportResource;
-use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ExportPayrollService
 {
-    public function exportEmployeePayrollReport($data)
+    public function exportEmployeePayrollReport(array $data)
     {
         $templatePath = storage_path('app/templates/employee_payroll.xlsx');
         $spreadsheet = IOFactory::load($templatePath);
@@ -28,7 +26,7 @@ class ExportPayrollService
 
         // ================= FIRST SHEET =================
         $this->applySheetOneStyle($sheet, $startRow, $endRow, $lastColumn, $blockHeight, $data);
-        $this->fillSheetOneCell($sheet, $startRow, $blockHeight, $data);
+        $this->buildSheetOneCell($sheet, $startRow, $blockHeight, $data);
 
         // ================= SECOND SHEET =================
         $sheet2 = $spreadsheet->createSheet();
@@ -77,7 +75,7 @@ class ExportPayrollService
         }, $filename);
     }
 
-    private function applySheetOneStyle($sheet, $startRow, $endRow, $lastColumn, $blockHeight, $data)
+    private function applySheetOneStyle(Worksheet $sheet, int $startRow, int $endRow, string $lastColumn, int $blockHeight, array $data)
     {
         // GLOBAL STYLE
         $sheet->getStyle("A{$startRow}:{$lastColumn}{$endRow}")
@@ -124,20 +122,21 @@ class ExportPayrollService
         }
     }
 
-    private function fillSheetOneCell($sheet, $startRow, $blockHeight, $data)
+    private function buildSheetOneCell(Worksheet $sheet, int $startRow, int $blockHeight, array $data)
     {
         $i = 0;
         foreach ($data['employee_payrolls'] as $index => $employee) {
+            $i++;
             $currentRow = $startRow + ($index * $blockHeight);
 
             $this->mergesSheetOneCell($sheet, $currentRow);
             $this->setLabelSheetOneCell($sheet, $currentRow);
-            $this->fillDataSheetOneCell($sheet, $currentRow, $index, $employee);
+            $this->fillDataSheetOneCell($sheet, $currentRow, $i, $employee);
             $this->totalBorderStyleSheetOneCell($sheet, $currentRow);
         }
     }
 
-    private function mergesSheetOneCell($sheet, $currentRow)
+    private function mergesSheetOneCell(Worksheet $sheet, int $currentRow)
     {
         $sheet->mergeCells("A" . ($currentRow) . ":A" . ($currentRow + 8)); // Row numer
         $sheet->mergeCells("B" . ($currentRow) . ":E" . ($currentRow)); //Employee Number
@@ -172,7 +171,7 @@ class ExportPayrollService
 
     }
 
-    private function setLabelSheetOneCell($sheet, $currentRow)
+    private function setLabelSheetOneCell(Worksheet $sheet, int $currentRow)
     {
         $sheet->setCellValue("B" . ($currentRow + 5), 'BASIC');
         $sheet->setCellValue("B" . ($currentRow + 6), 'PERA');
@@ -184,7 +183,7 @@ class ExportPayrollService
         $sheet->setCellValue("AB" . ($currentRow + 5), '');
     }
 
-    private function fillDataSheetOneCell($sheet, $currentRow, $index, $employee)
+    private function fillDataSheetOneCell(Worksheet $sheet, int $currentRow, int $index, object $employee)
     {
         $employeeSalary = $employee['employee']['employeeSalary'];
 
@@ -214,8 +213,8 @@ class ExportPayrollService
         // Get totals by group name (more reliable than hardcoded IDs)
         $group = $employee['employee']['grouped_deductions'] ?? [];
         $total_gsis = $group->where('group_id', 2)->first()['group_total'] ?? 0;
-        $total_pagibig = $group->where('group_id', 3)->first()['group_total'] ?? 0;
-        $total_other = $group->where('group_id', 4)->first()['group_total'] ?? 0;
+        $total_pagibig = $group->where('group_id', 4)->first()['group_total'] ?? 0;
+        $total_other = $group->whereNotIn('group_id', [1, 2, 4, 5])->sum('group_total');
 
         // 1st Column
         $sheet->setCellValue("A" . $currentRow, $index);
@@ -303,7 +302,7 @@ class ExportPayrollService
 
     }
 
-    private function totalBorderStyleSheetOneCell($sheet, $currentRow)
+    private function totalBorderStyleSheetOneCell(Worksheet $sheet, int $currentRow)
     {
         $totalRow = $currentRow + 8;
 

@@ -48,7 +48,7 @@ class PayrollPeriodService
         return $this->setPeriod($period->id);
     }
 
-    public function lock($id)
+    public function lock(int $id)
     {
         return $this->interface->lock($id);
     }

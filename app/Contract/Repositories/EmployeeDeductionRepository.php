@@ -73,4 +73,11 @@ class EmployeeDeductionRepository implements EmployeeDeductionInterface
     {
         return $this->model->find($id);
     }
+
+    public function findByPayrollPeriod(int $payrollPeriodId): Collection
+    {
+        return $this->model->where('payroll_period_id', $payrollPeriodId)
+            ->with(['employee', 'deductions'])
+            ->get();
+    }
 }
