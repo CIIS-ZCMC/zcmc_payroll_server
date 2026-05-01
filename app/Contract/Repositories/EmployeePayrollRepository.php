@@ -7,6 +7,7 @@ use App\Models\EmployeePayroll;
 use App\Models\PayrollPeriod;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class EmployeePayrollRepository implements EmployeePayrollInterface
 {
@@ -76,7 +77,7 @@ class EmployeePayrollRepository implements EmployeePayrollInterface
         return $this->model->upsert(
             $data,
             ['employee_id', 'employee_time_record_id', 'payroll_period_id'],
-            ['basic_pay', 'total_receivables', 'gross_pay', 'total_deductions', 'net_pay']
+            ['basic_pay', 'total_receivables', 'gross_pay', 'total_deductions', 'net_pay', 'first_half', 'second_half']
         );
     }
 }

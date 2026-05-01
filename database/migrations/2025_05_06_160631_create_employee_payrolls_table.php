@@ -44,6 +44,9 @@ class CreateEmployeePayrollsTable extends Migration
             $table->decimal('gross_pay', 11, 2);
             $table->decimal("total_deductions", 11, 2);
             $table->decimal("net_pay", 11, 2);
+            $table->decimal('first_half', 11, 2)->nullable();
+            $table->decimal('second_half', 11, 2)->nullable();
+
             // $table->decimal('night_differential', 11, 2);
 
             $table->unique(

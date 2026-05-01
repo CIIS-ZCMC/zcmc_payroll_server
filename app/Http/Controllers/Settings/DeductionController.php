@@ -8,6 +8,8 @@ use App\Http\Requests\DeductionRequest;
 use App\Http\Resources\DeductionResource;
 use App\Http\Resources\ImportDeductionResource;
 use App\Models\Deduction;
+use App\Models\EmployeeDeduction;
+use App\Models\PayrollPeriod;
 use App\Services\DeductionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -140,16 +142,17 @@ class DeductionController extends Controller
      */
     public function show($id, Request $request)
     {
-        $import = $request->boolean('import', false);
-
         $payroll_period_id = $request->payroll_period_id;
+        $import = $request->boolean('import', false);
+        
+        $month = $request->month;
+        $year = $request->year;
 
-        $data = Deduction::with([
-            'employeeDeductions' => function ($query) use ($payroll_period_id) {
-                $query->where('payroll_period_id', $payroll_period_id);
-            },
-            'employeeDeductions.employee'
-        ])->where('id', $id)->first();
+        $employment_type = $request->employment_type;
+        $period_type = $request->period_type;
+
+
+        $data = $this->service->findWithFilters($id, $payroll_period_id, $month, $year, $employment_type, $period_type);
 
         if (!$data) {
             return response()->json([

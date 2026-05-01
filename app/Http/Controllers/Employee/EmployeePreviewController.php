@@ -92,8 +92,6 @@ class EmployeePreviewController extends Controller
      */
     public function index(Request $request)
     {
-        Log::info($request->selected_employees);
-
         $validated = $request->validate([
             'type' => 'required|in:all,included,excluded,selected',
             'selected_employees' => 'nullable|array',

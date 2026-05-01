@@ -25,8 +25,8 @@ class EmployeePayrollResource extends JsonResource
             'gross_pay' => $this->gross_pay,
             'total_deductions' => $this->total_deductions,
             'net_pay' => $this->net_pay,
-            'first_half' => $this->first_half,
-            'second_half' => $this->second_half,
+            'first_half' => $this->first_half, // Salary
+            'second_half' => $this->second_half, // Salary
 
             'employee_id' => $this->employee_id,
             'employee' => new EmployeeResource($this->whenLoaded('employee')),

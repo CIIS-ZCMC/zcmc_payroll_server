@@ -5,8 +5,12 @@ namespace App\Services;
 use App\Http\Resources\EmployeePreviewResource;
 use App\Http\Resources\PaginationResource;
 use App\Models\Employee;
+use App\Models\EmployeeDeduction;
+use App\Models\EmployeePayroll;
+use App\Models\PayrollPeriod;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class EmployeePreviewService
 {
@@ -69,6 +73,9 @@ class EmployeePreviewService
 
     public function getAll(string $type, int $payrollPeriodId, array $selectedEmployeeIds)
     {
+        // Upsert deductions if none exist for current period
+        $this->storeEmployeeDeduction($payrollPeriodId);
+
         $employees = $this->fetchEmployees($payrollPeriodId, $selectedEmployeeIds);
 
         [$included, $excluded] = $this->calculateAndClassify($employees);
@@ -87,6 +94,9 @@ class EmployeePreviewService
 
     public function preview(string $type, int $payrollPeriodId, array $selectedEmployeeIds, int $perPage, int $page)
     {
+        // Upsert deductions if none exist for current period
+        $this->storeEmployeeDeduction($payrollPeriodId);
+
         $employees = $this->fetchEmployees($payrollPeriodId, $selectedEmployeeIds);
 
         [$included, $excluded] = $this->calculateAndClassify($employees);
@@ -110,21 +120,35 @@ class EmployeePreviewService
         $query = Employee::with([
             'employeeSalary' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId),
+
             'employeeComputedSalary' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId),
+
             'employeeTimeRecords' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId)
                     ->where('is_active', true),
+
             'employeeReceivables' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId),
 
-            'employeeDeductions' => fn($q) =>
-                $q->where('payroll_period_id', $payrollPeriodId),
+            'employeeDeductions' => function ($q) use ($payrollPeriodId) {
+                $currentCount = EmployeeDeduction::where('payroll_period_id', $payrollPeriodId)->count();
+
+                if ($currentCount > 0) {
+                    $q->where('payroll_period_id', $payrollPeriodId);
+                    return;
+                }
+
+                $previousPeriod = $this->findPreviousPeriod($payrollPeriodId);
+
+                if ($previousPeriod) {
+                    $q->where('payroll_period_id', $previousPeriod->id);
+                }
+            },
 
             'excludedEmployees' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId),
-        ])
-            ->orderBy('last_name');
+        ])->orderBy('last_name');
 
         if (!empty($selectedEmployeeIds)) {
             $query->whereIn('id', $selectedEmployeeIds);
@@ -143,7 +167,7 @@ class EmployeePreviewService
             $computedSalary = $employee->employeeComputedSalary;
 
             if (!$record) {
-                \Log::warning("Employee {$employee->id} ({$employee->employee_number}) has no time record for payroll period");
+                Log::warning("Employee {$employee->id} ({$employee->employee_number}) has no time record for payroll period");
                 continue; // Skip if no time record
             }
 
@@ -153,6 +177,34 @@ class EmployeePreviewService
 
             $gross = round($basic + $receivables, 2);
             $net = round($gross - $deductions, 2);
+
+            // Get payroll period to determine first/second half logic
+            $payrollPeriod = PayrollPeriod::find($record->payroll_period_id);
+            $periodType = $payrollPeriod->period_type ?? 'first_half';
+
+            if ($periodType === 'first_half') {
+                // First half: split net pay normally
+                $firstHalf = round(floor($net / 2), 2);
+                $secondHalf = round($net - $firstHalf, 2);
+            } else {
+                // Second half: get locked first half from first half period
+                $firstHalfPeriod = PayrollPeriod::where('month', $payrollPeriod->month)
+                    ->where('year', $payrollPeriod->year)
+                    ->where('employment_type', $payrollPeriod->employment_type)
+                    ->where('period_type', 'first_half')
+                    ->first();
+
+                $lockedFirstHalf = 0;
+                if ($firstHalfPeriod) {
+                    $firstHalfPayroll = EmployeePayroll::where('employee_id', $employee->id)
+                        ->where('payroll_period_id', $firstHalfPeriod->id)
+                        ->first();
+                    $lockedFirstHalf = $firstHalfPayroll->first_half ?? 0;
+                }
+
+                $firstHalf = $lockedFirstHalf;
+                $secondHalf = round($net - $firstHalf, 2);
+            }
 
             $payload = [
                 'employee' => $employee,
@@ -164,6 +216,8 @@ class EmployeePreviewService
                     'total_deductions' => $deductions,
                     'gross_pay' => $gross,
                     'net_pay' => $net,
+                    'first_half' => $firstHalf,
+                    'second_half' => $secondHalf,
                 ],
             ];
 
@@ -185,6 +239,107 @@ class EmployeePreviewService
             $perPage,
             $page,
         );
+    }
+
+    private function findPreviousPeriod(int $payrollPeriodId)
+    {
+        $payrollPeriod = PayrollPeriod::find($payrollPeriodId);
+
+        $period_type = $payrollPeriod->period_type;
+        $month = $payrollPeriod->month;
+        $year = $payrollPeriod->year;
+        $employment_type = $payrollPeriod->employment_type;
+        
+        if ($period_type === 'second_half') {
+            // Same month, first half
+            return PayrollPeriod::where('month', $month)
+                ->where('year', $year)
+                ->where('employment_type', $employment_type)
+                ->where('period_type', 'first_half')
+                ->first();
+        }
+        
+        // First half - get previous month's second half
+        $previousMonth = $month - 1;
+        $previousYear = $year;
+        
+        if ($month == 1) {
+            $previousMonth = 12;
+            $previousYear = $year - 1;
+        }
+        
+        return PayrollPeriod::where('month', $previousMonth)
+            ->where('year', $previousYear)
+            ->where('employment_type', $employment_type)
+            ->where('period_type', 'second_half')
+            ->first();
+    }
+
+    private function storeEmployeeDeduction(int $payrollPeriodId)
+    {
+        $previousPeriod = $this->findPreviousPeriod($payrollPeriodId);
+
+        if (!$previousPeriod) {
+            return;
+        }
+
+        // Get all deductions from previous period
+        $previousDeductions = EmployeeDeduction::where('payroll_period_id', $previousPeriod->id)->get();
+
+        // Get existing deductions in current period to skip
+        $existingDeductions = EmployeeDeduction::where('payroll_period_id', $payrollPeriodId)
+            ->pluck('deduction_id', 'employee_id')
+            ->toArray();
+
+        $deductionsToInsert = [];
+
+        foreach ($previousDeductions as $deduction) {
+            // Skip if deduction already exists in current period
+            if (isset($existingDeductions[$deduction->employee_id]) && $existingDeductions[$deduction->employee_id] == $deduction->deduction_id) {
+                continue;
+            }
+
+            // Check if deduction should be inherited
+            if ($deduction->with_terms && $deduction->total_paid >= $deduction->total_term) {
+                continue; // Skip if term-based deduction is completed
+            }
+
+            if ($deduction->status === 'stopped' || $deduction->status === 'completed') {
+                continue; // Skip if deduction is stopped or completed
+            }
+
+            // Check date-based deductions
+            if ($deduction->date_to && now()->gt($deduction->date_to)) {
+                continue; // Skip if end date has passed
+            }
+
+            // Prepare data for bulk insert
+            $deductionsToInsert[] = [
+                'employee_id' => $deduction->employee_id,
+                'deduction_id' => $deduction->deduction_id,
+                'payroll_period_id' => $payrollPeriodId,
+                'billing_cycle' => $deduction->billing_cycle,
+                'amount' => $deduction->amount,
+                'percentage' => $deduction->percentage,
+                'date_from' => $deduction->date_from,
+                'date_to' => $deduction->date_to,
+                'with_terms' => $deduction->with_terms,
+                'total_term' => $deduction->total_term,
+                'total_paid' => $deduction->with_terms ? $deduction->total_paid + 1 : $deduction->total_paid,
+                'reason' => $deduction->reason,
+                'status' => $deduction->status,
+                'isDifferential' => $deduction->isDifferential,
+                'is_default' => $deduction->is_default,
+                'effective_date' => $deduction->effective_date,
+                'deduct_at' => $deduction->deduct_at,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        if (!empty($deductionsToInsert)) {
+            EmployeeDeduction::insert($deductionsToInsert);
+        }
     }
 }
 
