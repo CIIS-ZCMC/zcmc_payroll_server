@@ -148,8 +148,9 @@ class FetchEmployeeService
 
     public function hasCacheForPeriod(int $year, int $month, string $employment_type, string $period_type): bool
     {
+
         $cacheKey = "{$year}-{$month}:{$employment_type}:{$period_type}";
-        return Cache::store('umis')->has($cacheKey);
+        return Redis::connection('umis')->get($cacheKey);
     }
 
     public function getCacheMetadata(int $year, int $month): ?array
@@ -306,13 +307,13 @@ class FetchEmployeeService
 
     public function getCacheProgress()
     {
-        // $cacheKey = "zamboanga_city_medical_center_portal_cache_:precache_employee_progress::progress";
-        // $progress = Redis::connection()->get($cacheKey);
+        $cacheKey = "zamboanga_city_medical_center_portal_cache_:precache_employee_progress::progress";
+        $progress = Redis::connection()->get($cacheKey);
 
-        // if (!$progress) {
-        //     return null;
-        // }
+        if (!$progress) {
+            return null;
+        }
 
-        // return unserialize($progress);
+        return unserialize($progress);
     }
 }
