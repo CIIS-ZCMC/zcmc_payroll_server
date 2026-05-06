@@ -151,7 +151,6 @@ class DeductionController extends Controller
         $employment_type = $request->employment_type;
         $period_type = $request->period_type;
 
-
         $data = $this->service->findWithFilters($id, $payroll_period_id, $month, $year, $employment_type, $period_type);
 
         if (!$data) {

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class PayrollSummary extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = "payroll_summaries";
 
@@ -26,6 +28,14 @@ class PayrollSummary extends Model
     ];
 
     protected $appends = ['grouped_deduction_totals'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('payroll_summary')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     public function payrollPeriod()
     {

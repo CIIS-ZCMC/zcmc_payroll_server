@@ -288,14 +288,17 @@ class EmployeePreviewService
 
         // Get existing deductions in current period to skip
         $existingDeductions = EmployeeDeduction::where('payroll_period_id', $payrollPeriodId)
-            ->pluck('deduction_id', 'employee_id')
-            ->toArray();
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->employee_id . '-' . $item->deduction_id;
+            });
 
         $deductionsToInsert = [];
 
         foreach ($previousDeductions as $deduction) {
             // Skip if deduction already exists in current period
-            if (isset($existingDeductions[$deduction->employee_id]) && $existingDeductions[$deduction->employee_id] == $deduction->deduction_id) {
+            $uniqueKey = $deduction->employee_id . '-' . $deduction->deduction_id;
+            if ($existingDeductions->has($uniqueKey)) {
                 continue;
             }
 

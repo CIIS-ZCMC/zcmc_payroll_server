@@ -5,10 +5,12 @@ namespace App\Models;
 use App\Enums\PayrollStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class PayrollPeriod extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
     protected $table = "payroll_periods";
 
     protected $primaryKey = 'id';
@@ -32,6 +34,14 @@ class PayrollPeriod extends Model
     // protected $casts = [
     //     'status' => PayrollStatus::class,
     // ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('payroll_period')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     public function scopeActive($query)
     {

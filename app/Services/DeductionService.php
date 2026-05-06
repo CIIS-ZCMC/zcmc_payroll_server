@@ -10,6 +10,7 @@ use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class DeductionService
 {
@@ -113,7 +114,7 @@ class DeductionService
         // First half - get previous month's second half
         $previousMonth = $month - 1;
         $previousYear = $year;
-        
+
         if ($month == 1) {
             $previousMonth = 12;
             $previousYear = $year - 1;

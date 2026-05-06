@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Employee extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'employees';
 
@@ -30,6 +32,15 @@ class Employee extends Model
     public $timestamps = true;
 
     protected $appends = ['full_name'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
+
 
     public function getFullNameAttribute(): string
     {

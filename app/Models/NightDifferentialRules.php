@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Enums\EmploymentType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class NightDifferentialRules extends Model
 {
-    use HasFactory;
-
+    use HasFactory, LogsActivity;
+    protected $guarded = [];
     protected $table = "night_differential_rules";
 
     protected $primaryKey = 'id';
@@ -25,4 +27,12 @@ class NightDifferentialRules extends Model
     protected $casts = [
         'employment_type' => EmploymentType::class,
     ];
+    
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('night_differential_rules')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 }

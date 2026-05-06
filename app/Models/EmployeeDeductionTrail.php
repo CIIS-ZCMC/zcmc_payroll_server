@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeDeductionTrail extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'employee_deduction_trails';
 
@@ -27,10 +29,18 @@ class EmployeeDeductionTrail extends Model
     ];
 
     public $timestamps = true;
-
+    
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-deduction-trail')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
+    
     public function employeeDeduction()
     {
         return $this->belongsTo(EmployeeDeduction::class);
     }
-
+    
 }

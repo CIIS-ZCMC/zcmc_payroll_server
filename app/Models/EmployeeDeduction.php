@@ -41,7 +41,7 @@ class EmployeeDeduction extends Model
     {
         return LogOptions::defaults()
             ->useLogName('employee-deduction')
-            ->logOnly(['payroll_period_id', 'employee_id', 'deduction_id'])
+            ->logFillable()
             ->logOnlyDirty();
     }
 
