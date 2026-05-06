@@ -120,6 +120,12 @@ return [
             'level' => 'error',
         ],
 
+        'generate_payroll' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/generate_payroll.log'),
+            'level' => 'error',
+        ],
+
         'code' => [
             'driver' => 'single',
             'path' => storage_path('logs/Error.log'),

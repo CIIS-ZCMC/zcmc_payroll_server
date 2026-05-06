@@ -17,7 +17,7 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')->references('id')->on('employees');
-            $table->unsignedBigInteger('payroll_period_id')->nullable();
+            $table->unsignedBigInteger('payroll_period_id');
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
             $table->double('minutes')->comment('rate');
             $table->double('daily')->comment('rate');
@@ -45,8 +45,8 @@ class CreateEmployeeTimeRecordsTable extends Migration
             $table->double('no_of_invalid_entry');
             $table->double('no_of_day_off');
             $table->double('no_of_schedule');
-            $table->json('night_differentials');
-            $table->json('absent_dates');
+            $table->longText('night_differentials');
+            $table->longText('absent_dates');
             $table->string('month');
             $table->string('year');
             $table->string('from')->nullable()->comment('period from , ex.1-15');

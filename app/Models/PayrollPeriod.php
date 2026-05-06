@@ -15,6 +15,7 @@ class PayrollPeriod extends Model
     protected $fillable = [
         'month',
         'year',
+        'payroll_type',
         'employment_type',
         'period_type',
         'period_start',

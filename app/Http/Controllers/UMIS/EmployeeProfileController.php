@@ -20,12 +20,13 @@ use App\Services\EmployeeSalaryService;
 use App\Services\EmployeeService;
 use App\Services\EmployeeTimeRecordService;
 use App\Services\ExcludeEmployeeService;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cache;
-use Str;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+
 
 
 class EmployeeProfileController extends Controller
@@ -314,20 +315,31 @@ class EmployeeProfileController extends Controller
                 $outOfPayroll = $netPay <= $salaryLimit ? 'true' : 'false'; //if net_pay or less than salary limit, then out of payroll
 
                 $night_duties = $employee->nigthDuties;
-                $nightDiff = $night_duties->map(function ($duty) {
-                    return [
-                        'biometric_id' => $duty->biometric_id,
-                        'dtr_date' => $duty->dtr_date,
-                        'first_in' => $duty->first_in,
-                        'first_out' => $duty->first_out,
-                        'second_in' => $duty->second_in,
-                        'second_out' => $duty->second_out,
-                        'total_working_minutes' => $duty->total_working_minutes,
-                        'overtime_minutes' => $duty->overtime_minutes ?? 0,
-                        'undertime_minutes' => $duty->undertime_minutes ?? 0,
-                        'overall_minutes_rendered' => $duty->overall_minutes_rendered,
-                    ];
-                })->toArray();
+
+
+                //Applied filtering in night duties
+                $nightDiff = $night_duties
+                    ->filter(function ($duty) use ($month_of, $year_of) {
+                        return (int) date("m", strtotime($duty->dtr_date)) === (int) $month_of
+                            && (int) date("Y", strtotime($duty->dtr_date)) === (int) $year_of;
+                    })
+                    ->map(function ($duty) {
+                        return [
+                            'biometric_id' => $duty->biometric_id,
+                            'dtr_date' => $duty->dtr_date,
+                            'first_in' => $duty->first_in,
+                            'first_out' => $duty->first_out,
+                            'second_in' => $duty->second_in,
+                            'second_out' => $duty->second_out,
+                            'total_working_minutes' => $duty->total_working_minutes,
+                            'overtime_minutes' => $duty->overtime_minutes ?? 0,
+                            'undertime_minutes' => $duty->undertime_minutes ?? 0,
+                            'overall_minutes_rendered' => $duty->overall_minutes_rendered,
+                        ];
+                    })
+                    ->values()
+                    ->toArray();
+
 
                 // Get the overall total working minutes of night duties
                 $overallNightDutyMinutes = $night_duties->sum('total_working_minutes');
@@ -413,6 +425,7 @@ class EmployeeProfileController extends Controller
                 "employees" => $data
             ];
 
+
             $uuid = Str::uuid();
 
             Cache::put($uuid, json_encode($response_data));
@@ -461,6 +474,7 @@ class EmployeeProfileController extends Controller
 
         // Find or create payroll period
         $payroll_period = PayrollPeriod::firstOrNew([
+            'payroll_type' => "General Payroll",
             'period_type' => $period_type,
             'employment_type' => $employment_type,
             'month' => $month_of,
@@ -723,7 +737,7 @@ class EmployeeProfileController extends Controller
 
             $find_result = $find_employee_time_record->first();
 
-            $find_result === null
+            !$find_result
                 ? $result = $this->employeeTimeRecordService->create($employee_time_record_details)
                 : $result = $this->employeeTimeRecordService->update($find_result->id, $employee_time_record_details);
 

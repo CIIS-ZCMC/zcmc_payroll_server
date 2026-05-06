@@ -17,7 +17,6 @@ use App\Http\Controllers\Settings\DeductionRuleController;
 use App\Http\Controllers\Settings\ReceivableController;
 use App\Http\Controllers\Trail\EmployeeDeductionTrailController;
 use App\Http\Controllers\UMIS\EmployeeProfileController;
-use App\Models\EmployeeDeductionTrail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,7 +57,6 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('employee-time-records', EmployeeTimeRecordController::class);
     Route::apiResource('employee-adjustments', EmployeeAdjustmentController::class)->only(['index', 'store', 'show']);
     Route::apiResource('employee-deduction-trail', EmployeeDeductionTrailController::class)->only(['index', 'store', 'show', 'destroy']);
-
 
     //Payroll Period
     Route::apiResource('payroll-periods', PayrollPeriodController::class)->only(['index']);
