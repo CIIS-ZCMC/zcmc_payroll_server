@@ -6,11 +6,11 @@ use App\Helpers\UmisHttpRequestHelper;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use \App\Helpers\Helpers;
 use \App\Helpers\Token;
-use \App\Helpers\Logging;
 use \App\Models\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -19,6 +19,38 @@ class LoginController extends Controller
         PersonalAccessToken::where('employee_id', $employee_id)->delete();
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/sign-in",
+     *     summary="Sign in",
+     *     tags={"Authentication"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"employee_id","password"},
+     *             @OA\Property(property="employee_id", type="integer", example=1),
+     *             @OA\Property(property="password", type="string", example="password")
+     *         ) 
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successfully authenticate user.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Successfully authenticate user."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation Error"
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         $result = UmisHttpRequestHelper::post("auth-with-api-key-credential", [
@@ -87,12 +119,30 @@ class LoginController extends Controller
             );
     }
 
-    public function destroy(Request $request)
+    public function checkServerDatabaseConnection(Request $request)
     {
 
+        $database = DB::connection()->getDatabaseName();
+
+        if ($database) {
+            return response()->json([
+                'message' => 'Connection check successful.',
+                'statusCode' => Response::HTTP_OK,
+            ], Response::HTTP_OK);
+        }
+
+        return response()->json([
+            'message' => 'Connection check failed.',
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+        ], Response::HTTP_BAD_REQUEST);
+    }
+
+    public function destroy(Request $request)
+    {
+        Cache::forget('payroll-period-list');
         return response()->json([
             'message' => "Successfully signout."
-        ], Response::HTTP_NO_CONTENT)->cookie(env("COOKIE_NAME"), '', -1);
-        ;
+        ], Response::HTTP_OK)->cookie(env("COOKIE_NAME"), '', -1);
+
     }
 }

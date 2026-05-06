@@ -14,19 +14,24 @@ class PayrollReportResource extends JsonResource
      */
     public function toArray($request)
     {
+
         return [
             'id' => $this->id,
-            'generated_by_id' => $this->generated_by_id,
-            'generated_by_name' => $this->generated_by_name,
-            'payroll_period_id' => $this->payroll_period_id,
-            'total_employees' => $this->total_employees,
-            'total_deductions' => $this->total_deductions,
-            'total_receivables' => $this->total_receivables,
-            'total_gross' => $this->total_gross,
-            'total_net' => $this->total_net,
             'month' => $this->month,
             'year' => $this->year,
-            'employee' => EmployeeTimeRecordResource::collection($this->payrollPeriod->employeeTimeRecords)
+            'employment_type' => $this->employment_type,
+            'payroll_type' => $this->payroll_type,
+            'period_type' => $this->period_type,
+            'period_start' => $this->period_start,
+            'period_end' => $this->period_end,
+            'days_of_duty' => $this->days_of_duty,
+            'status' => $this->status,
+            'posted_at' => $this->posted_at,
+            'locked_at' => $this->locked_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'payroll_summary' => new PayrollSummaryResource($this->whenLoaded('payrollSummary')),
+            'employee_payrolls' => EmployeePayrollResource::collection($this->whenLoaded('employeePayrolls'))
         ];
     }
 }

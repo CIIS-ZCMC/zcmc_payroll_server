@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeReceivable extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $table = 'employee_receivables';
 
@@ -18,24 +20,31 @@ class EmployeeReceivable extends Model
         'payroll_period_id',
         'employee_id',
         'receivable_id',
+        'billing_cycle',
         'amount',
         'percentage',
-        'is_default',
-        'status',
-        'date_to',
         'date_from',
+        'date_to',
+        'total_paid',
+        'reason',
+        'status',
+        'is_default',
+        'effective_date',
+        'received_at',
         'stopped_at',
         'completed_at',
-        'reason',
-        'total_paid',
-        'frequency',
-
     ];
 
     public $timestamps = true;
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-receivable')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
-    //Version 2
     public function employee()
     {
         return $this->belongsTo(Employee::class);
@@ -50,4 +59,5 @@ class EmployeeReceivable extends Model
     {
         return $this->belongsTo(Receivable::class, 'receivable_id');
     }
+    
 }

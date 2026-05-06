@@ -63,7 +63,7 @@ class ImportEmployeeDeduction implements ToCollection
                     'employee_id' => $employee->id,
                     'deduction_id' => $deduction->id,
                     'amount' => $row[3],
-                    'frequency' => 'monthly',
+                    'billing_cycle' => 'monthly',
                     'with_terms' => 0,
                     'is_default' => $is_default,
                 ];

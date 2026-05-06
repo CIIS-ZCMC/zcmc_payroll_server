@@ -3,11 +3,10 @@
 namespace App\Contract;
 
 use App\Models\EmployeeReceivableTrail;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface EmployeeReceivableTrailInterface
 {
-    public function getAllPerPeriod(int $payrollPeriodId, int $page, int $perPage): LengthAwarePaginator;
-    public function getAllPagination(int $page, int $perPage): LengthAwarePaginator;
-    public function find(int $id): ?EmployeeReceivableTrail;
+    public function create(array $data): EmployeeReceivableTrail;
+    public function show(int $employee_id, int $receivable_id): Collection;
 }

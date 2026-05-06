@@ -63,25 +63,6 @@ return [
             ]) : [],
         ],
 
-        'mysql2' => [
-            'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB2_HOST', '127.0.0.1'),
-            'port' => env('DB2_PORT', '3306'),
-            'database' => env('DB2_DATABASE', 'forge'),
-            'username' => env('DB2_USERNAME', 'forge'),
-            'password' => env('DB2_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
 
         'pgsql' => [
             'driver' => 'pgsql',
@@ -139,11 +120,10 @@ return [
 
     'redis' => [
 
-        'client' => env('REDIS_CLIENT', 'phpredis'),
+        'client' => env('REDIS_CLIENT', 'predis'),
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [
@@ -162,6 +142,14 @@ return [
             'database' => env('REDIS_CACHE_DB', '1'),
         ],
 
+        'umis' => [
+            'url' => env('REDIS_URL'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', '6379'),
+            'database' => env('REDIS_UMIS_DB', '0'),
+            'prefix' => env('REDIS_PREFIX', 'zamboanga_city_medical_center_portal_cache_:') . env('UMIS_CACHE_PREFIX', 'umis:employees:'),
+        ],
     ],
 
 ];

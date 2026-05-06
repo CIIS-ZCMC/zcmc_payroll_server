@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class DeductionRule extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'deduction_rules';
 
@@ -24,8 +26,17 @@ class DeductionRule extends Model
 
     public $timestamps = true;
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('deduction-rule')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
+
     public function deduction()
     {
         return $this->belongsTo(Deduction::class, 'deduction_id');
     }
+
 }

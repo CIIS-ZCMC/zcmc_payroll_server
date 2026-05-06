@@ -17,15 +17,21 @@ class CreateEmployeeDeductionTrailsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_deduction_id');
             $table->foreign('employee_deduction_id')->references('id')->on('employee_deductions');
+
             $table->integer('total_term');
             $table->integer('total_term_paid');
-            $table->double('amount_paid');
-            $table->date('date_paid');
-            $table->double('balance')->default(0);
+
+            $table->decimal('amount_paid', 11, 2);
+            $table->decimal('balance', 11, 2)->default(0);
+
+            $table->dateTime('date_paid');
+
             $table->string('status');
             $table->string('remarks')->nullable();
-            $table->boolean('is_last_payment');
-            $table->boolean('is_adjustment');
+
+            $table->boolean('is_last_payment')->default(false);
+            $table->boolean('is_adjustment')->default(false);
+
             $table->softDeletes();
             $table->timestamps();
         });

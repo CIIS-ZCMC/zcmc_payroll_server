@@ -11,9 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeAdjustmentController extends Controller
 {
-    public function __construct(
-        private EmployeeAdjustmentService $service
-    ) {
+    public function __construct(private EmployeeAdjustmentService $service)
+    {
         //nothing
     }
 
@@ -21,7 +20,7 @@ class EmployeeAdjustmentController extends Controller
     {
         $dto = EmployeeAdjustmentData::fromRequest($request);
         $data = $this->service->create($dto);
-
+        
         return response()->json([
             'message' => 'Employee Adjustment created',
             'statusCode' => 200,

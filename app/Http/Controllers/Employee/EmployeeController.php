@@ -3,132 +3,115 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use App\Services\ComputationService;
-use App\Services\EmployeeSalaryService;
+use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\PaginationResource;
 use App\Services\EmployeeService;
-use App\Services\EmployeeTimeRecordService;
-use App\Services\ExcludeEmployeeService;
 use Illuminate\Http\Request;
-use App\Http\Resources\EmployeeTimeRecordResource;
-use App\Http\Resources\ExcludedEmployeeResource;
-use App\Models\EmployeeTimeRecord;
-use App\Models\ExcludedEmployee;
-use App\Models\PayrollPeriod;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeController extends Controller
 {
-    protected $employeeService;
-    protected $excludedEmployeeService;
-    protected $employeeSalaryService;
-    protected $employeeTimeRecordService;
-    protected $computationService;
 
-    public function __construct(
-        EmployeeService $employeeService,
-        ExcludeEmployeeService $excludedEmployeeService,
-        EmployeeSalaryService $employeeSalaryService,
-        EmployeeTimeRecordService $employeeTimeRecordService,
-        ComputationService $computationService
-    ) {
-        $this->employeeService = $employeeService;
-        $this->excludedEmployeeService = $excludedEmployeeService;
-        $this->employeeSalaryService = $employeeSalaryService;
-        $this->employeeTimeRecordService = $employeeTimeRecordService;
-        $this->computationService = $computationService;
+    public function __construct(private EmployeeService $service)
+    {
+        // Nothing
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/employees",
+     *     summary="List all employees",
+     *     tags={"Employees"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="string", default="all")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=15)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of employees"
+     *     )
+     * )
      */
     public function index(Request $request)
     {
-        if ($request->is_excluded) {
-            return $this->getExcludedEmployees($request);
+        $type = $request->type;
+        $perPage = $request->per_page;
+        $page = $request->page;
+        $data = [];
+
+        switch ($type) {
+            case 'isIncluded':
+                $data = $this->service->getIncludedEmployee($perPage, $page);
+                break;
+
+            case 'isExcluded':
+                $data = $this->service->getExcludedEmployee($perPage, $page);
+                break;
+
+            default:
+                $data = $this->service->paginate($perPage, $page);
+                break;
         }
 
-        $data = $this->getEmployee($request);
 
         if (!$data) {
             return response()->json([
                 'message' => 'No data found for the specified payroll period.',
-                'statusCode' => 404
+                'success' => false
             ], Response::HTTP_NOT_FOUND);
         }
 
+
         return response()->json([
-            'message' => 'Data retrieved successfully.',
-            'statusCode' => 200,
-            'responseData' => EmployeeTimeRecordResource::collection($data),
+            'data' => EmployeeResource::collection($data),
+            'meta' => new PaginationResource($data),
+            'message' => 'Data successfully retrieved',
+            'success' => true,
         ], Response::HTTP_OK);
     }
 
-    private function getEmployee(Request $request)
+    /**
+     * @OA\Get(
+     *     path="/api/employees/{id}",
+     *     summary="Get employee by id",
+     *     tags={"Employees"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Employee successfully retrieved"
+     *     )
+     * )
+     */
+    public function show($id)
     {
-        $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
-            ->where('period_type', $request->period_type)
-            ->where('month', $request->month_of)
-            ->where('year', $request->year_of)
-            ->first();
-
-        if ($payroll_period) {
-            $data = EmployeeTimeRecord::with([
-                'payrollPeriod',
-                'employee' => function ($query) {
-                    $query->with([
-                        'employeeSalary',
-                        'employeeComputedSalaries',
-                        'employeeDeductions',
-                        'employeeReceivables',
-                        'employeeTimeRecords'
-                    ]);
-                }
-            ])->where('payroll_period_id', $payroll_period->id)
-                ->where('status', 'included')
-                ->get();
-
-            if (!$data) {
-                return null;
-            }
-
-            return $data;
-        }
-
-        return null;
-    }
-
-    private function getExcludedEmployees(Request $request)
-    {
-        $payroll_period = PayrollPeriod::where('employment_type', $request->employment_type)
-            ->where('month', $request->month_of)
-            ->where('year', $request->year_of)
-            ->where('period_type', $request->period_type)
-            ->first();
-
-        if (!$payroll_period) {
-            return response()->json([
-                'message' => 'Payroll period not found for the specified criteria.',
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data = ExcludedEmployee::where('payroll_period_id', $payroll_period->id)
-            ->with(['employee', 'payrollPeriod'])
-            ->get();
-
-        if (!$data) {
-            return response()->json([
-                'message' => 'No excluded employees found for the specified payroll period.',
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
+        $data = $this->service->find($id);
 
         return response()->json([
-            'message' => 'Excluded employees retrieved successfully.',
-            'statusCode' => 200,
-            'responseData' => ExcludedEmployeeResource::collection($data)
+            'data' => EmployeeResource::make($data),
+            'message' => 'Data successfully retrieved',
+            'success' => true,
         ], Response::HTTP_OK);
     }
+
 }

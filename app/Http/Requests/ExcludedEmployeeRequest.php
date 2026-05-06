@@ -26,10 +26,6 @@ class ExcludedEmployeeRequest extends FormRequest
         return [
             'employee_id' => 'required|integer',
             'payroll_period_id' => 'required|integer',
-            'month' => 'required|string',
-            'year' => 'required|string',
-            'period_start' => 'required|string',
-            'period_end' => 'required|string',
             'reason' => 'required|string',
             'is_removed' => 'required|boolean',
         ];

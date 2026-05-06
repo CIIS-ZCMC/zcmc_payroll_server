@@ -15,48 +15,58 @@ class CreateEmployeeTimeRecordsTable extends Migration
     {
         Schema::create('employee_time_records', function (Blueprint $table) {
             $table->id();
+
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')->references('id')->on('employees');
+
             $table->unsignedBigInteger('payroll_period_id');
             $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
-            $table->double('minutes')->comment('rate');
-            $table->double('daily')->comment('rate');
-            $table->double('hourly')->comment('rate');
-            $table->double('absent_rate');
-            $table->double('undertime_rate');
-            $table->double('base_salary');
-            $table->double('initial_net_pay')->comment('holiday not include');
-            $table->double('net_pay')->comment('holiday is include');
-            $table->double('total_working_minutes');
-            $table->double('total_working_minutes_with_leave');
-            $table->double('total_working_hours');
-            $table->double('total_working_hours_with_leave');
-            $table->double('total_overtime_minutes');
-            $table->double('total_undertime_minutes');
-            $table->double('total_official_business_minutes');
-            $table->double('total_official_time_minutes');
-            $table->double('total_leave_minutes');
-            $table->double('total_night_duty_hours');
-            $table->double('no_of_present_days');
-            $table->double('no_of_present_days_with_leave');
-            $table->double('no_of_leave_wo_pay');
-            $table->double('no_of_leave_w_pay');
-            $table->double('no_of_absences');
-            $table->double('no_of_invalid_entry');
-            $table->double('no_of_day_off');
-            $table->double('no_of_schedule');
-            $table->longText('night_differentials');
+
+            // $table->text('minutes'); //Rate
+            // $table->text('daily'); //Rate
+            // $table->text('hourly'); //Rate
+            // $table->text('absent_rate');
+            // $table->text('undertime_rate');
+            // $table->text('base_salary');
+            // $table->text('basic_pay')->comment('basic_pay of employee, receivables is not included');
+
+            $table->decimal('total_working_minutes', 11, 2);
+            $table->decimal('total_working_minutes_with_leave', 11, 2);
+            $table->decimal('total_working_hours', 11, 2);
+            $table->decimal('total_working_hours_with_leave', 11, 2);
+            $table->decimal('total_overtime_minutes', 11, 2);
+            $table->decimal('total_undertime_minutes', 11, 2);
+            $table->decimal('total_official_business_minutes', 11, 2);
+            $table->decimal('total_official_time_minutes', 11, 2);
+            $table->decimal('total_leave_minutes', 11, 2);
+            $table->decimal('total_night_duty_hours', 11, 2);
+
+            $table->decimal('no_of_present_days', 11, 2);
+            $table->decimal('no_of_present_days_with_leave', 11, 2);
+            $table->decimal('no_of_leave_wo_pay', 11, 2);
+            $table->decimal('no_of_leave_w_pay', 11, 2);
+            $table->decimal('no_of_absences', 11, 2);
+            $table->decimal('no_of_invalid_entry', 11, 2);
+            $table->decimal('no_of_day_off', 11, 2);
+            $table->decimal('no_of_schedule', 11, 2);
+
+            $table->longText('night_duties');
             $table->longText('absent_dates');
+
+            // $table->longText('schedules');
             $table->string('month');
             $table->string('year');
-            $table->string('from')->nullable()->comment('period from , ex.1-15');
-            $table->string('to')->nullable()->comment('period to , ex.16-31');
-            $table->boolean('is_night_shift');
-            $table->boolean('is_active')->default(0);
-            $table->string('status')->nullable()->comment('first_half or second_half');
+            $table->string('from');
+            $table->string('to');
+
+            $table->string('status');
+            $table->boolean('is_active')->default(true);
+
             $table->timestamp('locked_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->unique(['employee_id', 'payroll_period_id'], 'employee_period_unique');
         });
     }
 

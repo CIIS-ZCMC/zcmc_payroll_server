@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
+use App\Enums\PayrollStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Deduction extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $table = 'deductions';
-
+protected $guarded = ['id'];
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -32,6 +35,10 @@ class Deduction extends Model
         'status',
     ];
 
+    // protected $casts = [
+    //     'status' => PayrollStatus::class,
+    // ];
+
     public $timestamps = true;
 
     protected static function boot()
@@ -43,6 +50,14 @@ class Deduction extends Model
                 $model->deduction_uuid = 'D-' . substr(str_replace('-', '', Str::uuid()), 0, 10);
             }
         });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('deduction')
+            ->logFillable()
+            ->logOnlyDirty();
     }
 
     public function deductionGroup()

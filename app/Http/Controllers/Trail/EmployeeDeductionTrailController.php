@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers\Trail;
 
-use App\Helpers\Helpers;
-use App\Http\Controllers\Adjustment\EmployeeDeductionAdjustmentController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeeDeductionTrailResource;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeDeductionTrail;
-use App\Models\EmployeeList;
-use App\Models\EmployeePayroll;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,7 +26,7 @@ class EmployeeDeductionTrailController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): Response
     {
         try {
 

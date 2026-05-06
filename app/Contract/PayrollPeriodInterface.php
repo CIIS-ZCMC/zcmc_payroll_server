@@ -3,12 +3,19 @@
 namespace App\Contract;
 
 use App\Models\PayrollPeriod;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface PayrollPeriodInterface
 {
-    public function getAll(int $page, int $perPage): LengthAwarePaginator;
+    public function getAll(): Collection;
+    public function getActive(): ?PayrollPeriod;
+    public function setActive(int $id): PayrollPeriod;
+    public function deactivateOthers(int $id): bool;
     public function create(array $data): PayrollPeriod;
-    public function find(int $id): ?PayrollPeriod;
-    public function validate(int $month, int $year, string $employment_type, string $period_type): bool;
+    public function update(int $id, array $data): PayrollPeriod;
+    public function lock(int $id): PayrollPeriod;
+    public function createOrUpdate(array $data): PayrollPeriod;
+    public function findPeriod(int $year, int $month, string $periodType, string $employmentType): ?PayrollPeriod;
+    public function isLocked(int $id): bool;
+    public function upsert(array $data): int;
 }

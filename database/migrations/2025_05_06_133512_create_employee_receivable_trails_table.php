@@ -17,15 +17,21 @@ class CreateEmployeeReceivableTrailsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('employee_receivable_id');
             $table->foreign('employee_receivable_id')->references('id')->on('employee_receivables');
+
             $table->integer('total_term');
             $table->integer('total_term_received');
-            $table->double('amount_received');
-            $table->date('date_reeceived');
-            $table->double('balance')->default(0);
+
+            $table->decimal('amount_received', 11, 2);
+            $table->decimal('balance', 11, 2)->default(0);
+
+            $table->date('date_received');
+
             $table->string('status');
             $table->string('remarks')->nullable();
+
             $table->boolean('is_last_received')->default(false);
-            $table->boolean('is_adjustment');
+            $table->boolean('is_adjustment')->default(false);
+
             $table->softDeletes();
             $table->timestamps();
         });

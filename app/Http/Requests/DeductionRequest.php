@@ -24,10 +24,10 @@ class DeductionRequest extends FormRequest
     public function rules()
     {
         return [
-            'deduction_group_id' => 'required|integer',
+            'deduction_group_id' => 'required',
             'name' => 'required|string',
-            'code' => 'required|string',
-            'type' => 'nullable|string',
+            'code' => 'required|string|unique:deductions,code',
+            'type' => 'required|string',
             'condition_operator' => 'nullable|string',
             'condition_value' => 'nullable|string',
             'percent_value' => 'nullable|string',

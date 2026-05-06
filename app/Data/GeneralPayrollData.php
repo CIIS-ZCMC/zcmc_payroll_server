@@ -5,7 +5,7 @@ namespace App\Data;
 use Illuminate\Http\Request;
 use Spatie\LaravelData\Data;
 
-class GenralPayrollData extends Data
+class GeneralPayrollData extends Data
 {
     public function __construct(
         public string $generated_by_id,
@@ -18,7 +18,8 @@ class GenralPayrollData extends Data
         public float $total_net,
         public string $month,
         public string $year,
-    ) {}
+    ) {
+    }
 
     public static function fromRequest(Request $request): self
     {

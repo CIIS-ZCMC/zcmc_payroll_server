@@ -17,5 +17,39 @@ class GenPayroll
         return floatval($numericString);
     }
 
+    public static function getPreviousMonthYear(int $month, int $year): array
+    {
+        if ($month === 1) {
+            return [
+                "month"=>12,
+                "year"=>$year-1
+
+            ];
+        } else {
+            return [
+                "month"=>$month - 1,
+                "year"=>$year
+
+            ];
+        }
+    }
+
+
+    public static function getNextMonthYear(int $month, int $year): array
+    {
+            if ($month === 12) {
+                return [
+                    "month" => 1,
+                    "year"  => $year + 1
+                ];
+            } else {
+                return [
+                    "month" => $month + 1,
+                    "year"  => $year
+                ];
+            }
+        }
+   
+
 
 }

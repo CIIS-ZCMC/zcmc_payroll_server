@@ -2,42 +2,57 @@
 
 namespace App\Services;
 
-use App\Models\Employee;
+use App\Contract\EmployeeInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class EmployeeService
 {
-    public function getAllEmployees()
-    {
-        return Employee::all();
+    public function __construct(
+        private EmployeeInterface $interface,
+        private GuardService $guard,
+    ) {
+        //Nothing
     }
 
-    public function getEmployeeById($id)
+    public function getAll(): Collection
     {
-        return Employee::find($id);
+        return $this->interface->getAll();
+    }
+
+    public function paginate(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->interface->paginate($perPage, $page);
     }
 
     public function create(array $data)
     {
-        return Employee::create($data);
+        return $this->interface->create($data);
     }
 
     public function update($id, array $data)
     {
-        $model = Employee::find($id);
-        if ($model) {
-            $model->update($data);
-            return $model;
-        }
-        return null;
+        return $this->interface->update($id, $data);
     }
 
-    public function destroy($id)
+    public function getIncludedEmployee(int $perPage, int $page): LengthAwarePaginator
     {
-        $model = Employee::find($id);
-        if ($model) {
-            $model->delete();
-            return true;
-        }
-        return false;
+        return $this->interface->getIncludedEmployee($perPage, $page);
+    }
+
+    public function getExcludedEmployee(int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->interface->getExcludedEmployee($perPage, $page);
+    }
+
+    public function find(int $id)
+    {
+        return $this->interface->find($id);
+    }
+
+    public function storeGeneralPayroll()
+    {
+        $this->guard->ensureNotLocked();
+
     }
 }

@@ -19,19 +19,20 @@ class PayrollPeriodResource extends JsonResource
             'id' => $this->id,
             'month' => $this->month,
             'year' => $this->year,
-            'payroll_type' => $this->payroll_type,
             'employment_type' => $this->employment_type,
+            'payroll_type' => $this->payroll_type,
             'period_type' => $this->period_type,
             'period_start' => $this->period_start,
             'period_end' => $this->period_end,
             'days_of_duty' => $this->days_of_duty,
-            'is_special' => $this->is_special,
-            'posted_at' => $this->posted_at ? Carbon::parse($this->posted_at)->toDateString() : null,
-            'last_generated_at' => $this->last_generated_at ? Carbon::parse($this->last_generated_at)->toDateString() : null,
-            'locked_at' => $this->locked_at ? Carbon::parse($this->locked_at)->toDateString() : null,
-            'deleted_at' => $this->deleted_at ? Carbon::parse($this->deleted_at)->toDateString() : null,
-            'created_at' => $this->created_at ? Carbon::parse($this->created_at)->toDateString() : null,
-            'updated_at' => $this->updated_at ? Carbon::parse($this->updated_at)->toDateString() : null
+            'status' => $this->status,
+            'is_active' => $this->is_active,
+            'posted_at' => $this->posted_at,// ? Carbon::parse($this->posted_at)->toDateString() : null,
+            'locked_at' => $this->locked_at, // ? Carbon::parse($this->locked_at)->toDateString() : null,
+            'last_generated_at' => $this->last_generated_at,// ? Carbon::parse($this->last_generated_at)->toDateString() : null,
+            'deleted_at' => $this->deleted_at, // ? Carbon::parse($this->deleted_at)->toDateString() : null,
+            'created_at' => $this->created_at, // ? Carbon::parse($this->created_at)->toDateString() : null,
+            'updated_at' => $this->updated_at, // ? Carbon::parse($this->updated_at)->toDateString() : null
         ];
     }
 }

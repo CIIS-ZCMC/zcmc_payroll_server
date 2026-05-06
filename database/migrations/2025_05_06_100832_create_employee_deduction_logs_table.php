@@ -15,9 +15,6 @@ class CreateEmployeeDeductionLogsTable extends Migration
     {
         Schema::create('employee_deduction_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('payroll_period_id');
-            $table->foreign('payroll_period_id')->references('id')->on('payroll_periods');
-
             $table->unsignedBigInteger('employee_deduction_id');
             $table->foreign('employee_deduction_id')->references('id')->on('employee_deductions');
 
@@ -26,6 +23,7 @@ class CreateEmployeeDeductionLogsTable extends Migration
             $table->string('action');
             $table->string('remarks')->nullable();
             $table->text('details')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
         });

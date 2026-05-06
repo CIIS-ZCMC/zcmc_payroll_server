@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeePayroll extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, LogsActivity;
     protected $table = 'employee_payrolls';
 
     protected $primaryKey = 'id';
@@ -18,15 +21,33 @@ class EmployeePayroll extends Model
         'payroll_period_id',
         'month',
         'year',
-        'gross_salary',
-        'total_deductions',
+        'basic_pay',
         'total_receivables',
+        'gross_pay',
+        'total_deductions',
         'net_pay',
-        'deleted_at',
+        'first_half',
+        'second_half',
+        // 'night_differential',
     ];
+
+    // protected $casts = [
+    //     'basic_pay' => 'encrypted',
+    //     'total_receivables' => 'encrypted',
+    //     'gross_pay' => 'encrypted',
+    //     'total_deductions' => 'encrypted',
+    //     'net_pay' => 'encrypted',
+    // ];
 
     public $timestamps = true;
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-payroll')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     public function employee()
     {
@@ -42,5 +63,18 @@ class EmployeePayroll extends Model
     {
         return $this->belongsTo(PayrollPeriod::class, 'payroll_period_id');
     }
+
+    // public function getFirstHalfAttribute()
+    // {
+    //     $net = $this->net_pay ?? 0;
+    //     return round(floor($net / 2), 2);
+    // }
+
+    // public function getSecondHalfAttribute()
+    // {
+    //     $net = $this->net_pay ?? 0;
+    //     $first = $this->first_half;
+    //     return round($net - $first, 2);
+    // }
 
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EmployeePayrollReportsResource;
 use App\Models\Employee;
 use App\Models\EmployeePayroll;
+use App\Models\EmployeeReceivable;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\Request;
@@ -59,7 +60,7 @@ class ReportsController extends Controller
                 ])->where('status', 'included');
             },
             'employee.employeeSalary',
-            'employee.employeeComputedSalaries'
+            'employee.employeeComputedSalary'
         ])->where('payroll_period_id', $payroll_period->id)
             ->orderBy(
                 Employee::select('last_name')
@@ -110,7 +111,21 @@ class ReportsController extends Controller
             }
         ])->where('payroll_period_id', $payroll_period->id)->first();
 
-        // Process Receivables
+        //     $receivables = collect($general_payroll->payrollPeriod->employeePayroll)
+        //     ->pluck('employeeTimeRecord.employee.employeeReceivables')
+        //     ->flatten(1)
+        //     ->groupBy('receivables.id')
+        //     ->map(function ($group) {
+        //         return [
+        //             'receivable_id' => $group->first()->receivables->id,
+        //             'receivable_name' => $group->first()->receivables->name,
+        //             'receivable_code' => $group->first()->receivables->code,
+        //             'total_amount' => $group->sum('amount')
+        //         ];
+        //     })
+        //     ->values();
+
+
         $receivables = collect($general_payroll->payrollPeriod->employeePayroll)
             ->pluck('employeeTimeRecord.employee.employeeReceivables')
             ->flatten(1)
@@ -184,7 +199,7 @@ class ReportsController extends Controller
             ->sum('gross_salary');
 
         $exactHalf = $totalNetPay / 2;
-        $totalNetFirstHalf = floor($exactHalf);
+        $totalNetFirstHalf = floor($exactHalf) + 10;
         $totalNetSecondHalf = $totalNetPay - $totalNetFirstHalf;
 
         $employeePayrolls = $general_payroll->payrollPeriod->employeePayroll ?? collect();
@@ -269,7 +284,7 @@ class ReportsController extends Controller
                 ])->where('status', 'included');
             },
             'employee.employeeSalary',
-            'employee.employeeComputedSalaries'
+            'employee.employeeComputedSalary'
         ])->where('payroll_period_id', $payroll_period->id)
             ->join('employees', 'employee_payrolls.employee_id', '=', 'employees.id')
             ->orderBy('employees.last_name')
@@ -354,6 +369,7 @@ class ReportsController extends Controller
             $sheet->mergeCells("Z" . ($currentRow) . ":Z" . ($currentRow + 8)); // Total Employee Deduction
             $sheet->mergeCells("AA" . ($currentRow) . ":AA" . ($currentRow + 3)); //Net Salary First Half
             $sheet->mergeCells("AA" . ($currentRow + 4) . ":AA" . ($currentRow + 7)); //Net Salary Second Half
+            // $sheet->mergeCells("AA" . ($currentRow) . ":AA" . ($currentRow + 11)); //Net Salary
             $sheet->mergeCells("AB" . ($currentRow) . ":AB" . ($currentRow + 3)); //First Period
             $sheet->mergeCells("AB" . ($currentRow + 4) . ":AB" . ($currentRow + 7)); //Second Period
             $sheet->mergeCells("AC" . ($currentRow) . ":AC" . ($currentRow + 8)); // Remarks
@@ -389,6 +405,7 @@ class ReportsController extends Controller
             $sheet->setCellValue("Z" . ($currentRow), $employee['total_employee_deductions']);
             $sheet->setCellValue("AA" . ($currentRow), $employee['net_pay_first_half']);
             $sheet->setCellValue("AA" . ($currentRow + 4), $employee['net_pay_second_half']);
+            $sheet->setCellValue("AA" . ($currentRow + 8), $employee['net_pay']);
 
             $sheet->setCellValue("AB" . ($currentRow), $employee['first_period']);
             $sheet->setCellValue("AB" . ($currentRow + 4), $employee['second_period']);

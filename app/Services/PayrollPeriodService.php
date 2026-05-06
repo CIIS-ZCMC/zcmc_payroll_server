@@ -2,42 +2,70 @@
 
 namespace App\Services;
 
+use App\Contract\PayrollPeriodInterface;
 use App\Models\PayrollPeriod;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PayrollPeriodService
 {
-    public function index()
+    public function __construct(private PayrollPeriodInterface $interface)
     {
-        return PayrollPeriod::all();
+        //Nothing
     }
 
-    public function create(array $data)
+    public function getAll()
     {
-        return PayrollPeriod::create($data);
+        return $this->interface->getAll();
+    }
+    public function setPeriod(int $id)
+    {
+        return DB::transaction(function () use ($id) {
+            $this->interface->deactivateOthers($id);
+            return $this->interface->setActive($id);
+        });
     }
 
-    public function update($id, array $data)
+    public function findPeriod(array $params)
     {
-        $model = PayrollPeriod::find($id);
-        if ($model) {
-            $model->update($data);
-            return $model;
+        if ($this->hasValidPeriodRequest($params)) {
+            Log::info('Valid period request found, finding period', $params);
+    
+            $period = $this->interface->findPeriod(
+                $params['year'],
+                $params['month'],
+                $params['period_type'],
+                $params['employment_type']
+            );
+    
+            return $this->setPeriod($period->id);
         }
-        return null;
+    
+        Log::info('No valid period request found, returning active period');
+    
+        $period = $this->interface->getActive();
+    
+        return $this->setPeriod($period->id);
     }
 
-    public function delete($id)
+    public function lock(int $id)
     {
-        $model = PayrollPeriod::find($id);
-        if ($model) {
-            $model->delete();
-            return true;
-        }
-        return false;
+        return $this->interface->lock($id);
     }
 
-    public function find($id)
+    public function isLocked(int $id)
     {
-        return PayrollPeriod::find($id);
+        return $this->interface->isLocked($id);
+    }
+
+    // PRIVATE FUNCTIONS
+    private function hasValidPeriodRequest(array $request): bool
+    {
+        return isset(
+            $request['year'],
+            $request['month'],
+            $request['period_type'],
+            $request['employment_type']
+        );
     }
 }

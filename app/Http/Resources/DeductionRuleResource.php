@@ -14,6 +14,19 @@ class DeductionRuleResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'deduction_id' => $this->deduction_id,
+            'min_salary' => $this->min_salary,
+            'max_salary' => $this->max_salary,
+            'apply_type' => $this->apply_type,
+            'value' => $this->value,
+            'date_start' => $this->date_start,
+            'date_end' => $this->date_end,
+            'is_active' => $this->is_active,
+            'deleted_at' => $this->deleted_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

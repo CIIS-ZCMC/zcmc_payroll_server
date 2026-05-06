@@ -3,13 +3,16 @@
 namespace App\Contract;
 
 use App\Models\EmployeeTimeRecord;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface EmployeeTimeRecordInterface
 {
-    public function getAll(int $page, int $perPage): LengthAwarePaginator;
-    public function getAllPerPeriod(int $page, int $perPage, int $periodId): LengthAwarePaginator;
+    public function index(int $payroll_period_id, string $status): Collection;
     public function create(array $data): EmployeeTimeRecord;
-    public function update(int $id, array $data): bool;
-    public function find(int $id): ?EmployeeTimeRecord;
+    public function update(int $id, array $data): EmployeeTimeRecord;
+    public function createOrUpdate(array $data): EmployeeTimeRecord;
+    public function deactivate(int $payroll_period_id, int $month, int $year): bool;
+    public function include(int $id): bool;
+    public function exclude(int $id): bool;
+    public function upsert(array $data): int;
 }

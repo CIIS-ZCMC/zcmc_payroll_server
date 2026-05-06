@@ -4,7 +4,7 @@ namespace App\Contract\Repositories;
 
 use App\Contract\EmployeeDeductionTrailInterface;
 use App\Models\EmployeeDeductionTrail;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class EmployeeDeductionTrailRepository implements EmployeeDeductionTrailInterface
 {
@@ -13,25 +13,15 @@ class EmployeeDeductionTrailRepository implements EmployeeDeductionTrailInterfac
         //nothinng
     }
 
-    public function getAllPerPeriod(int $payrollPeriodId, int $page, int $perPage): LengthAwarePaginator
-    {
-        return $this->model->with('employeeDeduction')
-            ->where('employeeDeduction.payroll_period_id', $payrollPeriodId)
-            ->paginate($perPage, ['*'], 'page', $page);
-    }
-
-    public function getAllPagination(int $page, int $perPage): LengthAwarePaginator
-    {
-        return $this->model->paginate($perPage, ['*'], 'page', $page);
-    }
-
     public function create(array $data): EmployeeDeductionTrail
     {
         return $this->model->create($data);
     }
 
-    public function find(int $id): ?EmployeeDeductionTrail
+    public function show(int $employee_id, int $deduction_id): Collection
     {
-        return $this->model->with('employeeDeduction')->find($id);
+        return $this->model->with('employeeDeduction')->whereHas('employeeDeduction', function ($query) use ($employee_id, $deduction_id) {
+            $query->where('employee_id', $employee_id)->where('deduction_id', $deduction_id);
+        })->get();
     }
 }

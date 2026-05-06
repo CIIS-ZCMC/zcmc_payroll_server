@@ -2,7 +2,6 @@
 
 namespace App\Data;
 
-use Illuminate\Http\Request;
 use Spatie\LaravelData\Data;
 
 class EmployeeReceivableData extends Data
@@ -11,7 +10,7 @@ class EmployeeReceivableData extends Data
         public string $payroll_period_id,
         public string $employee_id,
         public string $receivable_id,
-        public string $frequency,
+        public string $billing_cycle,
         public ?float $amount,
         public ?float $percentage,
         public ?string $date_from,
@@ -22,25 +21,26 @@ class EmployeeReceivableData extends Data
         public ?string $status,
         public ?string $stopped_at,
         public ?string $completed_at,
-    ) {}
+    ) {
+    }
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(array $data): self
     {
         return new self(
-            $request['payroll_period_id'],
-            $request['employee_id'],
-            $request['receivable_id'],
-            $request['frequency'],
-            $request['amount'] ?? null,
-            $request['percentage'] ?? null,
-            $request['date_from'] ?? null,
-            $request['date_to'] ?? null,
-            $request['total_paid'] ?? null,
-            $request['reason'] ?? null,
-            $request['status'] ?? null,
-            $request['is_default'],
-            $request['stopped_at'] ?? null,
-            $request['completed_at'] ?? null,
+            $data['payroll_period_id'],
+            $data['employee_id'],
+            $data['receivable_id'],
+            $data['billing_cycle'],
+            $data['amount'] ?? null,
+            $data['percentage'] ?? null,
+            $data['date_from'] ?? null,
+            $data['date_to'] ?? null,
+            $data['total_paid'] ?? null,
+            $data['reason'] ?? null,
+            $data['status'] ?? null,
+            $data['is_default'],
+            $data['stopped_at'] ?? null,
+            $data['completed_at'] ?? null,
         );
     }
 
@@ -50,7 +50,7 @@ class EmployeeReceivableData extends Data
             'payroll_period_id' => $this->payroll_period_id,
             'employee_id' => $this->employee_id,
             'receivable_id' => $this->receivable_id,
-            'frequency' => $this->frequency,
+            'billing_cycle' => $this->billing_cycle,
             'amount' => $this->amount ?? null,
             'percentage' => $this->percentage ?? null,
             'date_from' => $this->date_from ?? null,

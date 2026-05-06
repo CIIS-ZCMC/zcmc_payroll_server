@@ -4,14 +4,17 @@ namespace App\Contract;
 
 use App\Models\EmployeeReceivable;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface EmployeeReceivableInterface
 {
-    public function getAll(int $page, int $perPage): LengthAwarePaginator;
-    public function getAllPerPeriod(int $page, int $perPage, int $periodId): LengthAwarePaginator;
+    public function getAll(): Collection;
+    public function paginate(int $perPage, int $page): LengthAwarePaginator;
     public function create(array $data): EmployeeReceivable;
-    public function update(int $id, array $data): bool;
-    public function find(int $id): ?EmployeeReceivable;
-    public function stop(int $id): bool;
-    public function complete(int $id): bool;
+    public function upsert(array $data): int; //bulk update or storing
+    public function update(int $id, array $data): EmployeeReceivable;
+    public function delete(int $id): bool;
+    public function complete(int $id): EmployeeReceivable;
+    public function stop(int $id): EmployeeReceivable;
+    public function find(int $id): EmployeeReceivable;
 }

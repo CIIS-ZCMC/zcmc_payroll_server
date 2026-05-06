@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class DeductionGroup extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $table = 'deduction_groups';
 
@@ -32,6 +34,14 @@ class DeductionGroup extends Model
                 $model->deduction_group_uuid = 'DG-' . substr(str_replace('-', '', Str::uuid()), 0, 10);
             }
         });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('deduction-group')
+            ->logFillable()
+            ->logOnlyDirty();
     }
 
     public function deductions()

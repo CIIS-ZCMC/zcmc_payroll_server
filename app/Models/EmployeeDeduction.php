@@ -5,19 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeDeduction extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
     protected $table = 'employee_deductions';
     protected $primaryKey = 'id';
     protected $fillable = [
         'payroll_period_id',
         'employee_id',
         'deduction_id',
+        'billing_cycle',
         'amount',
         'percentage',
-        'frequency',
         'date_from',
         'date_to',
         'with_terms',
@@ -25,13 +27,23 @@ class EmployeeDeduction extends Model
         'total_paid',
         'reason',
         'status',
-        'is_default',
         'isDifferential',
-        'willDeduct',
+        'is_default',
+        'effective_date',
+        'deduct_at',
         'stopped_at',
         'completed_at',
     ];
     public $timestamps = true;
+
+    //Spatie
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-deduction')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     //Version 2
     public function employee()

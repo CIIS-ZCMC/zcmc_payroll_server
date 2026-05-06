@@ -16,17 +16,15 @@ class EmployeeTimeRecordResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'employee' => new EmployeeResource($this->employee),
-            'payroll_period' => new PayrollPeriodResource($this->payrollPeriod),
-            'computed_salary' => new EmployeeComputedSalaryResource($this->employeeComputedSalary),
-            'minutes' => $this->minutes,
-            'daily' => $this->daily,
-            'hourly' => $this->hourly,
-            'absent_rate' => $this->absent_rate,
-            'undertime_rate' => $this->undertime_rate,
-            'base_salary' => $this->base_salary,
-            'initial_net_pay' => $this->initial_net_pay,
-            'net_pay' => $this->net_pay,
+            'employee_id' => $this->employee_id,
+            'payroll_period_id' => $this->payroll_period_id,
+
+            'employee' => new EmployeeResource($this->whenLoaded('employee')),
+
+            'payroll_period' => new PayrollPeriodResource($this->whenLoaded('payrollPeriod')),
+
+            'computed_salary' => new EmployeeComputedSalaryResource($this->whenLoaded('employeeComputedSalary')),
+
             'total_working_minutes' => $this->total_working_minutes,
             'total_working_minutes_with_leave' => $this->total_working_minutes_with_leave,
             'total_working_hours' => $this->total_working_hours,
@@ -37,6 +35,7 @@ class EmployeeTimeRecordResource extends JsonResource
             'total_official_time_minutes' => $this->total_official_time_minutes,
             'total_leave_minutes' => $this->total_leave_minutes,
             'total_night_duty_hours' => $this->total_night_duty_hours,
+
             'no_of_present_days' => $this->no_of_present_days,
             'no_of_present_days_with_leave' => $this->no_of_present_days_with_leave,
             'no_of_leave_wo_pay' => $this->no_of_leave_wo_pay,
@@ -45,18 +44,24 @@ class EmployeeTimeRecordResource extends JsonResource
             'no_of_invalid_entry' => $this->no_of_invalid_entry,
             'no_of_day_off' => $this->no_of_day_off,
             'no_of_schedule' => $this->no_of_schedule,
-            'night_differentials' => $this->night_differentials,
-            'absent_dates' => $this->absent_dates,
+
+            'night_duties' => $this->night_duties,
+
+            'absent_dates' => $this->absent_dates_formatted['dates'],
+            'absent_count' => $this->absent_dates_formatted['count'],
+
             'month' => $this->month,
             'year' => $this->year,
             'date_from' => $this->from,
             'date_to' => $this->to,
-            'is_night_shift' => $this->is_night_shift,
+
+            'status' => $this->status,
             'is_active' => $this->is_active,
+
             'locked_at' => $this->locked_at,
-            'deleted_at' => $this->deleted_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'deleted_at' => $this->deleted_at,
         ];
     }
 }

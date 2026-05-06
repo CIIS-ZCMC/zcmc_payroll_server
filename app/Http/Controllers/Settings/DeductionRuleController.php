@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Data\DeductionRuleData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeductionRuleRequest;
 use App\Http\Resources\DeductionRuleResource;
 use App\Models\DeductionRule;
+use App\Services\DeductionRuleService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeductionRuleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct(private DeductionRuleService $service)
+    {
+        //nothing
+    }
+
     public function index()
     {
         return response()->json([
@@ -24,15 +27,10 @@ class DeductionRuleController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function store(DeductionRuleRequest $request)
     {
-        $data = DeductionRule::create($request->all());
+        $dto = DeductionRuleData::fromRequest($request);
+        $data = $this->service->create($dto);
 
         return response()->json([
             'data' => new DeductionRuleResource($data),
@@ -41,12 +39,6 @@ class DeductionRuleController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $data = DeductionRule::findOrFail($id);
@@ -65,25 +57,19 @@ class DeductionRuleController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        $data = DeductionRule::findOrFail($id);
+        $request->validate([
+            'deduction_id' => 'required',
+            'min_salary' => 'nullable',
+            'max_salary' => 'nullable',
+            'apply_type' => 'required',
+            'value' => 'required',
+            'effective_date' => 'required',
+        ]);
 
-        if (!$data) {
-            return response()->json([
-                'message' => "Data not found",
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data->update($request->all());
+        $dto = DeductionRuleData::fromRequest($request);
+        $data = $this->service->update($id, $dto);
 
         return response()->json([
             'data' => new DeductionRuleResource($data),
@@ -92,24 +78,9 @@ class DeductionRuleController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $data = DeductionRule::findOrFail($id);
-
-        if (!$data) {
-            return response()->json([
-                'message' => "Data not found",
-                'statusCode' => 404
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data->delete();
+        $this->service->delete($id);
 
         return response()->json([
             'message' => "Data Successfully deleted",

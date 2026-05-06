@@ -5,7 +5,7 @@ namespace App\Data;
 use Illuminate\Http\Request;
 use Spatie\LaravelData\Data;
 
-class EmployeeTimeRecordDTO extends Data
+class EmployeeTimeRecordData extends Data
 {
     public function __construct(
         public int $employee_id,
@@ -16,7 +16,6 @@ class EmployeeTimeRecordDTO extends Data
         public float $absent_rate,
         public float $undertime_rate,
         public float $base_salary,
-        public float $initial_net_pay,
         public float $net_pay,
         public float $total_working_minutes,
         public float $total_working_minutes_with_leave,
@@ -36,7 +35,7 @@ class EmployeeTimeRecordDTO extends Data
         public int $no_of_invalid_entry,
         public int $no_of_day_off,
         public int $no_of_schedule,
-        public string $night_differentials,
+        public string $night_duties,
         public string $absent_dates,
         public string $month,
         public string $year,
@@ -44,12 +43,13 @@ class EmployeeTimeRecordDTO extends Data
         public ?string $to,
         public bool $is_night_shift,
         public bool $is_active,
-        public ?string $status,  
-    ){}
+        public ?string $status,
+    ) {
+    }
 
-    public static function fromRequest(Request $request) : self
+    public static function fromRequest(Request $request): self
     {
-       return new self(
+        return new self(
             $request['employee_id'],
             $request['payroll_period_id'],
             $request['minutes'],
@@ -58,7 +58,6 @@ class EmployeeTimeRecordDTO extends Data
             $request['absent_rate'],
             $request['undertime_rate'],
             $request['base_salary'],
-            $request['initial_net_pay'],
             $request['net_pay'],
             $request['total_working_minutes'],
             $request['total_working_minutes_with_leave'],
@@ -78,7 +77,7 @@ class EmployeeTimeRecordDTO extends Data
             $request['no_of_invalid_entry'],
             $request['no_of_day_off'],
             $request['no_of_schedule'],
-            $request['night_differentials'],
+            $request['night_duties'],
             $request['absent_dates'],
             $request['month'],
             $request['year'],
@@ -87,7 +86,7 @@ class EmployeeTimeRecordDTO extends Data
             $request['is_night_shift'],
             $request['is_active'],
             $request['status'] ?? null,
-       );
+        );
     }
 
     public function toArray(): array
@@ -101,7 +100,6 @@ class EmployeeTimeRecordDTO extends Data
             'absent_rate' => $this->absent_rate,
             'undertime_rate' => $this->undertime_rate,
             'base_salary' => $this->base_salary,
-            'initial_net_pay' => $this->initial_net_pay,
             'net_pay' => $this->net_pay,
             'total_working_minutes' => $this->total_working_minutes,
             'total_working_minutes_with_leave' => $this->total_working_minutes_with_leave,
@@ -121,7 +119,7 @@ class EmployeeTimeRecordDTO extends Data
             'no_of_invalid_entry' => $this->no_of_invalid_entry,
             'no_of_day_off' => $this->no_of_day_off,
             'no_of_schedule' => $this->no_of_schedule,
-            'night_differentials' => $this->night_differentials,
+            'night_duties' => $this->night_duties,
             'absent_dates' => $this->absent_dates,
             'month' => $this->month,
             'year' => $this->year,
