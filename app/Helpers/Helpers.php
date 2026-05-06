@@ -5,10 +5,10 @@ namespace App\Helpers;
 use App\Models\EmployeeDeductionLog;
 use App\Models\TimeRecord;
 use App\Services\PayrollPeriodService;
-use DB;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Helpers
@@ -43,7 +43,7 @@ class Helpers
                 try {
 
                     $data->$field = decrypt($data->$field);
-                } catch (Exception $e) {
+                } catch (\Throwable $th) {
 
                     $data->$field = 'Unable to decrypt';
                 }

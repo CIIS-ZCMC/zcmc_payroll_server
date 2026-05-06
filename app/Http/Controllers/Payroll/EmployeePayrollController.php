@@ -11,6 +11,7 @@ use App\Http\Resources\PaginationResource;
 use App\Models\EmployeePayroll;
 use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
+use App\Models\PayrollSummary;
 use App\Services\EmployeePayrollService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -110,7 +111,8 @@ class EmployeePayrollController extends Controller
 
     public function show($id)
     {
-        $general_payroll = GeneralPayroll::find($id);
+        // $general_payroll = GeneralPayroll::find($id);
+        $general_payroll = PayrollSummary::find($id);
 
         if (!$general_payroll) {
             return response()->json([
