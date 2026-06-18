@@ -43,7 +43,7 @@ class ExcludedEmployeeRepository implements ExcludedEmployeeInterface
     }
 
 
-    public function createOrUpdate(array $data): ExcludedEmployee
+    public function updateOrCreate(array $data): ExcludedEmployee
     {
         return $this->model->updateOrCreate(
             [

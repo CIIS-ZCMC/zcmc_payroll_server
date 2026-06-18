@@ -46,7 +46,7 @@ class EmployeeTimeRecordRepository implements EmployeeTimeRecordInterface
         return $model->fresh();
     }
 
-    public function createOrUpdate(array $data): EmployeeTimeRecord
+    public function updateOrCreate(array $data): EmployeeTimeRecord
     {
         return $this->model->updateOrCreate(
             [

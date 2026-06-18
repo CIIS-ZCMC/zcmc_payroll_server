@@ -68,7 +68,7 @@ class EmployeeRepository implements EmployeeInterface
         return $model->fresh();
     }
 
-    public function createOrUpdate(array $data): Employee
+    public function updateOrCreate(array $data): Employee
     {
         return $this->model->updateOrCreate(
             ['employee_profile_id' => $data['id']],
@@ -79,7 +79,7 @@ class EmployeeRepository implements EmployeeInterface
                 'last_name' => $data['personal_information']['last_name'],
                 'middle_name' => $data['personal_information']['middle_name'],
                 'extension_name' => $data['personal_information']['name_extension'],
-                'designation' => $data['designation']['name'],
+                'designation' => $data['designation']['name'] ?? 'error',
                 'assigned_area' => json_encode($data['assigned_area']),
                 'is_excluded' => $data['time_record']['is_out'],
                 'status' => $data['is_inactive'],

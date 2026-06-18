@@ -37,7 +37,7 @@ class PayrollPeriodService
                 $params['period_type'],
                 $params['employment_type']
             );
-    
+            Log::info('Period found', [$period]);
             return $this->setPeriod($period->id);
         }
     

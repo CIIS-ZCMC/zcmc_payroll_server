@@ -69,7 +69,7 @@ class PayrollPeriodRepository implements PayrollPeriodInterface
         return $model->fresh();
     }
 
-    public function createOrUpdate(array $data): PayrollPeriod
+    public function updateOrCreate(array $data): PayrollPeriod
     {
         return $this->model->updateOrCreate(
             [

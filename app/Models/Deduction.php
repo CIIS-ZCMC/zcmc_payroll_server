@@ -15,7 +15,9 @@ class Deduction extends Model
     use HasFactory, SoftDeletes, LogsActivity;
 
     protected $table = 'deductions';
-protected $guarded = ['id'];
+    
+    protected $guarded = ['id'];
+
     protected $primaryKey = 'id';
 
     protected $fillable = [

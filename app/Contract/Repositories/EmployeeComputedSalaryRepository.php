@@ -12,7 +12,7 @@ class EmployeeComputedSalaryRepository implements EmployeeComputedSalaryInterfac
         // Nothing
     }
 
-    public function createOrUpdate(array $data): EmployeeComputedSalary
+    public function updateOrCreate(array $data): EmployeeComputedSalary
     {
         return $this->model->updateOrCreate(
             [

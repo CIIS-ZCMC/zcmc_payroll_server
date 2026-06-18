@@ -6,5 +6,5 @@ use App\Models\EmployeeComputedSalary;
 
 interface EmployeeComputedSalaryInterface
 {
-    public function createOrUpdate(array $data): EmployeeComputedSalary;
+    public function updateOrCreate(array $data): EmployeeComputedSalary;
 }

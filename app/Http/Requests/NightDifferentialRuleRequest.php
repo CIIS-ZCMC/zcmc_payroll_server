@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GeneralPayrollRequest extends FormRequest
+class NightDifferentialRuleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,11 @@ class GeneralPayrollRequest extends FormRequest
     public function rules()
     {
         return [
-            'payroll_period_id' => 'required|integer',
+            'employment_type' => 'required|string',
+            'start_time' => 'required|time',
+            'end_time' => 'required|time',
+            'rate_percent' => 'required|integer',
+            'effective_date' => 'required|date',
         ];
     }
 }

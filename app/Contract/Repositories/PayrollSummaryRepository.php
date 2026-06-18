@@ -30,7 +30,7 @@ class PayrollSummaryRepository implements PayrollSummaryInterface
         return $this->model->where('payroll_period_id', $payrollPeriodId)->first();
     }
 
-    public function createOrUpdate(array $data): PayrollSummary
+    public function updateOrCreate(array $data): PayrollSummary
     {
         return $this->model->updateOrCreate([
             'payroll_period_id' => $data['payroll_period_id'],

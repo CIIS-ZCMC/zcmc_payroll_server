@@ -8,6 +8,6 @@ interface EmployeeSalaryInterface
 {
     public function create(array $data): EmployeeSalary;
     public function update(int $id, array $data): EmployeeSalary;
-    public function createOrUpdate(array $data): EmployeeSalary;
+    public function updateOrCreate(array $data): EmployeeSalary;
     public function upsert(array $data): int;
 }

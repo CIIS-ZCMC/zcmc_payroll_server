@@ -31,7 +31,7 @@ Class PayrollSummaryService
         return $this->interface->findByPayrollPeriodId($payrollPeriodId);
     }
     
-    public function createOrUpdate(int $payrollPeriodId, object $userData)
+    public function updateOrCreate(int $payrollPeriodId, object $userData)
     {   
         $summary = EmployeePayroll::where('payroll_period_id', $payrollPeriodId)
         ->selectRaw('
@@ -56,6 +56,6 @@ Class PayrollSummaryService
             'total_night_differential' => (float) $summary->total_night_differential ?? 0,
         ];
 
-        return $this->interface->createOrUpdate($data);
+        return $this->interface->updateOrCreate($data);
     }
 }

@@ -10,5 +10,5 @@ interface PayrollSummaryInterface
     public function getAll(): Collection;
     public function find(int $id): ?PayrollSummary;
     public function findByPayrollPeriodId(int $payrollPeriodId): ?PayrollSummary;
-    public function createOrUpdate(array $data): PayrollSummary;
+    public function updateOrCreate(array $data): PayrollSummary;
 }

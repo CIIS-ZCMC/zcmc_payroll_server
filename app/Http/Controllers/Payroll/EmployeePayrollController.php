@@ -9,7 +9,6 @@ use App\Http\Requests\EmployeePayrollRequest;
 use App\Http\Resources\EmployeePayrollResource;
 use App\Http\Resources\PaginationResource;
 use App\Models\EmployeePayroll;
-use App\Models\GeneralPayroll;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollSummary;
 use App\Services\EmployeePayrollService;

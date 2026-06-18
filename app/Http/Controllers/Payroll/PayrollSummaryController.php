@@ -75,7 +75,7 @@ class PayrollSummaryController extends Controller
     public function store(PayrollSummaryRequest $request)
     {
         $validated = $request->validated();
-        $data = $this->service->createOrUpdate($validated['payroll_period_id'], $request->user);
+        $data = $this->service->updateOrCreate($validated['payroll_period_id'], $request->user);
         
         return response()->json([
             'data' => PayrollSummaryResource::make($data),

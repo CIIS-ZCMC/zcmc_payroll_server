@@ -55,7 +55,7 @@ class FetchEmployeeService
                 $cachedMetaData['period_type'],
             );
 
-            $payrollPeriod = $this->interfacePayrollPeriod->createOrUpdate([
+            $payrollPeriod = $this->interfacePayrollPeriod->updateOrCreate([
                 'year' => $cachedMetaData['year'],
                 'month' => $cachedMetaData['month'],
                 'employment_type' => $cachedMetaData['employment_type'],
@@ -186,10 +186,10 @@ class FetchEmployeeService
     private function processEmployee(array $employeeData, object $cachedMetaData, object $payrollPeriod)
     {
         Log::info('Creating/Updating Employee Personal Information:' . $employeeData['employee_number']);
-        $employee = $this->interfaceEmployee->createOrUpdate($employeeData);
+        $employee = $this->interfaceEmployee->updateOrCreate($employeeData);
 
         Log::info('Creating/Updating Employee Salary of ' . $employeeData['employee_number']);
-        $this->interfaceEmployeeSalary->createOrUpdate([
+        $this->interfaceEmployeeSalary->updateOrCreate([
             'employee_id' => $employee['id'],
             'payroll_period_id' => $payrollPeriod['id'],
             'employment_type' => $employeeData['employment_type']['name'],
@@ -201,7 +201,7 @@ class FetchEmployeeService
 
         if ($employeeData['time_record']['is_out'] === true) {
             Log::info('Excluded Employee ID:' . $employeeData['employee_number']);
-            $this->interfaceExcludedEmployee->createOrUpdate([
+            $this->interfaceExcludedEmployee->updateOrCreate([
                 'employee_id' => $employee['id'],
                 'payroll_period_id' => $payrollPeriod['id'],
                 'reason' => $this->getExclusionReason(
@@ -213,7 +213,7 @@ class FetchEmployeeService
 
         Log::info('Creating/Updating Employee Time Records employee ID:' . $employeeData['employee_number']);
         $time_record = $employeeData['time_record'];
-        $employeeTimeRecord = $this->interfaceEmployeeTimeRecord->createOrUpdate([
+        $employeeTimeRecord = $this->interfaceEmployeeTimeRecord->updateOrCreate([
             'employee_id' => $employee['id'],
             'payroll_period_id' => $payrollPeriod['id'],
             'total_working_minutes' => $time_record['total_working_minutes'],
@@ -245,7 +245,7 @@ class FetchEmployeeService
         ]);
 
         Log::info('Creating/Updating Employee Computed Salary of employee ID:' . $employeeData['employee_number']);
-        $this->interfaceEmployeeComputedSalary->createOrUpdate([
+        $this->interfaceEmployeeComputedSalary->updateOrCreate([
             'employee_id' => $employee['id'],
             'payroll_period_id' => $payrollPeriod['id'],
             'employee_time_record_id' => $employeeTimeRecord['id'],

@@ -11,7 +11,9 @@ use Spatie\Activitylog\LogOptions;
 class NightDifferentialRules extends Model
 {
     use HasFactory, LogsActivity;
+    
     protected $guarded = [];
+
     protected $table = "night_differential_rules";
 
     protected $primaryKey = 'id';
