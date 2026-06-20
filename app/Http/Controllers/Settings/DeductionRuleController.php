@@ -11,6 +11,11 @@ use App\Services\DeductionRuleService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @see DeductionRuleDocumentation
+ * 
+ * included = [index, store, show, update, destroy]
+ */
 class DeductionRuleController extends Controller
 {
     public function __construct(private DeductionRuleService $service)

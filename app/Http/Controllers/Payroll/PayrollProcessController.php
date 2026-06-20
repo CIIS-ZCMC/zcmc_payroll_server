@@ -10,6 +10,11 @@ use App\Services\PayrollProcessService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @see PayrollProcessDocumentation
+ * 
+ * included = [store, show, update]
+ */
 class PayrollProcessController extends Controller
 {
     public function __construct(private PayrollProcessService $service)
@@ -60,5 +65,4 @@ class PayrollProcessController extends Controller
             'success' => true
         ], Response::HTTP_OK);
     }
-
 }
