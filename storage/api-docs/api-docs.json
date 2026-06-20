@@ -37,30 +37,110 @@
                 ]
             }
         },
-        "/api/sign-in": {
+        "/api/fetch-employees": {
+            "get": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Retrieve employees with optional filtering",
+                "operationId": "82a0294a813a83880150c50784ae96f4",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Filter by year (e.g., 2025)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Filter by month (1-12)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 12,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "employment_type",
+                        "in": "query",
+                        "description": "Type of employment",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "regular",
+                                "job_order"
+                            ],
+                            "example": "regular"
+                        }
+                    },
+                    {
+                        "name": "period_type",
+                        "in": "query",
+                        "description": "Type of period",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "first_half",
+                                "second_half"
+                            ],
+                            "example": "first_half"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employees retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Redis"
                 ],
-                "summary": "Sign in",
-                "operationId": "23810a213eb1571f9eb9ff6c49c8e3c5",
+                "summary": "Trigger Umis Cache",
+                "operationId": "05d7c768e4ad6e8ea30bcdaa5fb3a081",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "employee_id",
-                                    "password"
+                                    "year",
+                                    "month",
+                                    "employment_type",
+                                    "period_type"
                                 ],
                                 "properties": {
-                                    "employee_id": {
+                                    "year": {
+                                        "type": "integer",
+                                        "example": 2025
+                                    },
+                                    "month": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "password": {
+                                    "employment_type": {
                                         "type": "string",
-                                        "example": "password"
+                                        "example": "regular"
+                                    },
+                                    "period_type": {
+                                        "type": "string",
+                                        "example": "first_half"
                                     }
                                 },
                                 "type": "object"
@@ -69,30 +149,11 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Successfully authenticate user.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Successfully authenticate user."
-                                        },
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
+                    "201": {
+                        "description": "Successfully triggered cache."
                     },
                     "422": {
-                        "description": "Validation Error"
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -102,21 +163,40 @@
                 ]
             }
         },
-        "/api/employees": {
+        "/api/fetching-progress": {
             "get": {
                 "tags": [
-                    "Employees"
+                    "Redis"
                 ],
-                "summary": "List all employees",
-                "operationId": "f8c90aec59d223dd0f93f4a7ea802106",
+                "summary": "Retrieve fetching progress",
+                "operationId": "a62f9f98db04a2cce889642d32828667",
+                "responses": {
+                    "200": {
+                        "description": "Employees retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/deductions": {
+            "get": {
+                "tags": [
+                    "Deductions"
+                ],
+                "summary": "List all deductions",
+                "operationId": "c28ec384936d709edb41760a9f3d35ec",
                 "parameters": [
                     {
-                        "name": "type",
+                        "name": "paginate",
                         "in": "query",
                         "required": false,
                         "schema": {
-                            "type": "string",
-                            "default": "all"
+                            "type": "boolean",
+                            "default": true
                         }
                     },
                     {
@@ -140,7 +220,61 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of employees"
+                        "description": "List of deductions"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Deductions"
+                ],
+                "summary": "Create a new deduction",
+                "operationId": "707df093b31955d2893f03bd60677f1a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "deduction_group_id",
+                                    "name",
+                                    "code",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "deduction_group_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Deduction Name"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "Deduction Code"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "fixed"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Deduction created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -150,13 +284,128 @@
                 ]
             }
         },
-        "/api/employees/{id}": {
+        "/api/deductions/{id}": {
             "get": {
                 "tags": [
-                    "Employees"
+                    "Deductions"
                 ],
-                "summary": "Get employee by id",
-                "operationId": "c20473e87f752bc3863f7d0b03d6a92b",
+                "summary": "Get a specific deduction",
+                "operationId": "c98b9bd254d87dcd83f035aa25af9ad0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "payroll_period_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "import",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deduction details"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Deductions"
+                ],
+                "summary": "Update a deduction",
+                "operationId": "8506b101d59941cc3a01bd8370438669",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "deduction_group_id",
+                                    "name",
+                                    "code",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "deduction_group_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Deduction Name"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "DED1"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100.5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deduction updated successfully"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Deductions"
+                ],
+                "summary": "Delete a deduction",
+                "operationId": "ff2a4d7f6e5549a8c4097216b76c5e52",
                 "parameters": [
                     {
                         "name": "id",
@@ -169,7 +418,447 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Employee successfully retrieved"
+                        "description": "Deduction deleted successfully"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/deduction-groups": {
+            "get": {
+                "tags": [
+                    "Deduction Groups"
+                ],
+                "summary": "List all deduction groups",
+                "operationId": "20a9a70c130be237808bef8300d57b90",
+                "parameters": [
+                    {
+                        "name": "paginate",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of deduction groups"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Deduction Groups"
+                ],
+                "summary": "Create a new deduction group",
+                "operationId": "d9de9669ee95573322f0fec86ed1c239",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "code"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Group Name"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "GROUP1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Deduction group created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/deduction-groups/{id}": {
+            "get": {
+                "tags": [
+                    "Deduction Groups"
+                ],
+                "summary": "Get a specific deduction group",
+                "operationId": "c3b1c53bc38c7f064e72fc38c2610194",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deduction group details"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Deduction Groups"
+                ],
+                "summary": "Update a deduction group",
+                "operationId": "6d07c2d918dbfdfc4d8fd6a52da6dc47",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "code"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Group Name"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "GROUP1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deduction group updated successfully"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Deduction Groups"
+                ],
+                "summary": "Delete a deduction group",
+                "operationId": "e2e1e3dac68ce8815f11b07434ec0a4f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deduction group deleted successfully"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/deduction-rules": {
+            "get": {
+                "tags": [
+                    "Deduction Rules"
+                ],
+                "summary": "List all deduction rules",
+                "operationId": "d5c054c9429dbcbb5adec0e55d43360e",
+                "responses": {
+                    "200": {
+                        "description": "List of deduction rules"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Deduction Rules"
+                ],
+                "summary": "Create a new deduction rule",
+                "operationId": "47cfbe213dda59eb2cd7e98e4a4ce675",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "deduction_id",
+                                    "apply_type",
+                                    "value",
+                                    "effective_date"
+                                ],
+                                "properties": {
+                                    "deduction_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "min_salary": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10000
+                                    },
+                                    "max_salary": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 50000
+                                    },
+                                    "apply_type": {
+                                        "type": "string",
+                                        "example": "percentage"
+                                    },
+                                    "value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5
+                                    },
+                                    "effective_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-01"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Deduction rule created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/deduction-rules/{id}": {
+            "get": {
+                "tags": [
+                    "Deduction Rules"
+                ],
+                "summary": "Get a specific deduction rule",
+                "operationId": "77207bbbb76fd8b22df3f98da258ab09",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deduction rule details"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Deduction Rules"
+                ],
+                "summary": "Update a deduction rule",
+                "operationId": "21d8cfa53d3bd068accf434b3a10dc48",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "deduction_id",
+                                    "apply_type",
+                                    "value",
+                                    "effective_date"
+                                ],
+                                "properties": {
+                                    "deduction_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "min_salary": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10000
+                                    },
+                                    "max_salary": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 50000
+                                    },
+                                    "apply_type": {
+                                        "type": "string",
+                                        "example": "percentage"
+                                    },
+                                    "value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5
+                                    },
+                                    "effective_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-01"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deduction rule updated successfully"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Deduction Rules"
+                ],
+                "summary": "Delete a deduction rule",
+                "operationId": "e97df362122ce0ff146da5333de97ad0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deduction rule deleted successfully"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 },
                 "security": [
@@ -186,7 +875,7 @@
                 ],
                 "summary": "Store employee deductions",
                 "description": "Store single or multiple employee deductions. For bulk operations, use the 'deductions' array.",
-                "operationId": "bca11d1399d8c89ff349779f87804409",
+                "operationId": "61a6bf3565066737cad00ef68f5102e7",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -423,7 +1112,7 @@
                     "Employee Deductions"
                 ],
                 "summary": "Get employee deduction details by ID",
-                "operationId": "fb81f0a5c024539606af61adf25c701c",
+                "operationId": "e72a477649d818a2d4d9ceafab0e91f0",
                 "parameters": [
                     {
                         "name": "id",
@@ -451,7 +1140,7 @@
                     "Employee Deductions"
                 ],
                 "summary": "Update an employee deduction",
-                "operationId": "5c7bb2b5f4836f3418cde4bd19f004c3",
+                "operationId": "a14ea03c377cb1aea9010a55332cceb1",
                 "parameters": [
                     {
                         "name": "id",
@@ -584,7 +1273,7 @@
                     "Employee Deductions"
                 ],
                 "summary": "Delete an employee deduction",
-                "operationId": "fea6773ae6e6cf996359c327a6915493",
+                "operationId": "417b8396d0d1fb0b47c645184856a3ce",
                 "parameters": [
                     {
                         "name": "id",
@@ -624,13 +1313,519 @@
                 ]
             }
         },
+        "/api/employees": {
+            "get": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "List all employees",
+                "operationId": "134a1539ea207417ca8c92fb943ef192",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "all"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of employees"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employees/{id}": {
+            "get": {
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Get employee by id",
+                "operationId": "e0769b2ef9fd93e4e1527bbb51eb4eed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee successfully retrieved"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employee-payrolls": {
+            "get": {
+                "tags": [
+                    "Employee Payroll"
+                ],
+                "summary": "Get employee payroll",
+                "operationId": "765564f99597be0c787590498a5821bc",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Default employee payroll response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "generated employee payroll"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The selected employees field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "selected_employees": [
+                                                    "The selected employees field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Employee Payroll"
+                ],
+                "summary": "Store employee payroll records",
+                "operationId": "bd8dc15b6b5ee5d47bbef998bac537e3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "payroll_type",
+                                    "employee_payroll"
+                                ],
+                                "properties": {
+                                    "payroll_type": {
+                                        "description": "0=Night, 1=Regular, etc.",
+                                        "type": "integer",
+                                        "enum": [
+                                            0,
+                                            1,
+                                            2,
+                                            3,
+                                            4
+                                        ],
+                                        "example": 1
+                                    },
+                                    "employee_payroll": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "employee_id",
+                                                "employee_time_record_id",
+                                                "payroll_period_id",
+                                                "month",
+                                                "year",
+                                                "basic_pay",
+                                                "total_receivables",
+                                                "gross_pay",
+                                                "total_deductions",
+                                                "net_pay",
+                                                "first_half",
+                                                "second_half"
+                                            ],
+                                            "properties": {
+                                                "employee_id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                },
+                                                "employee_time_record_id": {
+                                                    "type": "integer",
+                                                    "example": 456
+                                                },
+                                                "payroll_period_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "month": {
+                                                    "type": "integer",
+                                                    "example": 6
+                                                },
+                                                "year": {
+                                                    "type": "integer",
+                                                    "example": 2026
+                                                },
+                                                "basic_pay": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 25000
+                                                },
+                                                "total_receivables": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 1500
+                                                },
+                                                "gross_pay": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 26500
+                                                },
+                                                "total_deductions": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 3000
+                                                },
+                                                "net_pay": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 23500
+                                                },
+                                                "first_half": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 11750
+                                                },
+                                                "second_half": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 11750
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data successfully saved.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data successfully saved."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The payroll type field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/employee-payrolls/{id}": {
+            "get": {
+                "tags": [
+                    "Employee Payroll"
+                ],
+                "summary": "Get employee payroll records by payroll summary ID",
+                "operationId": "043b8b0f88f2efb40d6cf32fc03c5941",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the general payroll / payroll summary",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Employee payroll records retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data retrieved successfully."
+                                        },
+                                        "responseData": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "month": {
+                                                        "type": "integer",
+                                                        "example": 6
+                                                    },
+                                                    "year": {
+                                                        "type": "integer",
+                                                        "example": 2026
+                                                    },
+                                                    "basic_pay": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 25000
+                                                    },
+                                                    "total_receivables": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 1500
+                                                    },
+                                                    "gross_pay": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 26500
+                                                    },
+                                                    "total_deductions": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 3000
+                                                    },
+                                                    "net_pay": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 23500
+                                                    },
+                                                    "first_half": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 11750
+                                                    },
+                                                    "second_half": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 11750
+                                                    },
+                                                    "employee_id": {
+                                                        "type": "integer",
+                                                        "example": 123
+                                                    },
+                                                    "employee": {
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    },
+                                                    "employee_time_record_id": {
+                                                        "type": "integer",
+                                                        "example": 456
+                                                    },
+                                                    "employee_time_record": {
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    },
+                                                    "payroll_period_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "payroll_period": {
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No data found for the specified payroll period."
+                                        },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 404
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/employee-preview": {
             "get": {
                 "tags": [
                     "Employee Preview"
                 ],
                 "summary": "Get employee preview calculations",
-                "operationId": "8d1ed9780d4088dbdb829d8b56ee7e9b",
+                "operationId": "57220ecbb44c040d4ae3976b29968668",
                 "parameters": [
                     {
                         "name": "type",
@@ -770,7 +1965,7 @@
                     "Employee Receivables"
                 ],
                 "summary": "Create employee receivable(s)",
-                "operationId": "d4576bd4ea52515191904a5c0faea547",
+                "operationId": "cf2f26d7530446b3cc8b34eeb3ba4992",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -942,7 +2137,7 @@
                     "Employee Receivables"
                 ],
                 "summary": "Get employee receivable details by ID",
-                "operationId": "e0033e270d9f0e225df8911e0cd6386d",
+                "operationId": "011ddb1bb7914cc79ba2b377d9740c06",
                 "parameters": [
                     {
                         "name": "id",
@@ -970,7 +2165,7 @@
                     "Employee Receivables"
                 ],
                 "summary": "Update an employee receivable",
-                "operationId": "9aa0b54dc028f47c429e60f207bc4a3e",
+                "operationId": "cbae9cc3d73282ca4b5e2b9bfad28596",
                 "parameters": [
                     {
                         "name": "id",
@@ -1091,7 +2286,7 @@
                     "Employee Receivables"
                 ],
                 "summary": "Delete an employee receivable",
-                "operationId": "4b961999fd7fd5427e31294af8b50e90",
+                "operationId": "8e3e2e4b1ea63dfcf63568fbeb539d4a",
                 "parameters": [
                     {
                         "name": "id",
@@ -1148,66 +2343,192 @@
                 ]
             }
         },
-        "/api/employee-payrolls": {
+        "/api/employee-time-records": {
             "get": {
                 "tags": [
-                    "Employee Payroll"
+                    "Employee Time Record"
                 ],
-                "summary": "Get employee payroll",
-                "operationId": "0419f10f18ba4c8a53727d9e670f15c4",
+                "summary": "List all employee time records",
+                "operationId": "77743f5bdaffbfae914d1fe032479ec2",
                 "parameters": [
                     {
-                        "name": "per_page",
+                        "name": "payroll_period_id",
                         "in": "query",
-                        "description": "Number of items per page",
-                        "required": false,
+                        "description": "ID of the payroll period",
+                        "required": true,
                         "schema": {
-                            "type": "integer",
-                            "maximum": 100,
-                            "minimum": 1,
-                            "example": 15
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Page number",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "example": 1
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Default employee payroll response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "example": "generated employee payroll"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
+                        "description": "List of employee time records retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
                                         "message": {
                                             "type": "string",
-                                            "example": "The selected employees field is required."
+                                            "example": "Data retrieved successfully."
                                         },
-                                        "errors": {
-                                            "type": "object",
-                                            "example": {
-                                                "selected_employees": [
-                                                    "The selected employees field is required."
-                                                ]
+                                        "responseData": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "employee_id": {
+                                                        "type": "integer",
+                                                        "example": 123
+                                                    },
+                                                    "payroll_period_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "total_working_minutes": {
+                                                        "type": "integer",
+                                                        "example": 9600
+                                                    },
+                                                    "total_working_minutes_with_leave": {
+                                                        "type": "integer",
+                                                        "example": 9600
+                                                    },
+                                                    "total_working_hours": {
+                                                        "type": "integer",
+                                                        "example": 160
+                                                    },
+                                                    "total_working_hours_with_leave": {
+                                                        "type": "integer",
+                                                        "example": 160
+                                                    },
+                                                    "total_overtime_minutes": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "total_undertime_minutes": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "total_official_business_minutes": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "total_official_time_minutes": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "total_leave_minutes": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "total_night_duty_hours": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "no_of_present_days": {
+                                                        "type": "integer",
+                                                        "example": 20
+                                                    },
+                                                    "no_of_present_days_with_leave": {
+                                                        "type": "integer",
+                                                        "example": 20
+                                                    },
+                                                    "no_of_leave_wo_pay": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "no_of_leave_w_pay": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "no_of_absences": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "no_of_invalid_entry": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "no_of_day_off": {
+                                                        "type": "integer",
+                                                        "example": 8
+                                                    },
+                                                    "no_of_schedule": {
+                                                        "type": "integer",
+                                                        "example": 20
+                                                    },
+                                                    "night_duties": {
+                                                        "type": "string",
+                                                        "example": "8"
+                                                    },
+                                                    "absent_dates": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "format": "date"
+                                                        }
+                                                    },
+                                                    "absent_count": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "month": {
+                                                        "type": "integer",
+                                                        "example": 6
+                                                    },
+                                                    "year": {
+                                                        "type": "integer",
+                                                        "example": 2026
+                                                    },
+                                                    "date_from": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2026-06-01"
+                                                    },
+                                                    "date_to": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2026-06-30"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "pending"
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "locked_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-06-20T13:30:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-06-20T13:30:00Z"
+                                                    },
+                                                    "deleted_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
                                             }
                                         }
                                     },
@@ -1217,14 +2538,300 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Unauthenticated."
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The payroll period id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Employee Time Record"
+                ],
+                "summary": "Store employee time record",
+                "operationId": "4ba411048bfe27846943aa0335d77403",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "payroll_period_id",
+                                    "minutes",
+                                    "daily",
+                                    "hourly",
+                                    "absent_rate",
+                                    "undertime_rate",
+                                    "base_salary",
+                                    "net_pay",
+                                    "total_working_minutes",
+                                    "total_working_minutes_with_leave",
+                                    "total_working_hours",
+                                    "total_working_hours_with_leave",
+                                    "total_overtime_minutes",
+                                    "total_undertime_minutes",
+                                    "total_official_business_minutes",
+                                    "total_official_time_minutes",
+                                    "total_leave_minutes",
+                                    "total_night_duty_hours",
+                                    "no_of_present_days",
+                                    "no_of_present_days_with_leave",
+                                    "no_of_leave_wo_pay",
+                                    "no_of_leave_w_pay",
+                                    "no_of_absences",
+                                    "no_of_invalid_entry",
+                                    "no_of_day_off",
+                                    "no_of_schedule",
+                                    "month",
+                                    "year",
+                                    "is_night_shift",
+                                    "is_active",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 123
+                                    },
+                                    "payroll_period_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "minutes": {
+                                        "type": "integer",
+                                        "example": 9600
+                                    },
+                                    "daily": {
+                                        "type": "integer",
+                                        "example": 480
+                                    },
+                                    "hourly": {
+                                        "type": "integer",
+                                        "example": 60
+                                    },
+                                    "absent_rate": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "undertime_rate": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "base_salary": {
+                                        "type": "integer",
+                                        "example": 25000
+                                    },
+                                    "net_pay": {
+                                        "type": "integer",
+                                        "example": 25000
+                                    },
+                                    "total_working_minutes": {
+                                        "type": "integer",
+                                        "example": 9600
+                                    },
+                                    "total_working_minutes_with_leave": {
+                                        "type": "integer",
+                                        "example": 9600
+                                    },
+                                    "total_working_hours": {
+                                        "type": "integer",
+                                        "example": 160
+                                    },
+                                    "total_working_hours_with_leave": {
+                                        "type": "integer",
+                                        "example": 160
+                                    },
+                                    "total_overtime_minutes": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "total_undertime_minutes": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "total_official_business_minutes": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "total_official_time_minutes": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "total_leave_minutes": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "total_night_duty_hours": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "no_of_present_days": {
+                                        "type": "integer",
+                                        "example": 20
+                                    },
+                                    "no_of_present_days_with_leave": {
+                                        "type": "integer",
+                                        "example": 20
+                                    },
+                                    "no_of_leave_wo_pay": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "no_of_leave_w_pay": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "no_of_absences": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "no_of_invalid_entry": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "no_of_day_off": {
+                                        "type": "integer",
+                                        "example": 8
+                                    },
+                                    "no_of_schedule": {
+                                        "type": "integer",
+                                        "example": 20
+                                    },
+                                    "night_duties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "nullable": true
+                                    },
+                                    "absent_dates": {
+                                        "type": "string",
+                                        "example": "2026-06-05,2026-06-12",
+                                        "nullable": true
+                                    },
+                                    "month": {
+                                        "type": "integer",
+                                        "example": 6
+                                    },
+                                    "year": {
+                                        "type": "integer",
+                                        "example": 2026
+                                    },
+                                    "from": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-06-01",
+                                        "nullable": true
+                                    },
+                                    "to": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-06-30",
+                                        "nullable": true
+                                    },
+                                    "is_night_shift": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "pending"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data stored successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data stored successfully."
+                                        },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The employee id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1240,22 +2847,767 @@
                 ]
             }
         },
+        "/api/employee-time-records/{id}": {
+            "put": {
+                "tags": [
+                    "Employee Time Record"
+                ],
+                "summary": "Update an employee time record",
+                "operationId": "d2d63e0580267da6da3e2b8e6ea0549b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Employee Time Record ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mode"
+                                ],
+                                "properties": {
+                                    "mode": {
+                                        "type": "string",
+                                        "enum": [
+                                            "update",
+                                            "update-status"
+                                        ],
+                                        "example": "update"
+                                    },
+                                    "minutes": {
+                                        "type": "integer",
+                                        "example": 9600,
+                                        "nullable": true
+                                    },
+                                    "daily": {
+                                        "type": "integer",
+                                        "example": 480,
+                                        "nullable": true
+                                    },
+                                    "hourly": {
+                                        "type": "integer",
+                                        "example": 60,
+                                        "nullable": true
+                                    },
+                                    "absent_rate": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "undertime_rate": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "base_salary": {
+                                        "type": "integer",
+                                        "example": 25000,
+                                        "nullable": true
+                                    },
+                                    "net_pay": {
+                                        "type": "integer",
+                                        "example": 25000,
+                                        "nullable": true
+                                    },
+                                    "total_working_minutes": {
+                                        "type": "integer",
+                                        "example": 9600,
+                                        "nullable": true
+                                    },
+                                    "total_working_minutes_with_leave": {
+                                        "type": "integer",
+                                        "example": 9600,
+                                        "nullable": true
+                                    },
+                                    "total_working_hours": {
+                                        "type": "integer",
+                                        "example": 160,
+                                        "nullable": true
+                                    },
+                                    "total_working_hours_with_leave": {
+                                        "type": "integer",
+                                        "example": 160,
+                                        "nullable": true
+                                    },
+                                    "total_overtime_minutes": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "total_undertime_minutes": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "total_official_business_minutes": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "total_official_time_minutes": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "total_leave_minutes": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "total_night_duty_hours": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "no_of_present_days": {
+                                        "type": "integer",
+                                        "example": 20,
+                                        "nullable": true
+                                    },
+                                    "no_of_present_days_with_leave": {
+                                        "type": "integer",
+                                        "example": 20,
+                                        "nullable": true
+                                    },
+                                    "no_of_leave_wo_pay": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "no_of_leave_w_pay": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "no_of_absences": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "no_of_invalid_entry": {
+                                        "type": "integer",
+                                        "example": 0,
+                                        "nullable": true
+                                    },
+                                    "no_of_day_off": {
+                                        "type": "integer",
+                                        "example": 8,
+                                        "nullable": true
+                                    },
+                                    "no_of_schedule": {
+                                        "type": "integer",
+                                        "example": 20,
+                                        "nullable": true
+                                    },
+                                    "night_duties": {
+                                        "type": "integer",
+                                        "example": 8,
+                                        "nullable": true
+                                    },
+                                    "absent_dates": {
+                                        "type": "string",
+                                        "example": "2026-06-05,2026-06-12",
+                                        "nullable": true
+                                    },
+                                    "month": {
+                                        "type": "integer",
+                                        "maximum": 12,
+                                        "minimum": 1,
+                                        "example": 6,
+                                        "nullable": true
+                                    },
+                                    "year": {
+                                        "type": "integer",
+                                        "example": 2026,
+                                        "nullable": true
+                                    },
+                                    "from": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-06-01",
+                                        "nullable": true
+                                    },
+                                    "to": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-06-30",
+                                        "nullable": true
+                                    },
+                                    "is_night_shift": {
+                                        "type": "boolean",
+                                        "example": false,
+                                        "nullable": true
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true,
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "pending",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data updated successfully."
+                                        },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The mode field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/excluded-employees": {
+            "get": {
+                "tags": [
+                    "Excluded Employee"
+                ],
+                "summary": "List all excluded employees",
+                "operationId": "5daab0ceccdc26198ef62e1f1c3d4c40",
+                "parameters": [
+                    {
+                        "name": "payroll_period_id",
+                        "in": "query",
+                        "description": "ID of the payroll period",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "paginate",
+                        "in": "query",
+                        "description": "Whether to paginate the results",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page when paginated",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number when paginated",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of excluded employees retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data retrieved successfully."
+                                        },
+                                        "responseData": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "employee": {
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    },
+                                                    "payroll_period": {
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    },
+                                                    "reason": {
+                                                        "type": "string",
+                                                        "example": "On study leave"
+                                                    },
+                                                    "is_removed": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Excluded Employee"
+                ],
+                "summary": "Exclude an employee",
+                "operationId": "1ad9d49d205e28c00f43cf4d0280cc4d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "payroll_period_id",
+                                    "reason",
+                                    "is_removed"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 123
+                                    },
+                                    "payroll_period_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "reason": {
+                                        "type": "string",
+                                        "example": "On study leave"
+                                    },
+                                    "is_removed": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data successfully saved.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data successfully saved."
+                                        },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 201
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The employee id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/excluded-employees/{id}": {
+            "put": {
+                "tags": [
+                    "Excluded Employee"
+                ],
+                "summary": "Update an excluded employee record",
+                "operationId": "66e1cb2539aec31222b4400d689eb539",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Excluded Employee Record ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "payroll_period_id",
+                                    "reason",
+                                    "is_removed"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 123
+                                    },
+                                    "payroll_period_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "reason": {
+                                        "type": "string",
+                                        "example": "Updated reason for exclusion"
+                                    },
+                                    "is_removed": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data successfully updated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data successfully updated."
+                                        },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The employee id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Excluded Employee"
+                ],
+                "summary": "Delete an excluded employee record",
+                "operationId": "7c58781d807ab4589c24c6a87e409234",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Excluded Employee Record ID to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data successfully deleted.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data successfully deleted."
+                                        },
+                                        "statusCode": {
+                                            "type": "integer",
+                                            "example": 200
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sign-in": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Sign in",
+                "operationId": "3ef9ab1842ffae30c20fee9ae30d31bf",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employee_id",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "employee_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully authenticate user.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Successfully authenticate user."
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/payroll-periods": {
             "get": {
                 "tags": [
                     "Payroll Periods"
                 ],
                 "summary": "Retrieve payroll periods with optional filtering",
-                "operationId": "870dba619abc180810c585759c85e3d0",
+                "operationId": "94909c52afbb0dc041df54adcf8e4903",
                 "parameters": [
                     {
-                        "name": "has_filter",
+                        "name": "get_method",
                         "in": "query",
-                        "description": "Set to false to get all payroll periods",
+                        "description": "Set to true to get all payroll periods",
                         "required": false,
                         "schema": {
                             "type": "boolean",
-                            "default": true
+                            "default": false
                         }
                     },
                     {
@@ -1322,7 +3674,7 @@
                     "Payroll Periods"
                 ],
                 "summary": "Set or lock payroll period",
-                "operationId": "6d4a6136e1ac8c68ca72d41f77523abb",
+                "operationId": "e2447a386bf7a62b8d5c3748bcaaa9fa",
                 "parameters": [
                     {
                         "name": "id",
@@ -1370,6 +3722,421 @@
                 }
             }
         },
+        "/api/payroll-process": {
+            "post": {
+                "tags": [
+                    "Payroll Process"
+                ],
+                "summary": "Start a new payroll process",
+                "operationId": "31cf3ffc8163358c855ff65ff9d431d3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "payroll_period_id",
+                                    "payroll_type",
+                                    "current_step",
+                                    "status",
+                                    "started_by"
+                                ],
+                                "properties": {
+                                    "payroll_period_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "payroll_type": {
+                                        "description": "Type of payroll (e.g. 1=Regular, 2=Night, etc.)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "current_step": {
+                                        "description": "Current step in the process",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "status": {
+                                        "description": "Status of the process",
+                                        "type": "string",
+                                        "example": "started"
+                                    },
+                                    "started_by": {
+                                        "description": "Employee ID who started it",
+                                        "type": "string",
+                                        "example": "EMP001"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data Successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data Successfully created"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "payroll_period_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "payroll_period": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "payroll_type": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "current_step": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "started"
+                                                },
+                                                "started_by": {
+                                                    "type": "string",
+                                                    "example": "EMP001"
+                                                },
+                                                "started_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-06-20T13:50:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The payroll period id field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/payroll-process/{id}": {
+            "get": {
+                "tags": [
+                    "Payroll Process"
+                ],
+                "summary": "Retrieve a payroll process status",
+                "operationId": "3874d303c6c1b767233a13d077de661c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the payroll process or period",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "payroll_type",
+                        "in": "query",
+                        "description": "Type of the payroll",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data Successfully retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data Successfully retrieved"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "payroll_period_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "payroll_period": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "payroll_type": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "current_step": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "started"
+                                                },
+                                                "started_by": {
+                                                    "type": "string",
+                                                    "example": "EMP001"
+                                                },
+                                                "started_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-06-20T13:50:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Process not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Payroll Process"
+                ],
+                "summary": "Update a payroll process step or status",
+                "operationId": "554181f05da56b95951295a5d902a7f8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the payroll process",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "current_step": {
+                                        "description": "New current step",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "status": {
+                                        "description": "New status",
+                                        "type": "string",
+                                        "example": "in_progress"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data Successfully updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data Successfully updated"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "payroll_period_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "payroll_period": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "payroll_type": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "current_step": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "in_progress"
+                                                },
+                                                "started_by": {
+                                                    "type": "string",
+                                                    "example": "EMP001"
+                                                },
+                                                "started_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-06-20T13:50:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Process not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/payroll-report": {
             "get": {
                 "tags": [
@@ -1377,7 +4144,7 @@
                 ],
                 "summary": "Get payroll report",
                 "description": "Retrieve payroll report for a specific payroll period",
-                "operationId": "869f189d6e8b8468cf77412360fc47e5",
+                "operationId": "22a067bf393f81a91a4d5eb372da28e3",
                 "parameters": [
                     {
                         "name": "payroll_period_id",
@@ -1404,7 +4171,7 @@
                 ],
                 "summary": "Export payroll report",
                 "description": "Export payroll report for a specific payroll period",
-                "operationId": "e367b202a3e309adf036021ead10b026",
+                "operationId": "00bf6f787a278235280c9f60a4de03eb",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1438,7 +4205,7 @@
                 ],
                 "summary": "Get payroll summary",
                 "description": "Retrieve payroll summary for a specific payroll period",
-                "operationId": "99a96e031934fe029529a3c6795e7aa7",
+                "operationId": "f229f08c60c3e6b9c45de6359f4bc50a",
                 "parameters": [
                     {
                         "name": "payroll_period_id",
@@ -1465,7 +4232,7 @@
                 ],
                 "summary": "Create or update payroll summary",
                 "description": "Create a new payroll summary or update an existing one",
-                "operationId": "0d21383ef971c5cd3ec141ee0400f369",
+                "operationId": "21066b329ad0b8aaae79d4ed535e98dc",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1492,473 +4259,13 @@
                 }
             }
         },
-        "/api/deductions": {
-            "get": {
-                "tags": [
-                    "Deductions"
-                ],
-                "summary": "List all deductions",
-                "operationId": "9a883b171a5f623f1b8fe8b6b6132288",
-                "parameters": [
-                    {
-                        "name": "paginate",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 15
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of deductions"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Deductions"
-                ],
-                "summary": "Create a new deduction",
-                "operationId": "e1bdb44214e1e793d50f40b2fa73dcec",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "deduction_group_id",
-                                    "name",
-                                    "code",
-                                    "type"
-                                ],
-                                "properties": {
-                                    "deduction_group_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Deduction Name"
-                                    },
-                                    "code": {
-                                        "type": "string",
-                                        "example": "Deduction Code"
-                                    },
-                                    "type": {
-                                        "type": "string",
-                                        "example": "fixed"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Deduction created successfully"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/deductions/{id}": {
-            "get": {
-                "tags": [
-                    "Deductions"
-                ],
-                "summary": "Get a specific deduction",
-                "operationId": "77f71f0fa938d2975ad2768e82ba587a",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "payroll_period_id",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "import",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "default": false
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deduction details"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Deductions"
-                ],
-                "summary": "Update a deduction",
-                "operationId": "6e7a8497d6f79c1ab7d946863c192642",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "deduction_group_id",
-                                    "name",
-                                    "code",
-                                    "amount"
-                                ],
-                                "properties": {
-                                    "deduction_group_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Deduction Name"
-                                    },
-                                    "code": {
-                                        "type": "string",
-                                        "example": "DED1"
-                                    },
-                                    "amount": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 100.5
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Deduction updated successfully"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Deductions"
-                ],
-                "summary": "Delete a deduction",
-                "operationId": "e92c59ac11a1b28de4d47c58d38e7da5",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deduction deleted successfully"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/deduction-groups": {
-            "get": {
-                "tags": [
-                    "Deduction Groups"
-                ],
-                "summary": "List all deduction groups",
-                "operationId": "72d6cb6e7a51c86fe45c225f3bf27b72",
-                "parameters": [
-                    {
-                        "name": "paginate",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 15
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of deduction groups"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Deduction Groups"
-                ],
-                "summary": "Create a new deduction group",
-                "operationId": "f1cfc456f76d66fbd43a161708cc006c",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "name",
-                                    "code"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Group Name"
-                                    },
-                                    "code": {
-                                        "type": "string",
-                                        "example": "GROUP1"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Deduction group created successfully"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/deduction-groups/{id}": {
-            "get": {
-                "tags": [
-                    "Deduction Groups"
-                ],
-                "summary": "Get a specific deduction group",
-                "operationId": "7a1566de910aca0f55f4d2edf855221b",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deduction group details"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Deduction Groups"
-                ],
-                "summary": "Update a deduction group",
-                "operationId": "9e52fea194d873a096b828c1c0b410e4",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "name",
-                                    "code"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Group Name"
-                                    },
-                                    "code": {
-                                        "type": "string",
-                                        "example": "GROUP1"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Deduction group updated successfully"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Deduction Groups"
-                ],
-                "summary": "Delete a deduction group",
-                "operationId": "602c6b6e5ad04d5429eb2ef361a3ac91",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deduction group deleted successfully"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/receivables": {
             "get": {
                 "tags": [
                     "Receivables"
                 ],
                 "summary": "List all receivables",
-                "operationId": "1bf074846419785984d82e5e6a42000a",
+                "operationId": "9f3bfd93afa0da612d831b74ac002760",
                 "parameters": [
                     {
                         "name": "paginate",
@@ -2004,7 +4311,7 @@
                     "Receivables"
                 ],
                 "summary": "Create a new receivable",
-                "operationId": "696d5dcd7ee6ffa5af1b65f320dee964",
+                "operationId": "b067e360003dc6e7e24ba48c0718e6ee",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2056,7 +4363,7 @@
                     "Receivables"
                 ],
                 "summary": "Get a specific receivable",
-                "operationId": "e2ad4e205112fc22feb7a583feccc5ab",
+                "operationId": "277b4677aed3f0777f2fe768592c7cf9",
                 "parameters": [
                     {
                         "name": "id",
@@ -2094,7 +4401,7 @@
                     "Receivables"
                 ],
                 "summary": "Update a receivable",
-                "operationId": "f8ce8143df142475c97cc2dcb9a99bde",
+                "operationId": "4592c768536f9c3b10d2238a65c7864c",
                 "parameters": [
                     {
                         "name": "id",
@@ -2157,7 +4464,7 @@
                     "Receivables"
                 ],
                 "summary": "Delete a receivable",
-                "operationId": "e49334556c700ac7fc246a4e7c949c9d",
+                "operationId": "c3d307bad0d75718c6612f9c9bebe1af",
                 "parameters": [
                     {
                         "name": "id",
@@ -2183,142 +4490,68 @@
                 ]
             }
         },
-        "/api/fetch-employees": {
+        "/api/reports": {
             "get": {
                 "tags": [
-                    "Redis"
+                    "Reports"
                 ],
-                "summary": "Retrieve employees with optional filtering",
-                "operationId": "82a0294a813a83880150c50784ae96f4",
+                "summary": "Get reports",
+                "description": "Retrieve payroll or summary reports, or export data based on report_type",
+                "operationId": "22353cf6f9f0a02c8e3b41b44faed354",
                 "parameters": [
                     {
-                        "name": "year",
+                        "name": "report_type",
                         "in": "query",
-                        "description": "Filter by year (e.g., 2025)",
-                        "required": false,
+                        "description": "Type of report: payroll, summary, or export",
+                        "required": true,
                         "schema": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
-                    },
-                    {
-                        "name": "month",
-                        "in": "query",
-                        "description": "Filter by month (1-12)",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "maximum": 12,
-                            "minimum": 1
+                            "type": "string",
+                            "enum": [
+                                "payroll",
+                                "summary",
+                                "export"
+                            ]
                         }
                     },
                     {
                         "name": "employment_type",
                         "in": "query",
-                        "description": "Type of employment",
                         "required": true,
-                        "explode": true,
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "regular",
-                                "job_order"
-                            ],
-                            "example": "regular"
+                            "type": "string"
                         }
                     },
                     {
                         "name": "period_type",
                         "in": "query",
-                        "description": "Type of period",
                         "required": true,
-                        "explode": true,
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "first_half",
-                                "second_half"
-                            ],
-                            "example": "first_half"
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "month_of",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "year_of",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Employees retrieved successfully"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Redis"
-                ],
-                "summary": "Trigger Umis Cache",
-                "operationId": "05d7c768e4ad6e8ea30bcdaa5fb3a081",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "year",
-                                    "month",
-                                    "employment_type",
-                                    "period_type"
-                                ],
-                                "properties": {
-                                    "year": {
-                                        "type": "integer",
-                                        "example": 2025
-                                    },
-                                    "month": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "employment_type": {
-                                        "type": "string",
-                                        "example": "regular"
-                                    },
-                                    "period_type": {
-                                        "type": "string",
-                                        "example": "first_half"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Successfully triggered cache."
+                        "description": "Report data retrieved successfully"
                     },
                     "422": {
                         "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/fetching-progress": {
-            "get": {
-                "tags": [
-                    "Redis"
-                ],
-                "summary": "Retrieve fetching progress",
-                "operationId": "a62f9f98db04a2cce889642d32828667",
-                "responses": {
-                    "200": {
-                        "description": "Employees retrieved successfully"
                     }
                 },
                 "security": [
@@ -2340,56 +4573,76 @@
     },
     "tags": [
         {
-            "name": "Authentication",
-            "description": "Authentication"
+            "name": "Deduction Groups",
+            "description": "Deduction group endpoints"
         },
         {
-            "name": "Employees",
-            "description": "Employees"
-        },
-        {
-            "name": "Employee Deductions",
-            "description": "Employee Deductions"
-        },
-        {
-            "name": "Employee Preview",
-            "description": "Employee Preview"
-        },
-        {
-            "name": "Employee Receivables",
-            "description": "Employee Receivables"
+            "name": "Deduction Rules",
+            "description": "Deduction rule endpoints"
         },
         {
             "name": "Employee Payroll",
-            "description": "Employee Payroll"
+            "description": "Employee payroll endpoints"
         },
         {
-            "name": "Payroll Periods",
-            "description": "Payroll Periods"
+            "name": "Employee Preview",
+            "description": "Employee preview endpoints"
+        },
+        {
+            "name": "Employee Receivables",
+            "description": "Employee receivables endpoints"
+        },
+        {
+            "name": "Employee Time Record",
+            "description": "Employee time record endpoints"
+        },
+        {
+            "name": "Excluded Employee",
+            "description": "Excluded employee endpoints"
+        },
+        {
+            "name": "Authentication",
+            "description": "Login and logout endpoints"
+        },
+        {
+            "name": "Payroll Process",
+            "description": "Payroll process endpoints"
         },
         {
             "name": "Payroll Report",
-            "description": "Payroll Report"
+            "description": "Payroll report endpoints"
         },
         {
             "name": "Payroll Summary",
-            "description": "Payroll Summary"
+            "description": "Payroll summary endpoints"
+        },
+        {
+            "name": "Receivables",
+            "description": "Receivable endpoints"
+        },
+        {
+            "name": "Reports",
+            "description": "Report endpoints"
+        },
+        {
+            "name": "Redis",
+            "description": "Redis"
         },
         {
             "name": "Deductions",
             "description": "Deductions"
         },
         {
-            "name": "Deduction Groups",
-            "description": "Deduction Groups"
+            "name": "Employee Deductions",
+            "description": "Employee Deductions"
         },
         {
-            "name": "Receivables",
-            "description": "Receivables"
+            "name": "Employees",
+            "description": "Employees"
         },
         {
-            "name": "Redis",
-            "description": "Redis"
+            "name": "Payroll Periods",
+            "description": "Payroll Periods"
         }
     ]
 }

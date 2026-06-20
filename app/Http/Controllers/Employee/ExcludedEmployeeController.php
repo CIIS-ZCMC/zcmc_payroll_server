@@ -6,11 +6,15 @@ use App\Data\ExcludedEmployeeData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExcludedEmployeeRequest;
 use App\Http\Resources\ExcludedEmployeeResource;
-// use App\Services\ExcludedEmployeeService;
 use App\Services\ExcludedEmployeeService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @see ExcludedEmployeeDocumentation
+ * 
+ * included = [index, store, update, destroy]
+ */
 class ExcludedEmployeeController extends Controller
 {
     public function __construct(private ExcludedEmployeeService $service)
@@ -25,7 +29,9 @@ class ExcludedEmployeeController extends Controller
         $perPage = $request->per_page ?? 15;
         $page = $request->page ?? 1;
 
-        $data = $paginate === true ? $this->service->paginate($perPage, $page) : $this->service->getAll();
+        $payrollPeriodId = $request->payroll_period_id;
+
+        $data = $paginate === true ? $this->service->paginate($perPage, $page, $payrollPeriodId) : $this->service->getAll($payrollPeriodId);
 
         return response()->json([
             'responseData' => ExcludedEmployeeResource::collection($data),
@@ -71,5 +77,4 @@ class ExcludedEmployeeController extends Controller
             'statusCode' => 200,
         ], Response::HTTP_OK);
     }
-
 }

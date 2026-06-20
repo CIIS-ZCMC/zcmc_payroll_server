@@ -17,6 +17,11 @@ use Symfony\Component\HttpFoundation\Response;
 use DateTime;
 use DateInterval;
 
+/**
+ * @see EmployeePayrollDocumentation
+ * 
+ * included = [index, store, show]
+ */
 class EmployeePayrollController extends Controller
 {
 
@@ -25,51 +30,6 @@ class EmployeePayrollController extends Controller
         // Nothing
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/employee-payrolls",
-     *     summary="Get employee payroll",
-     *     tags={"Employee Payroll"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         required=false,
-     *         description="Number of items per page",
-     *         @OA\Schema(type="integer", minimum=1, maximum=100, example=15)
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         required=false,
-     *         description="Page number",
-     *         @OA\Schema(type="integer", minimum=1, example=1)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Default employee payroll response",
-     *         @OA\JsonContent(
-     *             type="string",
-     *             example="generated employee payroll"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The selected employees field is required."),
-     *             @OA\Property(property="errors", type="object", example={"selected_employees": {"The selected employees field is required."}})
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
-     *         )
-     *     ),
-     * )
-     */
     public function index(Request $request)
     {
         $perPage = $request->per_page;

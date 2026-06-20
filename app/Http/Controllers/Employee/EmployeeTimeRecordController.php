@@ -11,6 +11,11 @@ use App\Services\EmployeeTimeRecordService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @see EmployeeTimeRecordDocumentation
+ * 
+ * included = [index, store, update]
+ */
 class EmployeeTimeRecordController extends Controller
 {
     public function __construct(private EmployeeTimeRecordService $service)

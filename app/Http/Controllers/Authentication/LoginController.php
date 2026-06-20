@@ -12,6 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+
+/**
+ * @see LoginDocumentaion
+ * 
+ * included = [store]
+ */
 class LoginController extends Controller
 {
     private function __destroySession($employee_id)
@@ -19,38 +25,6 @@ class LoginController extends Controller
         PersonalAccessToken::where('employee_id', $employee_id)->delete();
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/sign-in",
-     *     summary="Sign in",
-     *     tags={"Authentication"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"employee_id","password"},
-     *             @OA\Property(property="employee_id", type="integer", example=1),
-     *             @OA\Property(property="password", type="string", example="password")
-     *         ) 
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successfully authenticate user.",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Successfully authenticate user."),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized"
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation Error"
-     *     )
-     * )
-     */
     public function store(Request $request)
     {
         $result = UmisHttpRequestHelper::post("auth-with-api-key-credential", [
@@ -143,6 +117,5 @@ class LoginController extends Controller
         return response()->json([
             'message' => "Successfully signout."
         ], Response::HTTP_OK)->cookie(env("COOKIE_NAME"), '', -1);
-
     }
 }

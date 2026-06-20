@@ -9,6 +9,11 @@ use App\Services\EmployeeService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @see EmployeeDocumentation
+ * 
+ * included = [index, show]
+ */
 class EmployeeController extends Controller
 {
 
@@ -17,36 +22,6 @@ class EmployeeController extends Controller
         // Nothing
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/employees",
-     *     summary="List all employees",
-     *     tags={"Employees"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="type",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="string", default="all")
-     *     ),
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="integer", default=15)
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="integer", default=1)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of employees"
-     *     )
-     * )
-     */
     public function index(Request $request)
     {
         $type = $request->type;
@@ -85,24 +60,6 @@ class EmployeeController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/employees/{id}",
-     *     summary="Get employee by id",
-     *     tags={"Employees"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Employee successfully retrieved"
-     *     )
-     * )
-     */
     public function show($id)
     {
         $data = $this->service->find($id);
@@ -113,5 +70,4 @@ class EmployeeController extends Controller
             'success' => true,
         ], Response::HTTP_OK);
     }
-
 }
