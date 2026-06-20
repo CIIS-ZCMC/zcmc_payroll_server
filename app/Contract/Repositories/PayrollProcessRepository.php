@@ -3,7 +3,6 @@
 namespace App\Contract\Repositories;
 
 use App\Contract\PayrollProcessInterface;
-use App\Models\GeneralPayroll;
 use App\Models\PayrollProcess;
 
 

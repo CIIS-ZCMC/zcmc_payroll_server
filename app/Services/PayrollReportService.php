@@ -5,11 +5,15 @@ namespace App\Services;
 use App\Contract\PayrollReportInterface;
 use App\Exports\ExportEmployeePayroll;
 use App\Http\Resources\PayrollReportResource;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class PayrollReportService
 {
-    public function __construct(private PayrollReportInterface $service)
+    public function __construct(private PayrollReportInterface $service, private ExportPayrollService $export)
     {
         //
     }
@@ -21,81 +25,75 @@ class PayrollReportService
 
     public function exportEmployeePayrollReport(int $payrollPeriodId)
     {
+        
         $query = $this->service->getEmployeePayrollReport($payrollPeriodId);
-
         $data = PayrollReportResource::make($query)->resolve();
-
+        
+        return $this->export->exportEmployeePayrollReport($data);
+        
         $templatePath = storage_path('app/templates/employee_payroll.xlsx');
         $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
-
-        $sheet1 = $spreadsheet->getActiveSheet();
-        $sheet1->setTitle('Payroll Summary');
+        $sheet->setTitle('Payroll Summary');
 
         $startRow = 8;
         $blockHeight = 9;
         $lastColumn = 'AD';
-
-        // Apply consistent styling to all cells
-        $styleArray = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DASHED,
-                    'color' => ['rgb' => '000000']
+        $totalRows = count($data['employee_payrolls'] ?? []);
+        $endRow = $startRow + $totalRows * $blockHeight - 1;
+    
+        // GLOBAL STYLE
+        $sheet->getStyle("A{$startRow}:{$lastColumn}{$endRow}")
+            ->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_DASHED,
+                    ],
+                ],
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'wrapText' => true
                 ]
-            ],
+            ]);
 
-            'alignment' => [
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                'wrapText' => true
-            ]
-        ];
+        // OUTER BORDER
+        $sheet->getStyle("A{$startRow}:{$lastColumn}{$endRow}")
+            ->getBorders()
+            ->getOutline()
+            ->setBorderStyle(Border::BORDER_DOUBLE);
 
-        // Apply consistent styling to all cells
-        $styleArray = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DASHED,
-                    'color' => ['rgb' => '000000']
-                ]
-            ],
-
-            'alignment' => [
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                'wrapText' => true
-            ]
-        ];
-
-        // Apply to all data cells
-        $sheet->getStyle("A{$startRow}:{$lastColumn}" . ($startRow + (count($data) * $blockHeight) - 1))
-            ->applyFromArray($styleArray);
-
-        // Left align specific columns
-        $leftAlignColumns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'V', 'W', 'X', 'Y'];
-        foreach ($leftAlignColumns as $col) {
-            $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
-                ->getAlignment()
-                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
-        }
-
-        // Number formatting for numeric columns
-        $numericColumns = ['D', 'G', 'J', 'K', 'L', 'M', 'P', 'Q', 'T', 'U', 'X', 'Y', 'Z', 'AA', 'AB', 'AD'];
-        foreach ($numericColumns as $col) {
+        // ================= FORMAT =================
+        $numericCols = ['D', 'G', 'H', 'J', 'K', 'L', 'M', 'P', 'Q', 'T', 'U', 'X', 'Y', 'Z', 'AA', 'AB'];
+        foreach ($numericCols as $col) {
             $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
                 ->getNumberFormat()
-                ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+                ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
         }
 
-        $i = 0;
+        // ================= ALIGNMENT =================
+        $leftCols  = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'V', 'W', 'X', 'Y'];
+        foreach ($leftCols  as $col) {
+            $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
+                ->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        }
 
+        $rightCols  = ['C', 'D', 'E', 'J', 'N', 'P', 'R', 'T', 'V', 'X'];
+        foreach ($rightCols  as $col) {
+            $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
+                ->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        }
+
+        // ================= FILL CELLS =================
+        $i = 0;
         foreach ($data['employee_payrolls'] as $index => $employee) {
             $i++;
 
             $currentRow = $startRow + ($index * $blockHeight);
 
-            //Merge cells
+            // ================= MERGES =================
             $sheet->mergeCells("A" . ($currentRow) . ":A" . ($currentRow + 8)); // Row numer
             $sheet->mergeCells("B" . ($currentRow) . ":E" . ($currentRow)); //Employee Number
             $sheet->mergeCells("B" . ($currentRow + 1) . ":E" . ($currentRow + 1)); //Employee Name
@@ -127,7 +125,7 @@ class PayrollReportService
             $sheet->mergeCells("AC" . ($currentRow) . ":AC" . ($currentRow + 8)); // Remarks
             $sheet->mergeCells("AD" . ($currentRow) . ":AD" . ($currentRow + 8)); // Number Of Absents
 
-            // Set Label
+            // ================= STATIC LABELS =================
             $sheet->setCellValue("B" . ($currentRow + 5), 'BASIC');
             $sheet->setCellValue("B" . ($currentRow + 6), 'PERA');
             $sheet->setCellValue("B" . ($currentRow + 7), 'HAZARD');
@@ -137,21 +135,141 @@ class PayrollReportService
             $sheet->setCellValue("AA" . ($currentRow + 5), '');
             $sheet->setCellValue("AB" . ($currentRow + 5), '');
 
-            //=========== Set Data/Pass Data ================
+            // ================= FILL DATA =================
+            $employeeSalary = $employee['employee']['employeeSalary'];
 
-            // 1st,2nd,3rd & 4th Column
-            $sheet->setCellValue("A" . ($currentRow), $i);
-            $sheet->setCellValue("B" . ($currentRow), $employee['employee_number']);
-            $sheet->setCellValue("B" . ($currentRow + 1), $employee['full_name']);
-            $sheet->setCellValue("D" . ($currentRow + 5), $employee['base_salary']);
+            $receivables = optional(collect($employee['employee']['employeeReceivables'] ?? []));
+            $pera = optional($receivables->where('receivable_id', 1)->first())->amount ?? 0;
+            $hazard = optional($receivables->where('receivable_id', 2)->first())->amount ?? 0;
+
+            $deductions = optional(collect($employee['employee']['employeeDeductions'] ?? []));
+            $wtax = optional($deductions->where('deduction_id', 1)->first())->amount ?? 0;
+            $phic = optional($deductions->where('deduction_id', 2)->first())->amount ?? 0;
+                        
+            $gsisDeductions = $deductions->filter(function ($item) {
+                return $item->deductions?->deduction_group_id == 2;
+            });
+
+            $pagibigDeductions = $deductions->filter(function ($item) {
+                return $item->deductions?->deduction_group_id == 4;
+            });
+
+            $otherDeductions = $deductions->filter(function ($item) {
+                return $item->deductions?->deduction_group_id != 1 
+                && $item->deductions?->deduction_group_id != 2
+                && $item->deductions?->deduction_group_id != 4
+                && $item->deductions?->deduction_group_id != 5;
+            });
+        
+            // Get totals by group name (more reliable than hardcoded IDs)
+            $group = $employee['employee']['grouped_deductions'] ?? [];
+            $total_gsis = $group->where('group_id', 2)->first()['group_total'] ?? 0;
+            $total_pagibig = $group->where('group_id', 3)->first()['group_total'] ?? 0;
+            $total_other = $group->where('group_id', 4)->first()['group_total'] ?? 0;
+
+            // 1st Column
+            $sheet->setCellValue("A" . $currentRow, $i);
+            $sheet->setCellValue("B" . $currentRow, $employee['employee']['employee_number']);
+            $sheet->setCellValue("B" . ($currentRow + 1), $employee['employee']['full_name']);
+            $sheet->setCellValue("D" . ($currentRow + 5), $employeeSalary['base_salary']);
+
+            $sheet->setCellValue("D" . ($currentRow + 6), $pera);
+            $sheet->setCellValue("D" . ($currentRow + 7), $hazard);
+
+            $sheet->setCellValue("C" . ($currentRow + 8), $employeeSalary['salary_grade']);
+            $sheet->setCellValue("E" . ($currentRow + 8), $employeeSalary['salary_step']);
+
+            // 2nd Column and 3rd Column
+            $sheet->setCellValue("F" . ($currentRow), $employee['employee']['designation']);
+            $sheet->setCellValue("G" . ($currentRow), $employee['basic_pay']);
+            $sheet->setCellValue("L" . ($currentRow), $employee['gross_pay']);
+            $sheet->setCellValue("H" . ($currentRow + 8), $employee['total_receivables']);
+
+            //Deductions column
+            $sheet->setCellValue("M" . ($currentRow), $wtax);
+            $sheet->setCellValue("M" . ($currentRow + 4), $phic);
+            $sheet->setCellValue("N" . ($currentRow + 8), $total_gsis);
+            $sheet->setCellValue("R" . ($currentRow + 8), $total_pagibig);
+            $sheet->setCellValue("V" . ($currentRow + 8), $total_other);
+            $sheet->setCellValue("Z" . ($currentRow), $employee['total_deductions']);
+
+            $sheet->setCellValue("AA" . ($currentRow), $employee['first_half']);
+            $sheet->setCellValue("AA" . ($currentRow + 4), $employee['second_half']);
+            $sheet->setCellValue("AA" . ($currentRow + 8), $employee['net_pay']);
+
+            $month = $employee['month'] ?? null;
+            $year = $employee['year'] ?? date('Y');
+            $lastDay = $month ? date('j', strtotime("$year-$month-01 +1 month -1 day")) : '-';
+            
+            $sheet->setCellValue("AB" . ($currentRow), '1-15');
+            $sheet->setCellValue("AB" . ($currentRow + 4), '16-' . $lastDay);
+
+            $sheet->setCellValue("AC" . ($currentRow), $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['dates']);
+            $sheet->setCellValue("AD" . ($currentRow), $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['count']);
+
+            // ================= SUB REPORTS =================
+            $receivableRow = $currentRow;
+            foreach ($employee['employee']['employeeReceivables'] as $rec) {
+
+                $sheet->mergeCells("H" . ($receivableRow) . ":I" . ($receivableRow));
+                $sheet->mergeCells("J" . ($receivableRow) . ":K" . ($receivableRow));
+
+                $sheet->setCellValue("H{$receivableRow}", $rec['receivables']['code']);
+                $sheet->setCellValue("J{$receivableRow}", $rec['amount']);
+                $receivableRow++;
+            }
+
+            $gsisDeductionRow = $currentRow;
+            foreach ($gsisDeductions as $rec) {
+                $sheet->mergeCells("N" . ($gsisDeductionRow) . ":O" . ($gsisDeductionRow));
+                $sheet->mergeCells("P" . ($gsisDeductionRow) . ":Q" . ($gsisDeductionRow));
+
+                $sheet->setCellValue("N{$gsisDeductionRow}", $rec['deductions']['code']);
+                $sheet->setCellValue("P{$gsisDeductionRow}", $rec['amount']);
+                $gsisDeductionRow++;
+            }
+
+            $pagibigDeductionRow = $currentRow;
+            foreach ($pagibigDeductions as $rec) {
+
+                $sheet->mergeCells("R" . ($pagibigDeductionRow) . ":S" . ($pagibigDeductionRow));
+                $sheet->mergeCells("T" . ($pagibigDeductionRow) . ":U" . ($pagibigDeductionRow));
+
+                $sheet->setCellValue("R{$pagibigDeductionRow}", $rec['deductions']['code']);
+                $sheet->setCellValue("T{$pagibigDeductionRow}", $rec['amount']);
+                $pagibigDeductionRow++;
+            }
+
+            $otherDeductionRow = $currentRow;
+            foreach ($otherDeductions as $rec) {
+
+                $sheet->mergeCells("V" . ($otherDeductionRow) . ":W" . ($otherDeductionRow));
+                $sheet->mergeCells("X" . ($otherDeductionRow) . ":Y" . ($otherDeductionRow));
+
+                $sheet->setCellValue("V{$otherDeductionRow}", $rec['deductions']['code']);
+                $sheet->setCellValue("X{$otherDeductionRow}", $rec['amount']);
+                $otherDeductionRow++;
+            }
+
+            $totalRow = $currentRow + 8;
+
+            $sheet->getStyle("H{$totalRow}:Y{$totalRow}")
+                ->applyFromArray([
+                    'font' => ['bold' => true],
+                    'borders' => [
+                        'top' => [
+                            'borderStyle' => Border::BORDER_MEDIUM,
+                        ],
+                    ],
+                ]);
         }
 
-        //Create Sheet
+        // ================= SECOND SHEET =================
         $sheet2 = $spreadsheet->createSheet();
         $sheet2->setTitle('Detailed Report');
 
         //Get Header
-        return $export = new ExportEmployeePayroll($data);
+        $export = new ExportEmployeePayroll($data);
         $exportData = $export->collection()->toArray();
         $headings = $export->headings()[0];
 
@@ -181,9 +299,16 @@ class PayrollReportService
         }
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+
+        // Get payroll period info for filename
+        $payrollPeriod = $data['payroll_period'] ?? null;
+        $month = str_pad($payrollPeriod['month'] ?? '01', 2, '0', STR_PAD_LEFT);
+        $year = $payrollPeriod['year'] ?? date('Y');
+        $filename = "PAYROLL{$month}{$year}.xlsx";
+        
         return response()->streamDownload(function () use ($writer) {
             $writer->save('php://output');
-        }, "employee_payroll.xlsx");
+        }, $filename);
     }
 
 

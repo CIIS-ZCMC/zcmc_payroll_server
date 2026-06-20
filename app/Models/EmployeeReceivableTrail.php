@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeReceivableTrail extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
     protected $table = 'employee_receivable_trails';
 
     protected $primaryKey = 'id';
@@ -27,8 +29,17 @@ class EmployeeReceivableTrail extends Model
 
     public $timestamps = true;
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-receivable-trail')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
+
     public function employeeReceivable()
     {
         return $this->belongsTo(EmployeeReceivable::class);
     }
+
 }

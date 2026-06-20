@@ -79,7 +79,9 @@ class EmployeeResource extends JsonResource
 
             'deductions' => EmployeeDeductionResource::collection($this->whenLoaded('employeeDeductions')),
 
-            'grouped_deductions' => $groupedDeductions ?? [],
+            // 'old_grouped_deductions' => $groupedDeductions ?? [],
+
+            'grouped_deductions' => $this->grouped_deductions ?? [],
 
             'receivables' => EmployeeReceivableResource::collection($this->whenLoaded('employeeReceivables')),
 

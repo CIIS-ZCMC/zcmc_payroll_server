@@ -44,6 +44,8 @@ class EmployeePreviewResource extends JsonResource
                 'basic_pay' => $payroll['basic_pay'],
                 'gross_pay' => $payroll['gross_pay'],
                 'net_pay' => $payroll['net_pay'],
+                'first_half' => $payroll['first_half'],
+                'second_half' => $payroll['second_half'],
                 'currency' => 'PHP',
             ],
         ];

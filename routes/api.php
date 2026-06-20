@@ -9,13 +9,12 @@ use App\Http\Controllers\Employee\EmployeePreviewController;
 use App\Http\Controllers\Employee\EmployeeReceivableController;
 use App\Http\Controllers\Employee\EmployeeTimeRecordController;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
+use App\Http\Controllers\NightDifferential\NightDifferentialRuleController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
-use App\Http\Controllers\Payroll\GeneralPayrollController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
 use App\Http\Controllers\Payroll\PayrollProcessController;
 use App\Http\Controllers\Payroll\PayrollReportController;
 use App\Http\Controllers\Payroll\PayrollSummaryController;
-use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\Settings\DeductionController;
 use App\Http\Controllers\Settings\DeductionGroupController;
 use App\Http\Controllers\Settings\DeductionRuleController;
@@ -81,11 +80,10 @@ Route::middleware('auth.token')->group(function () {
     //Employee Payroll
     Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
 
-    //General Payroll
-    Route::apiResource('general-payrolls', GeneralPayrollController::class)->only(['index', 'update', 'destroy']);
+    //Night Differential
+    Route::apiResource('night-differential-rules', NightDifferentialRuleController::class)->only(['index', 'store', 'show']);
 
     //Report
-    // Route::apiResource('payroll-reports', ReportsController::class)->only(['index']);
     Route::apiResource('payroll-reports', PayrollReportController::class)->only(['index', 'store']);
     Route::apiResource('payroll-summary', PayrollSummaryController::class)->only(['index', 'store']);
 });

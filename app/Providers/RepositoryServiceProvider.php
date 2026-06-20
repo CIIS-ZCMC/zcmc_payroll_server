@@ -16,7 +16,7 @@ use App\Contract\EmployeeReceivableTrailInterface;
 use App\Contract\EmployeeSalaryInterface;
 use App\Contract\EmployeeTimeRecordInterface;
 use App\Contract\ExcludedEmployeeInterface;
-use App\Contract\GeneralPayrollInterface;
+use App\Contract\NightDifferentialRuleInterface;
 use App\Contract\PayrollPeriodInterface;
 use App\Contract\PayrollProcessInterface;
 use App\Contract\PayrollReportInterface;
@@ -36,7 +36,7 @@ use App\Contract\Repositories\EmployeeRepository;
 use App\Contract\Repositories\EmployeeSalaryRepository;
 use App\Contract\Repositories\EmployeeTimeRecordRepository;
 use App\Contract\Repositories\ExcludedEmployeeRepository;
-use App\Contract\Repositories\GeneralPayrollRepository;
+use App\Contract\Repositories\NightDifferentialRuleRepository;
 use App\Contract\Repositories\PayrollPeriodRepository;
 use App\Contract\Repositories\PayrollProcessRepository;
 use App\Contract\Repositories\PayrollReportRepository;
@@ -119,11 +119,6 @@ class RepositoryServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            GeneralPayrollInterface::class,
-            GeneralPayrollRepository::class
-        );
-
-        $this->app->bind(
             PayrollPeriodInterface::class,
             PayrollPeriodRepository::class
         );
@@ -149,10 +144,14 @@ class RepositoryServiceProvider extends ServiceProvider
             PayrollReportRepository::class
         );
 
-        
         $this->app->bind(
             PayrollSummaryInterface::class,
             PayrollSummaryRepository::class
+        );
+
+        $this->app->bind(
+            NightDifferentialRuleInterface::class,
+            NightDifferentialRuleRepository::class
         );
     }
 

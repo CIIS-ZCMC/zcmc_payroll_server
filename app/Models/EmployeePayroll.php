@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeePayroll extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
     protected $table = 'employee_payrolls';
 
     protected $primaryKey = 'id';
@@ -24,6 +26,8 @@ class EmployeePayroll extends Model
         'gross_pay',
         'total_deductions',
         'net_pay',
+        'first_half',
+        'second_half',
         // 'night_differential',
     ];
 
@@ -37,6 +41,13 @@ class EmployeePayroll extends Model
 
     public $timestamps = true;
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-payroll')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     public function employee()
     {
@@ -52,5 +63,18 @@ class EmployeePayroll extends Model
     {
         return $this->belongsTo(PayrollPeriod::class, 'payroll_period_id');
     }
+
+    // public function getFirstHalfAttribute()
+    // {
+    //     $net = $this->net_pay ?? 0;
+    //     return round(floor($net / 2), 2);
+    // }
+
+    // public function getSecondHalfAttribute()
+    // {
+    //     $net = $this->net_pay ?? 0;
+    //     $first = $this->first_half;
+    //     return round($net - $first, 2);
+    // }
 
 }

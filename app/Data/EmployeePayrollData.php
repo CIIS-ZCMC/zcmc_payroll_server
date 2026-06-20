@@ -18,6 +18,8 @@ class EmployeePayrollData extends Data
         public float $gross_pay,
         public float $total_deductions,
         public float $net_pay,
+        public float $first_half,
+        public float $second_half
     ) {
     }
 
@@ -34,6 +36,8 @@ class EmployeePayrollData extends Data
             'gross_pay' => $this->gross_pay,
             'total_deductions' => $this->total_deductions,
             'net_pay' => $this->net_pay,
+            'first_half' => $this->first_half,
+            'second_half' => $this->second_half,
         ];
     }
 }

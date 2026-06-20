@@ -24,7 +24,7 @@ class PayrollSummaryRequest extends FormRequest
     public function rules()
     {
         return [
-            'payroll_period_id' => 'required|exists:payroll_periods,id',
+            'payroll_period_id' => 'required|integer',
         ];
     }
 }

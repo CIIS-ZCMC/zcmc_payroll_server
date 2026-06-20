@@ -33,6 +33,8 @@ class PayrollReportRepository implements PayrollReportInterface
                 'employeePayrolls.employee.employeeDeductions' => function ($query) use ($payrollPeriodId) {
                     $query->where('payroll_period_id', $payrollPeriodId);
                 },
+            
+                'employeePayrolls.employee.employeeDeductions.deductions',
 
                 'employeePayrolls.employee.employeeDeductions.deductions.deductionGroup',
 

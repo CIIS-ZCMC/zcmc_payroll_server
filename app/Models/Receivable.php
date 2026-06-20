@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Receivable extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, LogsActivity;
 
     protected $table = 'receivables';
 
@@ -39,6 +41,14 @@ class Receivable extends Model
                 $model->receivable_uuid = 'R-' . substr(str_replace('-', '', Str::uuid()), 0, 10);
             }
         });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('receivable')
+            ->logFillable()
+            ->logOnlyDirty();
     }
 
     public function employeeReceivables()

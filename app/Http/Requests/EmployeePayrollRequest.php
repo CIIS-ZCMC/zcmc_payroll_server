@@ -36,6 +36,8 @@ class EmployeePayrollRequest extends FormRequest
             'employee_payroll.*.gross_pay' => 'required|numeric',
             'employee_payroll.*.total_deductions' => 'required|numeric',
             'employee_payroll.*.net_pay' => 'required|numeric',
+            'employee_payroll.*.first_half' => 'required|numeric',
+            'employee_payroll.*.second_half' => 'required|numeric',
         ];
     }
 }

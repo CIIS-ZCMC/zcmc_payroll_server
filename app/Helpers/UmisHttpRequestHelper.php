@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class UmisHttpRequestHelper
 {
@@ -15,8 +16,9 @@ class UmisHttpRequestHelper
     {
         return [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . env('UMIS_API_KEY'),
-            'X-With-Credential' => 'true'
+            'Authorization' => 'Bearer ' . env('PAYROLL_API_KEY'),
+            'X-With-Credential' => 'true',
+            'UMIS-Api-Key' => env('PAYROLL_API_KEY')
         ];
     }
 

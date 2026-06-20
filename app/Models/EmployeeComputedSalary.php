@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeComputedSalary extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, LogsActivity;
 
     protected $table = 'employee_computed_salaries';
 
@@ -27,6 +29,14 @@ class EmployeeComputedSalary extends Model
     ];
 
     public $timestamps = true;
+   
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-computed-salary')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     public function employee()
     {

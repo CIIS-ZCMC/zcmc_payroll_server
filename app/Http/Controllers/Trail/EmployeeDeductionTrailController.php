@@ -11,21 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeDeductionTrailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request): Response
     {
         try {
@@ -70,12 +55,6 @@ class EmployeeDeductionTrailController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request, $id)
     {
         try {
@@ -86,19 +65,12 @@ class EmployeeDeductionTrailController extends Controller
                 ->with('employeeDeduction')
                 ->get();
             return response()->json(['responseData' => EmployeeDeductionTrailResource::collection($data)], Response::HTTP_OK);
-
         } catch (\Throwable $th) {
 
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         try {
@@ -106,7 +78,6 @@ class EmployeeDeductionTrailController extends Controller
             $data->delete();
 
             return response()->json(['message' => "Data Successfully deleted"], Response::HTTP_OK);
-
         } catch (\Throwable $th) {
 
             return response()->json(['message' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

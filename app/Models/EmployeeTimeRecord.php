@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeTimeRecord extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $table = 'employee_time_records';
 
@@ -55,6 +57,14 @@ class EmployeeTimeRecord extends Model
     //     'base_salary' => 'encrypted',
     //     'basic_pay' => 'encrypted',
     // ];
+    
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-time-record')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     public function employee()
     {
@@ -115,4 +125,5 @@ class EmployeeTimeRecord extends Model
             'count' => 0
         ];
     }
+    
 }

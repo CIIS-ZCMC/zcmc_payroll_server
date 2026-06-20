@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class ExcludedEmployee extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $table = 'excluded_employees';
 
@@ -27,10 +29,17 @@ class ExcludedEmployee extends Model
     {
         return $this->belongsTo(Employee::class);
     }
-
+    
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('excluded-employee')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
     public function payrollPeriod()
     {
         return $this->belongsTo(PayrollPeriod::class, 'payroll_period_id');
     }
-
+    
 }

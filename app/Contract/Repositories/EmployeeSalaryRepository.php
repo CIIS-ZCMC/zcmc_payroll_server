@@ -24,7 +24,7 @@ class EmployeeSalaryRepository implements EmployeeSalaryInterface
         return $model->fresh();
     }
 
-    public function createOrUpdate(array $data): EmployeeSalary
+    public function updateOrCreate(array $data): EmployeeSalary
     {
         return $this->model->updateOrCreate(
             [

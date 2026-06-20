@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class EmployeeNightDiffComputation extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = "employee_night_diff_computations";
 
@@ -23,6 +25,14 @@ class EmployeeNightDiffComputation extends Model
         'is_finalized',
         'computed_at',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('employee-night-diff-computation')
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     public function employee()
     {

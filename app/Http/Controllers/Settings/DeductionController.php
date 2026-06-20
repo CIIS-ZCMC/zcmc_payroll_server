@@ -7,12 +7,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DeductionRequest;
 use App\Http\Resources\DeductionResource;
 use App\Http\Resources\ImportDeductionResource;
-use App\Models\Deduction;
 use App\Services\DeductionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @see DeductionDocumentation
+ * 
+ * included = [index, store, show, update, destroy, import]
+ */
 class DeductionController extends Controller
 {
     public function __construct(private DeductionService $service)
@@ -20,36 +24,6 @@ class DeductionController extends Controller
         //nothing
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/deductions",
-     *     summary="List all deductions",
-     *     tags={"Deductions"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="paginate",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="boolean", default=true)
-     *     ),
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="integer", default=15)
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="integer", default=1)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of deductions"
-     *     )
-     * )
-     */
     public function index(Request $request)
     {
         $paginate = $request->boolean('paginate', false);
@@ -66,32 +40,6 @@ class DeductionController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/deductions",
-     *     summary="Create a new deduction",
-     *     tags={"Deductions"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"deduction_group_id", "name", "code", "type"},
-     *             @OA\Property(property="deduction_group_id", type="integer", example=1),
-     *             @OA\Property(property="name", type="string", example="Deduction Name"),
-     *             @OA\Property(property="code", type="string", example="Deduction Code"),
-     *             @OA\Property(property="type", type="string", example="fixed"),
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Deduction created successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     )
-     * )
-     */
     public function store(DeductionRequest $request)
     {
         $dto = DeductionData::fromRequest($request);
@@ -104,52 +52,18 @@ class DeductionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/deductions/{id}",
-     *     summary="Get a specific deduction",
-     *     tags={"Deductions"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="payroll_period_id",
-     *         in="query",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="import",
-     *         in="query",
-     *         required=false,
-     *         @OA\Schema(type="boolean", default=false)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Deduction details"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Not Found"
-     *     )
-     * )
-     */
     public function show($id, Request $request)
     {
+        $payroll_period_id = $request->payroll_period_id;
         $import = $request->boolean('import', false);
 
-        $payroll_period_id = $request->payroll_period_id;
+        $month = $request->month;
+        $year = $request->year;
 
-        $data = Deduction::with([
-            'employeeDeductions' => function ($query) use ($payroll_period_id) {
-                $query->where('payroll_period_id', $payroll_period_id);
-            },
-            'employeeDeductions.employee'
-        ])->where('id', $id)->first();
+        $employment_type = $request->employment_type;
+        $period_type = $request->period_type;
+
+        $data = $this->service->findWithFilters($id, $payroll_period_id, $month, $year, $employment_type, $period_type);
 
         if (!$data) {
             return response()->json([
@@ -166,42 +80,6 @@ class DeductionController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/deductions/{id}",
-     *     summary="Update a deduction",
-     *     tags={"Deductions"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"deduction_group_id", "name", "code", "amount"},
-     *             @OA\Property(property="deduction_group_id", type="integer", example=1),
-     *             @OA\Property(property="name", type="string", example="Deduction Name"),
-     *             @OA\Property(property="code", type="string", example="DED1"),
-     *             @OA\Property(property="amount", type="number", format="float", example=100.50)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Deduction updated successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Not Found"
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
-     *     )
-     * )
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -219,31 +97,8 @@ class DeductionController extends Controller
             'message' => "Data Successfully updated",
             'statusCode' => 200
         ], Response::HTTP_OK);
-
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/api/deductions/{id}",
-     *     summary="Delete a deduction",
-     *     tags={"Deductions"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Deduction deleted successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Not Found"
-     *     )
-     * )
-     */
     public function destroy($id)
     {
         $this->service->delete($id);
