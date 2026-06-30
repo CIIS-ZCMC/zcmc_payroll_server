@@ -9,6 +9,7 @@ use App\Http\Controllers\Employee\EmployeePreviewController;
 use App\Http\Controllers\Employee\EmployeeReceivableController;
 use App\Http\Controllers\Employee\EmployeeTimeRecordController;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
+use App\Http\Controllers\NightDifferential\NightDifferentialComputationController;
 use App\Http\Controllers\NightDifferential\NightDifferentialRuleController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
@@ -82,6 +83,8 @@ Route::middleware('auth.token')->group(function () {
 
     //Night Differential
     Route::apiResource('night-differential-rules', NightDifferentialRuleController::class)->only(['index', 'store', 'show']);
+    Route::post('night-differential/compute', [NightDifferentialComputationController::class, 'compute']);
+    Route::get('night-differential/computations', [NightDifferentialComputationController::class, 'index']);
 
     //Report
     Route::apiResource('payroll-reports', PayrollReportController::class)->only(['index', 'store']);

@@ -148,6 +148,9 @@ class EmployeePreviewService
 
             'excludedEmployees' => fn($q) =>
                 $q->where('payroll_period_id', $payrollPeriodId),
+
+            'nightDiffComputation' => fn($q) =>
+                $q->where('payroll_period_id', $payrollPeriodId),
         ])->orderBy('last_name');
 
         if (!empty($selectedEmployeeIds)) {
@@ -174,8 +177,9 @@ class EmployeePreviewService
             $basic = $computedSalary->basic_pay ?? 0;
             $receivables = round($employee->employeeReceivables->sum('amount'), 2);
             $deductions = round($employee->employeeDeductions->sum('amount'), 2);
+            $nightDiff = round($employee->nightDiffComputation?->total_night_amount ?? 0, 2);
 
-            $gross = round($basic + $receivables, 2);
+            $gross = round($basic + $receivables + $nightDiff, 2);
             $net = round($gross - $deductions, 2);
 
             // Get payroll period to determine first/second half logic
@@ -213,6 +217,7 @@ class EmployeePreviewService
                     'employee_time_record_id' => $record->id,
                     'basic_pay' => $basic,
                     'total_receivables' => $receivables,
+                    'night_differential' => $nightDiff,
                     'total_deductions' => $deductions,
                     'gross_pay' => $gross,
                     'net_pay' => $net,

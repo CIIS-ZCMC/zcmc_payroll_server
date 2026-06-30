@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contract\EmployeePayrollInterface;
+use App\Contract\NightDifferentialComputationInterface;
 use App\Contract\PayrollSummaryInterface;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeePayroll;
@@ -11,8 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 Class PayrollSummaryService
 {
-    public function __construct(private PayrollSummaryInterface $interface)
-    {
+    public function __construct(
+        private PayrollSummaryInterface $interface,
+        private NightDifferentialComputationInterface $nightDiffRepository
+    ) {
         // Nothing
     }
 
@@ -44,6 +47,8 @@ Class PayrollSummaryService
         ')
         ->first();
 
+        $totalNightDifferential = $this->nightDiffRepository->sumByPeriod($payrollPeriodId);
+
         $data = [
             'payroll_period_id' => $payrollPeriodId,
             'generated_by_id' => $userData->id,
@@ -53,7 +58,7 @@ Class PayrollSummaryService
             'total_receivables' => (float) $summary->total_receivables,
             'total_gross' => (float) $summary->total_gross_pay,
             'total_net' => (float) $summary->total_net_pay,
-            'total_night_differential' => (float) $summary->total_night_differential ?? 0,
+            'total_night_differential' => (float) $totalNightDifferential,
         ];
 
         return $this->interface->updateOrCreate($data);

@@ -86,6 +86,11 @@ class Employee extends Model
         return $this->hasMany(EmployeePayroll::class);
     }
 
+    public function nightDiffComputation()
+    {
+        return $this->hasOne(EmployeeNightDiffComputation::class, 'employee_id');
+    }
+
     public function groupedDeductions($deductions = null)
     {
         $deductions = collect($deductions ?? $this->employeeDeductions);

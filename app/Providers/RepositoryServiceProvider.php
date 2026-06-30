@@ -16,6 +16,7 @@ use App\Contract\EmployeeReceivableTrailInterface;
 use App\Contract\EmployeeSalaryInterface;
 use App\Contract\EmployeeTimeRecordInterface;
 use App\Contract\ExcludedEmployeeInterface;
+use App\Contract\NightDifferentialComputationInterface;
 use App\Contract\NightDifferentialRuleInterface;
 use App\Contract\PayrollPeriodInterface;
 use App\Contract\PayrollProcessInterface;
@@ -36,6 +37,7 @@ use App\Contract\Repositories\EmployeeRepository;
 use App\Contract\Repositories\EmployeeSalaryRepository;
 use App\Contract\Repositories\EmployeeTimeRecordRepository;
 use App\Contract\Repositories\ExcludedEmployeeRepository;
+use App\Contract\Repositories\NightDifferentialComputationRepository;
 use App\Contract\Repositories\NightDifferentialRuleRepository;
 use App\Contract\Repositories\PayrollPeriodRepository;
 use App\Contract\Repositories\PayrollProcessRepository;
@@ -152,6 +154,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             NightDifferentialRuleInterface::class,
             NightDifferentialRuleRepository::class
+        );
+
+        $this->app->bind(
+            NightDifferentialComputationInterface::class,
+            NightDifferentialComputationRepository::class
         );
     }
 
