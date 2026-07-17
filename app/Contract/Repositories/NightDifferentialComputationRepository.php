@@ -60,4 +60,11 @@ class NightDifferentialComputationRepository implements NightDifferentialComputa
             $this->nightDuties->insert($rows);
         }
     }
+
+    public function markFinalizedByPeriod(int $payrollPeriodId): void
+    {
+        $this->computation
+            ->where('payroll_period_id', $payrollPeriodId)
+            ->update(['is_finalized' => true]);
+    }
 }

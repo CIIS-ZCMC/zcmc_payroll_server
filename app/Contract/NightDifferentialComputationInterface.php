@@ -12,4 +12,5 @@ interface NightDifferentialComputationInterface
     public function sumByPeriod(int $payrollPeriodId): float;
     public function deleteNightDuties(int $employeeId, int $payrollPeriodId): void;
     public function insertNightDuties(array $rows): void;
+    public function markFinalizedByPeriod(int $payrollPeriodId): void;
 }

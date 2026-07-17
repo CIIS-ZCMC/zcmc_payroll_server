@@ -23,6 +23,8 @@ use App\Contract\PayrollProcessInterface;
 use App\Contract\PayrollReportInterface;
 use App\Contract\PayrollSummaryInterface;
 use App\Contract\ReceivableInterface;
+use App\Contract\SpecialPayrollComponentInterface;
+use App\Contract\SpecialPayrollInterface;
 use App\Contract\Repositories\DeductionGroupRepository;
 use App\Contract\Repositories\DeductionRepository;
 use App\Contract\Repositories\DeductionRuleRepository;
@@ -44,6 +46,8 @@ use App\Contract\Repositories\PayrollProcessRepository;
 use App\Contract\Repositories\PayrollReportRepository;
 use App\Contract\Repositories\PayrollSummaryRepository;
 use App\Contract\Repositories\ReceivableRepository;
+use App\Contract\Repositories\SpecialPayrollComponentRepository;
+use App\Contract\Repositories\SpecialPayrollRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -159,6 +163,16 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             NightDifferentialComputationInterface::class,
             NightDifferentialComputationRepository::class
+        );
+
+        $this->app->bind(
+            SpecialPayrollInterface::class,
+            SpecialPayrollRepository::class
+        );
+
+        $this->app->bind(
+            SpecialPayrollComponentInterface::class,
+            SpecialPayrollComponentRepository::class
         );
     }
 

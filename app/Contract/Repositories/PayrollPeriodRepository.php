@@ -105,4 +105,31 @@ class PayrollPeriodRepository implements PayrollPeriodInterface
         );
     }
 
+    /**
+     * Get (or create) the dedicated period row for a night/special payroll run,
+     * mirroring the source (general) period's calendar but with its own
+     * payroll_type / special_payroll_id so its EmployeePayroll rows never collide
+     * with the general period.
+     */
+    public function firstOrCreateForType(PayrollPeriod $source, int $payrollType, ?int $specialPayrollId = null): PayrollPeriod
+    {
+        return $this->model->updateOrCreate(
+            [
+                'month' => $source->month,
+                'year' => $source->year,
+                'employment_type' => $source->employment_type,
+                'period_type' => $source->period_type,
+                'payroll_type' => $payrollType,
+                'special_payroll_id' => $specialPayrollId,
+            ],
+            [
+                'period_start' => $source->period_start,
+                'period_end' => $source->period_end,
+                'days_of_duty' => $source->days_of_duty,
+                'source_payroll_period_id' => $source->id,
+                'is_active' => false,
+            ]
+        );
+    }
+
 }

@@ -12,6 +12,7 @@ use App\Http\Controllers\Employee\ExcludedEmployeeController;
 use App\Http\Controllers\NightDifferential\NightDifferentialComputationController;
 use App\Http\Controllers\NightDifferential\NightDifferentialRuleController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
+use App\Http\Controllers\Payroll\PayrollGeneratorController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
 use App\Http\Controllers\Payroll\PayrollProcessController;
 use App\Http\Controllers\Payroll\PayrollReportController;
@@ -20,6 +21,8 @@ use App\Http\Controllers\Settings\DeductionController;
 use App\Http\Controllers\Settings\DeductionGroupController;
 use App\Http\Controllers\Settings\DeductionRuleController;
 use App\Http\Controllers\Settings\ReceivableController;
+use App\Http\Controllers\Settings\SpecialPayrollComponentController;
+use App\Http\Controllers\Settings\SpecialPayrollController;
 use App\Http\Controllers\Trail\EmployeeDeductionTrailController;
 use App\Http\Controllers\UMIS\FetchEmployeeController;
 use App\Http\Controllers\UMIS\FetchingProgressController;
@@ -81,9 +84,13 @@ Route::middleware('auth.token')->group(function () {
     //Employee Payroll
     Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
 
+    //Payroll Generation (server-side, per payroll type)
+    Route::post('payroll/generate', [PayrollGeneratorController::class, 'store']);
+
     //Night Differential
     Route::apiResource('night-differential-rules', NightDifferentialRuleController::class)->only(['index', 'store', 'show']);
     Route::post('night-differential/compute', [NightDifferentialComputationController::class, 'compute']);
+    Route::post('night-differential/generate', [NightDifferentialComputationController::class, 'generate']);
     Route::get('night-differential/computations', [NightDifferentialComputationController::class, 'index']);
 
     //Report

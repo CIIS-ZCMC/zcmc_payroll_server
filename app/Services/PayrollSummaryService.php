@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Contract\EmployeePayrollInterface;
 use App\Contract\NightDifferentialComputationInterface;
 use App\Contract\PayrollSummaryInterface;
+use App\Enums\PayrollType;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeePayroll;
+use App\Models\PayrollPeriod;
 use App\Models\PayrollSummary;
 use Illuminate\Support\Facades\DB;
 
@@ -47,7 +49,15 @@ Class PayrollSummaryService
         ')
         ->first();
 
-        $totalNightDifferential = $this->nightDiffRepository->sumByPeriod($payrollPeriodId);
+        // For a standalone NIGHT period the night computations live on the source
+        // (general) period, so read the night total from there. Its gross_pay already
+        // equals the night amount, so we never add night on top of gross anywhere.
+        $period = PayrollPeriod::find($payrollPeriodId);
+        $nightSourceId = ($period && (int) $period->payroll_type === PayrollType::NIGHT)
+            ? ($period->source_payroll_period_id ?? $payrollPeriodId)
+            : $payrollPeriodId;
+
+        $totalNightDifferential = $this->nightDiffRepository->sumByPeriod($nightSourceId);
 
         $data = [
             'payroll_period_id' => $payrollPeriodId,

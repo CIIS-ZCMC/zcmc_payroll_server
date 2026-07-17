@@ -20,6 +20,8 @@ class PayrollPeriod extends Model
         'year',
         'employment_type',
         'payroll_type',
+        'special_payroll_id',
+        'source_payroll_period_id',
         'period_type',
         'period_start',
         'period_end',
@@ -71,5 +73,15 @@ class PayrollPeriod extends Model
     public function payrollSummary()
     {
         return $this->hasOne(PayrollSummary::class);
+    }
+
+    public function specialPayroll()
+    {
+        return $this->belongsTo(SpecialPayroll::class);
+    }
+
+    public function sourcePayrollPeriod()
+    {
+        return $this->belongsTo(PayrollPeriod::class, 'source_payroll_period_id');
     }
 }

@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\NightDifferential;
 
+use App\Enums\PayrollType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NightDiffComputationResource;
 use App\Services\NightDifferentialComputationService;
+use App\Services\Payroll\PayrollGeneratorService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class NightDifferentialComputationController extends Controller
 {
-    public function __construct(private NightDifferentialComputationService $service)
-    {
+    public function __construct(
+        private NightDifferentialComputationService $service,
+        private PayrollGeneratorService $generator,
+    ) {
         //
     }
 
@@ -23,8 +27,8 @@ class NightDifferentialComputationController extends Controller
         ]);
 
         $data = $this->service->getComputations(
-            $request->integer('payroll_period_id'),
-            $request->integer('employee_id') ?: null
+            (int) $request->input('payroll_period_id'),
+            $request->input('employee_id') ? (int) $request->input('employee_id') : null
         );
 
         return response()->json([
@@ -43,7 +47,7 @@ class NightDifferentialComputationController extends Controller
         ]);
 
         $results = $this->service->compute(
-            $request->integer('payroll_period_id'),
+            (int) $request->input('payroll_period_id'),
             $request->input('employee_ids')
         );
 
@@ -52,5 +56,43 @@ class NightDifferentialComputationController extends Controller
             'message' => 'Night differential computed successfully.',
             'success' => true,
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Turn the already-computed night differential into a standalone payroll run
+     * (its own period + EmployeePayroll rows + summary).
+     */
+    public function generate(Request $request)
+    {
+        $request->validate([
+            'payroll_period_id' => 'required|integer|exists:payroll_periods,id',
+            'employee_ids' => 'nullable|array',
+            'employee_ids.*' => 'integer|exists:employees,id',
+        ]);
+
+        try {
+            $result = $this->generator->generate(
+                (int) $request->input('payroll_period_id'),
+                PayrollType::NIGHT,
+                null,
+                $request->input('employee_ids', []) ?? [],
+                $request->user
+            );
+        } catch (\Throwable $e) {
+            $status = $e->getCode() >= 400 && $e->getCode() < 600
+                ? (int) $e->getCode()
+                : Response::HTTP_UNPROCESSABLE_ENTITY;
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'success' => false,
+            ], $status);
+        }
+
+        return response()->json([
+            'data' => $result,
+            'message' => 'Night differential payroll generated successfully.',
+            'success' => true,
+        ], Response::HTTP_CREATED);
     }
 }

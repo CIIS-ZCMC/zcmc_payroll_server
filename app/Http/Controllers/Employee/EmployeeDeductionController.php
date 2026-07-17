@@ -10,10 +10,7 @@ use App\Services\EmployeeDeductionService;
 use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeDeductionResource;
 use App\Imports\ImportEmployeeDeduction;
-use App\Models\EmployeeDeduction;
-use App\Models\PayrollPeriod;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
