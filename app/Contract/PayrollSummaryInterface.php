@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Contract;
+
+use App\Models\PayrollSummary;
+use Illuminate\Support\Collection;
+
+interface PayrollSummaryInterface
+{
+    public function getAll(): Collection;
+
+    public function find(int $id): ?PayrollSummary;
+
+    public function findByPayrollPeriodId(int $payrollPeriodId): ?PayrollSummary;
+
+    public function findByPayrollRunId(int $payrollRunId): ?PayrollSummary;
+
+    public function updateOrCreate(array $data): PayrollSummary;
+}
