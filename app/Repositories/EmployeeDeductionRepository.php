@@ -37,10 +37,23 @@ class EmployeeDeductionRepository implements EmployeeDeductionInterface
         return $this->model->upsert($data, ['id'], $updateColumns);
     }
 
+    public function updateOrCreateStanding(int $employeeId, int $deductionId, array $attributes): EmployeeDeduction
+    {
+        return $this->model->updateOrCreate(
+            [
+                'employee_id' => $employeeId,
+                'deduction_id' => $deductionId,
+                'payroll_period_id' => $attributes['payroll_period_id'] ?? null,
+            ],
+            $attributes,
+        );
+    }
+
     public function update(int $id, array $data): EmployeeDeduction
     {
         $deduction = $this->model->findOrFail($id);
         $deduction->update($data);
+
         return $deduction;
     }
 
@@ -77,7 +90,6 @@ class EmployeeDeductionRepository implements EmployeeDeductionInterface
             ->latest('id')
             ->get();
     }
-
 
     public function listActive(?bool $included = null, ?int $payrollPeriodId = null): Collection
     {
