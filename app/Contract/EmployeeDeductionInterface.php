@@ -16,6 +16,15 @@ interface EmployeeDeductionInterface
 
     public function upsert(array $data): int; // bulk update or storing
 
+    /**
+     * Idempotent upsert of a standing deduction, keyed on
+     * (employee_id, deduction_id, payroll_period_id) so re-imports update in
+     * place instead of duplicating.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function updateOrCreateStanding(int $employeeId, int $deductionId, array $attributes): EmployeeDeduction;
+
     public function update(int $id, array $data): EmployeeDeduction;
 
     public function delete(int $id): bool;
