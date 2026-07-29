@@ -24,6 +24,7 @@ class EmployeeDeduction extends Model
         'status',
         'is_active',
         'is_default',
+        'remarks',
         'stopped_at',
     ];
 
