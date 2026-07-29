@@ -18,11 +18,13 @@ class Employee extends Model
         'middle_name',
         'extension_name',
         'designation',
+        'assigned_area',
         'hire_date',
         'is_newly_hired',
     ];
 
     protected $casts = [
+        'assigned_area' => 'array',
         'hire_date' => 'date',
         'is_newly_hired' => 'boolean',
     ];

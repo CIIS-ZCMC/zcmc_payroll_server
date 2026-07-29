@@ -16,11 +16,26 @@ interface EmployeeReceivableInterface
 
     public function upsert(array $data): int; // bulk update or storing
 
+    /**
+     * Idempotent upsert of a standing receivable, keyed on
+     * (employee_id, receivable_id, payroll_period_id) so re-imports update in
+     * place instead of duplicating.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function updateOrCreateStanding(int $employeeId, int $receivableId, array $attributes): EmployeeReceivable;
+
     public function update(int $id, array $data): EmployeeReceivable;
 
     public function delete(int $id): bool;
 
+    public function complete(int $id): EmployeeReceivable;
+
     public function stop(int $id): EmployeeReceivable;
 
     public function find(int $id): EmployeeReceivable;
+
+    public function findByPayrollPeriod(int $payrollPeriodId): Collection;
+
+    public function listActive(?bool $included = null, ?int $payrollPeriodId = null): Collection;
 }

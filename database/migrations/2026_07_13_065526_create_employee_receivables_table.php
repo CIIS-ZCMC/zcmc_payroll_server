@@ -24,7 +24,7 @@ return new class extends Migration
             $table->date('effective_date');
             $table->date('end_date')->nullable();
 
-            $table->enum('status', ['active', 'inactive', 'suspended']);
+            $table->enum('status', ['active', 'inactive', 'completed', 'suspended']);
 
             $table->boolean('is_active')->default(true);
             $table->boolean('is_default')->default(false);

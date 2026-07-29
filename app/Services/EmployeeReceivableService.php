@@ -48,7 +48,8 @@ class EmployeeReceivableService
     public function upsert(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $dto = array_map(fn(EmployeeReceivableData $data) => $this->applyBusinessRules($data), $data);
+            $dto = array_map(fn (EmployeeReceivableData $data) => $this->applyBusinessRules($data), $data);
+
             return $this->receivables->upsert($dto);
         });
     }
@@ -58,6 +59,7 @@ class EmployeeReceivableService
         return DB::transaction(function () use ($id, $data) {
             $dto = $this->applyBusinessRules($data);
             $receivable = $this->receivables->update($id, $dto);
+
             return $receivable;
         });
     }
@@ -67,11 +69,18 @@ class EmployeeReceivableService
         return $this->receivables->delete($id);
     }
 
+    public function complete(int $id): EmployeeReceivable
+    {
+        return DB::transaction(function () use ($id) {
+            return $this->receivables->complete($id);
+        });
+    }
 
     public function stop(int $id, ?string $remarks = null, ?int $actorId = null): EmployeeReceivable
     {
-        return DB::transaction(function () use ($id, $remarks, $actorId) {
+        return DB::transaction(function () use ($id) {
             $receivable = $this->receivables->stop($id);
+
             return $receivable;
         });
     }
@@ -81,6 +90,10 @@ class EmployeeReceivableService
         return $this->receivables->find($id);
     }
 
+    public function listActive(?bool $included = null, ?int $payrollPeriodId = null): Collection
+    {
+        return $this->receivables->listActive($included, $payrollPeriodId);
+    }
 
     private function applyBusinessRules(EmployeeReceivableData $data): array
     {

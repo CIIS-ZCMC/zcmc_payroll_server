@@ -24,13 +24,13 @@ class EmployeeReceivable extends Model
         'status',
         'is_active',
         'is_default',
+        'remarks',
         'stopped_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'percentage' => 'integer',
-        'is_fixed_amount' => 'boolean',
         'is_active' => 'boolean',
         'is_default' => 'boolean',
         'effective_date' => 'date',
