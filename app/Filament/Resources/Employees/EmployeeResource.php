@@ -6,6 +6,7 @@ use App\Filament\Resources\Employees\Pages\CreateEmployee;
 use App\Filament\Resources\Employees\Pages\EditEmployee;
 use App\Filament\Resources\Employees\Pages\ListEmployees;
 use App\Filament\Resources\Employees\RelationManagers\ReceivablesRelationManager;
+use App\Filament\Resources\Employees\RelationManagers\DeductionsRelationManager;
 use App\Filament\Resources\Employees\Schemas\EmployeeForm;
 use App\Filament\Resources\Employees\Tables\EmployeesTable;
 use App\Models\Employee;
@@ -40,6 +41,7 @@ class EmployeeResource extends Resource
     {
         return [
             ReceivablesRelationManager::class,
+            DeductionsRelationManager::class,
         ];
     }
 

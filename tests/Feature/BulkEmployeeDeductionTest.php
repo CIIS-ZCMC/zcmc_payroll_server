@@ -19,6 +19,7 @@ function makeImportEmployee(string $number): Employee
         'first_name' => 'Test',
         'last_name' => $number,
         'designation' => 'Nurse I',
+        'assigned_area' => ['ward' => 'ER'],
         'hire_date' => '2020-01-01',
     ]);
 }
