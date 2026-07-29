@@ -32,7 +32,7 @@ function seedAllowances(): void
     ]);
 }
 
-function makeSalary(int $employeeId, int $periodId, float $base, int $grade = 15): EmployeeSalary
+function makeSalary(int $employeeId, int $periodId, float $base, int $grade = 15, int $step = 1): EmployeeSalary
 {
     return EmployeeSalary::create([
         'employee_id' => $employeeId,
@@ -40,6 +40,7 @@ function makeSalary(int $employeeId, int $periodId, float $base, int $grade = 15
         'employment_type' => 'permanent',
         'base_salary' => $base,
         'salary_grade' => $grade,
+        'salary_step' => $step,
         'is_active' => true,
     ]);
 }
