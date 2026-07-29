@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Employees;
 use App\Filament\Resources\Employees\Pages\CreateEmployee;
 use App\Filament\Resources\Employees\Pages\EditEmployee;
 use App\Filament\Resources\Employees\Pages\ListEmployees;
+use App\Filament\Resources\Employees\RelationManagers\ReceivablesRelationManager;
 use App\Filament\Resources\Employees\RelationManagers\DeductionsRelationManager;
 use App\Filament\Resources\Employees\Schemas\EmployeeForm;
 use App\Filament\Resources\Employees\Tables\EmployeesTable;
@@ -39,6 +40,7 @@ class EmployeeResource extends Resource
     public static function getRelations(): array
     {
         return [
+            ReceivablesRelationManager::class,
             DeductionsRelationManager::class,
         ];
     }
