@@ -140,7 +140,7 @@ it('renders the deductions relation manager on an employee', function () {
         ->assertCanSeeTableRecords([$record]);
 });
 
-function sampleImportCsv(): string
+function employeeDeductionSampleCsv(): string
 {
     return <<<'CSV'
     Code,TAX,,,,
@@ -165,7 +165,7 @@ it('imports employee deductions from an uploaded CSV', function () {
 
     Livewire::test(ListEmployeeDeductions::class)
         ->callAction('importDeductions', data: [
-            'file' => UploadedFile::fake()->createWithContent('deductions.csv', sampleImportCsv()),
+            'file' => UploadedFile::fake()->createWithContent('deductions.csv', employeeDeductionSampleCsv()),
             'deduction_id' => null,
             'payroll_period_id' => null,
         ])

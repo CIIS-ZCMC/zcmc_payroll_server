@@ -20,6 +20,7 @@ use App\Contract\PayrollPeriodInterface;
 use App\Contract\PayrollProcessInterface;
 use App\Contract\PayrollRunInterface;
 use App\Contract\PayrollSummaryInterface;
+use App\Contract\PortalCacheReaderInterface;
 use App\Contract\ReceivableGroupInterface;
 use App\Contract\ReceivableInterface;
 use App\Repositories\DeductionGroupRepository;
@@ -42,6 +43,7 @@ use App\Repositories\PayrollRunRepository;
 use App\Repositories\PayrollSummaryRepository;
 use App\Repositories\ReceivableGroupRepository;
 use App\Repositories\ReceivableRepository;
+use App\Services\Fetch\PortalCacheReader;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -72,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
         EmployeeReceivablePaymentInterface::class => EmployeeReceivablePaymentRepository::class,
         EmployeePayrollInterface::class => EmployeePayrollRepository::class,
         NightDifferentialRuleInterface::class => NightDifferentialRuleRepository::class,
+        PortalCacheReaderInterface::class => PortalCacheReader::class,
     ];
 
     /**

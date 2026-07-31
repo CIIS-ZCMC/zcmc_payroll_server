@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // External UMIS portal Redis cache (source of the payroll fetch).
+    'umis' => [
+        'cache_prefix' => env('UMIS_CACHE_PREFIX', 'zamboanga_city_medical_center_portal_cache_:'),
+    ],
+
 ];

@@ -2,11 +2,16 @@
 
 namespace App\Filament\Resources\Employees\Tables;
 
+use App\Filament\Resources\Employees\EmployeeResource;
+use App\Models\Employee;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class EmployeesTable
@@ -17,9 +22,9 @@ class EmployeesTable
             ->columns([
                 TextColumn::make('employee_number')
                     ->searchable(),
-                TextColumn::make('first_name')
-                    ->searchable(),
                 TextColumn::make('last_name')
+                    ->searchable(),
+                TextColumn::make('first_name')
                     ->searchable(),
                 TextColumn::make('middle_name')
                     ->searchable(),
@@ -42,10 +47,13 @@ class EmployeesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // SelectFilter::make('designation')
+                //     ->searchable(),
             ])
             ->recordActions([
+                ViewAction::make()->url(fn(Employee $record) => EmployeeResource::getUrl('view', ['record' => $record])),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

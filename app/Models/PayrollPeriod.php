@@ -26,8 +26,8 @@ class PayrollPeriod extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'period_start' => 'date',
-        'period_end' => 'date',
+        'period_start' => 'int',
+        'period_end' => 'int',
         'posted_at' => 'datetime',
         'locked_at' => 'datetime',
     ];

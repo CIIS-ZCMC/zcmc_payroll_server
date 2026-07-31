@@ -27,7 +27,7 @@ return new class extends Migration
             $table->decimal('total_official_time_minutes', 10, 2)->default(0);
             $table->decimal('total_leave_minutes', 10, 2)->default(0);
             $table->decimal('total_night_duty_hours', 10, 2)->default(0);
-           
+
             $table->decimal('no_of_present_days', 10, 2)->default(0);
             $table->decimal('no_of_present_days_with_leave', 10, 2)->default(0);
             $table->decimal('no_of_leave_wo_pay', 10, 2)->default(0);
@@ -36,14 +36,14 @@ return new class extends Migration
             $table->decimal('no_of_invalid_entry', 10, 2)->default(0);
             $table->decimal('no_of_day_off', 10, 2)->default(0);
             $table->decimal('no_of_schedule', 10, 2)->default(0);
-           
+
             $table->longText('night_duties')->nullable();
             $table->longText('absent_dates')->nullable();
-           
+
             $table->string('status')->default('draft');
             $table->boolean('is_active')->default(true);
             $table->dateTime('locked_at')->nullable();
-            
+
             $table->softDeletes();
             $table->timestamps();
 

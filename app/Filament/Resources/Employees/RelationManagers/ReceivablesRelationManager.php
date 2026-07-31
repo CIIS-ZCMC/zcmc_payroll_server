@@ -34,6 +34,13 @@ class ReceivablesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id')
             ->columns([
+                TextColumn::make('#')
+                    ->label('No.')
+                    ->rowIndex(),
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('receivable.name')
                     ->label('Receivable')
                     ->searchable(),
@@ -42,9 +49,15 @@ class ReceivablesRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('billing_cycle')
                     ->badge(),
+                TextColumn::make('terms.remaining_balance')
+                    ->label('Remaining')
+                    ->money('PHP')
+                    ->placeholder('—')
+                    ->sortable(),
                 TextColumn::make('status')
+                    ->sortable()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'completed' => 'primary',
                         'suspended' => 'danger',
@@ -52,10 +65,6 @@ class ReceivablesRelationManager extends RelationManager
                     }),
                 IconColumn::make('is_active')
                     ->boolean(),
-                TextColumn::make('terms.remaining_balance')
-                    ->label('Remaining')
-                    ->money('PHP')
-                    ->placeholder('—'),
             ])
             ->headerActions([
                 CreateAction::make(),

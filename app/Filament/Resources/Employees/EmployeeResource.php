@@ -5,8 +5,11 @@ namespace App\Filament\Resources\Employees;
 use App\Filament\Resources\Employees\Pages\CreateEmployee;
 use App\Filament\Resources\Employees\Pages\EditEmployee;
 use App\Filament\Resources\Employees\Pages\ListEmployees;
+use App\Filament\Resources\Employees\Pages\ViewEmployee;
 use App\Filament\Resources\Employees\RelationManagers\ReceivablesRelationManager;
 use App\Filament\Resources\Employees\RelationManagers\DeductionsRelationManager;
+use App\Filament\Resources\Employees\RelationManagers\SalariesRelationManager;
+use App\Filament\Resources\Employees\RelationManagers\TimeRecordsRelationManager;
 use App\Filament\Resources\Employees\Schemas\EmployeeForm;
 use App\Filament\Resources\Employees\Tables\EmployeesTable;
 use App\Models\Employee;
@@ -40,6 +43,8 @@ class EmployeeResource extends Resource
     public static function getRelations(): array
     {
         return [
+            SalariesRelationManager::class,
+            TimeRecordsRelationManager::class,
             ReceivablesRelationManager::class,
             DeductionsRelationManager::class,
         ];
@@ -51,6 +56,7 @@ class EmployeeResource extends Resource
             'index' => ListEmployees::route('/'),
             'create' => CreateEmployee::route('/create'),
             'edit' => EditEmployee::route('/{record}/edit'),
+            'view' => ViewEmployee::route('/{record}'),
         ];
     }
 }

@@ -149,7 +149,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
@@ -177,6 +177,19 @@ return [
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+        ],
+
+        // Read-only connection to the external UMIS portal's Redis cache. It uses
+        // an empty key prefix so we read the portal's full literal keys ourselves
+        // (see App\Services\Fetch\PortalCacheReader), instead of this app's prefix.
+        'umis' => [
+            'url' => env('UMIS_REDIS_URL'),
+            'host' => env('UMIS_REDIS_HOST', env('REDIS_HOST', '127.0.0.1')),
+            'username' => env('UMIS_REDIS_USERNAME'),
+            'password' => env('UMIS_REDIS_PASSWORD'),
+            'port' => env('UMIS_REDIS_PORT', '6379'),
+            'database' => env('UMIS_REDIS_DB', '1'),
+            'options' => ['prefix' => ''],
         ],
 
     ],

@@ -15,9 +15,10 @@ class ReceivablesTable
     {
         return $table
             ->columns([
-                TextColumn::make('receivable_group_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('group.code')
+                    ->label('Group')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('code')

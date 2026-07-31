@@ -15,9 +15,10 @@ class DeductionsTable
     {
         return $table
             ->columns([
-                TextColumn::make('deduction_group_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('group.code')
+                    ->label('Group')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('code')
