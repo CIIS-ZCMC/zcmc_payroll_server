@@ -5,13 +5,16 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PayrollPeriodResource\Pages;
 use App\Filament\Resources\PayrollPeriodResource\RelationManagers;
 use App\Models\PayrollPeriod;
+use App\Services\FetchEmployeeService;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Log;
 
 class PayrollPeriodResource extends Resource
 {
@@ -32,16 +35,24 @@ class PayrollPeriodResource extends Resource
                 Forms\Components\TextInput::make('year')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('employment_type')
+                // Free text here would let someone save "Regular" or "first half",
+                // which no import can ever match: FetchEmployeeService looks the
+                // period up on these exact values, so a typo leaves a row that
+                // stays permanently empty.
+                Forms\Components\Select::make('employment_type')
                     ->required()
-                    ->maxLength(255),
+                    ->options([
+                        'regular' => 'Regular',
+                        'job_order' => 'Job Order',
+                    ]),
                 Forms\Components\TextInput::make('payroll_type')
                     ->required(),
-                Forms\Components\TextInput::make('special_payroll_id'),
-                Forms\Components\TextInput::make('source_payroll_period_id'),
-                Forms\Components\TextInput::make('period_type')
+                Forms\Components\Select::make('period_type')
                     ->required()
-                    ->maxLength(255),
+                    ->options([
+                        'first_half' => 'First Half',
+                        'second_half' => 'Second Half',
+                    ]),
                 Forms\Components\TextInput::make('period_start')
                     ->required(),
                 Forms\Components\TextInput::make('period_end')
@@ -67,8 +78,6 @@ class PayrollPeriodResource extends Resource
                 Tables\Columns\TextColumn::make('year'),
                 Tables\Columns\TextColumn::make('employment_type'),
                 Tables\Columns\TextColumn::make('payroll_type'),
-                Tables\Columns\TextColumn::make('special_payroll_id'),
-                Tables\Columns\TextColumn::make('source_payroll_period_id'),
                 Tables\Columns\TextColumn::make('period_type'),
                 Tables\Columns\TextColumn::make('period_start'),
                 Tables\Columns\TextColumn::make('period_end'),
@@ -93,6 +102,26 @@ class PayrollPeriodResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('importFromCache')
+                    ->label('Import from cache')
+                    ->icon('heroicon-o-download')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Import employee records from UMIS cache')
+                    // Both consequences are easy to miss from the table: existing
+                    // rows are rewritten, and the active period moves here.
+                    ->modalSubheading(fn (PayrollPeriod $record): string => 'This re-imports '
+                        . date('F', mktime(0, 0, 0, (int) $record->month, 1)) . " {$record->year} "
+                        . "({$record->employment_type}, {$record->period_type}), overwriting the "
+                        . 'employee records already stored for it, and makes it the active payroll '
+                        . 'period. It takes around half a minute.')
+                    ->modalButton('Import now')
+                    ->action(fn (PayrollPeriod $record) => static::importFromCache(
+                        (int) $record->year,
+                        (int) $record->month,
+                        $record->employment_type,
+                        $record->period_type,
+                    )),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -100,6 +129,84 @@ class PayrollPeriodResource extends Resource
             ]);
     }
     
+    /**
+     * Imports one period's employee records straight from the UMIS Redis cache.
+     *
+     * This is the same path as command:fetch-employee-time-records and the UMIS
+     * webhook — FetchEmployeeService owns the writes, so the three entry points
+     * can never drift apart. Nothing is fetched over the network here: the cache
+     * must already hold the period, which "Request rebuild from UMIS" arranges.
+     *
+     * Sends its own notification and reports whether the import ran, so callers
+     * only have to decide what to do with the boolean.
+     */
+    public static function importFromCache(
+        int $year,
+        int $month,
+        string $employmentType,
+        string $periodType
+    ): bool {
+        // A period is ~1,900 employees and takes ~25s; the CLI runs unlimited
+        // but a web worker may not, so lift the ceiling for this request only.
+        @set_time_limit(600);
+
+        $service = app(FetchEmployeeService::class);
+        $label = date('F', mktime(0, 0, 0, $month, 1)) . " {$year} ({$employmentType}, {$periodType})";
+        $context = compact('year', 'month', 'employmentType', 'periodType');
+
+        // Checked up front so a missing cache reads as "nothing to import"
+        // rather than the generic failure getEmployeesForPeriod returns for
+        // every problem — the two need different fixes.
+        if (! $service->hasCacheForPeriod($year, $month, $employmentType, $periodType)) {
+            Notification::make()
+                ->title('Nothing cached for this period')
+                ->body("UMIS holds no data for {$label}. Use \"Request rebuild from UMIS\" first, "
+                    . 'then import once it reports back.')
+                ->warning()
+                ->persistent()
+                ->send();
+
+            return false;
+        }
+
+        try {
+            $result = $service->getEmployeesForPeriod($year, $month, $employmentType, $periodType);
+        } catch (\Throwable $th) {
+            Log::error('Admin cache import failed: ' . $th->getMessage(), $context);
+
+            Notification::make()
+                ->title('Import failed')
+                ->body($th->getMessage())
+                ->danger()
+                ->persistent()
+                ->send();
+
+            return false;
+        }
+
+        // getEmployeesForPeriod swallows its own exceptions and returns null, so
+        // this covers both an unreadable payload and a rolled-back transaction.
+        if ($result === null) {
+            Notification::make()
+                ->title('Import did not complete')
+                ->body("Nothing was imported for {$label}. See storage/logs/laravel.log for the reason.")
+                ->danger()
+                ->persistent()
+                ->send();
+
+            return false;
+        }
+
+        Notification::make()
+            ->title('Import complete')
+            ->body(count($result) . " employees imported for {$label}. "
+                . 'This is now the active payroll period.')
+            ->success()
+            ->send();
+
+        return true;
+    }
+
     public static function getRelations(): array
     {
         return [

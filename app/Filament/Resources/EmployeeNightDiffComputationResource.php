@@ -18,9 +18,9 @@ class EmployeeNightDiffComputationResource extends Resource
     protected static ?string $model = EmployeeNightDiffComputation::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Payroll';
+    protected static ?string $navigationGroup = 'Time Records';
 
-    protected static ?int $navigationSort = 60;
+    protected static ?int $navigationSort = 30;
 
     public static function form(Form $form): Form
     {

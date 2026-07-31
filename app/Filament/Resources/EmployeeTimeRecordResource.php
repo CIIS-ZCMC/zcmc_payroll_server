@@ -18,9 +18,9 @@ class EmployeeTimeRecordResource extends Resource
     protected static ?string $model = EmployeeTimeRecord::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Employees';
+    protected static ?string $navigationGroup = 'Time Records';
 
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {

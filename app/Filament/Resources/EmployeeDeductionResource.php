@@ -18,9 +18,9 @@ class EmployeeDeductionResource extends Resource
     protected static ?string $model = EmployeeDeduction::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Deductions & Receivables';
+    protected static ?string $navigationGroup = 'Manages';
 
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {

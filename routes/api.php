@@ -26,6 +26,7 @@ use App\Http\Controllers\Settings\SpecialPayrollController;
 use App\Http\Controllers\Trail\EmployeeDeductionTrailController;
 use App\Http\Controllers\UMIS\FetchEmployeeController;
 use App\Http\Controllers\UMIS\FetchingProgressController;
+use App\Http\Controllers\UMIS\UmisWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,6 +46,11 @@ Route::post('sign-out', [LoginController::class, 'destroy']);
 
 
 Route::get('check-connection', [LoginController::class, 'checkServerDatabaseConnection']);
+
+// UMIS webhook. Sits outside auth.token on purpose: the call is server-to-server
+// and carries no user session. It is authenticated by the HMAC signature instead.
+Route::post('umis/time-records-cached', [UmisWebhookController::class, 'store'])->middleware('umis.webhook');
+
 Route::middleware('auth.token')->group(function () {
     //Authentication
     Route::get('authentications', [AuthenticationController::class, 'index']);

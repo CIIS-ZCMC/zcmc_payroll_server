@@ -3,24 +3,21 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\NightDifferentialRulesResource\Pages;
-use App\Filament\Resources\NightDifferentialRulesResource\RelationManagers;
 use App\Models\NightDifferentialRules;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class NightDifferentialRulesResource extends Resource
 {
     protected static ?string $model = NightDifferentialRules::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Configuration';
+    protected static ?string $navigationGroup = 'Libraries';
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 60;
 
     public static function form(Form $form): Form
     {

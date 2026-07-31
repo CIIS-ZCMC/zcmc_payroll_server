@@ -18,7 +18,7 @@ class DeductionGroupResource extends Resource
     protected static ?string $model = DeductionGroup::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Deductions & Receivables';
+    protected static ?string $navigationGroup = 'Libraries';
 
     protected static ?int $navigationSort = 20;
 

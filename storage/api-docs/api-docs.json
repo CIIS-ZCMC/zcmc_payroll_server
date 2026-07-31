@@ -3592,6 +3592,231 @@
                 ]
             }
         },
+        "/api/night-differential-rules": {
+            "get": {
+                "tags": [
+                    "Night Differential"
+                ],
+                "summary": "List all night differential rules or find by employment type",
+                "operationId": "3c994cf9d95bf05c45a58d44e3dffdf5",
+                "parameters": [
+                    {
+                        "name": "method",
+                        "in": "query",
+                        "description": "Use 'find' to filter by employment_type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "find"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "employment_type",
+                        "in": "query",
+                        "description": "Required when method=find",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of night differential rules"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Night Differential"
+                ],
+                "summary": "Create or update a night differential rule",
+                "operationId": "1801f76ef4960f50a3ae287c6e173294",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "employment_type",
+                                    "start_time",
+                                    "end_time",
+                                    "rate_percent",
+                                    "effective_date"
+                                ],
+                                "properties": {
+                                    "employment_type": {
+                                        "type": "string",
+                                        "example": "Permanent"
+                                    },
+                                    "start_time": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "example": "22:00:00"
+                                    },
+                                    "end_time": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "example": "06:00:00"
+                                    },
+                                    "rate_percent": {
+                                        "type": "integer",
+                                        "example": 25
+                                    },
+                                    "effective_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-01"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Night differential rule created or updated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/night-differential-rules/{id}": {
+            "get": {
+                "tags": [
+                    "Night Differential"
+                ],
+                "summary": "Get a specific night differential rule",
+                "operationId": "5eb905160f047060aba9966e8404313f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Night differential rule details"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/night-differential/compute": {
+            "post": {
+                "tags": [
+                    "Night Differential"
+                ],
+                "summary": "Compute night differential for a payroll period",
+                "description": "Processes night_duties JSON from employee time records, intersects hours with the active rule window, and stores results in employee_night_diff_computations.",
+                "operationId": "fb1409eb6779062611c9886453df03e2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "payroll_period_id"
+                                ],
+                                "properties": {
+                                    "payroll_period_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "employee_ids": {
+                                        "description": "Optional: limit computation to specific employees",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Per-employee computation results"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/night-differential/computations": {
+            "get": {
+                "tags": [
+                    "Night Differential"
+                ],
+                "summary": "List night differential computation results",
+                "operationId": "529179766c6119bb5abf1f705afdb879",
+                "parameters": [
+                    {
+                        "name": "payroll_period_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "employee_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of night differential computations"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/payroll-periods": {
             "get": {
                 "tags": [
@@ -4560,6 +4785,223 @@
                     }
                 ]
             }
+        },
+        "/api/umis/time-records-cached": {
+            "post": {
+                "tags": [
+                    "UMIS Webhook"
+                ],
+                "summary": "Receive UMIS 'payroll period cached' notification",
+                "description": "Called by UMIS (not by a browser) once a payroll period has finished\n     *         caching. There is no bearer token: the request is authenticated by an HMAC-SHA256\n     *         signature over the raw request body, computed with the secret shared between the two\n     *         systems (UMIS PAYROLL_WEBHOOK_SECRET = Payroll UMIS_WEBHOOK_SECRET).\n     *         Responds immediately; the import runs after the response is sent, so a 202 means the\n     *         event was accepted, not that the records have landed. Delivery is at-least-once, so\n     *         a repeated event_id is answered 200 'duplicate' and imported only once.",
+                "operationId": "5b0e3d7011301e8bb92baabab7e36361",
+                "parameters": [
+                    {
+                        "name": "X-UMIS-Signature",
+                        "in": "header",
+                        "description": "sha256=<hex HMAC-SHA256 of the raw request body, keyed with the shared secret>",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "sha256=6f1c…9ab2"
+                        }
+                    },
+                    {
+                        "name": "X-UMIS-Timestamp",
+                        "in": "header",
+                        "description": "Unix timestamp of the delivery. Rejected when it differs from this\n     *             server's clock by more than umis.webhook.tolerance (default 300s).",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1761004800
+                        }
+                    },
+                    {
+                        "name": "X-UMIS-Event-Id",
+                        "in": "header",
+                        "description": "Mirrors event_id in the body. Logged on rejection; not otherwise used.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Sent verbatim by UMIS. Extra fields (occurred_at, source, employee_count,\n     *             pull) are accepted and ignored — Payroll reads the records from UMIS's Redis\n     *             rather than from pull.endpoint.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "event",
+                                    "event_id",
+                                    "period"
+                                ],
+                                "properties": {
+                                    "event": {
+                                        "description": "Only this value triggers an import; any other is acknowledged and ignored.",
+                                        "type": "string",
+                                        "example": "employee_time_records.period_cached"
+                                    },
+                                    "event_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "9f2c1e7a-4b6d-4f0a-9d3e-1c5b8a7e2f10"
+                                    },
+                                    "period": {
+                                        "required": [
+                                            "year",
+                                            "month",
+                                            "employment_type",
+                                            "period_type"
+                                        ],
+                                        "properties": {
+                                            "year": {
+                                                "type": "integer",
+                                                "maximum": 2030,
+                                                "minimum": 2020,
+                                                "example": 2025
+                                            },
+                                            "month": {
+                                                "type": "integer",
+                                                "maximum": 12,
+                                                "minimum": 1,
+                                                "example": 10
+                                            },
+                                            "employment_type": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "regular",
+                                                    "job_order"
+                                                ],
+                                                "example": "regular"
+                                            },
+                                            "period_type": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "first_half",
+                                                    "second_half"
+                                                ],
+                                                "example": "first_half"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "employee_count": {
+                                        "type": "integer",
+                                        "example": 1420
+                                    },
+                                    "occurred_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Accepted. The import has been scheduled to run after this response.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event accepted. Import running."
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "queued"
+                                        },
+                                        "event_id": {
+                                            "type": "string",
+                                            "example": "9f2c1e7a-4b6d-4f0a-9d3e-1c5b8a7e2f10"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Acknowledged without importing — either a replay of an event_id already\n     *             seen (status 'duplicate') or an event type this receiver does not handle\n     *             (status 'ignored'). Deliberately 2xx so UMIS does not retry.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Event already processed."
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "duplicate",
+                                                "ignored"
+                                            ],
+                                            "example": "duplicate"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Signature missing or mismatched, or timestamp outside the tolerance window.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid webhook signature."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Signature valid but the payload failed validation."
+                    },
+                    "503": {
+                        "description": "UMIS_WEBHOOK_SECRET is not configured on this server, so no delivery can be verified.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Webhook receiver is not configured."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -4605,6 +5047,10 @@
             "description": "Login and logout endpoints"
         },
         {
+            "name": "Night Differential",
+            "description": "Night Differential rule management and computation endpoints"
+        },
+        {
             "name": "Payroll Process",
             "description": "Payroll process endpoints"
         },
@@ -4623,6 +5069,10 @@
         {
             "name": "Reports",
             "description": "Report endpoints"
+        },
+        {
+            "name": "UMIS Webhook",
+            "description": "Inbound notifications from UMIS"
         },
         {
             "name": "Redis",

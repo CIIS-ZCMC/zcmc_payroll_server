@@ -18,7 +18,7 @@ class TransactionLogResource extends Resource
     protected static ?string $model = TransactionLog::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Logs & Trails';
+    protected static ?string $navigationGroup = 'Logs and Trails';
 
     protected static ?int $navigationSort = 40;
 

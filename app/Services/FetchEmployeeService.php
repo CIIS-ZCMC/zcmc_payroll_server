@@ -150,7 +150,11 @@ class FetchEmployeeService
     {
 
         $cacheKey = "{$year}-{$month}:{$employment_type}:{$period_type}";
-        return Redis::connection('umis')->get($cacheKey);
+
+        // Redis returns null for a missing key, which is not a bool and so
+        // raised a TypeError on the one path this method exists to report —
+        // callers never got their "no cache" answer. Cast so absence is false.
+        return (bool) Redis::connection('umis')->get($cacheKey);
     }
 
     public function getCacheMetadata(int $year, int $month): ?array

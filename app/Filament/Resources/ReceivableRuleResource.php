@@ -18,9 +18,9 @@ class ReceivableRuleResource extends Resource
     protected static ?string $model = ReceivableRule::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Deductions & Receivables';
+    protected static ?string $navigationGroup = 'Libraries';
 
-    protected static ?int $navigationSort = 60;
+    protected static ?int $navigationSort = 50;
 
     public static function form(Form $form): Form
     {

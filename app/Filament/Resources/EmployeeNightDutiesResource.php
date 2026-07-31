@@ -18,9 +18,9 @@ class EmployeeNightDutiesResource extends Resource
     protected static ?string $model = EmployeeNightDuties::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Employees';
+    protected static ?string $navigationGroup = 'Time Records';
 
-    protected static ?int $navigationSort = 60;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Form $form): Form
     {

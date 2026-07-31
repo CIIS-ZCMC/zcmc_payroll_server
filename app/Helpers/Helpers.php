@@ -117,7 +117,7 @@ class Helpers
 
     public static function umisPOSTrequest($api, $data)
     {
-        $client = new Client();
+        $client = new Client(['timeout' => 300]); // $client = new Client(); 
         return json_decode($client->request('POST', request()->umis . '/' . $api, [
             'headers' => [
                 'Content-Type' => 'application/json',
@@ -127,7 +127,7 @@ class Helpers
     }
     public static function umisGETrequest($api)
     {
-        $client = new Client();
+        $client = new Client(['timeout' => 300]); // $client = new Client();
 
 
         $response = $client->request('GET', request()->umis . '/' . $api);

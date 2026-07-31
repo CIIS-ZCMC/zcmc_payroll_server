@@ -18,9 +18,9 @@ class EmployeeReceivableResource extends Resource
     protected static ?string $model = EmployeeReceivable::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Deductions & Receivables';
+    protected static ?string $navigationGroup = 'Manages';
 
-    protected static ?int $navigationSort = 70;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Form $form): Form
     {

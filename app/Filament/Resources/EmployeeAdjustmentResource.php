@@ -20,7 +20,7 @@ class EmployeeAdjustmentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-collection';
     protected static ?string $navigationGroup = 'Employees';
 
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Form $form): Form
     {

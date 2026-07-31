@@ -18,9 +18,9 @@ class EmployeeComputedSalaryResource extends Resource
     protected static ?string $model = EmployeeComputedSalary::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    protected static ?string $navigationGroup = 'Payroll';
+    protected static ?string $navigationGroup = 'Time Records';
 
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Form $form): Form
     {

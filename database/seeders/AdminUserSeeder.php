@@ -18,7 +18,7 @@ class AdminUserSeeder extends Seeder
             ['email' => env('ADMIN_EMAIL', 'admin@zcmc.local')],
             [
                 'name' => env('ADMIN_NAME', 'Administrator'),
-                'password' => Hash::make(env('ADMIN_PASSWORD', 'password')),
+                'password' => Hash::make(env('ADMIN_PASSWORD', 'Zcmc@2026')),
                 'is_admin' => true,
             ]
         );
