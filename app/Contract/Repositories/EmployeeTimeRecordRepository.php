@@ -57,11 +57,16 @@ class EmployeeTimeRecordRepository implements EmployeeTimeRecordInterface
         );
     }
 
+    /**
+     * Retire the other time records covering the same month/year, leaving only
+     * the period just synced active. The month/year comparisons are equality —
+     * chaining `!=` across all three columns matched nothing.
+     */
     public function deactivate(int $payroll_period_id, int $month, int $year): bool
     {
         return $this->model->where('payroll_period_id', '!=', $payroll_period_id)
-            ->where('month', '!=', $month)
-            ->where('year', '!=', $year)
+            ->where('month', $month)
+            ->where('year', $year)
             ->update(['is_active' => false]);
     }
 

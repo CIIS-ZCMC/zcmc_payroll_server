@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\FetchEmployeeService;
+use App\Services\EmployeeSyncService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -127,12 +127,15 @@ class FetchEmployeeTimeRecord extends Command
         ));
 
         try {
-            $service = app(FetchEmployeeService::class);
-            $result = $service->getEmployeesForPeriod($year, $month, $employmentType, $periodType);
+            $service = app(EmployeeSyncService::class);
+            $result = $service->sync($year, $month, $employmentType, $periodType);
 
+            // A null result means the portal has published nothing yet. That is
+            // the only case that is not a failure — a sync that throws now says
+            // so, instead of being reported as "no data found".
             if ($result === null) {
                 $this->warn(sprintf(
-                    'No data found for %s employees in %s %s (%s)',
+                    'No cache published by UMIS for %s employees in %s %s (%s) — nothing to sync.',
                     $employmentType,
                     date('F', mktime(0, 0, 0, $month, 1)),
                     $year,
@@ -142,17 +145,28 @@ class FetchEmployeeTimeRecord extends Command
             }
 
             $this->info(sprintf(
-                'Successfully processed %d %s employees for %s %s (%s)',
-                count($result),
+                'Successfully processed %d %s employees for %s %s (%s) in %dms — %d excluded, %d skipped.',
+                $result['processed'],
                 $employmentType,
                 date('F', mktime(0, 0, 0, $month, 1)),
                 $year,
-                $periodType
+                $periodType,
+                $result['duration_ms'],
+                $result['excluded'],
+                count($result['skipped'])
             ));
 
-        } catch (\Exception $e) {
+            foreach ($result['skipped'] as $skipped) {
+                $this->warn(sprintf(
+                    '  skipped employee %s: %s',
+                    $skipped['employee_number'] ?? 'unknown',
+                    $skipped['reason']
+                ));
+            }
+
+        } catch (\Throwable $e) {
             $this->error(sprintf(
-                'Error processing %s employees for %s %s (%s): %s',
+                'Failed to sync %s employees for %s %s (%s): %s',
                 $employmentType,
                 date('F', mktime(0, 0, 0, $month, 1)),
                 $year,

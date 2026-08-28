@@ -7,6 +7,7 @@ use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\PaginationResource;
 use App\Services\EmployeeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

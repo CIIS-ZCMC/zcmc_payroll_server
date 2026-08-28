@@ -23,4 +23,20 @@ class EmployeeComputedSalaryRepository implements EmployeeComputedSalaryInterfac
             $data
         );
     }
+
+    public function upsert(array $data): int
+    {
+        return $this->model->upsert(
+            $data,
+            ['employee_id', 'payroll_period_id', 'employee_time_record_id'],
+            [
+                'basic_pay',
+                'minutes_rate',
+                'daily_rate',
+                'hourly_rate',
+                'absent_rate',
+                'undertime_rate',
+            ]
+        );
+    }
 }

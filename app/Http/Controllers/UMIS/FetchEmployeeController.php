@@ -4,14 +4,14 @@ namespace App\Http\Controllers\UMIS;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FetchEmployeeRequest;
-use App\Services\FetchEmployeeService;
+use App\Services\EmployeeSyncService;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class FetchEmployeeController extends Controller
 {
-    public function __construct(private FetchEmployeeService $service)
+    public function __construct(private EmployeeSyncService $service)
     {
         // Nothing
     }
@@ -75,7 +75,7 @@ class FetchEmployeeController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $employees = $this->service->getEmployeesForPeriod(
+        $summary = $this->service->sync(
             $request->year,
             $request->month,
             $request->employment_type,
@@ -83,7 +83,7 @@ class FetchEmployeeController extends Controller
         );
 
         return response()->json([
-            'data' => $employees,
+            'data' => $summary,
             'message' => "Successfully Fetched.",
             'success' => true,
         ], Response::HTTP_OK);

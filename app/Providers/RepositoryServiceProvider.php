@@ -21,6 +21,7 @@ use App\Contract\PayrollPeriodInterface;
 use App\Contract\PayrollProcessInterface;
 use App\Contract\PayrollReportInterface;
 use App\Contract\PayrollSummaryInterface;
+use App\Contract\PortalCacheReaderInterface;
 use App\Contract\ReceivableInterface;
 use App\Contract\Repositories\DeductionGroupRepository;
 use App\Contract\Repositories\DeductionRepository;
@@ -41,6 +42,7 @@ use App\Contract\Repositories\PayrollPeriodRepository;
 use App\Contract\Repositories\PayrollProcessRepository;
 use App\Contract\Repositories\PayrollReportRepository;
 use App\Contract\Repositories\PayrollSummaryRepository;
+use App\Contract\Repositories\PortalCacheRepository;
 use App\Contract\Repositories\ReceivableRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -53,6 +55,11 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->bind(
+            PortalCacheReaderInterface::class,
+            PortalCacheRepository::class
+        );
+
         $this->app->bind(
             DeductionGroupInterface::class,
             DeductionGroupRepository::class,

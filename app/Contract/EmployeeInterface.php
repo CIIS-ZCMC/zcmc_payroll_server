@@ -13,6 +13,7 @@ interface EmployeeInterface
     public function create(array $data): Employee;
     public function update(int $id, array $data): Employee;
     public function updateOrCreate(array $data): Employee;
+    public function upsert(array $data): int;
     public function find(int $id): Employee;
     public function getIncludedEmployee(int $perPage, int $page): LengthAwarePaginator;
     public function getExcludedEmployee(int $perPage, int $page): LengthAwarePaginator;

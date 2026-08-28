@@ -68,21 +68,32 @@ class EmployeeRepository implements EmployeeInterface
         return $model->fresh();
     }
 
+    /**
+     * Expects a column array already shaped by FetchEmployeeMapperService::employee().
+     */
     public function updateOrCreate(array $data): Employee
     {
         return $this->model->updateOrCreate(
-            ['employee_profile_id' => $data['id']],
+            ['employee_profile_id' => $data['employee_profile_id']],
+            $data
+        );
+    }
+
+    public function upsert(array $data): int
+    {
+        return $this->model->upsert(
+            $data,
+            ['employee_profile_id'],
             [
-                'employee_profile_id' => $data['id'],
-                'employee_number' => $data['employee_number'],
-                'first_name' => $data['personal_information']['first_name'],
-                'last_name' => $data['personal_information']['last_name'],
-                'middle_name' => $data['personal_information']['middle_name'],
-                'extension_name' => $data['personal_information']['name_extension'],
-                'designation' => $data['designation']['name'] ?? 'error',
-                'assigned_area' => json_encode($data['assigned_area']),
-                'is_excluded' => $data['time_record']['is_out'],
-                'status' => $data['is_inactive'],
+                'employee_number',
+                'first_name',
+                'last_name',
+                'middle_name',
+                'extension_name',
+                'designation',
+                'assigned_area',
+                'is_excluded',
+                'status',
             ]
         );
     }

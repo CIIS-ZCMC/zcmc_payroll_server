@@ -60,7 +60,7 @@ class ExcludedEmployeeRepository implements ExcludedEmployeeInterface
         return $this->model->upsert(
             $data,
             ['employee_id', 'payroll_period_id'],
-            ['base_salary', 'salary_grade', 'salary_step', 'is_active']
+            ['reason', 'is_removed']
         );
     }
 }
