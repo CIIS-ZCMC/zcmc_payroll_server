@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Exports\ExportEmployeePayroll;
+use App\Http\Resources\EmployeePayrollResource;
+use App\Support\PayrollCodes;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -25,7 +27,7 @@ class ExportPayrollService
         $endRow = $startRow + $totalRows * $blockHeight - 1;
 
         // ================= FIRST SHEET =================
-        $this->applySheetOneStyle($sheet, $startRow, $endRow, $lastColumn, $blockHeight, $data);
+        $this->applySheetOneStyle($sheet, $startRow, $endRow, $lastColumn);
         $this->buildSheetOneCell($sheet, $startRow, $blockHeight, $data);
 
         // ================= SECOND SHEET =================
@@ -57,10 +59,11 @@ class ExportPayrollService
         // Freeze the header row
         $sheet2->freezePane('A2');
 
-        // Auto-size columns for better fit (optional)
-        foreach (range('A', $sheet2->getHighestDataColumn()) as $col) {
-            $sheet2->getColumnDimension($col)->setAutoSize(true);
-        }
+        // Widths come from ExportEmployeePayroll::columnWidths() above.
+        // setAutoSize() used to run over every column here as well, which makes
+        // PhpSpreadsheet measure the rendered width of every cell in the sheet —
+        // for a full period that is tens of thousands of measurements, and the
+        // explicit widths overrode the result anyway.
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
 
@@ -75,7 +78,14 @@ class ExportPayrollService
         }, $filename);
     }
 
-    private function applySheetOneStyle(Worksheet $sheet, int $startRow, int $endRow, string $lastColumn, int $blockHeight, array $data)
+    /**
+     * $endRow already spans every employee block. The per-column ranges below
+     * used to recompute it from count($data), but $data is the report wrapper
+     * (employee_payrolls, payroll_period, ...), not the employee list — so the
+     * number formats and alignments only ever reached the first two or three
+     * blocks of the sheet.
+     */
+    private function applySheetOneStyle(Worksheet $sheet, int $startRow, int $endRow, string $lastColumn)
     {
         // GLOBAL STYLE
         $sheet->getStyle("A{$startRow}:{$lastColumn}{$endRow}")
@@ -101,7 +111,7 @@ class ExportPayrollService
         // ================= FORMAT =================
         $numericCols = ['D', 'G', 'H', 'J', 'K', 'L', 'M', 'P', 'Q', 'T', 'U', 'X', 'Y', 'Z', 'AA', 'AB'];
         foreach ($numericCols as $col) {
-            $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
+            $sheet->getStyle("{$col}{$startRow}:{$col}{$endRow}")
                 ->getNumberFormat()
                 ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
         }
@@ -109,14 +119,14 @@ class ExportPayrollService
         // ================= ALIGNMENT =================
         $leftCols  = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'V', 'W', 'X', 'Y'];
         foreach ($leftCols  as $col) {
-            $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
+            $sheet->getStyle("{$col}{$startRow}:{$col}{$endRow}")
                 ->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_LEFT);
         }
 
         $rightCols  = ['C', 'D', 'E', 'H', 'J', 'N', 'P', 'R', 'T', 'V', 'X'];
         foreach ($rightCols  as $col) {
-            $sheet->getStyle("{$col}{$startRow}:{$col}" . ($startRow + (count($data) * $blockHeight) - 1))
+            $sheet->getStyle("{$col}{$startRow}:{$col}{$endRow}")
                 ->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
         }
@@ -183,75 +193,82 @@ class ExportPayrollService
         $sheet->setCellValue("AB" . ($currentRow + 5), '');
     }
 
-    private function fillDataSheetOneCell(Worksheet $sheet, int $currentRow, int $index, object $employee)
+    /**
+     * $employee is one entry of $data['employee_payrolls']. PayrollReportResource
+     * resolves only its own top level, so nested entries arrive as unresolved
+     * resources — objects that are read with array syntax, which is why the
+     * body below mixes the two.
+     */
+    private function fillDataSheetOneCell(Worksheet $sheet, int $currentRow, int $index, EmployeePayrollResource $employee)
     {
         $employeeSalary = $employee['employee']['employeeSalary'];
 
+        $gsisGroup = PayrollCodes::gsisGroup();
+        $pagibigGroup = PayrollCodes::pagibigGroup();
+        $ownColumnGroups = PayrollCodes::ownColumnGroups();
+
         $receivables = optional(collect($employee['employee']['employeeReceivables'] ?? []));
-        $pera = optional($receivables->where('receivable_id', 1)->first())->amount ?? 0;
-        $hazard = optional($receivables->where('receivable_id', 2)->first())->amount ?? 0;
+        $pera = optional($receivables->where('receivable_id', PayrollCodes::pera())->first())->amount ?? 0;
+        $hazard = optional($receivables->where('receivable_id', PayrollCodes::hazard())->first())->amount ?? 0;
 
         $deductions = optional(collect($employee['employee']['employeeDeductions'] ?? []));
-        $wtax = optional($deductions->where('deduction_id', 1)->first())->amount ?? 0;
-        $phic = optional($deductions->where('deduction_id', 2)->first())->amount ?? 0;
-                    
-        $gsisDeductions = $deductions->filter(function ($item) {
-            return $item->deductions?->deduction_group_id == 2;
-        });
+        $wtax = optional($deductions->where('deduction_id', PayrollCodes::wtax())->first())->amount ?? 0;
+        $phic = optional($deductions->where('deduction_id', PayrollCodes::phic())->first())->amount ?? 0;
 
-        $pagibigDeductions = $deductions->filter(function ($item) {
-            return $item->deductions?->deduction_group_id == 4;
-        });
+        $gsisDeductions = $deductions->filter(
+            fn ($item) => $item->deductions?->deduction_group_id == $gsisGroup
+        );
 
-        $otherDeductions = $deductions->filter(function ($item) {
-            return $item->deductions?->deduction_group_id != 1 
-            && $item->deductions?->deduction_group_id != 2
-            && $item->deductions?->deduction_group_id != 4
-            && $item->deductions?->deduction_group_id != 5;
-        });
-    
-        // Get totals by group name (more reliable than hardcoded IDs)
+        $pagibigDeductions = $deductions->filter(
+            fn ($item) => $item->deductions?->deduction_group_id == $pagibigGroup
+        );
+
+        // "Other" is everything that does not already have its own column.
+        $otherDeductions = $deductions->filter(
+            fn ($item) => ! in_array((int) $item->deductions?->deduction_group_id, $ownColumnGroups, true)
+        );
+
         $group = $employee['employee']['grouped_deductions'] ?? [];
-        $total_gsis = $group->where('group_id', 2)->first()['group_total'] ?? 0;
-        $total_pagibig = $group->where('group_id', 4)->first()['group_total'] ?? 0;
-        $total_other = $group->whereNotIn('group_id', [1, 2, 4, 5])->sum('group_total');
+        $total_gsis = $group->where('group_id', $gsisGroup)->first()['group_total'] ?? 0;
+        $total_pagibig = $group->where('group_id', $pagibigGroup)->first()['group_total'] ?? 0;
+        $total_other = $group->whereNotIn('group_id', $ownColumnGroups)->sum('group_total');
 
         // 1st Column
         $sheet->setCellValue("A" . $currentRow, $index);
         $sheet->setCellValue("B" . $currentRow, $employee['employee']['employee_number']);
-        $sheet->setCellValue("B" . $currentRow + 1, $employee['employee']['full_name']);
-        $sheet->setCellValue("D" . $currentRow + 5, $employeeSalary['base_salary']);
+        $sheet->setCellValue("B" . ($currentRow + 1), $employee['employee']['full_name']);
+        $sheet->setCellValue("D" . ($currentRow + 5), $employeeSalary['base_salary']);
 
-        $sheet->setCellValue("D" . $currentRow + 6, $pera);
-        $sheet->setCellValue("D" . $currentRow + 7, $hazard);
+        $sheet->setCellValue("D" . ($currentRow + 6), $pera);
+        $sheet->setCellValue("D" . ($currentRow + 7), $hazard);
 
-        $sheet->setCellValue("C" . $currentRow + 8, $employeeSalary['salary_grade']);
-        $sheet->setCellValue("E" . $currentRow + 8, $employeeSalary['salary_step']);
+        $sheet->setCellValue("C" . ($currentRow + 8), $employeeSalary['salary_grade']);
+        $sheet->setCellValue("E" . ($currentRow + 8), $employeeSalary['salary_step']);
 
         // 2nd Column and 3rd Column
         $sheet->setCellValue("F" . $currentRow, $employee['employee']['designation']);
         $sheet->setCellValue("G" . $currentRow, $employee['basic_pay']);
         $sheet->setCellValue("L" . $currentRow, $employee['gross_pay']);
-        $sheet->setCellValue("H" . $currentRow + 8, $employee['total_receivables']);
+        $sheet->setCellValue("H" . ($currentRow + 8), $employee['total_receivables']);
 
         //Deductions column
         $sheet->setCellValue("M" . $currentRow, $wtax);
-        $sheet->setCellValue("M" . $currentRow + 4, $phic);
-        $sheet->setCellValue("N" . $currentRow + 8, $total_gsis);
-        $sheet->setCellValue("R" . $currentRow + 8, $total_pagibig);
-        $sheet->setCellValue("V" . $currentRow + 8, $total_other);
+        $sheet->setCellValue("M" . ($currentRow + 4), $phic);
+        $sheet->setCellValue("N" . ($currentRow + 8), $total_gsis);
+        $sheet->setCellValue("R" . ($currentRow + 8), $total_pagibig);
+        $sheet->setCellValue("V" . ($currentRow + 8), $total_other);
         $sheet->setCellValue("Z" . $currentRow, $employee['total_deductions']);
 
         $sheet->setCellValue("AA" . $currentRow, $employee['first_half']);
-        $sheet->setCellValue("AA" . $currentRow + 4, $employee['second_half']);
-        $sheet->setCellValue("AA" . $currentRow + 8, $employee['net_pay']);
+        $sheet->setCellValue("AA" . ($currentRow + 4), $employee['second_half']);
+        $sheet->setCellValue("AA" . ($currentRow + 8), $employee['net_pay']);
 
         $month = $employee['month'] ?? null;
         $year = $employee['year'] ?? date('Y');
         $lastDay = $month ? date('j', strtotime("$year-$month-01 +1 month -1 day")) : '-';
         
         $sheet->setCellValue("AB" . $currentRow, '1-15');
-        $sheet->setCellValue("AB" . $currentRow + 4, '16-' . $lastDay);
+        $sheet->setCellValue("AB" . ($currentRow + 4), '16-' . $lastDay);
 
         $sheet->setCellValue("AC" . $currentRow, $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['dates']);
         $sheet->setCellValue("AD" . $currentRow, $employee['employee']['employeeTimeRecords']['absent_dates_formatted']['count']);

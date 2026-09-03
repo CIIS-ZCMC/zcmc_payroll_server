@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\DeductionGroup;
 use App\Models\Receivable;
+use App\Support\PayrollCodes;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -59,8 +60,8 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
             }
 
             $deductions = optional(collect($employee->employee->employeeDeductions ?? []));
-            $WTAX = optional($deductions->where('deduction_id', 1)->first())->amount ?? 0;
-            $PHIC = optional($deductions->where('deduction_id', 2)->first())->amount ?? 0;
+            $WTAX = optional($deductions->where('deduction_id', PayrollCodes::wtax())->first())->amount ?? 0;
+            $PHIC = optional($deductions->where('deduction_id', PayrollCodes::phic())->first())->amount ?? 0;
 
             $row = array_merge($row, [
                 $employee->gross_pay ?? 0,
@@ -69,7 +70,7 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
             ]);
 
             // Add GSIS Deductions Data
-            if ($gsisGroup = $this->deductionGroups->where('id', 2)->first()) {
+            if ($gsisGroup = $this->deductionGroups->where('id', PayrollCodes::gsisGroup())->first()) {
                 foreach ($gsisGroup->deductions as $deduction) {
                     // Find the specific deduction from employee deductions
                     $employeeDeduction = $deductions->where('deduction_id', $deduction->id)->first();
@@ -78,7 +79,7 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
                 }
             }
 
-            if ($pagibigGroup = $this->deductionGroups->where('id', 4)->first()) {
+            if ($pagibigGroup = $this->deductionGroups->where('id', PayrollCodes::pagibigGroup())->first()) {
                 foreach ($pagibigGroup->deductions as $deduction) {
                     // Find the specific deduction from employee deductions
                     $employeeDeduction = $deductions->where('deduction_id', $deduction->id)->first();
@@ -87,7 +88,7 @@ class ExportEmployeePayroll implements FromCollection, WithHeadings, WithStyles,
                 }
             }
 
-            $otherGroups = $this->deductionGroups->whereNotIn('id', [1, 2, 4, 5]);
+            $otherGroups = $this->deductionGroups->whereNotIn('id', PayrollCodes::ownColumnGroups());
             foreach ($otherGroups as $otherGroup) {
                 foreach ($otherGroup->deductions as $deduction) {
                     // Find the specific deduction from employee deductions
