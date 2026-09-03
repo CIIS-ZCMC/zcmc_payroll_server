@@ -1,0 +1,310 @@
+[
+    {
+        "id": 1,
+        "employee_number": "2024-0001",
+        "full_name": "Last00, First0 ",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 1,
+            "total_receivables": 11154.75,
+            "total_deductions": 5400,
+            "basic_pay": 36619,
+            "gross_pay": 47773.75,
+            "net_pay": 42373.75,
+            "first_half": 21186,
+            "second_half": 21187.75,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 2,
+        "employee_number": "2024-0002",
+        "full_name": "Last01, First1 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 2,
+            "total_receivables": 10882.02,
+            "total_deductions": 3900,
+            "basic_pay": 31625.5,
+            "gross_pay": 42507.52,
+            "net_pay": 38607.52,
+            "first_half": 19303,
+            "second_half": 19304.52,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 3,
+        "employee_number": "2024-0003",
+        "full_name": "Last02, First2 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 3,
+            "total_receivables": 24519.5,
+            "total_deductions": 3900,
+            "basic_pay": 90077.9,
+            "gross_pay": 114597.4,
+            "net_pay": 110697.4,
+            "first_half": 55348,
+            "second_half": 55349.4,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 4,
+        "employee_number": "2024-0004",
+        "full_name": "Last03, First3 ",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 4,
+            "total_receivables": 46715.25,
+            "total_deductions": 3900,
+            "basic_pay": 178861.1,
+            "gross_pay": 225576.35,
+            "net_pay": 221676.35,
+            "first_half": 110838,
+            "second_half": 110838.35,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 5,
+        "employee_number": "2024-0005",
+        "full_name": "Last04, First4 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 5,
+            "total_receivables": 7359.75,
+            "total_deductions": 3900,
+            "basic_pay": 25439.04,
+            "gross_pay": 32798.79,
+            "net_pay": 28898.79,
+            "first_half": 14449,
+            "second_half": 14449.79,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 6,
+        "employee_number": "2024-0006",
+        "full_name": "Last05, First5 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 6,
+            "total_receivables": 7268.85,
+            "total_deductions": 3900,
+            "basic_pay": 23126.4,
+            "gross_pay": 30395.25,
+            "net_pay": 26495.25,
+            "first_half": 13247,
+            "second_half": 13248.25,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 7,
+        "employee_number": "2024-0007",
+        "full_name": "Last06, First6 ",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 7,
+            "total_receivables": 0,
+            "total_deductions": 0,
+            "basic_pay": 17999.96,
+            "gross_pay": 17999.96,
+            "net_pay": 17999.96,
+            "first_half": 8999,
+            "second_half": 9000.96,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 8,
+        "employee_number": "2024-0008",
+        "full_name": "Last07, First7 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 8,
+            "total_receivables": 4159.08,
+            "total_deductions": 3900,
+            "basic_pay": 5909.1,
+            "gross_pay": 10068.18,
+            "net_pay": 6168.18,
+            "first_half": 3084,
+            "second_half": 3084.18,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 10,
+        "employee_number": "2024-0010",
+        "full_name": "Last09, First9 ",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 10,
+            "total_receivables": 13681.25,
+            "total_deductions": 3900,
+            "basic_pay": 46724.92,
+            "gross_pay": 60406.17,
+            "net_pay": 56506.17,
+            "first_half": 28253,
+            "second_half": 28253.17,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 11,
+        "employee_number": "2024-0011",
+        "full_name": "Last10, First10 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 11,
+            "total_receivables": 10154.74,
+            "total_deductions": 3900,
+            "basic_pay": 18309.5,
+            "gross_pay": 28464.24,
+            "net_pay": 24564.24,
+            "first_half": 12282,
+            "second_half": 12282.24,
+            "currency": "PHP"
+        }
+    },
+    {
+        "id": 12,
+        "employee_number": "2024-0012",
+        "full_name": "Last11, First11 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "Salary Below Threshold",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 12,
+            "total_receivables": 8359.75,
+            "total_deductions": 3900,
+            "basic_pay": 25439.04,
+            "gross_pay": 33798.79,
+            "net_pay": 29898.79,
+            "first_half": 14949,
+            "second_half": 14949.79,
+            "currency": "PHP"
+        }
+    }
+]

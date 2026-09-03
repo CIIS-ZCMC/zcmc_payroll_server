@@ -1,0 +1,30 @@
+[
+    {
+        "id": 9,
+        "employee_number": "2024-0009",
+        "full_name": "Last08, First8 M.",
+        "designation": "Nurse II",
+        "assigned_area": {
+            "details": {
+                "id": 5,
+                "name": "Nursing Service",
+                "code": "NS"
+            },
+            "sector": "division"
+        },
+        "reason": "RESIGNED",
+        "status": "active",
+        "payroll": {
+            "payroll_period_id": 3,
+            "employee_time_record_id": 9,
+            "total_receivables": 11154.75,
+            "total_deductions": 3900,
+            "basic_pay": 36619,
+            "gross_pay": 47773.75,
+            "net_pay": 43873.75,
+            "first_half": 21936,
+            "second_half": 21937.75,
+            "currency": "PHP"
+        }
+    }
+]
