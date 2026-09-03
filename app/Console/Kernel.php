@@ -4,7 +4,6 @@ namespace App\Console;
 
 use App\Console\Commands\CheckEmployeeDeductions;
 use App\Console\Commands\FetchEmployeeTimeRecord;
-use App\Console\Commands\FetchPayrollData;
 use App\Console\Commands\ResumeDeduction;
 use App\Console\Commands\SuspendDeductions;
 use App\Console\Commands\SuspendReceivables;

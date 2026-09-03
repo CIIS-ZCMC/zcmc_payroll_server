@@ -53,10 +53,6 @@ Route::middleware('auth.token')->group(function () {
     Route::apiResource('receivables', ReceivableController::class);
 
     // UMIS
-    // Route::get('fetch_record_step_1', [EmployeeProfileController::class, 'fetchStep1']);
-    // Route::post('fetch_record_step_2', [EmployeeProfileController::class, 'fetchStep2']);
-    // Route::post('fetch_record_step_3', [EmployeeProfileController::class, 'fetchStep3']);
-    // Route::post('fetch_record_step_4', [EmployeeProfileController::class, 'fetchStep4']);
 
     //Fetch from Redis
     Route::apiResource('fetch-employees', FetchEmployeeController::class)->only(['index', 'store']);
