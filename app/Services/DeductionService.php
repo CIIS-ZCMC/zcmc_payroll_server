@@ -6,7 +6,7 @@ use App\Contract\DeductionInterface;
 use App\Data\DeductionData;
 use App\Models\Deduction;
 use App\Models\EmployeeDeduction;
-use App\Models\PayrollPeriod;
+use App\Support\PayrollPeriodResolver;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\Log;
 
 class DeductionService
 {
-    public function __construct(private DeductionInterface $interface)
-    {
+    public function __construct(
+        private DeductionInterface $interface,
+        private PayrollPeriodResolver $periods
+    ) {
         //nothing
     }
 
@@ -90,8 +92,9 @@ class DeductionService
                 }
          
                 // Find previous period
-                $previousPeriod = $this->findPreviousPeriod($month, $year, $employment_type, $period_type);
-                
+                $previousPeriod = $this->periods->previousPeriodFor($month, $year, $employment_type, $period_type);
+
+
                 if ($previousPeriod) {
                     $query->where('payroll_period_id', $previousPeriod->id);
                 }
@@ -100,30 +103,4 @@ class DeductionService
         ])->where('id', $id)->first();
     }
 
-    private function findPreviousPeriod(int $month, int $year, string $employment_type, string $period_type)
-    {
-        if ($period_type === 'second_half') {   
-            // Same month, first half
-            return PayrollPeriod::where('month', $month)
-                ->where('year', $year)
-                ->where('employment_type', $employment_type)
-                ->where('period_type', 'first_half')
-                ->first();
-        }
-        
-        // First half - get previous month's second half
-        $previousMonth = $month - 1;
-        $previousYear = $year;
-
-        if ($month == 1) {
-            $previousMonth = 12;
-            $previousYear = $year - 1;
-        }
-        
-        return PayrollPeriod::where('month', $previousMonth)
-            ->where('year', $previousYear)
-            ->where('employment_type', $employment_type)
-            ->where('period_type', 'second_half')
-            ->first();
-    }
 }

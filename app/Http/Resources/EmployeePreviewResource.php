@@ -19,7 +19,9 @@ class EmployeePreviewResource extends JsonResource
 
         $employee_name = $employee->last_name . ', ' . $employee->first_name . ' ' . ($employee->middle_name ? strtoupper(substr($employee->middle_name, 0, 1)) . '.' : '');
         $area = json_decode($employee->assigned_area ?? '{}', true) ?? [];
-        $time = $employee->employeeTimeRecords->first();
+        // hasOne: this is a model or null. ->first() would fall through
+        // Model::__call to a fresh query and return an unrelated row.
+        $time = $employee->employeeTimeRecords;
 
         return [
             'id' => $employee->id,
@@ -34,7 +36,7 @@ class EmployeePreviewResource extends JsonResource
                 ],
                 'sector' => $area['sector'] ?? null
             ],
-            'reason' => $employee->excludedEmployees->reason ?? 'Salary Below Threshold',
+            'reason' => $employee->excludedEmployees->first()->reason ?? 'Salary Below Threshold',
             'status' => $time?->status,
             'payroll' => [
                 'payroll_period_id' => $payroll['payroll_period_id'],

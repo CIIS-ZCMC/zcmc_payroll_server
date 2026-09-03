@@ -4,13 +4,16 @@ namespace App\Services;
 
 use App\Contract\PayrollPeriodInterface;
 use App\Models\PayrollPeriod;
+use App\Support\DeductionCarryForward;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PayrollPeriodService
 {
-    public function __construct(private PayrollPeriodInterface $interface)
-    {
+    public function __construct(
+        private PayrollPeriodInterface $interface,
+        private DeductionCarryForward $carryForward
+    ) {
         //Nothing
     }
 
@@ -49,9 +52,33 @@ class PayrollPeriodService
         return $this->setPeriod($period->id);
     }
 
+    /**
+     * Locking a period is the moment its payroll is final, so this is where a
+     * term-based deduction records an instalment as paid. It used to happen
+     * whenever someone opened the preview screen, which consumed terms for
+     * payrolls that were never posted.
+     *
+     * Locking is idempotent for the caller, but advancing terms is not — the
+     * guard below keeps a second lock request from advancing them twice.
+     */
     public function lock(int $id)
     {
-        return $this->interface->lock($id);
+        return DB::transaction(function () use ($id) {
+            $alreadyLocked = $this->interface->isLocked($id);
+
+            $locked = $this->interface->lock($id);
+
+            if (! $alreadyLocked) {
+                $advanced = $this->carryForward->advanceTerms($locked);
+
+                Log::info('Payroll period locked; deduction terms advanced', [
+                    'payroll_period_id' => $id,
+                    'deductions_advanced' => $advanced,
+                ]);
+            }
+
+            return $locked;
+        });
     }
 
     public function isLocked(int $id)

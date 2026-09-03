@@ -11,10 +11,11 @@ use App\Contract\PayrollPeriodInterface;
 use App\Contract\PortalCacheReaderInterface;
 use App\Helpers\Helpers;
 use App\Helpers\UmisHttpRequestHelper;
-use App\Models\EmployeeDeduction;
 use App\Models\EmployeeReceivable;
 use App\Models\PayrollPeriod;
 use App\Models\Receivable;
+use App\Support\DeductionCarryForward;
+use App\Support\PayrollCodes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
@@ -45,8 +46,6 @@ class EmployeeSyncService
      */
     private const CHUNK_SIZE = 500;
 
-    private const RECEIVABLE_PERA = 1;
-    private const RECEIVABLE_HAZARD = 2;
 
     public function __construct(
         private PortalCacheReaderInterface $cache,
@@ -58,6 +57,7 @@ class EmployeeSyncService
         private EmployeeTimeRecordInterface $interfaceEmployeeTimeRecord,
         private EmployeeComputedSalaryInterface $interfaceEmployeeComputedSalary,
         private ComputationService $computationService,
+        private DeductionCarryForward $carryForward,
     ) {
         //Nothing
     }
@@ -103,7 +103,7 @@ class EmployeeSyncService
 
         // Read once, not once per employee: the old code issued a Receivable
         // lookup inside both hazard() and pera() for every single employee.
-        $receivables = Receivable::whereIn('id', [self::RECEIVABLE_PERA, self::RECEIVABLE_HAZARD])
+        $receivables = Receivable::whereIn('id', [PayrollCodes::pera(), PayrollCodes::hazard()])
             ->get()
             ->keyBy('id');
 
@@ -124,7 +124,7 @@ class EmployeeSyncService
         // Both of these are period-wide. The old code ran deactivate() inside
         // the per-employee loop, repeating the same mass update 1,971 times.
         $this->interfaceEmployeeTimeRecord->deactivate((int) $period->id, $month, $year);
-        $this->carryForwardDeductions($period, $employeeIds);
+        $this->carryForward->carry($period, $employeeIds);
 
         $summary = [
             'payroll_period_id' => (int) $period->id,
@@ -366,7 +366,7 @@ class EmployeeSyncService
 
         $rows = [];
 
-        $hazard = $receivables[self::RECEIVABLE_HAZARD] ?? null;
+        $hazard = $receivables[PayrollCodes::hazard()] ?? null;
 
         if ($hazard) {
             $amount = $this->computationService->hazardAmount(
@@ -382,7 +382,7 @@ class EmployeeSyncService
             }
         }
 
-        $pera = $receivables[self::RECEIVABLE_PERA] ?? null;
+        $pera = $receivables[PayrollCodes::pera()] ?? null;
 
         if ($pera) {
             $amount = $this->computationService->peraAmount(
@@ -400,62 +400,4 @@ class EmployeeSyncService
         return $rows;
     }
 
-    /**
-     * Copy the previous period's recurring deductions forward.
-     *
-     * The old implementation resolved the previous period and replicated rows
-     * one employee at a time — three or four queries each. This resolves the
-     * period once and copies every employee's rows in a couple of statements.
-     *
-     * @param  array<int, int>  $employeeIds
-     */
-    private function carryForwardDeductions(PayrollPeriod $period, array $employeeIds): void
-    {
-        if ($employeeIds === []) {
-            return;
-        }
-
-        $previous = PayrollPeriod::where('id', '<', $period->id)
-            ->orderByRaw('CASE WHEN month = ? THEN 0 ELSE 1 END', [$period->month])
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if (! $previous) {
-            return;
-        }
-
-        $existing = EmployeeDeduction::where('payroll_period_id', $period->id)
-            ->whereIn('employee_id', $employeeIds)
-            ->pluck('employee_id')
-            ->unique()
-            ->flip();
-
-        $rows = [];
-
-        EmployeeDeduction::where('payroll_period_id', $previous->id)
-            ->whereIn('employee_id', $employeeIds)
-            ->get()
-            ->each(function ($deduction) use ($period, $existing, &$rows) {
-                if ($existing->has($deduction->employee_id)) {
-                    return;
-                }
-
-                $row = $deduction->only($deduction->getFillable());
-                $row['payroll_period_id'] = $period->id;
-
-                $rows[] = $row;
-            });
-
-        if ($rows === []) {
-            return;
-        }
-
-        foreach (array_chunk($rows, self::CHUNK_SIZE) as $chunk) {
-            EmployeeDeduction::upsert(
-                $chunk,
-                ['employee_id', 'deduction_id', 'payroll_period_id'],
-                ['amount', 'percentage', 'billing_cycle', 'status', 'total_term', 'total_paid']
-            );
-        }
-    }
 }

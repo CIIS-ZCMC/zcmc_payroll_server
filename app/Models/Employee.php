@@ -76,9 +76,15 @@ class Employee extends Model
         return $this->hasMany(EmployeeReceivable::class);
     }
 
+    /**
+     * Was declared belongsTo, which made Eloquent look for an
+     * "excluded_employees_id" column on this table. No such column exists, so
+     * the relation always resolved to null and every employee reported the
+     * fallback exclusion reason — including employees with a real row.
+     */
     public function excludedEmployees()
     {
-        return $this->belongsTo(ExcludedEmployee::class);
+        return $this->hasMany(ExcludedEmployee::class);
     }
 
     public function employeePayroll()
