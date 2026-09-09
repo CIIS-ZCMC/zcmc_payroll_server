@@ -30,21 +30,24 @@ class EmployeeDeductionService
 
     public function create(EmployeeDeductionData $dto): EmployeeDeduction
     {
-        $this->guard->ensureNotLocked();
+        $this->guard->ensureNotLocked((int) $dto->payroll_period_id);
         $data = $this->applyBusinessRules($dto);
         return $this->interface->create($data);
     }
 
     public function upsert(array $dto)
     {
-        $this->guard->ensureNotLocked();
+        foreach ($dto as $item) {
+            $this->guard->ensureNotLocked((int) $item->payroll_period_id);
+        }
+
         $data = array_map(fn(EmployeeDeductionData $dto) => $this->applyBusinessRules($dto), $dto);
         return $this->interface->upsert($data);
     }
 
     public function update(int $id, array $data): EmployeeDeduction
     {
-        $this->guard->ensureNotLocked();
+        $this->guard->ensureNotLocked((int) $data['payroll_period_id']);
 
         $amount = $data['amount'];
         $percentage = $data['percentage'];
@@ -72,20 +75,31 @@ class EmployeeDeductionService
 
     public function delete(int $id): bool
     {
-        $this->guard->ensureNotLocked();
+        $this->guardRecord($id);
         return $this->interface->delete($id);
     }
 
     public function complete(int $id): EmployeeDeduction
     {
-        $this->guard->ensureNotLocked();
+        $this->guardRecord($id);
         return $this->interface->complete($id);
     }
 
     public function stop(int $id): EmployeeDeduction
     {
-        $this->guard->ensureNotLocked();
+        $this->guardRecord($id);
         return $this->interface->stop($id);
+    }
+
+    /**
+     * These three address the row by its own id, so the period to check has to
+     * come off the row itself rather than out of the request.
+     */
+    private function guardRecord(int $id): void
+    {
+        $periodId = EmployeeDeduction::where('id', $id)->value('payroll_period_id');
+
+        $this->guard->ensurePeriodNotLocked($periodId === null ? null : (int) $periodId);
     }
 
     public function find(int $id): EmployeeDeduction

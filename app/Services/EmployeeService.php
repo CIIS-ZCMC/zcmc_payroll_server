@@ -50,9 +50,9 @@ class EmployeeService
         return $this->interface->find($id);
     }
 
-    public function storeGeneralPayroll()
+    public function storeGeneralPayroll(int $payrollPeriodId)
     {
-        $this->guard->ensureNotLocked();
+        $this->guard->ensureNotLocked($payrollPeriodId);
 
     }
 }
