@@ -11,7 +11,7 @@ class PayrollProcessData extends Data
     public function __construct(
         public int $payroll_period_id,
         public int $payroll_type,
-        public string $current_step,
+        public int $current_step,
         public string $status,
         public string $started_by,
         public string $started_at,
@@ -21,9 +21,9 @@ class PayrollProcessData extends Data
     public static function fromRequest(Request $request): self
     {
         return new self(
-            $request['payroll_period_id'],
-            $request['payroll_type'],
-            $request['current_step'],
+            (int) $request['payroll_period_id'],
+            (int) $request['payroll_type'],
+            (int) $request['current_step'],
             $request['status'],
             $request['started_by'],
             $request['started_at'] ?? now()->toDateTimeString(),

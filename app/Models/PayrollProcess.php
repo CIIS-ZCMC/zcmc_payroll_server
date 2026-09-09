@@ -20,10 +20,30 @@ class PayrollProcess extends Model
         'payroll_type',
         'current_step',
         'status',
+        'is_dirty',
+        'recomputed_at',
         'started_by',
         'started_at',
     ];
-    
+
+    /**
+     * A run that has never been recomputed is dirty. The column carries the
+     * same default, but Eloquent does not read database defaults back, so
+     * without this the model returned by create() — and therefore the create
+     * response — would report is_dirty false on a run that has computed
+     * nothing.
+     */
+    protected $attributes = [
+        'is_dirty' => true,
+    ];
+
+    protected $casts = [
+        'current_step' => 'integer',
+        'payroll_type' => 'integer',
+        'is_dirty' => 'boolean',
+        'recomputed_at' => 'datetime',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

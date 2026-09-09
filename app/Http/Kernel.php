@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'stripTags' => \App\Http\Middleware\StripTags::class,
+        'payroll.step' => \App\Http\Middleware\PayrollStepGate::class,
     ];
 }
