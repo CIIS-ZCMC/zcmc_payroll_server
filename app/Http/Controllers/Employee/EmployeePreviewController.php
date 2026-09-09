@@ -7,7 +7,6 @@ use App\Http\Resources\PaginationResource;
 use App\Models\Employee;
 use App\Services\EmployeePreviewService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -48,6 +47,7 @@ class EmployeePreviewController extends Controller
                 $validated['page'] ?? 1
             );
         }
+
         return response()->json([
             'data' => $result['data'],
             'meta' => $result['meta'],
