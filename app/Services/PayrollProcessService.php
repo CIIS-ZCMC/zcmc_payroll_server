@@ -42,6 +42,16 @@ class PayrollProcessService
         return $this->service->find($payrollPeriodId, $payrollType);
     }
 
+    /**
+     * The run's process row, or null when it is not being tracked through the
+     * stepped workflow. find() treats a missing row as a 404; callers that
+     * treat "not started" as an ordinary answer want this.
+     */
+    public function process(int $payrollPeriodId, int $payrollType): ?PayrollProcess
+    {
+        return $this->service->findOrNull($payrollPeriodId, $payrollType);
+    }
+
     public function update($id, array $data): PayrollProcess
     {
         return $this->service->update($id, $data);
