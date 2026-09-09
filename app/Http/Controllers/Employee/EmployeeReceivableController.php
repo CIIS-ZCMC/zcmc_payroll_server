@@ -6,10 +6,12 @@ use App\Data\EmployeeReceivableData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeReceivableRequest;
 use App\Http\Resources\EmployeeReceivableResource;
+use App\Imports\ImportEmployeeReceivable;
 use App\Models\Employee;
 use App\Services\EmployeeReceivableService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -126,5 +128,39 @@ class EmployeeReceivableController extends Controller
             'message' => "Data Successfully deleted",
             'success' => true,
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * The receivable side had no import at all — ImportEmployeeReceivable was
+     * an empty stub with no controller action and no route.
+     */
+    public function import(Request $request)
+    {
+        $validated = $request->validate([
+            'payroll_period_id' => 'required|integer|exists:payroll_periods,id',
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        try {
+            $import = new ImportEmployeeReceivable($validated['payroll_period_id']);
+
+            DB::transaction(fn () => Excel::import($import, $request->file('file')));
+
+            $result = $import->result()->toArray();
+
+            return response()->json([
+                'message' => $import->result()->hasSkipped()
+                    ? "Employee receivables imported with {$result['skipped_count']} row(s) skipped."
+                    : 'Employee receivables imported successfully.',
+                'data' => $result,
+                'success' => true,
+            ], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Import failed: ' . $e->getMessage(),
+                'data' => null,
+                'success' => false,
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 }

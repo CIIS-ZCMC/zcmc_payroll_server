@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PayrollStep;
 use App\Http\Controllers\Authentication\AuthenticationController;
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Employee\EmployeeAdjustmentController;
@@ -60,6 +61,15 @@ Route::middleware('auth.token')->group(function () {
 
     //Employee
     Route::apiResource('employees', EmployeeController::class)->only(['index', 'show']);
+
+    // Step 1 — bulk upload. Both actions existed on (or were missing from) the
+    // controllers with no route pointing at them, so neither was reachable.
+    // Declared before the apiResources so the literal segment always wins.
+    Route::post('employee-deductions/import', [EmployeeDeductionController::class, 'import'])
+        ->middleware('payroll.step:' . PayrollStep::IMPORT);
+    Route::post('employee-receivables/import', [EmployeeReceivableController::class, 'import'])
+        ->middleware('payroll.step:' . PayrollStep::IMPORT);
+
     Route::apiResource('employee-deductions', EmployeeDeductionController::class);
     Route::apiResource('employee-receivables', EmployeeReceivableController::class);
     Route::apiResource('employee-time-records', EmployeeTimeRecordController::class);
