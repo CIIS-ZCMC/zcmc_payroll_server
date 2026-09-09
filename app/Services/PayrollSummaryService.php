@@ -53,7 +53,14 @@ Class PayrollSummaryService
             'total_receivables' => (float) $summary->total_receivables,
             'total_gross' => (float) $summary->total_gross_pay,
             'total_net' => (float) $summary->total_net_pay,
-            'total_night_differential' => (float) $summary->total_night_differential ?? 0,
+
+            // Zero, and said so plainly. This used to read
+            // $summary->total_night_differential, a property the selectRaw
+            // above never selects, so it was always null and coalesced to 0
+            // while looking like it summed something. The general payroll does
+            // not carry night differential at all -- that is its own
+            // payroll_type with its own run.
+            'total_night_differential' => 0,
         ];
 
         return $this->interface->updateOrCreate($data);

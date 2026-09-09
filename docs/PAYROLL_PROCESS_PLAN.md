@@ -314,37 +314,39 @@ net, halves — **from the request body** and upserts it. The client is computin
 Any client bug, or anyone with the token, writes arbitrary amounts into `employee_payrolls`.
 Step 6 must be a server-side generation that ignores client-supplied amounts entirely.
 
-New `PayrollGenerationService`, invoked by
-`POST /payroll-process/{id}/generate` (or `POST /employee-payrolls/generate`):
+New `PayrollGenerationService`, invoked by `POST /payroll-generate`:
 
 ```
-1. Guard      period not locked (fix GuardService first — §9.4);
-              process at step >= 6; selection non-empty.
-2. Resolve    employees = payroll_selections where is_selected = true,
-              joined to employee_time_records for the period.
-3. Per employee, chunked (500):
-   a. basic_pay        <- employee_computed_salaries.basic_pay for the period
-   b. computed receivables
-        PERA   ComputationService::peraAmount(PayrollCodes::pera(), present_days,
-                                              employment_type, absences,
-                                              PayrollCodes::requiredDutyDays())
-        Hazard ComputationService::hazardAmount(employment_type, salary_grade,
-                                                basic_salary, absent_days, leave_days)
-        Both are pure and DB-free — load the reference rows once, outside the loop.
-   c. manual receivables  <- employee_receivables for the period
-   d. deductions          <- employee_deductions for the period, post-adjustment
-   e. gross = basic + receivables ; net = gross - deductions
-   f. first_half  = period_type first_half  ? floor(net / 2)
-                                            : locked first_half from the previous period
-      second_half = net - first_half
-   g. NIGHT DIFFERENTIAL IS NOT APPLIED HERE — separate payroll_type, separate run.
-4. Upsert     employee_payrolls on (employee_id, payroll_period_id).
-5. Delete     employee_payrolls rows for employees no longer selected.
+1. Guard      period not locked; process at step >= 6; selection non-empty.
+2. Resolve    employees = payroll_selections where is_selected = true.
+              Seeded from the projection when the run has none, so a payroll
+              that skipped step 5 generates for the projection's included set
+              rather than for nobody.
+3. Project    NetPayProjector::project($period, $roster) — the same arithmetic
+              the preview shows, not a second implementation of it.
+4. Upsert     employee_payrolls on (employee_id, employee_time_record_id,
+              payroll_period_id) — the table's actual unique key.
+5. Delete     rows whose time record is not in the generated set. Force-deleted:
+              a soft-deleted row keeps its place in the unique index, so the
+              next generation would update a deleted row instead of writing a
+              live one.
 6. Summary    PayrollSummaryService::updateOrCreate()
 7. Bookkeep   payroll_periods.last_generated_at = now();
               process.is_dirty = false; recomputed_at = now(); current_step = 7
 8. Event      PayrollGenerated
 ```
+
+**Correction to an earlier draft of this section.** It had step 6 computing PERA and hazard
+from the time record with `ComputationService`, on top of summing `employee_receivables`. That
+double-pays both: `EmployeeSyncService::benefitRows()` already computes them and writes them
+into `employee_receivables` at sync time. Step 6 sums that table like any other receivable and
+computes no benefits of its own.
+
+Because Phase 1 extracted the projector, generation is projection plus persistence and nothing
+else — which is what makes the preview an officer approves and the rows that get posted the
+same numbers by construction rather than by two implementations agreeing.
+
+Night differential is absent here, as its own `payroll_type` with its own run.
 
 Whole thing in one transaction, idempotent — running it twice produces identical rows.
 Regenerating after a step-2..5 edit is the normal path, not an exception.
@@ -397,8 +399,8 @@ arithmetic to the shared `NetPayProjector`; step 7 no longer routes through it.
 |---|---|---|
 | **0 — done** | Fixed §9.1, 9.2, 9.3, 9.4, 9.7, 9.8, 9.10, 9.13; §9.9 enforced server-side. Added `PayrollStep`, `is_dirty`/`recomputed_at`, `PayrollStepGate`. §9.5 partially addressed — see the note below. | Everything else assumes a correct lock and a real step machine |
 | **1 — done** | `NetPayProjector` extracted from `EmployeePreviewService`, with `ExclusionReason` discriminating manual exclusion from below-threshold. Fixed the always-zero basic pay in `find()` and the missing `show()`. | Steps 4, 5 and 7 all depend on one projection |
-| 2 | Step 6 `PayrollGenerationService` + step 7 read-from-`employee_payrolls`. | Closes the client-computes-payroll hole; makes 1–5 verifiable end-to-end |
-| 3 | Step 5 `payroll_selections`. | Step 6 needs a persisted input set |
+| **2 — done** | Step 5 `payroll_selections`, step 6 `PayrollGenerationService`, step 7 reading from `employee_payrolls`. | Closes the client-computes-payroll hole; makes 1–5 verifiable end-to-end |
+| ~~3~~ | Folded into Phase 2 — see below. | Step 6 needs a persisted input set |
 | 4 | Step 4 adjustments that actually mutate amounts + reverse. | |
 | 5 | Steps 2–3: scoped index, resume, trails, carry-forward decision for receivables. | |
 | 6 | Step 1 staging + discrepancy engine + review endpoints. | Largest piece, and the only one whose absence has a manual workaround |
@@ -451,6 +453,30 @@ The money fields on `NetPayProjection` deliberately carry no scalar type declara
 values are whatever the existing expressions produce, and declaring `float` would coerce them
 and change how the preview serialises (`36619` becoming `36619.0`). Phase 1 moved this
 arithmetic; it did not restate it.
+
+**What Phase 2 landed.** `PayrollGenerationService` generates on the server and accepts no
+amount from the caller: it resolves the roster, projects it with `NetPayProjector`, and upserts
+`employee_payrolls` in one transaction. Generating twice produces identical rows, and
+regenerating after a step 2-5 edit is the normal path. `PayrollPreviewService` (step 7,
+`GET /payroll-preview`) reads those rows rather than deriving its own, and reports
+`requires_recompute` when the run has gone dirty since the last generation. Also fixed §9.12 —
+`PayrollSummaryService` read a `total_night_differential` its own `selectRaw` never selected,
+so it was always null while looking like it summed something.
+
+**The phase order in the table above was wrong, and this phase corrected it.** Phase 3's own
+justification read "Step 6 needs a persisted input set" — so generation could not be built
+before the selection it generates from. `payroll_selections` therefore landed here, with
+`PayrollSelectionService` seeding from the projection (everyone in the run selected, everyone
+flagged out or under the threshold not), idempotently, so returning to step 5 does not undo the
+officer's overrides.
+
+22 new tests in `PayrollGenerationTest` and `PayrollPreviewTest`; suite at 154 passing.
+
+**Still open.** `EmployeePayrollController::store()` still exists and still trusts its payload.
+It is now bypassed by the real path rather than fixed, because retiring a live endpoint is a
+client-visible change: decide whether to delete it or make it recompute. Posting and locking
+(step 7's second half) are unchanged — `PayrollPeriodService::lock()` already advances the
+terms — so the post endpoint and the carry-forward-into-next-period step are still to do.
 
 Each phase lands with tests alongside the existing golden-master suite
 (`bdfa37f test: add payroll golden master, fixtures and unit coverage`) — the projector and

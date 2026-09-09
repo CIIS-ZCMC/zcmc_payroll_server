@@ -12,9 +12,11 @@ use App\Http\Controllers\Employee\EmployeeTimeRecordController;
 use App\Http\Controllers\Employee\ExcludedEmployeeController;
 use App\Http\Controllers\NightDifferential\NightDifferentialRuleController;
 use App\Http\Controllers\Payroll\EmployeePayrollController;
+use App\Http\Controllers\Payroll\PayrollGenerationController;
 use App\Http\Controllers\Payroll\PayrollPeriodController;
 use App\Http\Controllers\Payroll\PayrollProcessController;
 use App\Http\Controllers\Payroll\PayrollReportController;
+use App\Http\Controllers\Payroll\PayrollSelectionController;
 use App\Http\Controllers\Payroll\PayrollSummaryController;
 use App\Http\Controllers\Settings\DeductionController;
 use App\Http\Controllers\Settings\DeductionGroupController;
@@ -85,6 +87,19 @@ Route::middleware('auth.token')->group(function () {
 
     //Employee Payroll
     Route::apiResource('employee-payrolls', EmployeePayrollController::class)->only(['index', 'store', 'show']);
+
+    // Step 5 — the final list of employees for the run.
+    Route::get('payroll-selections', [PayrollSelectionController::class, 'index'])
+        ->middleware('payroll.step:' . PayrollStep::SELECTION);
+    Route::put('payroll-selections', [PayrollSelectionController::class, 'update'])
+        ->middleware('payroll.step:' . PayrollStep::SELECTION);
+    Route::post('payroll-selections/reset', [PayrollSelectionController::class, 'reset'])
+        ->middleware('payroll.step:' . PayrollStep::SELECTION);
+
+    // Step 6 — generate, server side. Step 7 — review what was generated.
+    Route::post('payroll-generate', [PayrollGenerationController::class, 'store'])
+        ->middleware('payroll.step:' . PayrollStep::RECOMPUTE);
+    Route::get('payroll-preview', [PayrollGenerationController::class, 'index']);
 
     //Night Differential
     Route::apiResource('night-differential-rules', NightDifferentialRuleController::class)->only(['index', 'store', 'show']);
