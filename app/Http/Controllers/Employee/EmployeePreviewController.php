@@ -55,4 +55,36 @@ class EmployeePreviewController extends Controller
             'success' => true,
         ], Response::HTTP_OK);
     }
+
+    /**
+     * One employee's projected pay for a period.
+     *
+     * The route for this has been registered since the resource was added, but
+     * the method was never written — every call to GET /employee-preview/{id}
+     * hit Laravel's missing-method path and came back a 500.
+     */
+    public function show($id, Request $request)
+    {
+        $validated = $request->validate([
+            'payroll_period_id' => 'required|integer|exists:payroll_periods,id',
+        ]);
+
+        $data = $this->service->find((int) $id, (int) $validated['payroll_period_id']);
+
+        // No time record for the period means the employee is not part of this
+        // run, which is a "not here", not an error.
+        if ($data === null) {
+            return response()->json([
+                'data' => null,
+                'message' => 'This employee has no time record for the selected payroll period.',
+                'success' => false,
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Data successfully retrieved',
+            'success' => true,
+        ], Response::HTTP_OK);
+    }
 }
