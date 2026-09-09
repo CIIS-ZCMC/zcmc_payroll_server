@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PayrollStep;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PayrollProcessRequest extends FormRequest
@@ -24,9 +25,9 @@ class PayrollProcessRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payroll_period_id' => 'required|integer',
+            'payroll_period_id' => 'required|integer|exists:payroll_periods,id',
             'payroll_type' => 'required|integer',
-            'current_step' => 'required|integer',
+            'current_step' => 'required|integer|in:' . implode(',', PayrollStep::all()),
             'status' => 'required|string',
             'started_by' => 'required|string',
         ];

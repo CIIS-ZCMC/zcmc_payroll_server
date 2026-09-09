@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Payroll;
 
 use App\Data\PayrollProcessData;
+use App\Enums\PayrollStep;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PayrollProcessRequest;
 use App\Http\Resources\PayrollProcessResource;
@@ -48,15 +49,17 @@ class PayrollProcessController extends Controller
 
     public function update(int $id, Request $request)
     {
-        $dto = [
-            'current_step' => $request->get('current_step'),
-            'status' => $request->get('status')
-        ];
+        $validated = $request->validate([
+            'current_step' => 'required|integer|in:' . implode(',', PayrollStep::all()),
+            'status' => 'required|string',
+        ]);
 
+        // Whether this step may follow the one the run is on is decided by the
+        // service, not here and not by the client.
         $data = $this->service->updateProcess(
             $id,
-            $dto['current_step'],
-            $dto['status']
+            (int) $validated['current_step'],
+            $validated['status']
         );
 
         return response()->json([

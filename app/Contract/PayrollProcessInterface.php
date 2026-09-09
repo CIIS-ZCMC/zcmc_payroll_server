@@ -7,7 +7,10 @@ use App\Models\PayrollProcess;
 interface PayrollProcessInterface
 {
     public function find(int $payrollPeriodId, int $payrollType): ?PayrollProcess;
+    public function findOrNull(int $payrollPeriodId, int $payrollType): ?PayrollProcess;
+    public function findById(int $id): PayrollProcess;
     public function create(array $data): PayrollProcess;
     public function update(int $id, array $data): PayrollProcess;
     public function updateProcess(int $id, int $currentStep, string $status): PayrollProcess;
+    public function setDirty(int $payrollPeriodId, int $payrollType, bool $isDirty): int;
 }

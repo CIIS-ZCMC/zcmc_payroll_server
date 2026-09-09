@@ -140,26 +140,34 @@ class EmployeeDeductionController extends Controller
 
     public function import(Request $request)
     {
-        $request->validate([
-            'payroll_period_id' => 'required',
+        $validated = $request->validate([
+            'payroll_period_id' => 'required|integer|exists:payroll_periods,id',
             'file' => 'required|file|mimes:xlsx,xls,csv|max:2048'
         ]);
 
         try {
-            $payrollPeriodId = $request->input('payroll_period_id');
-            Excel::import(new ImportEmployeeDeduction($payrollPeriodId), $request->file('file'));
+            $import = new ImportEmployeeDeduction($validated['payroll_period_id']);
 
+            DB::transaction(fn () => Excel::import($import, $request->file('file')));
+
+            $result = $import->result()->toArray();
+
+            // Rows the import could not use are reported, not logged and
+            // forgotten. A partially applied file is still a success — the
+            // caller decides whether to correct the skipped rows and re-upload.
             return response()->json([
-                'message' => 'Employee deductions imported successfully.',
-                'responseData' => [],
-                'statusCode' => 200
+                'message' => $import->result()->hasSkipped()
+                    ? "Employee deductions imported with {$result['skipped_count']} row(s) skipped."
+                    : 'Employee deductions imported successfully.',
+                'data' => $result,
+                'success' => true,
             ], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Import failed: ' . $e->getMessage(),
-                'responseData' => [],
-                'statusCode' => 422
-            ], 422);
+                'data' => null,
+                'success' => false,
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
 }
