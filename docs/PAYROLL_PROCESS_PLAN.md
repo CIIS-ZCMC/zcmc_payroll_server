@@ -396,7 +396,7 @@ arithmetic to the shared `NetPayProjector`; step 7 no longer routes through it.
 | Phase | Work | Why first |
 |---|---|---|
 | **0 — done** | Fixed §9.1, 9.2, 9.3, 9.4, 9.7, 9.8, 9.10, 9.13; §9.9 enforced server-side. Added `PayrollStep`, `is_dirty`/`recomputed_at`, `PayrollStepGate`. §9.5 partially addressed — see the note below. | Everything else assumes a correct lock and a real step machine |
-| 1 | Extract `NetPayProjector` from `EmployeePreviewService`; add the reason discriminator. | Steps 4, 5 and 7 all depend on one projection |
+| **1 — done** | `NetPayProjector` extracted from `EmployeePreviewService`, with `ExclusionReason` discriminating manual exclusion from below-threshold. Fixed the always-zero basic pay in `find()` and the missing `show()`. | Steps 4, 5 and 7 all depend on one projection |
 | 2 | Step 6 `PayrollGenerationService` + step 7 read-from-`employee_payrolls`. | Closes the client-computes-payroll hole; makes 1–5 verifiable end-to-end |
 | 3 | Step 5 `payroll_selections`. | Step 6 needs a persisted input set |
 | 4 | Step 4 adjustments that actually mutate amounts + reverse. | |
@@ -430,6 +430,27 @@ before then. `PayrollStepGate` is likewise attached only to the import routes so
 the later steps' gates land with the endpoints they guard, because the existing
 deduction/receivable routes do not carry `payroll_type` and gating them now would break the
 client.
+
+**What Phase 1 landed.** `App\Support\NetPayProjector` is now the single answer to "what would
+this period pay, and who is in it", returning `NetPayProjection` objects that carry the money
+fields plus a discriminated `exclusion` (`ExclusionReason::MANUAL` with the
+`excluded_employees` reason text, `ExclusionReason::BELOW_THRESHOLD`, or null).
+`belowThreshold()` is step 4's list. `EmployeePreviewService` is now selection, pagination and
+shaping only; the preview's rendered output and its 10-query cost are unchanged, pinned by the
+existing golden master.
+
+Two defects fell out of the extraction. `EmployeePreviewService::find()` read basic pay from
+`employee_time_records.basic_pay`, a column the migration comments out — it does not exist, so
+the value was always null and every figure that method returned was short by the whole basic
+salary. And the `employee-preview/{id}` route had been registered since the resource was added
+against a `show()` nobody had written, so it answered every call with a 500. Both are fixed:
+`find()` goes through the projector, and `show()` exists and 404s an employee with no time
+record for the period. 13 new tests in `NetPayProjectorTest`; suite at 132 passing.
+
+The money fields on `NetPayProjection` deliberately carry no scalar type declarations — the
+values are whatever the existing expressions produce, and declaring `float` would coerce them
+and change how the preview serialises (`36619` becoming `36619.0`). Phase 1 moved this
+arithmetic; it did not restate it.
 
 Each phase lands with tests alongside the existing golden-master suite
 (`bdfa37f test: add payroll golden master, fixtures and unit coverage`) — the projector and
